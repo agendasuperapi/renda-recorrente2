@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   User,
@@ -51,6 +52,34 @@ const adminMenuItems = [
 export const Sidebar = ({ user }: SidebarProps) => {
   const location = useLocation();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkUserRole();
+  }, [user.id]);
+
+  const checkUserRole = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error checking role:", error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(data?.role === "super_admin");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setIsAdmin(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -65,7 +94,6 @@ export const Sidebar = ({ user }: SidebarProps) => {
     return name?.substring(0, 2).toUpperCase() || "U";
   };
 
-  const isAdmin = false; // TODO: Check role from database
   const menuItems = isAdmin ? adminMenuItems : affiliateMenuItems;
 
   return (
@@ -86,26 +114,32 @@ export const Sidebar = ({ user }: SidebarProps) => {
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+        {loading ? (
+          <div className="text-center py-4 text-sm text-muted-foreground">
+            Carregando...
+          </div>
+        ) : (
+          menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
 
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
-                isActive
-                  ? "bg-primary text-white"
-                  : "hover:bg-sidebar-accent text-sidebar-foreground"
-              )}
-            >
-              <Icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
+                  isActive
+                    ? "bg-primary text-white"
+                    : "hover:bg-sidebar-accent text-sidebar-foreground"
+                )}
+              >
+                <Icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })
+        )}
       </nav>
 
       <div className="p-4 border-t border-sidebar-border space-y-2">
@@ -122,6 +156,9 @@ export const Sidebar = ({ user }: SidebarProps) => {
             <p className="text-xs text-sidebar-foreground/70 truncate">
               {user.email}
             </p>
+            {isAdmin && (
+              <p className="text-xs text-primary font-medium">Super Admin</p>
+            )}
           </div>
         </div>
         <button
