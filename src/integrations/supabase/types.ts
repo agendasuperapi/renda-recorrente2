@@ -14,16 +14,646 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          description: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_coupons: {
+        Row: {
+          affiliate_id: string
+          coupon_id: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          affiliate_id: string
+          coupon_id: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          affiliate_id?: string
+          coupon_id?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_coupons_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_coupons_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commissions: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          available_date: string | null
+          commission_type: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          payment_date: string | null
+          percentage: number
+          reference_month: string | null
+          status: Database["public"]["Enums"]["commission_status"]
+          subscription_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_id: string
+          amount: number
+          available_date?: string | null
+          commission_type: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          percentage: number
+          reference_month?: string | null
+          status?: Database["public"]["Enums"]["commission_status"]
+          subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          available_date?: string | null
+          commission_type?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          percentage?: number
+          reference_month?: string | null
+          status?: Database["public"]["Enums"]["commission_status"]
+          subscription_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          app_filter: string[] | null
+          code: string
+          created_at: string | null
+          created_by: string | null
+          current_uses: number | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          name: string
+          type: Database["public"]["Enums"]["coupon_type"]
+          updated_at: string | null
+          valid_until: string | null
+          value: number
+        }
+        Insert: {
+          app_filter?: string[] | null
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          name: string
+          type: Database["public"]["Enums"]["coupon_type"]
+          updated_at?: string | null
+          valid_until?: string | null
+          value: number
+        }
+        Update: {
+          app_filter?: string[] | null
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          name?: string
+          type?: Database["public"]["Enums"]["coupon_type"]
+          updated_at?: string | null
+          valid_until?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupons_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          billing_period: string
+          commission_percentage: number
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_period: string
+          commission_percentage?: number
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_period?: string
+          commission_percentage?: number
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          affiliate_code: string | null
+          avatar_url: string | null
+          birth_date: string | null
+          cep: string | null
+          city: string | null
+          complement: string | null
+          cpf: string | null
+          created_at: string | null
+          facebook: string | null
+          gender: string | null
+          id: string
+          instagram: string | null
+          name: string
+          neighborhood: string | null
+          number: string | null
+          phone: string | null
+          pix_key: string | null
+          pix_type: string | null
+          referrer_code: string | null
+          state: string | null
+          street: string | null
+          tiktok: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          affiliate_code?: string | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          facebook?: string | null
+          gender?: string | null
+          id: string
+          instagram?: string | null
+          name: string
+          neighborhood?: string | null
+          number?: string | null
+          phone?: string | null
+          pix_key?: string | null
+          pix_type?: string | null
+          referrer_code?: string | null
+          state?: string | null
+          street?: string | null
+          tiktok?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          affiliate_code?: string | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          facebook?: string | null
+          gender?: string | null
+          id?: string
+          instagram?: string | null
+          name?: string
+          neighborhood?: string | null
+          number?: string | null
+          phone?: string | null
+          pix_key?: string | null
+          pix_type?: string | null
+          referrer_code?: string | null
+          state?: string | null
+          street?: string | null
+          tiktok?: string | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          conversion_date: string | null
+          coupon_code: string | null
+          created_at: string | null
+          id: string
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          conversion_date?: string | null
+          coupon_code?: string | null
+          created_at?: string | null
+          id?: string
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          conversion_date?: string | null
+          coupon_code?: string | null
+          created_at?: string | null
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      segments: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      stripe_events: {
+        Row: {
+          created_at: string | null
+          event_data: Json
+          event_id: string
+          event_type: string
+          id: string
+          processed: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data: Json
+          event_id: string
+          event_type: string
+          id?: string
+          processed?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json
+          event_id?: string
+          event_type?: string
+          id?: string
+          processed?: boolean | null
+        }
+        Relationships: []
+      }
+      sub_affiliates: {
+        Row: {
+          created_at: string | null
+          id: string
+          level: number
+          parent_affiliate_id: string
+          sub_affiliate_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          level?: number
+          parent_affiliate_id: string
+          sub_affiliate_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          level?: number
+          parent_affiliate_id?: string
+          sub_affiliate_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sub_affiliates_sub_affiliate_id_fkey"
+            columns: ["sub_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at: string | null
+          cancelled_at: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string
+          status: string
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id: string
+          status: string
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at?: string | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      withdrawals: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          approved_by: string | null
+          approved_date: string | null
+          commission_ids: string[]
+          created_at: string | null
+          id: string
+          paid_date: string | null
+          pix_key: string
+          pix_type: string
+          rejected_reason: string | null
+          requested_date: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_id: string
+          amount: number
+          approved_by?: string | null
+          approved_date?: string | null
+          commission_ids: string[]
+          created_at?: string | null
+          id?: string
+          paid_date?: string | null
+          pix_key: string
+          pix_type: string
+          rejected_reason?: string | null
+          requested_date?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          approved_by?: string | null
+          approved_date?: string | null
+          commission_ids?: string[]
+          created_at?: string | null
+          id?: string
+          paid_date?: string | null
+          pix_key?: string
+          pix_type?: string
+          rejected_reason?: string | null
+          requested_date?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "withdrawals_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super_admin" | "afiliado"
+      commission_status: "pending" | "available" | "withdrawn" | "cancelled"
+      coupon_type: "percentage" | "days" | "free_trial"
+      withdrawal_status: "pending" | "approved" | "paid" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +780,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super_admin", "afiliado"],
+      commission_status: ["pending", "available", "withdrawn", "cancelled"],
+      coupon_type: ["percentage", "days", "free_trial"],
+      withdrawal_status: ["pending", "approved", "paid", "rejected"],
+    },
   },
 } as const
