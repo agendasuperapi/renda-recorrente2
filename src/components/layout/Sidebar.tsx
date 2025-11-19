@@ -29,6 +29,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
   user: SupabaseUser;
@@ -157,7 +158,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
       </nav>
 
       <div className="p-4 border-t border-sidebar-border space-y-2">
-        <div className="flex items-center gap-3 px-3 py-2">
+        <div className="flex items-center gap-2 px-3 py-2">
           <Avatar className="w-10 h-10">
             <AvatarFallback className="bg-primary text-white">
               {getInitials()}
@@ -174,6 +175,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
               <p className="text-xs text-primary font-medium">Super Admin</p>
             )}
           </div>
+          <ThemeToggle />
         </div>
         <button
           onClick={handleLogout}
