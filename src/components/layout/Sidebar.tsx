@@ -34,6 +34,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
   user: SupabaseUser;
+  isAdmin: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -64,40 +65,14 @@ const adminMenuItems = [
   { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
 ];
 
-export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
+export const Sidebar = ({ user, isAdmin, open, onOpenChange }: SidebarProps) => {
   const location = useLocation();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    checkUserRole();
-  }, [user.id]);
-
-  const checkUserRole = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error checking role:", error);
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(data?.role === "super_admin");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      setIsAdmin(false);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
+    // Limpar cache de role ao fazer logout
+    localStorage.removeItem(`user_role_${user.id}`);
     await supabase.auth.signOut();
     toast({
       title: "Logout realizado",
