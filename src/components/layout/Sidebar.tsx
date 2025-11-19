@@ -212,7 +212,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
   }
 
   return (
-    <aside className="hidden lg:flex w-64 bg-sidebar text-sidebar-foreground flex-col">
+    <aside className="hidden lg:flex w-64 bg-sidebar text-sidebar-foreground flex-col h-screen sticky top-0">
       <SidebarContent />
     </aside>
   );
