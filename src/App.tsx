@@ -24,8 +24,7 @@ import AdminSegments from "./pages/admin/AdminSegments";
 import AdminStripeEvents from "./pages/admin/AdminStripeEvents";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminProducts from "./pages/admin/AdminProducts";
-import AdminBanks from "./pages/admin/AdminBanks";
-import AdminAccounts from "./pages/admin/AdminAccounts";
+import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,8 +58,7 @@ const App = () => (
           <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
           <Route path="/admin/coupons" element={<AdminCoupons />} />
           <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/banks" element={<AdminBanks />} />
-          <Route path="/admin/accounts" element={<AdminAccounts />} />
+          <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
