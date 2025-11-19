@@ -255,6 +255,60 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          created_at: string | null
+          descricao: string | null
+          email: string | null
+          icone_dark: string | null
+          icone_light: string | null
+          id: string
+          logo_dark: string | null
+          logo_light: string | null
+          nome: string
+          nome_apk: string | null
+          site: string | null
+          site_landingpage: string | null
+          telefone: string | null
+          texto_telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          descricao?: string | null
+          email?: string | null
+          icone_dark?: string | null
+          icone_light?: string | null
+          id?: string
+          logo_dark?: string | null
+          logo_light?: string | null
+          nome: string
+          nome_apk?: string | null
+          site?: string | null
+          site_landingpage?: string | null
+          telefone?: string | null
+          texto_telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string | null
+          email?: string | null
+          icone_dark?: string | null
+          icone_light?: string | null
+          id?: string
+          logo_dark?: string | null
+          logo_light?: string | null
+          nome?: string
+          nome_apk?: string | null
+          site?: string | null
+          site_landingpage?: string | null
+          telefone?: string | null
+          texto_telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           affiliate_code: string | null
