@@ -440,8 +440,8 @@ const AdminPlans = () => {
                                       </div>
                                     </CardHeader>
                                     <CardContent className="space-y-3">
-                                      <div className="space-y-1">
-                                        {plan.original_price && plan.original_price > plan.price && (
+                                    <div className="space-y-1">
+                                        {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
                                           <span className="text-sm text-slate-500 line-through">
                                             R$ {parseFloat(plan.original_price).toFixed(2)}
                                           </span>
@@ -514,16 +514,16 @@ const AdminPlans = () => {
                                     </div>
                                   </CardHeader>
                                   <CardContent className="space-y-3">
-                                    <div className="space-y-1">
-                                      {plan.original_price && plan.original_price > plan.price && (
-                                        <span className="text-sm text-slate-500 line-through">
-                                          R$ {parseFloat(plan.original_price).toFixed(2)}
-                                        </span>
-                                      )}
-                                      <span className="text-2xl font-bold text-white">
-                                        R$ {parseFloat(plan.price).toFixed(2)}
+                                  <div className="space-y-1">
+                                    {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
+                                      <span className="text-sm text-slate-500 line-through">
+                                        R$ {parseFloat(plan.original_price).toFixed(2)}
                                       </span>
-                                    </div>
+                                    )}
+                                    <span className="text-2xl font-bold text-white">
+                                      R$ {parseFloat(plan.price).toFixed(2)}
+                                    </span>
+                                  </div>
                                     {plan.description && (
                                       <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
                                     )}
@@ -626,7 +626,7 @@ const AdminPlans = () => {
                               </CardHeader>
                               <CardContent className="space-y-3">
                                 <div className="space-y-1">
-                                  {plan.original_price && plan.original_price > plan.price && (
+                                  {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
                                     <span className="text-sm text-slate-500 line-through">
                                       R$ {parseFloat(plan.original_price).toFixed(2)}
                                     </span>
