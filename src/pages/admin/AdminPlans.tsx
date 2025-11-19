@@ -540,8 +540,8 @@ const AdminPlans = () => {
                             <FormItem>
                               <FormLabel className="text-slate-200">Produto</FormLabel>
                               <Select 
-                                onValueChange={field.onChange} 
-                                value={field.value}
+                                onValueChange={(value) => field.onChange(value === "none" ? "" : value)} 
+                                value={field.value || "none"}
                               >
                                 <FormControl>
                                   <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
@@ -549,7 +549,7 @@ const AdminPlans = () => {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent className="bg-slate-800 border-slate-700">
-                                  <SelectItem value="">Nenhum produto</SelectItem>
+                                  <SelectItem value="none" className="text-white">Nenhum produto</SelectItem>
                                   {products?.map((product: any) => (
                                     <SelectItem key={product.id} value={product.id} className="text-white">
                                       {product.nome}
