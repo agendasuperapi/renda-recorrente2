@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          bank_id: string | null
+          cancel_url: string | null
+          created_at: string | null
+          email: string
+          id: string
+          is_active: boolean | null
+          is_production: boolean | null
+          key_authorization: string
+          name: string
+          product_id: string | null
+          return_url: string | null
+          signing_secret: string
+          success_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bank_id?: string | null
+          cancel_url?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          is_active?: boolean | null
+          is_production?: boolean | null
+          key_authorization: string
+          name: string
+          product_id?: string | null
+          return_url?: string | null
+          signing_secret: string
+          success_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bank_id?: string | null
+          cancel_url?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          is_production?: boolean | null
+          key_authorization?: string
+          name?: string
+          product_id?: string | null
+          return_url?: string | null
+          signing_secret?: string
+          success_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_bank_id_fkey"
+            columns: ["bank_id"]
+            isOneToOne: false
+            referencedRelation: "banks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activities: {
         Row: {
           activity_type: string
@@ -84,6 +150,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      banks: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       commissions: {
         Row: {
