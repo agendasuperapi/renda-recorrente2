@@ -1091,7 +1091,7 @@ const AdminPlans = () => {
                             <SelectValue placeholder="Selecione uma conta" />
                           </SelectTrigger>
                           <SelectContent className="bg-background border-input z-50">
-                            {accounts?.map((account: any) => (
+                            {accounts?.filter((account: any) => account.product_id === selectedPlanForStripe?.product_id).map((account: any) => (
                               <SelectItem key={account.id} value={account.id}>
                                 {account.name} {account.banks?.name ? `- ${account.banks.name}` : ''}
                               </SelectItem>
