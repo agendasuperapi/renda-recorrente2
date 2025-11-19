@@ -17,7 +17,7 @@ const authSchema = z.object({
     .max(255, { message: "Email deve ter no máximo 255 caracteres" }),
   password: z
     .string()
-    .min(8, { message: "Senha deve ter no mínimo 8 caracteres" })
+    .min(6, { message: "Senha deve ter no mínimo 6 caracteres" })
     .max(128, { message: "Senha deve ter no máximo 128 caracteres" }),
   name: z
     .string()
@@ -173,7 +173,7 @@ const Auth = () => {
                 required
                 className="bg-white pr-10"
                 maxLength={128}
-                minLength={8}
+                minLength={6}
               />
               <button
                 type="button"
