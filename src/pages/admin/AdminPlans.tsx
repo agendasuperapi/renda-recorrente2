@@ -357,12 +357,196 @@ const AdminPlans = () => {
           <div className="space-y-8">
             {isLoading ? (
               <div className="text-center py-12 text-slate-400">Carregando planos...</div>
+            ) : selectedProductFilter === "all" ? (
+              // Group by period and then by product when "all" is selected
+              <>
+                {["monthly", "yearly", "daily"].map((period) => {
+                  const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
+                  if (periodPlans.length === 0) return null;
+
+                  const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
+                  
+                  // Group plans by product for this period
+                  const plansWithProduct = periodPlans.filter((p: any) => p.product_id);
+                  const plansWithoutProduct = periodPlans.filter((p: any) => !p.product_id);
+                  
+                  const productGroups = plansWithProduct.reduce((acc: any, plan: any) => {
+                    const productId = plan.product_id;
+                    if (!acc[productId]) acc[productId] = [];
+                    acc[productId].push(plan);
+                    return acc;
+                  }, {});
+
+                  return (
+                    <div key={period} className="space-y-6">
+                      <h2 className="text-2xl font-bold text-purple-400 border-b border-purple-600/30 pb-2">{periodTitle}</h2>
+                      
+                      {/* Plans grouped by product */}
+                      {Object.entries(productGroups).map(([productId, productPlans]: [string, any]) => {
+                        const product = (productPlans as any[])[0]?.products;
+                        return (
+                          <div key={productId} className="space-y-3">
+                            <div className="flex items-center gap-2 pl-4">
+                              {product?.icone_light && (
+                                <img src={product.icone_light} alt={product.nome} className="w-6 h-6 dark:hidden" />
+                              )}
+                              {product?.icone_dark && (
+                                <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
+                              )}
+                              <h3 className="text-lg font-semibold text-white">{product?.nome || "Produto"}</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {(productPlans as any[]).map((plan: any) => {
+                                const features = Array.isArray(plan.features) ? plan.features : [];
+                                const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
+                                const coupon = coupons?.find((c: any) => c.id === couponId);
+
+                                return (
+                                  <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
+                                    <CardHeader>
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                          <CardTitle className="text-white flex items-center gap-2">
+                                            {plan.name}
+                                            {!plan.is_active && (
+                                              <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
+                                            )}
+                                          </CardTitle>
+                                          {coupon && (
+                                            <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
+                                              <Tag className="h-3 w-3" />
+                                              <span>{coupon.code} - {coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleEditPlan(plan)}
+                                            className="text-slate-400 hover:text-white"
+                                          >
+                                            <Edit className="h-4 w-4" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => deletePlanMutation.mutate(plan.id)}
+                                            className="text-red-400 hover:text-red-300"
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-3">
+                                      <div className="space-y-1">
+                                        {plan.original_price && plan.original_price > plan.price && (
+                                          <span className="text-sm text-slate-500 line-through">
+                                            R$ {parseFloat(plan.original_price).toFixed(2)}
+                                          </span>
+                                        )}
+                                        <span className="text-2xl font-bold text-white">
+                                          R$ {parseFloat(plan.price).toFixed(2)}
+                                        </span>
+                                      </div>
+                                      {plan.description && (
+                                        <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
+                                      )}
+                                      <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
+                                        Comissão: {plan.commission_percentage}%
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* Plans without product */}
+                      {plansWithoutProduct.length > 0 && (
+                        <div className="space-y-3">
+                          <h3 className="text-lg font-semibold text-slate-400 pl-4">Sem produto</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {plansWithoutProduct.map((plan: any) => {
+                              const features = Array.isArray(plan.features) ? plan.features : [];
+                              const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
+                              const coupon = coupons?.find((c: any) => c.id === couponId);
+
+                              return (
+                                <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
+                                  <CardHeader>
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <CardTitle className="text-white flex items-center gap-2">
+                                          {plan.name}
+                                          {!plan.is_active && (
+                                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
+                                          )}
+                                        </CardTitle>
+                                        {coupon && (
+                                          <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
+                                            <Tag className="h-3 w-3" />
+                                            <span>{coupon.code} - {coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => handleEditPlan(plan)}
+                                          className="text-slate-400 hover:text-white"
+                                        >
+                                          <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => deletePlanMutation.mutate(plan.id)}
+                                          className="text-red-400 hover:text-red-300"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent className="space-y-3">
+                                    <div className="space-y-1">
+                                      {plan.original_price && plan.original_price > plan.price && (
+                                        <span className="text-sm text-slate-500 line-through">
+                                          R$ {parseFloat(plan.original_price).toFixed(2)}
+                                        </span>
+                                      )}
+                                      <span className="text-2xl font-bold text-white">
+                                        R$ {parseFloat(plan.price).toFixed(2)}
+                                      </span>
+                                    </div>
+                                    {plan.description && (
+                                      <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
+                                    )}
+                                    <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
+                                      Comissão: {plan.commission_percentage}%
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
             ) : (
+              // Original single-level grouping when a specific filter is selected
               <>
                 {["monthly", "yearly", "daily"].map((period) => {
                   const filteredPlans = plans?.filter((p: any) => {
                     if (p.billing_period !== period) return false;
-                    if (selectedProductFilter === "all") return true;
                     if (selectedProductFilter === "no-product") return !p.product_id;
                     return p.product_id === selectedProductFilter;
                   }) || [];
@@ -398,7 +582,14 @@ const AdminPlans = () => {
                                           <img 
                                             src={product.icone_light} 
                                             alt={product.nome} 
-                                            className="h-5 w-5 object-contain"
+                                            className="h-5 w-5 object-contain dark:hidden"
+                                          />
+                                        )}
+                                        {product.icone_dark && (
+                                          <img 
+                                            src={product.icone_dark} 
+                                            alt={product.nome} 
+                                            className="h-5 w-5 object-contain hidden dark:block"
                                           />
                                         )}
                                         <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded">
@@ -416,41 +607,39 @@ const AdminPlans = () => {
                                   <div className="flex gap-2">
                                     <Button
                                       variant="ghost"
-                                      size="icon"
+                                      size="sm"
                                       onClick={() => handleEditPlan(plan)}
-                                      className="text-green-400 hover:text-green-300 hover:bg-green-400/10"
+                                      className="text-slate-400 hover:text-white"
                                     >
                                       <Edit className="h-4 w-4" />
                                     </Button>
                                     <Button
                                       variant="ghost"
-                                      size="icon"
+                                      size="sm"
                                       onClick={() => deletePlanMutation.mutate(plan.id)}
-                                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                      className="text-red-400 hover:text-red-300"
                                     >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
                                   </div>
                                 </div>
                               </CardHeader>
-                              <CardContent>
-                                <div className="space-y-2">
-                                  <div className="flex items-baseline gap-2">
-                                    {plan.original_price && plan.original_price > plan.price && (
-                                      <span className="text-sm text-slate-500 line-through">
-                                        R$ {parseFloat(plan.original_price).toFixed(2)}
-                                      </span>
-                                    )}
-                                    <span className="text-2xl font-bold text-white">
-                                      R$ {parseFloat(plan.price).toFixed(2)}
+                              <CardContent className="space-y-3">
+                                <div className="space-y-1">
+                                  {plan.original_price && plan.original_price > plan.price && (
+                                    <span className="text-sm text-slate-500 line-through">
+                                      R$ {parseFloat(plan.original_price).toFixed(2)}
                                     </span>
-                                  </div>
-                                  {plan.description && (
-                                    <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
                                   )}
-                                  <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
-                                    Comissão: {plan.commission_percentage}%
-                                  </div>
+                                  <span className="text-2xl font-bold text-white">
+                                    R$ {parseFloat(plan.price).toFixed(2)}
+                                  </span>
+                                </div>
+                                {plan.description && (
+                                  <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
+                                )}
+                                <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
+                                  Comissão: {plan.commission_percentage}%
                                 </div>
                               </CardContent>
                             </Card>
