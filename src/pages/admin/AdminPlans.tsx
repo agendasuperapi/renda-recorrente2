@@ -457,18 +457,18 @@ const AdminPlans = () => {
                                     <CardContent className="space-y-3">
                                       <div className="space-y-1">
                                         {Number(plan.original_price) > 0 && (
-                                          <span className="text-sm text-slate-500 line-through">
+                                          <span className={`text-sm line-through ${!plan.is_active ? 'text-muted-foreground' : 'text-slate-500'}`}>
                                             R$ {Number(plan.original_price).toFixed(2)}
                                           </span>
                                         )}
-                                        <span className="text-2xl font-bold text-white">
+                                        <span className={`text-2xl font-bold ${!plan.is_active ? 'text-foreground' : 'text-white'}`}>
                                           R$ {parseFloat(plan.price).toFixed(2)}
                                         </span>
                                       </div>
                                       {plan.description && (
-                                        <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
+                                        <p className={`text-sm line-clamp-2 ${!plan.is_active ? 'text-muted-foreground' : 'text-slate-400'}`}>{plan.description}</p>
                                       )}
-                                      <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
+                                      <div className={`pt-2 border-t text-xs ${!plan.is_active ? 'border-border text-muted-foreground' : 'border-slate-800 text-slate-500'}`}>
                                         Comissão: {plan.commission_percentage}%
                                       </div>
                                     </CardContent>
