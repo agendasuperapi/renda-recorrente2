@@ -469,8 +469,9 @@ const AdminBankAccounts = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="key_authorization">Key Authorization</Label>
-                      <Input
+                      <textarea
                         id="key_authorization"
+                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
                         value={accountFormData.key_authorization}
                         onChange={(e) =>
                           setAccountFormData({
@@ -484,8 +485,9 @@ const AdminBankAccounts = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="signing_secret">Signing Secret</Label>
-                      <Input
+                      <textarea
                         id="signing_secret"
+                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
                         value={accountFormData.signing_secret}
                         onChange={(e) =>
                           setAccountFormData({
