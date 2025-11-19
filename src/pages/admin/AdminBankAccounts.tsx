@@ -262,6 +262,53 @@ const AdminBankAccounts = () => {
     }
 
     try {
+      // Verificar se já existe uma conta ativa do mesmo tipo para o mesmo produto
+      if (accountFormData.is_active) {
+        const { data: existingAccounts, error: checkError } = await client
+          .from("accounts")
+          .select("id, name")
+          .eq("product_id", accountFormData.product_id)
+          .eq("is_production", accountFormData.is_production)
+          .eq("is_active", true);
+
+        if (checkError) throw checkError;
+
+        // Filtrar para excluir a conta atual em caso de edição
+        const conflictingAccounts = existingAccounts?.filter(
+          (acc: Account) => acc.id !== editingAccount?.id
+        ) || [];
+
+        if (conflictingAccounts.length > 0) {
+          const accountType = accountFormData.is_production ? "produção" : "teste";
+          const existingAccountName = conflictingAccounts[0].name;
+          
+          const confirm = window.confirm(
+            `Já existe uma conta de ${accountType} ativa para este produto: "${existingAccountName}".\n\n` +
+            `Ao salvar esta conta como ativa, a conta "${existingAccountName}" será automaticamente inativada.\n\n` +
+            `Deseja continuar?`
+          );
+
+          if (!confirm) {
+            return;
+          }
+
+          // Inativar todas as contas conflitantes
+          for (const account of conflictingAccounts) {
+            const { error: deactivateError } = await client
+              .from("accounts")
+              .update({ is_active: false })
+              .eq("id", account.id);
+
+            if (deactivateError) throw deactivateError;
+          }
+
+          toast({
+            title: "Conta anterior inativada",
+            description: `A conta "${existingAccountName}" foi inativada automaticamente.`,
+          });
+        }
+      }
+
       if (editingAccount) {
         const { error } = await client
           .from("accounts")
