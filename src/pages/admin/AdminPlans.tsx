@@ -36,6 +36,19 @@ const planFormSchema = z.object({
 
 type PlanFormData = z.infer<typeof planFormSchema>;
 
+type Product = {
+  id: string;
+  nome: string;
+};
+
+type Coupon = {
+  id: string;
+  code: string;
+  name: string;
+  value: number;
+  type: string;
+};
+
 const AdminPlans = () => {
   const queryClient = useQueryClient();
   const [editingPlan, setEditingPlan] = useState<any>(null);
@@ -660,16 +673,16 @@ const AdminPlans = () => {
               </DialogHeader>
 
               <Tabs defaultValue="plano" className="space-y-6">
-                <TabsList className="bg-slate-800 border-b border-slate-700 w-full">
+                <TabsList className="w-full">
                   <TabsTrigger 
                     value="plano"
-                    className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:bg-purple-600/10 data-[state=active]:text-white text-slate-400"
+                    className="flex-1"
                   >
                     Plano
                   </TabsTrigger>
                   <TabsTrigger 
                     value="assinaturas"
-                    className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:bg-purple-600/10 data-[state=active]:text-white text-slate-400"
+                    className="flex-1"
                   >
                     Assinaturas
                   </TabsTrigger>
@@ -684,14 +697,14 @@ const AdminPlans = () => {
                           name="billing_period"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Período do plano</FormLabel>
+                              <FormLabel>Período do plano</FormLabel>
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
-                                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectTrigger>
                                     <SelectValue placeholder="Selecione o período" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-800 border-slate-700">
+                                <SelectContent>
                                   <SelectItem value="monthly">Mensal</SelectItem>
                                   <SelectItem value="yearly">Anual</SelectItem>
                                   <SelectItem value="daily">Diário</SelectItem>
@@ -707,12 +720,11 @@ const AdminPlans = () => {
                           name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Nome do Plano</FormLabel>
+                              <FormLabel>Nome do Plano</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   placeholder="Ex: Plano Mensal"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -725,20 +737,20 @@ const AdminPlans = () => {
                           name="product_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Produto</FormLabel>
+                              <FormLabel>Produto</FormLabel>
                               <Select 
-                                onValueChange={(value) => field.onChange(value === "none" ? "" : value)} 
-                                value={field.value || "none"}
+                                onValueChange={field.onChange} 
+                                value={field.value || ""}
                               >
                                 <FormControl>
-                                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                                    <SelectValue placeholder="Selecione um produto (opcional)" />
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione um produto" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-800 border-slate-700">
-                                  <SelectItem value="none" className="text-white">Nenhum produto</SelectItem>
-                                  {products?.map((product: any) => (
-                                    <SelectItem key={product.id} value={product.id} className="text-white">
+                                <SelectContent>
+                                  <SelectItem value="none">Nenhum produto</SelectItem>
+                                  {products?.map((product: Product) => (
+                                    <SelectItem key={product.id} value={product.id}>
                                       {product.nome}
                                     </SelectItem>
                                   ))}
@@ -754,14 +766,13 @@ const AdminPlans = () => {
                           name="price"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Valor Assinatura/Recorrente</FormLabel>
+                              <FormLabel>Valor Assinatura/Recorrente</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   type="number"
                                   step="0.01"
                                   placeholder="0.00"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -774,14 +785,13 @@ const AdminPlans = () => {
                           name="original_price"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Preço anterior</FormLabel>
+                              <FormLabel>Preço anterior</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   type="number"
                                   step="0.01"
                                   placeholder="0.00"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -794,12 +804,11 @@ const AdminPlans = () => {
                           name="description"
                           render={({ field }) => (
                             <FormItem className="md:col-span-2">
-                              <FormLabel className="text-slate-200">Detalhes</FormLabel>
+                              <FormLabel>Detalhes</FormLabel>
                               <FormControl>
                                 <Textarea 
                                   {...field} 
                                   placeholder="Será usada na Landing Page"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                   rows={3}
                                 />
                               </FormControl>
@@ -813,12 +822,11 @@ const AdminPlans = () => {
                           name="obs_plan"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Observação do Plano</FormLabel>
+                              <FormLabel>Observação do Plano</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   placeholder="Ex: Mais contratado"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -831,12 +839,11 @@ const AdminPlans = () => {
                           name="obs_discount"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Observação de Desconto</FormLabel>
+                              <FormLabel>Observação de Desconto</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   placeholder="Ex: R$10,00 de desconto"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -849,12 +856,11 @@ const AdminPlans = () => {
                           name="obs_coupon"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Observação Cupom</FormLabel>
+                              <FormLabel>Observação Cupom</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   placeholder="Ex: Cupom de desconto 10%"
-                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -867,17 +873,20 @@ const AdminPlans = () => {
                           name="coupon_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Selecione o CUPOM</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <FormLabel>Selecione o CUPOM</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value || ""}
+                              >
                                 <FormControl>
-                                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                  <SelectTrigger>
                                     <SelectValue placeholder="Selecione um cupom" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent className="bg-slate-800 border-slate-700">
-                                  {coupons?.map((coupon: any) => (
+                                <SelectContent>
+                                  {coupons?.map((coupon: Coupon) => (
                                     <SelectItem key={coupon.id} value={coupon.id}>
-                                      {coupon.code} - {coupon.name} ({coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`})
+                                      {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -892,14 +901,13 @@ const AdminPlans = () => {
                           name="trial_days"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Tempo de teste (dias)</FormLabel>
+                              <FormLabel>Tempo de teste (dias)</FormLabel>
                               <div className="flex items-center gap-2">
                                 <Button
                                   type="button"
                                   variant="outline"
                                   size="icon"
                                   onClick={() => field.onChange(Math.max(0, field.value - 1))}
-                                  className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                                 >
                                   <Minus className="h-4 w-4" />
                                 </Button>
@@ -907,7 +915,7 @@ const AdminPlans = () => {
                                   <Input 
                                     {...field} 
                                     type="number"
-                                    className="bg-slate-800 border-slate-700 text-white text-center"
+                                    className="text-center"
                                   />
                                 </FormControl>
                                 <Button
@@ -915,12 +923,11 @@ const AdminPlans = () => {
                                   variant="outline"
                                   size="icon"
                                   onClick={() => field.onChange(field.value + 1)}
-                                  className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                                 >
                                   <Plus className="h-4 w-4" />
                                 </Button>
                               </div>
-                              <FormDescription className="text-slate-500 text-xs">
+                              <FormDescription className="text-xs">
                                 Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
                               </FormDescription>
                               <FormMessage />
@@ -933,14 +940,13 @@ const AdminPlans = () => {
                           name="commission_percentage"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-slate-200">Percentual de Comissão (%)</FormLabel>
+                              <FormLabel>Percentual de Comissão (%)</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   type="number"
                                   min="0"
                                   max="100"
-                                  className="bg-slate-800 border-slate-700 text-white"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -952,10 +958,10 @@ const AdminPlans = () => {
                           control={form.control}
                           name="is_active"
                           render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700 p-4 bg-slate-800">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                               <div className="space-y-0.5">
-                                <FormLabel className="text-slate-200">Ativo</FormLabel>
-                                <FormDescription className="text-slate-500 text-xs">
+                                <FormLabel>Ativo</FormLabel>
+                                <FormDescription className="text-xs">
                                   Plano disponível para assinatura
                                 </FormDescription>
                               </div>
