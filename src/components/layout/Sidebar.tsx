@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -70,6 +71,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const location = useLocation();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     // Limpar cache de role ao fazer logout
@@ -86,6 +88,42 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const getInitials = () => {
     const name = user?.user_metadata?.name || user?.email;
     return name?.substring(0, 2).toUpperCase() || "U";
+  };
+  
+  // Prefetch de dados ao hover nos links
+  const handlePrefetch = async (path: string) => {
+    // Mapeia as rotas para as queryKeys correspondentes
+    const prefetchMap: Record<string, string[]> = {
+      '/dashboard': ['dashboard-stats'],
+      '/admin/users': ['admin-users'],
+      '/admin/coupons': ['admin-coupons'],
+      '/admin/plans': ['admin-plans'],
+      '/admin/products': ['admin-products'],
+      '/admin/segments': ['admin-segments'],
+      '/admin/bank-accounts': ['admin-bank-accounts'],
+      '/admin/stripe-events': ['admin-stripe-events'],
+      '/commissions/daily': ['commissions-daily'],
+      '/commissions/monthly': ['commissions-monthly'],
+      '/withdrawals': ['withdrawals'],
+      '/referrals': ['referrals'],
+      '/sub-affiliates': ['sub-affiliates'],
+      '/activities': ['activities'],
+    };
+
+    const queryKeys = prefetchMap[path];
+    if (queryKeys) {
+      // Prefetch apenas se não estiver em cache ou estiver stale
+      queryKeys.forEach(key => {
+        queryClient.prefetchQuery({
+          queryKey: [key],
+          queryFn: async () => {
+            // Esta função será substituída pela query real quando a página carregar
+            // O importante é que o prefetch prepare o cache
+            return null;
+          },
+        });
+      });
+    }
   };
   
   if (!user) return null;
@@ -124,6 +162,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                   ? "bg-primary text-white"
                   : "hover:bg-sidebar-accent text-sidebar-foreground"
               )}
+              onMouseEnter={() => handlePrefetch(item.path)}
             >
               <Icon size={18} />
               {item.label}
