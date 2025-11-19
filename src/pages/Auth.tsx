@@ -6,6 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Link2 } from "lucide-react";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email({ message: "Email inválido" })
+    .max(255, { message: "Email deve ter no máximo 255 caracteres" }),
+  password: z
+    .string()
+    .min(8, { message: "Senha deve ter no mínimo 8 caracteres" })
+    .max(128, { message: "Senha deve ter no máximo 128 caracteres" }),
+  name: z
+    .string()
+    .trim()
+    .min(2, { message: "Nome deve ter no mínimo 2 caracteres" })
+    .max(100, { message: "Nome deve ter no máximo 100 caracteres" })
+    .optional()
+    .or(z.literal("")),
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -30,10 +50,30 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Validar inputs
+      const validationData = {
+        email: email.trim(),
+        password,
+        name: isLogin ? "" : name.trim(),
+      };
+
+      const validation = authSchema.safeParse(validationData);
+      
+      if (!validation.success) {
+        const firstError = validation.error.errors[0];
+        toast({
+          variant: "destructive",
+          title: "Erro de validação",
+          description: firstError.message,
+        });
+        setLoading(false);
+        return;
+      }
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: validation.data.email,
+          password: validation.data.password,
         });
 
         if (error) throw error;
@@ -45,12 +85,12 @@ const Auth = () => {
         navigate("/dashboard");
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: validation.data.email,
+          password: validation.data.password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
-              name: name,
+              name: validation.data.name || "",
             },
           },
         });
@@ -98,6 +138,7 @@ const Auth = () => {
                 onChange={(e) => setName(e.target.value)}
                 required={!isLogin}
                 className="bg-white"
+                maxLength={100}
               />
             </div>
           )}
@@ -114,6 +155,7 @@ const Auth = () => {
               required
               className="bg-white"
               placeholder="seu@email.com"
+              maxLength={255}
             />
           </div>
 
@@ -129,6 +171,8 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="bg-white pr-10"
+                maxLength={128}
+                minLength={8}
               />
               <button
                 type="button"
