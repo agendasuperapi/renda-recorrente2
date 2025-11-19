@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
@@ -413,14 +414,17 @@ const AdminPlans = () => {
                                 const coupon = coupons?.find((c: any) => c.id === couponId);
 
                                 return (
-                                  <Card key={plan.id} className="hover:border-primary/50 transition-colors">
+                                  <Card 
+                                    key={plan.id} 
+                                    className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                                  >
                                     <CardHeader>
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                           <CardTitle className="flex items-center gap-2">
                                             {plan.name}
                                             {!plan.is_active && (
-                                              <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
+                                              <Badge variant="destructive" className="text-xs">Inativo</Badge>
                                             )}
                                           </CardTitle>
                                           {coupon && (
