@@ -112,7 +112,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
 
   const menuItems = isAdmin ? adminMenuItems : affiliateMenuItems;
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3 mb-4">
@@ -143,6 +143,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={closeSidebar}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
                   isActive
@@ -203,7 +204,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground">
           <div className="flex flex-col h-full">
-            <SidebarContent />
+            <SidebarContent closeSidebar={() => onOpenChange?.(false)} />
           </div>
         </SheetContent>
       </Sheet>
