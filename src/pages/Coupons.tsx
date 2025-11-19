@@ -1,4 +1,3 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +16,7 @@ const Coupons = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Cupons e Links</h1>
           <p className="text-muted-foreground">
@@ -59,7 +57,7 @@ const Coupons = () => {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

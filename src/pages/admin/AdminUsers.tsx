@@ -1,4 +1,3 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -60,8 +59,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold mb-2">Gestão de Usuários</h1>
@@ -187,7 +185,7 @@ const AdminUsers = () => {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

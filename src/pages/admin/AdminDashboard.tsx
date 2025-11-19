@@ -1,11 +1,9 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, DollarSign, TrendingUp, CreditCard } from "lucide-react";
 
 const AdminDashboard = () => {
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Dashboard Administrativo</h1>
           <p className="text-muted-foreground">
@@ -87,7 +85,7 @@ const AdminDashboard = () => {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

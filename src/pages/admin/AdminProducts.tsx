@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -278,8 +277,7 @@ const AdminProducts = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-foreground">Produtos</h1>
           <Button onClick={handleNewProduct} className="gap-2">
@@ -586,7 +584,7 @@ const AdminProducts = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

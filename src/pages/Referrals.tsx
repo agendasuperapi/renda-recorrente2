@@ -78,7 +78,7 @@ const Referrals = () => {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

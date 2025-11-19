@@ -1,4 +1,3 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useForm } from "react-hook-form";
@@ -338,8 +337,7 @@ const AdminPlans = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold">Planos</h1>
@@ -1142,7 +1140,7 @@ const AdminPlans = () => {
           </Dialog>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

@@ -1,15 +1,12 @@
-import { ReactNode, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "./Sidebar";
 import { User } from "@supabase/supabase-js";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+export const DashboardLayout = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [user, setUser] = useState<User | null>(null);
@@ -76,13 +73,26 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  if (!user || isAdmin === null) return null;
+  const isLoading = !user || isAdmin === null;
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <Sidebar user={user} isAdmin={isAdmin} open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} />
       <main className={`flex-1 overflow-y-auto ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
-        {children}
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+            </div>
+          </div>
+        ) : (
+          <Outlet />
+        )}
       </main>
     </div>
   );
