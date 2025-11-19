@@ -274,22 +274,42 @@ const AdminProducts = () => {
             {products?.map((product) => (
               <Card key={product.id} className="bg-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">{product.nome}</CardTitle>
+                  <div className="flex items-center gap-3">
+                    {product.icone_dark && (
+                      <img src={product.icone_dark} alt={product.nome} className="w-10 h-10 object-contain dark:block hidden" />
+                    )}
+                    {product.icone_light && (
+                      <img src={product.icone_light} alt={product.nome} className="w-10 h-10 object-contain dark:hidden block" />
+                    )}
+                    <CardTitle className="text-lg">{product.nome}</CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-3">
+                    {(product.logo_dark || product.logo_light) && (
+                      <div className="flex justify-center py-2 bg-muted/30 rounded">
+                        {product.logo_dark && (
+                          <img src={product.logo_dark} alt={`${product.nome} logo`} className="h-12 object-contain dark:block hidden" />
+                        )}
+                        {product.logo_light && (
+                          <img src={product.logo_light} alt={`${product.nome} logo`} className="h-12 object-contain dark:hidden block" />
+                        )}
+                      </div>
+                    )}
                     {product.descricao && (
-                      <p className="text-muted-foreground line-clamp-2">{product.descricao}</p>
+                      <p className="text-muted-foreground line-clamp-2 text-sm">{product.descricao}</p>
                     )}
-                    {product.telefone && (
-                      <p><span className="font-medium">Telefone:</span> {product.telefone}</p>
-                    )}
-                    {product.email && (
-                      <p><span className="font-medium">Email:</span> {product.email}</p>
-                    )}
-                    {product.site && (
-                      <p><span className="font-medium">Site:</span> {product.site}</p>
-                    )}
+                    <div className="space-y-1 text-sm">
+                      {product.telefone && (
+                        <p><span className="font-medium">Telefone:</span> {product.telefone}</p>
+                      )}
+                      {product.email && (
+                        <p><span className="font-medium">Email:</span> {product.email}</p>
+                      )}
+                      {product.site && (
+                        <p><span className="font-medium">Site:</span> {product.site}</p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <Button
