@@ -13,6 +13,7 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -102,11 +103,18 @@ const AdminUsers = () => {
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      Carregando...
-                    </TableCell>
-                  </TableRow>
+                  <>
+                    {[...Array(5)].map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      </TableRow>
+                    ))}
+                  </>
                 ) : paginatedUsers && paginatedUsers.length > 0 ? (
                   paginatedUsers.map((user) => (
                     <TableRow key={user.id}>
