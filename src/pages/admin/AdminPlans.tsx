@@ -130,6 +130,25 @@ const AdminPlans = () => {
     },
   });
 
+  const { data: accounts } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("accounts")
+        .select(`
+          *,
+          banks (
+            name
+          )
+        `)
+        .eq("is_active", true)
+        .order("name", { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const createPlanMutation = useMutation({
     mutationFn: async (data: PlanFormData) => {
       const features = [
@@ -1064,12 +1083,21 @@ const AdminPlans = () => {
 
                       <div className="space-y-2">
                         <label className="text-sm text-foreground font-medium">Conta</label>
-                        <Input
+                        <Select
                           value={stripeFormData.conta}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, conta: e.target.value })}
-                          placeholder="APP Financeiro Teste"
-                          className="bg-background border-input text-foreground"
-                        />
+                          onValueChange={(value) => setStripeFormData({ ...stripeFormData, conta: value })}
+                        >
+                          <SelectTrigger className="bg-background border-input text-foreground">
+                            <SelectValue placeholder="Selecione uma conta" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border-input z-50">
+                            {accounts?.map((account: any) => (
+                              <SelectItem key={account.id} value={account.id}>
+                                {account.name} {account.banks?.name ? `- ${account.banks.name}` : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="space-y-2">
