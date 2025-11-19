@@ -143,7 +143,6 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => isMobile && onOpenChange?.(false)}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
                   isActive
@@ -212,7 +211,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
   }
 
   return (
-    <aside className="hidden lg:flex w-64 bg-sidebar text-sidebar-foreground flex-col h-screen sticky top-0">
+    <aside className="hidden lg:flex w-64 bg-sidebar text-sidebar-foreground flex-col h-screen sticky top-0 flex-shrink-0">
       <SidebarContent />
     </aside>
   );

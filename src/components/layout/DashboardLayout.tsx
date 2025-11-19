@@ -55,7 +55,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar user={user} open={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <main className={`flex-1 overflow-y-auto transition-opacity duration-150 ${isNavigating ? 'opacity-95' : 'opacity-100'} ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
+      <main className={`flex-1 overflow-y-auto transition-opacity duration-100 ${isNavigating ? 'opacity-95' : 'opacity-100'} ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
         {children}
       </main>
     </div>
