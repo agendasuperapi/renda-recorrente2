@@ -31,6 +31,7 @@ const planFormSchema = z.object({
   trial_days: z.coerce.number().min(0).default(0),
   commission_percentage: z.coerce.number().min(0).max(100).default(25),
   is_active: z.boolean().default(true),
+  product_id: z.string().optional(),
 });
 
 type PlanFormData = z.infer<typeof planFormSchema>;
@@ -39,6 +40,7 @@ const AdminPlans = () => {
   const queryClient = useQueryClient();
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedProductFilter, setSelectedProductFilter] = useState<string>("all");
   const [stripeFormData, setStripeFormData] = useState({
     banco: "STRIPE",
     conta: "",
@@ -63,6 +65,7 @@ const AdminPlans = () => {
       trial_days: 0,
       commission_percentage: 25,
       is_active: true,
+      product_id: "",
     },
   });
 
@@ -71,7 +74,15 @@ const AdminPlans = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("plans")
-        .select("*")
+        .select(`
+          *,
+          products (
+            id,
+            nome,
+            icone_light,
+            icone_dark
+          )
+        `)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
@@ -86,6 +97,19 @@ const AdminPlans = () => {
         .from("coupons")
         .select("*")
         .eq("is_active", true);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("nome", { ascending: true });
       
       if (error) throw error;
       return data;
@@ -111,6 +135,7 @@ const AdminPlans = () => {
         commission_percentage: data.commission_percentage,
         is_active: data.is_active,
         features,
+        product_id: data.product_id || null,
       });
       
       if (error) throw error;
@@ -147,6 +172,7 @@ const AdminPlans = () => {
           commission_percentage: data.commission_percentage,
           is_active: data.is_active,
           features,
+          product_id: data.product_id || null,
         })
         .eq("id", id);
       
@@ -208,6 +234,7 @@ const AdminPlans = () => {
       trial_days: parseInt(features.find((f: string) => f.startsWith("trial_days:"))?.replace("trial_days:", "") || "0"),
       commission_percentage: plan.commission_percentage,
       is_active: plan.is_active,
+      product_id: plan.product_id || "",
     });
   };
 
@@ -227,6 +254,7 @@ const AdminPlans = () => {
       trial_days: 0,
       commission_percentage: 25,
       is_active: true,
+      product_id: "",
     });
   };
 
@@ -301,13 +329,29 @@ const AdminPlans = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-white">Planos</h1>
-            <Button
-              onClick={handleNewPlan}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Plano
-            </Button>
+            <div className="flex gap-4 items-center">
+              <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
+                <SelectTrigger className="w-[280px] bg-slate-800 border-slate-700 text-white">
+                  <SelectValue placeholder="Filtrar por produto" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="all" className="text-white">Todos os produtos</SelectItem>
+                  <SelectItem value="no-product" className="text-white">Sem produto</SelectItem>
+                  {products?.map((product: any) => (
+                    <SelectItem key={product.id} value={product.id} className="text-white">
+                      {product.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={handleNewPlan}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Plano
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-8">
@@ -316,8 +360,14 @@ const AdminPlans = () => {
             ) : (
               <>
                 {["monthly", "yearly", "daily"].map((period) => {
-                  const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
-                  if (periodPlans.length === 0) return null;
+                  const filteredPlans = plans?.filter((p: any) => {
+                    if (p.billing_period !== period) return false;
+                    if (selectedProductFilter === "all") return true;
+                    if (selectedProductFilter === "no-product") return !p.product_id;
+                    return p.product_id === selectedProductFilter;
+                  }) || [];
+                  
+                  if (filteredPlans.length === 0) return null;
 
                   const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
 
@@ -325,10 +375,11 @@ const AdminPlans = () => {
                     <div key={period}>
                       <h2 className="text-xl font-semibold text-purple-400 mb-4">{periodTitle}</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {periodPlans.map((plan: any) => {
+                        {filteredPlans.map((plan: any) => {
                           const features = Array.isArray(plan.features) ? plan.features : [];
                           const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
                           const coupon = coupons?.find((c: any) => c.id === couponId);
+                          const product = plan.products;
 
                           return (
                             <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
@@ -341,6 +392,20 @@ const AdminPlans = () => {
                                         <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
                                       )}
                                     </CardTitle>
+                                    {product && (
+                                      <div className="flex items-center gap-2 mt-2">
+                                        {product.icone_light && (
+                                          <img 
+                                            src={product.icone_light} 
+                                            alt={product.nome} 
+                                            className="h-5 w-5 object-contain"
+                                          />
+                                        )}
+                                        <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded">
+                                          {product.nome}
+                                        </span>
+                                      </div>
+                                    )}
                                     {coupon && (
                                       <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
                                         <Tag className="h-3 w-3" />
@@ -463,6 +528,35 @@ const AdminPlans = () => {
                                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                                 />
                               </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="product_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Produto</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectValue placeholder="Selecione um produto (opcional)" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-slate-800 border-slate-700">
+                                  <SelectItem value="">Nenhum produto</SelectItem>
+                                  {products?.map((product: any) => (
+                                    <SelectItem key={product.id} value={product.id} className="text-white">
+                                      {product.nome}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
