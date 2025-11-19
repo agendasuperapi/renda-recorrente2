@@ -219,6 +219,7 @@ export type Database = {
           name: string
           original_price: number | null
           price: number
+          product_id: string | null
           stripe_price_id: string | null
           stripe_product_id: string | null
           updated_at: string | null
@@ -234,6 +235,7 @@ export type Database = {
           name: string
           original_price?: number | null
           price: number
+          product_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           updated_at?: string | null
@@ -249,11 +251,20 @@ export type Database = {
           name?: string
           original_price?: number | null
           price?: number
+          product_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "plans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
