@@ -170,7 +170,7 @@ const Auth = () => {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="bg-white pr-10"
                 maxLength={128}
@@ -181,8 +181,7 @@ const Auth = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
               >
-                {showPassword ? <EyeOff size={40} /> : <Eye size={40} />}
-              
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
