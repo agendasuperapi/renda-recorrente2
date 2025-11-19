@@ -202,6 +202,61 @@ const AdminBankAccounts = () => {
   const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validação de campos obrigatórios
+    if (!accountFormData.product_id) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, selecione um produto",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!accountFormData.bank_id) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, selecione um banco",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!accountFormData.name.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha o nome da conta",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!accountFormData.email.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha o e-mail",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!accountFormData.key_authorization.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha a Key Authorization",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!accountFormData.signing_secret.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha o Signing Secret",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       if (editingAccount) {
         const { error } = await client
