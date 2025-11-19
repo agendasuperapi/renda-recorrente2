@@ -40,9 +40,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar user={user} open={sidebarOpen} onOpenChange={setSidebarOpen} />
-      <main className={`flex-1 ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>{children}</main>
+      <main className={`flex-1 overflow-y-auto ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>{children}</main>
     </div>
   );
 };
