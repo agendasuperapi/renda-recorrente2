@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Table,
   TableBody,
@@ -645,57 +646,87 @@ const AdminBankAccounts = () => {
                     Nenhuma conta cadastrada ainda.
                   </p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Produto</TableHead>
-                        <TableHead>Banco</TableHead>
-                        <TableHead>E-mail</TableHead>
-                        <TableHead>Ambiente</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {accounts.map((account) => (
-                        <TableRow key={account.id}>
-                          <TableCell>{account.name}</TableCell>
-                          <TableCell>{account.products?.nome}</TableCell>
-                          <TableCell>{account.banks?.name}</TableCell>
-                          <TableCell>{account.email}</TableCell>
-                          <TableCell>
-                            <Badge variant={account.is_production ? "default" : "outline"}>
-                              {account.is_production ? "Produção" : "Teste"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={account.is_active ? "default" : "outline"}>
-                              {account.is_active ? "Ativa" : "Inativa"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openAccountEditDialog(account)}
-                              aria-label="Editar conta"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleAccountDelete(account.id)}
-                              aria-label="Excluir conta"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <Accordion type="single" collapsible className="w-full">
+                    {products
+                      .filter((product) =>
+                        accounts.some((account) => account.product_id === product.id)
+                      )
+                      .map((product) => {
+                        const productAccounts = accounts.filter(
+                          (account) => account.product_id === product.id
+                        );
+                        return (
+                          <AccordionItem key={product.id} value={product.id}>
+                            <AccordionTrigger className="hover:no-underline">
+                              <div className="flex items-center justify-between w-full pr-4">
+                                <span className="font-semibold">{product.nome}</span>
+                                <Badge variant="outline" className="ml-2">
+                                  {productAccounts.length}{" "}
+                                  {productAccounts.length === 1 ? "conta" : "contas"}
+                                </Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Nome</TableHead>
+                                    <TableHead>Banco</TableHead>
+                                    <TableHead>E-mail</TableHead>
+                                    <TableHead>Ambiente</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Ações</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {productAccounts.map((account) => (
+                                    <TableRow key={account.id}>
+                                      <TableCell>{account.name}</TableCell>
+                                      <TableCell>{account.banks?.name}</TableCell>
+                                      <TableCell>{account.email}</TableCell>
+                                      <TableCell>
+                                        <Badge
+                                          variant={
+                                            account.is_production ? "default" : "outline"
+                                          }
+                                        >
+                                          {account.is_production ? "Produção" : "Teste"}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell>
+                                        <Badge
+                                          variant={account.is_active ? "default" : "outline"}
+                                        >
+                                          {account.is_active ? "Ativa" : "Inativa"}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-right space-x-2">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => openAccountEditDialog(account)}
+                                          aria-label="Editar conta"
+                                        >
+                                          <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => handleAccountDelete(account.id)}
+                                          aria-label="Excluir conta"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                  </Accordion>
                 )}
               </CardContent>
             </Card>
