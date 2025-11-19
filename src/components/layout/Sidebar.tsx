@@ -191,7 +191,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="fixed top-4 left-4 z-50 md:hidden"
+            className="fixed top-4 left-4 z-50 lg:hidden"
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -206,7 +206,7 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
   }
 
   return (
-    <aside className="hidden md:flex w-64 bg-sidebar text-sidebar-foreground flex-col">
+    <aside className="hidden lg:flex w-64 bg-sidebar text-sidebar-foreground flex-col">
       <SidebarContent />
     </aside>
   );
