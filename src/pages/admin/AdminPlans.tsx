@@ -667,24 +667,24 @@ const AdminPlans = () => {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-foreground">
                   {editingPlan ? "Editar Plano" : "Novo Plano"}
                 </DialogTitle>
               </DialogHeader>
 
               <Tabs defaultValue="plano" className="space-y-6">
-                <TabsList className="w-full">
+                <TabsList className="w-full bg-muted">
                   <TabsTrigger 
                     value="plano"
-                    className="flex-1"
+                    className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground"
                   >
                     Plano
                   </TabsTrigger>
                   <TabsTrigger 
                     value="assinaturas"
-                    className="flex-1"
+                    className="flex-1 data-[state=active]:bg-background data-[state=active]:text-foreground"
                   >
                     Assinaturas
                   </TabsTrigger>
