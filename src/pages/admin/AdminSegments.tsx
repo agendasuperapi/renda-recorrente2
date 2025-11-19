@@ -118,7 +118,6 @@ const AdminSegments = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

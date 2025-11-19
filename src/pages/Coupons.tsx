@@ -57,7 +57,6 @@ const Coupons = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +5,7 @@ import { Users, TrendingUp } from "lucide-react";
 
 const Referrals = () => {
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Indicações</h1>
           <p className="text-muted-foreground">
@@ -78,7 +76,6 @@ const Referrals = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

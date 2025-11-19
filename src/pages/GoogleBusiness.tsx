@@ -48,7 +48,6 @@ const GoogleBusiness = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

@@ -77,7 +77,6 @@ const CommissionsDaily = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

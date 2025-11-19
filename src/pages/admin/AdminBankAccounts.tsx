@@ -945,7 +945,6 @@ const AdminBankAccounts = () => {
         </Tabs>
         </div>
       </div>
-    </div>
   );
 };
 
