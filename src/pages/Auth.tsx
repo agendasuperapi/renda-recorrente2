@@ -100,8 +100,9 @@ const Auth = () => {
 
         toast({
           title: "Cadastro realizado!",
-          description: "Verifique seu email para confirmar a conta.",
+          description: "Redirecionando...",
         });
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
