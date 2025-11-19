@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Link2 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
 
 const authSchema = z.object({
@@ -117,8 +118,8 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4">
-            <Link2 className="w-10 h-10 text-primary" />
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-4">
+            <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-20 h-20 rounded-full" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">
             APP Renda recorrente
