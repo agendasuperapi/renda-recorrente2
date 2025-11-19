@@ -72,6 +72,7 @@ const AdminBankAccounts = () => {
   const [openAccountDialog, setOpenAccountDialog] = useState(false);
   const [editingBank, setEditingBank] = useState<Bank | null>(null);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [selectedProductFilter, setSelectedProductFilter] = useState<string>("all");
   const [bankFormData, setBankFormData] = useState({ name: "", is_active: true });
   const [accountFormData, setAccountFormData] = useState({
     product_id: "",
@@ -441,7 +442,22 @@ const AdminBankAccounts = () => {
               <p className="text-sm text-muted-foreground">
                 Vincule contas de banco e produtos para processar pagamentos
               </p>
-              <Dialog open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
+              <div className="flex gap-4 items-center">
+                <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
+                  <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Filtrar por produto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os produtos</SelectItem>
+                    <SelectItem value="no-product">Sem produto</SelectItem>
+                    {products?.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Dialog open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
                 <DialogTrigger asChild>
                   <Button onClick={resetAccountForm} size="sm">
                     <Plus className="mr-2 h-4 w-4" />
@@ -632,6 +648,7 @@ const AdminBankAccounts = () => {
                   </form>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
 
             <Card>
@@ -646,40 +663,115 @@ const AdminBankAccounts = () => {
                     Nenhuma conta cadastrada ainda.
                   </p>
                 ) : (
-                  <Accordion type="single" collapsible className="w-full">
-                    {products
-                      .filter((product) =>
-                        accounts.some((account) => account.product_id === product.id)
-                      )
-                      .map((product) => {
-                        const productAccounts = accounts.filter(
-                          (account) => account.product_id === product.id
-                        );
-                        return (
-                          <AccordionItem key={product.id} value={product.id}>
-                            <AccordionTrigger className="hover:no-underline">
-                              <div className="flex items-center justify-between w-full pr-4">
-                                <span className="font-semibold">{product.nome}</span>
-                                <Badge variant="outline" className="ml-2">
-                                  {productAccounts.length}{" "}
-                                  {productAccounts.length === 1 ? "conta" : "contas"}
-                                </Badge>
+                  <div className="space-y-6">
+                    {selectedProductFilter === "all" ? (
+                      <>
+                        {/* Contas agrupadas por produto */}
+                        {products
+                          .filter((product) =>
+                            accounts.some((account) => account.product_id === product.id)
+                          )
+                          .map((product) => {
+                            const productAccounts = accounts.filter(
+                              (account) => account.product_id === product.id
+                            );
+                            return (
+                              <div key={product.id} className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="text-lg font-semibold">{product.nome}</h3>
+                                  <Badge variant="outline">
+                                    {productAccounts.length}{" "}
+                                    {productAccounts.length === 1 ? "conta" : "contas"}
+                                  </Badge>
+                                </div>
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>Nome</TableHead>
+                                      <TableHead>Banco</TableHead>
+                                      <TableHead>E-mail</TableHead>
+                                      <TableHead>Ambiente</TableHead>
+                                      <TableHead>Status</TableHead>
+                                      <TableHead className="text-right">Ações</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {productAccounts.map((account) => (
+                                      <TableRow key={account.id}>
+                                        <TableCell>{account.name}</TableCell>
+                                        <TableCell>{account.banks?.name}</TableCell>
+                                        <TableCell>{account.email}</TableCell>
+                                        <TableCell>
+                                          <Badge
+                                            variant={
+                                              account.is_production ? "default" : "outline"
+                                            }
+                                          >
+                                            {account.is_production ? "Produção" : "Teste"}
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                          <Badge
+                                            variant={account.is_active ? "default" : "outline"}
+                                          >
+                                            {account.is_active ? "Ativa" : "Inativa"}
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right space-x-2">
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => openAccountEditDialog(account)}
+                                            aria-label="Editar conta"
+                                          >
+                                            <Pencil className="h-4 w-4" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleAccountDelete(account.id)}
+                                            aria-label="Excluir conta"
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
                               </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Nome</TableHead>
-                                    <TableHead>Banco</TableHead>
-                                    <TableHead>E-mail</TableHead>
-                                    <TableHead>Ambiente</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Ações</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {productAccounts.map((account) => (
+                            );
+                          })}
+                        
+                        {/* Contas sem produto */}
+                        {accounts.filter((account) => !account.product_id).length > 0 && (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-semibold text-muted-foreground">
+                                Sem produto
+                              </h3>
+                              <Badge variant="outline">
+                                {accounts.filter((account) => !account.product_id).length}{" "}
+                                {accounts.filter((account) => !account.product_id).length === 1
+                                  ? "conta"
+                                  : "contas"}
+                              </Badge>
+                            </div>
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Nome</TableHead>
+                                  <TableHead>Banco</TableHead>
+                                  <TableHead>E-mail</TableHead>
+                                  <TableHead>Ambiente</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead className="text-right">Ações</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {accounts
+                                  .filter((account) => !account.product_id)
+                                  .map((account) => (
                                     <TableRow key={account.id}>
                                       <TableCell>{account.name}</TableCell>
                                       <TableCell>{account.banks?.name}</TableCell>
@@ -720,13 +812,123 @@ const AdminBankAccounts = () => {
                                       </TableCell>
                                     </TableRow>
                                   ))}
-                                </TableBody>
-                              </Table>
-                            </AccordionContent>
-                          </AccordionItem>
-                        );
-                      })}
-                  </Accordion>
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </>
+                    ) : selectedProductFilter === "no-product" ? (
+                      /* Filtro: Sem produto */
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Banco</TableHead>
+                            <TableHead>E-mail</TableHead>
+                            <TableHead>Ambiente</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Ações</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {accounts
+                            .filter((account) => !account.product_id)
+                            .map((account) => (
+                              <TableRow key={account.id}>
+                                <TableCell>{account.name}</TableCell>
+                                <TableCell>{account.banks?.name}</TableCell>
+                                <TableCell>{account.email}</TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant={account.is_production ? "default" : "outline"}
+                                  >
+                                    {account.is_production ? "Produção" : "Teste"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={account.is_active ? "default" : "outline"}>
+                                    {account.is_active ? "Ativa" : "Inativa"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right space-x-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openAccountEditDialog(account)}
+                                    aria-label="Editar conta"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleAccountDelete(account.id)}
+                                    aria-label="Excluir conta"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      /* Filtro: Produto específico */
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Banco</TableHead>
+                            <TableHead>E-mail</TableHead>
+                            <TableHead>Ambiente</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Ações</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {accounts
+                            .filter((account) => account.product_id === selectedProductFilter)
+                            .map((account) => (
+                              <TableRow key={account.id}>
+                                <TableCell>{account.name}</TableCell>
+                                <TableCell>{account.banks?.name}</TableCell>
+                                <TableCell>{account.email}</TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant={account.is_production ? "default" : "outline"}
+                                  >
+                                    {account.is_production ? "Produção" : "Teste"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={account.is_active ? "default" : "outline"}>
+                                    {account.is_active ? "Ativa" : "Inativa"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right space-x-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => openAccountEditDialog(account)}
+                                    aria-label="Editar conta"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleAccountDelete(account.id)}
+                                    aria-label="Excluir conta"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </div>
                 )}
               </CardContent>
             </Card>
