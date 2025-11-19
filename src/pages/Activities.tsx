@@ -30,7 +30,6 @@ const Activities = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

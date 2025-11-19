@@ -1,9 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, Video, FileText } from "lucide-react";
+import { GraduationCap, Video, FileText, PlayCircle } from "lucide-react";
 
 const Training = () => {
   const courses = [
-...
+    { title: "Introdução ao Programa", description: "Conheça como funciona o programa de afiliados", duration: "15 min", type: "video" },
+    { title: "Como Gerar Links", description: "Aprenda a criar e compartilhar seus links de afiliado", duration: "10 min", type: "video" },
+    { title: "Estratégias de Divulgação", description: "Dicas para promover seus links nas redes sociais", duration: "20 min", type: "video" },
+    { title: "Guia de Comissões", description: "Entenda como funcionam as comissões e saques", duration: "5 min", type: "pdf" },
   ];
 
   return (
@@ -55,7 +58,6 @@ const Training = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

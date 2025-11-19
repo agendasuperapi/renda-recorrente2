@@ -91,7 +91,6 @@ const AdminCoupons = () => {
           </Card>
         </div>
       </div>
-    </div>
   );
 };
 

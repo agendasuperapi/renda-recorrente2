@@ -1140,7 +1140,6 @@ const AdminPlans = () => {
           </Dialog>
         </div>
       </div>
-    </div>
   );
 };
 

@@ -95,7 +95,6 @@ const Withdrawals = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

@@ -584,7 +584,6 @@ const AdminProducts = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
   );
 };
 

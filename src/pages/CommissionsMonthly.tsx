@@ -76,7 +76,6 @@ const CommissionsMonthly = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 

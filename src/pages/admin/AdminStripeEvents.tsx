@@ -57,7 +57,6 @@ const AdminStripeEvents = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 };
 
