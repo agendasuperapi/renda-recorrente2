@@ -18,6 +18,7 @@ import {
   Link2,
   Menu,
   Package,
+  Building2,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -60,6 +61,7 @@ const adminMenuItems = [
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
   { icon: Ticket, label: "Cupons", path: "/admin/coupons" },
   { icon: Package, label: "Produtos", path: "/admin/products" },
+  { icon: Building2, label: "Banco e Contas", path: "/admin/banks" },
 ];
 
 export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
