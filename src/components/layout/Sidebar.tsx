@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
 import { APP_VERSION } from "@/config/version";
+import logo from "@/assets/logo.png";
 
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -134,12 +135,8 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 mb-4">
-          <Link2 className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="font-bold text-primary">APP Renda</h2>
-            <p className="text-xs text-sidebar-foreground/70">recorrente</p>
-          </div>
+        <div className="flex items-center justify-center mb-4">
+          <img src={logo} alt="APP Renda Recorrente" className="h-16 w-auto" />
         </div>
         <div className="text-center text-xs text-sidebar-foreground/50">
           Versão: {APP_VERSION}
