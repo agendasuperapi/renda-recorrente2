@@ -1,70 +1,68 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Check, X, Edit, Trash2, Tag, Minus, Plus } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { toast } from "@/hooks/use-toast";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Check, X, Edit, Trash2, Tag, Plus, Minus } from "lucide-react";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const planFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  description: z.string().optional(),
-  price: z.coerce.number().min(0, "Preço deve ser maior ou igual a 0"),
-  original_price: z.coerce.number().optional().nullable(),
   billing_period: z.enum(["monthly", "yearly", "daily"]),
-  commission_percentage: z.coerce.number().min(0).max(100),
-  is_active: z.boolean(),
-  stripe_product_id: z.string().optional().nullable(),
-  stripe_price_id: z.string().optional().nullable(),
+  price: z.coerce.number().min(0),
+  original_price: z.coerce.number().optional(),
+  description: z.string().optional(),
   obs_plan: z.string().optional(),
   obs_discount: z.string().optional(),
   obs_coupon: z.string().optional(),
+  coupon_id: z.string().optional(),
   trial_days: z.coerce.number().min(0).default(0),
-  coupon_id: z.string().optional().nullable(),
+  commission_percentage: z.coerce.number().min(0).max(100).default(25),
+  is_active: z.boolean().default(true),
 });
 
 type PlanFormData = z.infer<typeof planFormSchema>;
 
 const AdminPlans = () => {
-  const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
-  const [trialDays, setTrialDays] = useState(0);
-  const [editingStripeId, setEditingStripeId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [editingPlan, setEditingPlan] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [stripeFormData, setStripeFormData] = useState({
     banco: "STRIPE",
     conta: "",
     nome: "",
     produto_id: "",
     preco_id: "",
+    plan_id: null as string | null,
   });
-  const queryClient = useQueryClient();
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
     defaultValues: {
       name: "",
-      description: "",
-      price: 0,
-      original_price: null,
       billing_period: "monthly",
-      commission_percentage: 25,
-      is_active: true,
-      trial_days: 0,
+      price: 0,
+      original_price: 0,
+      description: "",
       obs_plan: "",
       obs_discount: "",
       obs_coupon: "",
-      coupon_id: null,
+      coupon_id: "",
+      trial_days: 0,
+      commission_percentage: 25,
+      is_active: true,
     },
   });
 
@@ -96,744 +94,762 @@ const AdminPlans = () => {
 
   const createPlanMutation = useMutation({
     mutationFn: async (data: PlanFormData) => {
+      const features = [
+        `obs_plan:${data.obs_plan || ""}`,
+        `obs_discount:${data.obs_discount || ""}`,
+        `obs_coupon:${data.obs_coupon || ""}`,
+        `coupon_id:${data.coupon_id || ""}`,
+        `trial_days:${data.trial_days}`,
+      ];
+
       const { error } = await supabase.from("plans").insert({
         name: data.name,
-        description: data.description || null,
+        description: data.description,
         price: data.price,
         original_price: data.original_price,
         billing_period: data.billing_period,
         commission_percentage: data.commission_percentage,
         is_active: data.is_active,
-        stripe_product_id: data.stripe_product_id,
-        stripe_price_id: data.stripe_price_id,
-        features: [
-          data.obs_plan,
-          data.obs_discount,
-          data.obs_coupon,
-          `trial_days:${data.trial_days}`,
-          data.coupon_id ? `coupon:${data.coupon_id}` : null,
-        ].filter(Boolean),
+        features,
       });
+      
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
-      toast({ title: "Plano criado com sucesso!" });
-      form.reset();
-      setTrialDays(0);
+      toast.success("Plano criado com sucesso!");
+      handleCancelEdit();
     },
     onError: (error) => {
-      toast({ title: "Erro ao criar plano", description: error.message, variant: "destructive" });
+      toast.error("Erro ao criar plano");
+      console.error(error);
     },
   });
 
   const updatePlanMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: PlanFormData }) => {
-      const { error } = await supabase.from("plans").update({
-        name: data.name,
-        description: data.description || null,
-        price: data.price,
-        original_price: data.original_price,
-        billing_period: data.billing_period,
-        commission_percentage: data.commission_percentage,
-        is_active: data.is_active,
-        stripe_product_id: data.stripe_product_id,
-        stripe_price_id: data.stripe_price_id,
-        features: [
-          data.obs_plan,
-          data.obs_discount,
-          data.obs_coupon,
-          `trial_days:${data.trial_days}`,
-          data.coupon_id ? `coupon:${data.coupon_id}` : null,
-        ].filter(Boolean),
-      }).eq("id", id);
+      const features = [
+        `obs_plan:${data.obs_plan || ""}`,
+        `obs_discount:${data.obs_discount || ""}`,
+        `obs_coupon:${data.obs_coupon || ""}`,
+        `coupon_id:${data.coupon_id || ""}`,
+        `trial_days:${data.trial_days}`,
+      ];
+
+      const { error } = await supabase
+        .from("plans")
+        .update({
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          original_price: data.original_price,
+          billing_period: data.billing_period,
+          commission_percentage: data.commission_percentage,
+          is_active: data.is_active,
+          features,
+        })
+        .eq("id", id);
+      
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
-      toast({ title: "Plano atualizado com sucesso!" });
-      form.reset();
-      setEditingPlanId(null);
-      setTrialDays(0);
+      toast.success("Plano atualizado com sucesso!");
+      handleCancelEdit();
     },
     onError: (error) => {
-      toast({ title: "Erro ao atualizar plano", description: error.message, variant: "destructive" });
+      toast.error("Erro ao atualizar plano");
+      console.error(error);
     },
   });
 
   const deletePlanMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("plans").delete().eq("id", id);
+      const { error } = await supabase
+        .from("plans")
+        .delete()
+        .eq("id", id);
+      
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
-      toast({ title: "Plano excluído com sucesso!" });
+      toast.success("Plano excluído com sucesso!");
+    },
+    onError: (error) => {
+      toast.error("Erro ao excluir plano");
+      console.error(error);
     },
   });
 
   const onSubmit = (data: PlanFormData) => {
-    if (editingPlanId) {
-      updatePlanMutation.mutate({ id: editingPlanId, data });
+    if (editingPlan) {
+      updatePlanMutation.mutate({ id: editingPlan.id, data });
     } else {
       createPlanMutation.mutate(data);
     }
   };
 
   const handleEditPlan = (plan: any) => {
-    setEditingPlanId(plan.id);
-    const features = plan.features || [];
-    const trialDaysFeature = features.find((f: string) => f?.startsWith("trial_days:"));
-    const couponFeature = features.find((f: string) => f?.startsWith("coupon:"));
+    setEditingPlan(plan);
+    setIsDialogOpen(true);
+    const features = Array.isArray(plan.features) ? plan.features : [];
     
     form.reset({
       name: plan.name,
-      description: plan.description || "",
-      price: plan.price,
-      original_price: plan.original_price,
       billing_period: plan.billing_period,
+      price: plan.price,
+      original_price: plan.original_price || 0,
+      description: plan.description || "",
+      obs_plan: features.find((f: string) => f.startsWith("obs_plan:"))?.replace("obs_plan:", "") || "",
+      obs_discount: features.find((f: string) => f.startsWith("obs_discount:"))?.replace("obs_discount:", "") || "",
+      obs_coupon: features.find((f: string) => f.startsWith("obs_coupon:"))?.replace("obs_coupon:", "") || "",
+      coupon_id: features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "") || "",
+      trial_days: parseInt(features.find((f: string) => f.startsWith("trial_days:"))?.replace("trial_days:", "") || "0"),
       commission_percentage: plan.commission_percentage,
       is_active: plan.is_active,
-      stripe_product_id: plan.stripe_product_id,
-      stripe_price_id: plan.stripe_price_id,
-      obs_plan: features[0] || "",
-      obs_discount: features[1] || "",
-      obs_coupon: features[2] || "",
-      trial_days: trialDaysFeature ? parseInt(trialDaysFeature.split(":")[1]) : 0,
-      coupon_id: couponFeature ? couponFeature.split(":")[1] : null,
     });
-    setTrialDays(trialDaysFeature ? parseInt(trialDaysFeature.split(":")[1]) : 0);
+  };
+
+  const handleNewPlan = () => {
+    setEditingPlan(null);
+    setIsDialogOpen(true);
+    form.reset({
+      name: "",
+      billing_period: "monthly",
+      price: 0,
+      original_price: 0,
+      description: "",
+      obs_plan: "",
+      obs_discount: "",
+      obs_coupon: "",
+      coupon_id: "",
+      trial_days: 0,
+      commission_percentage: 25,
+      is_active: true,
+    });
   };
 
   const handleCancelEdit = () => {
+    setEditingPlan(null);
+    setIsDialogOpen(false);
     form.reset();
-    setEditingPlanId(null);
-    setTrialDays(0);
   };
 
-  const groupedPlans = {
-    monthly: plans?.filter((p) => p.billing_period === "monthly") || [],
-    yearly: plans?.filter((p) => p.billing_period === "yearly") || [],
-    daily: plans?.filter((p) => p.billing_period === "daily") || [],
-  };
+  const handleSaveStripe = async () => {
+    if (!stripeFormData.plan_id) {
+      toast.error("Nenhum plano selecionado");
+      return;
+    }
 
-  const handleSaveStripe = () => {
-    if (editingStripeId) {
-      updatePlanMutation.mutate({
-        id: editingStripeId,
-        data: {
-          ...form.getValues(),
-          stripe_product_id: stripeFormData.produto_id,
-          stripe_price_id: stripeFormData.preco_id,
-        },
+    const { error } = await supabase
+      .from("plans")
+      .update({
+        stripe_product_id: stripeFormData.produto_id,
+        stripe_price_id: stripeFormData.preco_id,
+      })
+      .eq("id", stripeFormData.plan_id);
+
+    if (error) {
+      toast.error("Erro ao salvar integração Stripe");
+      console.error(error);
+    } else {
+      toast.success("Integração Stripe salva com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+      setStripeFormData({
+        banco: "STRIPE",
+        conta: "",
+        nome: "",
+        produto_id: "",
+        preco_id: "",
+        plan_id: null,
       });
-      setEditingStripeId(null);
-      setStripeFormData({ banco: "STRIPE", conta: "", nome: "", produto_id: "", preco_id: "" });
+    }
+  };
+
+  const handleEditStripeIntegration = (plan: any) => {
+    setStripeFormData({
+      banco: "STRIPE",
+      conta: "",
+      nome: plan.name,
+      produto_id: plan.stripe_product_id || "",
+      preco_id: plan.stripe_price_id || "",
+      plan_id: plan.id,
+    });
+  };
+
+  const handleDeleteStripeIntegration = async (planId: string) => {
+    const { error } = await supabase
+      .from("plans")
+      .update({
+        stripe_product_id: null,
+        stripe_price_id: null,
+      })
+      .eq("id", planId);
+
+    if (error) {
+      toast.error("Erro ao remover integração Stripe");
+    } else {
+      toast.success("Integração Stripe removida com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
     }
   };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2 text-slate-100">Cadastro de Planos</h1>
-          <p className="text-slate-400">Gerencie planos de assinatura e integrações</p>
-        </div>
-
-        <Tabs defaultValue="plano" className="w-full">
-          <TabsList className="bg-slate-900 border-b border-slate-700 rounded-none w-full justify-start h-auto p-0">
-            <TabsTrigger 
-              value="plano" 
-              className="data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:bg-purple-600/10 data-[state=active]:text-white text-slate-400 rounded-none px-6 py-3"
+      <div className="min-h-screen bg-slate-950 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold text-white">Planos</h1>
+            <Button
+              onClick={handleNewPlan}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
             >
-              Plano
-            </TabsTrigger>
-            <TabsTrigger 
-              value="assinaturas"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:bg-purple-600/10 data-[state=active]:text-white text-slate-400 rounded-none px-6 py-3"
-            >
-              Assinaturas
-            </TabsTrigger>
-          </TabsList>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Plano
+            </Button>
+          </div>
 
-          <TabsContent value="plano" className="mt-6 space-y-6">
-            <Card className="bg-slate-900 border-slate-800">
-              <CardHeader>
-                <CardTitle className="text-slate-100">
-                  {editingPlanId ? "Editar Plano" : "Novo Plano"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="billing_period"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Período do Plano</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-100 focus:border-purple-500">
-                                <SelectValue placeholder="Selecione o período" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="bg-slate-800 border-slate-700">
-                              <SelectItem value="daily" className="text-slate-100">Diário</SelectItem>
-                              <SelectItem value="monthly" className="text-slate-100">Mensal</SelectItem>
-                              <SelectItem value="yearly" className="text-slate-100">Anual</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+          <div className="space-y-8">
+            {isLoading ? (
+              <div className="text-center py-12 text-slate-400">Carregando planos...</div>
+            ) : (
+              <>
+                {["monthly", "yearly", "daily"].map((period) => {
+                  const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
+                  if (periodPlans.length === 0) return null;
 
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Nome do Plano</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Ex: Plano Mensal" 
-                              className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-200">Valor Assinatura/Recorrente</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                type="number" 
-                                step="0.01"
-                                placeholder="0,00" 
-                                className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  return (
+                    <div key={period}>
+                      <h2 className="text-xl font-semibold text-purple-400 mb-4">{periodTitle}</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {periodPlans.map((plan: any) => {
+                          const features = Array.isArray(plan.features) ? plan.features : [];
+                          const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
+                          const coupon = coupons?.find((c: any) => c.id === couponId);
 
-                      <FormField
-                        control={form.control}
-                        name="original_price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-slate-200">Preço Anterior</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                value={field.value || ""}
-                                type="number" 
-                                step="0.01"
-                                placeholder="0,00" 
-                                className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Detalhes</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              placeholder="Será usada na Landing Page" 
-                              className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500 min-h-[80px]"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="obs_plan"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Observação do Plano</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Ex: Mais contratado" 
-                              className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="obs_discount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Observação de Desconto</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Ex: R$ 10,00 de desconto" 
-                              className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="obs_coupon"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Observação Cupom</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              placeholder="Ex: Cupom de desconto 10%" 
-                              className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="coupon_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Selecione o CUPOM</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <FormControl>
-                              <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-100 focus:border-purple-500">
-                                <SelectValue placeholder="Selecione um cupom" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="bg-slate-800 border-slate-700">
-                              {coupons?.map((coupon) => (
-                                <SelectItem key={coupon.id} value={coupon.id} className="text-slate-100">
-                                  {coupon.code} - {coupon.name} ({coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`})
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="trial_days"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Tempo de Teste (dias)</FormLabel>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => {
-                                const newValue = Math.max(0, trialDays - 1);
-                                setTrialDays(newValue);
-                                field.onChange(newValue);
-                              }}
-                              className="bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input 
-                              {...field}
-                              value={trialDays}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value) || 0;
-                                setTrialDays(val);
-                                field.onChange(val);
-                              }}
-                              type="number" 
-                              className="bg-slate-800 border-slate-700 text-slate-100 text-center focus:border-purple-500"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => {
-                                const newValue = trialDays + 1;
-                                setTrialDays(newValue);
-                                field.onChange(newValue);
-                              }}
-                              className="bg-slate-800 border-slate-700 text-slate-100 hover:bg-slate-700"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <p className="text-xs text-amber-400 mt-1">
-                            Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="commission_percentage"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-slate-200">Percentual de Comissão (%)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              type="number"
-                              min="0"
-                              max="100"
-                              className="bg-slate-800 border-slate-700 text-slate-100 focus:border-purple-500"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="is_active"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center justify-between rounded-lg border border-slate-700 p-4 bg-slate-800/50">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-slate-200">Ativo</FormLabel>
-                            <p className="text-sm text-slate-400">
-                              Plano disponível para contratação
-                            </p>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="flex gap-3 pt-4">
-                      <Button 
-                        type="submit" 
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
-                        disabled={createPlanMutation.isPending || updatePlanMutation.isPending}
-                      >
-                        <Check className="h-4 w-4 mr-2" />
-                        Salvar
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant="outline"
-                        onClick={handleCancelEdit}
-                        className="bg-slate-700 hover:bg-slate-600 text-slate-100 border-slate-600"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Cancelar
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-
-            <div className="space-y-6">
-              {["monthly", "yearly", "daily"].map((period) => {
-                const periodLabel = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
-                const periodPlans = groupedPlans[period as keyof typeof groupedPlans];
-                
-                if (periodPlans.length === 0) return null;
-
-                return (
-                  <div key={period}>
-                    <h3 className="text-xl font-semibold mb-4 text-purple-400">{periodLabel}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {periodPlans.map((plan) => {
-                        const features = Array.isArray(plan.features) ? plan.features : [];
-                        const couponFeature = features.find((f: any) => typeof f === 'string' && f?.startsWith("coupon:"));
-                        const couponId = typeof couponFeature === 'string' ? couponFeature.split(":")[1] : null;
-                        const coupon = coupons?.find((c) => c.id === couponId);
-
-                        return (
-                          <Card 
-                            key={plan.id} 
-                            className="bg-slate-800/50 border-slate-700 hover:border-purple-600 transition-colors cursor-pointer"
-                            onClick={() => handleEditPlan(plan)}
-                          >
-                            <CardContent className="p-6">
-                              <div className="flex items-start justify-between mb-3">
-                                <h4 className="font-semibold text-slate-100">{plan.name}</h4>
-                                {coupon && (
-                                  <Tag className="h-4 w-4 text-purple-400" />
-                                )}
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <div>
-                                  {plan.original_price && (
-                                    <p className="text-sm text-slate-500 line-through">
-                                      R$ {Number(plan.original_price).toFixed(2)}
-                                    </p>
-                                  )}
-                                  <p className="text-lg font-bold text-slate-100">
-                                    Preço assinatura: R$ {Number(plan.price).toFixed(2)}
-                                  </p>
+                          return (
+                            <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
+                              <CardHeader>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <CardTitle className="text-white flex items-center gap-2">
+                                      {plan.name}
+                                      {!plan.is_active && (
+                                        <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
+                                      )}
+                                    </CardTitle>
+                                    {coupon && (
+                                      <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
+                                        <Tag className="h-3 w-3" />
+                                        <span>{coupon.code} - {coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleEditPlan(plan)}
+                                      className="text-green-400 hover:text-green-300 hover:bg-green-400/10"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => deletePlanMutation.mutate(plan.id)}
+                                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </div>
-
-                                {coupon && (
-                                  <p className="text-sm text-purple-400">
-                                    Cupom: {coupon.code} - {coupon.type === "percentage" ? `${coupon.value.toString()}% desconto` : `${coupon.value.toString()} dias`}
-                                  </p>
-                                )}
-
-                                {features[0] && typeof features[0] === 'string' && (
-                                  <p className="text-sm text-slate-400">{features[0]}</p>
-                                )}
-                              </div>
-
-                              <div className="flex gap-2 mt-4">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditPlan(plan);
-                                  }}
-                                  className="text-green-400 hover:text-green-300 hover:bg-green-400/10"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (confirm("Deseja realmente excluir este plano?")) {
-                                      deletePlanMutation.mutate(plan.id);
-                                    }
-                                  }}
-                                  className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-2">
+                                  <div className="flex items-baseline gap-2">
+                                    {plan.original_price && plan.original_price > plan.price && (
+                                      <span className="text-sm text-slate-500 line-through">
+                                        R$ {parseFloat(plan.original_price).toFixed(2)}
+                                      </span>
+                                    )}
+                                    <span className="text-2xl font-bold text-white">
+                                      R$ {parseFloat(plan.price).toFixed(2)}
+                                    </span>
+                                  </div>
+                                  {plan.description && (
+                                    <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
+                                  )}
+                                  <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
+                                    Comissão: {plan.commission_percentage}%
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </TabsContent>
+                  );
+                })}
+              </>
+            )}
+          </div>
 
-          <TabsContent value="assinaturas" className="mt-6 space-y-6">
-            <Card className="bg-slate-900 border-slate-800">
-              <CardHeader>
-                <CardTitle className="text-slate-100">
-                  {editingStripeId ? "Editar Integração Stripe" : "Nova Integração Stripe"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-slate-200">Banco</Label>
-                    <Select value={stripeFormData.banco} onValueChange={(v) => setStripeFormData({ ...stripeFormData, banco: v })}>
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-100 focus:border-purple-500">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
-                        <SelectItem value="STRIPE" className="text-slate-100">STRIPE</SelectItem>
-                        <SelectItem value="PAYPAL" className="text-slate-100">PAYPAL (Em breve)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border-slate-700">
+              <DialogHeader>
+                <DialogTitle className="text-white">
+                  {editingPlan ? "Editar Plano" : "Novo Plano"}
+                </DialogTitle>
+              </DialogHeader>
 
-                  <div>
-                    <Label className="text-slate-200">Conta</Label>
-                    <Input
-                      value={stripeFormData.conta}
-                      onChange={(e) => setStripeFormData({ ...stripeFormData, conta: e.target.value })}
-                      placeholder="Ex: APP Financeiro Teste"
-                      className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                    />
-                  </div>
+              <Tabs defaultValue="plano" className="space-y-6">
+                <TabsList className="bg-slate-800 border-b border-slate-700 w-full">
+                  <TabsTrigger 
+                    value="plano"
+                    className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:bg-purple-600/10 data-[state=active]:text-white text-slate-400"
+                  >
+                    Plano
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="assinaturas"
+                    className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:bg-purple-600/10 data-[state=active]:text-white text-slate-400"
+                  >
+                    Assinaturas
+                  </TabsTrigger>
+                </TabsList>
 
-                  <div>
-                    <Label className="text-slate-200">Nome da assinatura (No cadastro do Stripe)</Label>
-                    <Input
-                      value={stripeFormData.nome}
-                      onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
-                      placeholder="Plano Mensal"
-                      className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                    />
-                  </div>
+                <TabsContent value="plano" className="space-y-6">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="billing_period"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Período do plano</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectValue placeholder="Selecione o período" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-slate-800 border-slate-700">
+                                  <SelectItem value="monthly">Mensal</SelectItem>
+                                  <SelectItem value="yearly">Anual</SelectItem>
+                                  <SelectItem value="daily">Diário</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                  <div>
-                    <Label className="text-slate-200">ID Produto</Label>
-                    <Input
-                      value={stripeFormData.produto_id}
-                      onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
-                      placeholder="prod_XXXXXXXXXXXXX"
-                      className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                    />
-                  </div>
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Nome do Plano</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: Plano Mensal"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                  <div>
-                    <Label className="text-slate-200">ID Preço</Label>
-                    <Input
-                      value={stripeFormData.preco_id}
-                      onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
-                      placeholder="price_XXXXXXXXXXXXX"
-                      className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-purple-500"
-                    />
-                  </div>
+                        <FormField
+                          control={form.control}
+                          name="price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Valor Assinatura/Recorrente</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="0.00"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                  <div className="flex gap-3 pt-4">
-                    <Button 
-                      onClick={handleSaveStripe}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      <Check className="h-4 w-4 mr-2" />
-                      Salvar
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => {
-                        setEditingStripeId(null);
-                        setStripeFormData({ banco: "STRIPE", conta: "", nome: "", produto_id: "", preco_id: "" });
-                      }}
-                      className="bg-red-700 hover:bg-red-600 text-white border-red-600"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                        <FormField
+                          control={form.control}
+                          name="original_price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Preço anterior</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="0.00"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-            <Card className="bg-slate-900 border-slate-800">
-              <CardHeader>
-                <CardTitle className="text-slate-100">Assinaturas Cadastradas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-slate-700 hover:bg-slate-800/50">
-                        <TableHead className="text-slate-300">Banco</TableHead>
-                        <TableHead className="text-slate-300">Conta</TableHead>
-                        <TableHead className="text-slate-300">Nome</TableHead>
-                        <TableHead className="text-slate-300">ID Produto</TableHead>
-                        <TableHead className="text-slate-300">ID Preço</TableHead>
-                        <TableHead className="text-slate-300">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {isLoading ? (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center text-slate-400">
-                            Carregando...
-                          </TableCell>
-                        </TableRow>
-                      ) : plans?.filter(p => p.stripe_product_id || p.stripe_price_id).length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center text-slate-400">
-                            Nenhuma integração configurada
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        plans?.filter(p => p.stripe_product_id || p.stripe_price_id).map((plan) => (
-                          <TableRow key={plan.id} className="border-slate-700 hover:bg-slate-800/50">
-                            <TableCell className="text-slate-100">STRIPE</TableCell>
-                            <TableCell className="text-slate-100">-</TableCell>
-                            <TableCell className="text-slate-100">{plan.name}</TableCell>
-                            <TableCell className="text-slate-300 font-mono text-xs">
-                              {plan.stripe_product_id || "-"}
-                            </TableCell>
-                            <TableCell className="text-slate-300 font-mono text-xs">
-                              {plan.stripe_price_id || "-"}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
+                        <FormField
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem className="md:col-span-2">
+                              <FormLabel className="text-slate-200">Detalhes</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field} 
+                                  placeholder="Será usada na Landing Page"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                  rows={3}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="obs_plan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Observação do Plano</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: Mais contratado"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="obs_discount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Observação de Desconto</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: R$10,00 de desconto"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="obs_coupon"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Observação Cupom</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: Cupom de desconto 10%"
+                                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="coupon_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Selecione o CUPOM</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectValue placeholder="Selecione um cupom" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-slate-800 border-slate-700">
+                                  {coupons?.map((coupon: any) => (
+                                    <SelectItem key={coupon.id} value={coupon.id}>
+                                      {coupon.code} - {coupon.name} ({coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="trial_days"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Tempo de teste (dias)</FormLabel>
+                              <div className="flex items-center gap-2">
                                 <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    setEditingStripeId(plan.id);
-                                    setStripeFormData({
-                                      banco: "STRIPE",
-                                      conta: "",
-                                      nome: plan.name,
-                                      produto_id: plan.stripe_product_id || "",
-                                      preco_id: plan.stripe_price_id || "",
-                                    });
-                                  }}
-                                  className="text-green-400 hover:text-green-300 hover:bg-green-400/10"
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                                  className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                                 >
-                                  <Edit className="h-4 w-4" />
+                                  <Minus className="h-4 w-4" />
                                 </Button>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="number"
+                                    className="bg-slate-800 border-slate-700 text-white text-center"
+                                  />
+                                </FormControl>
                                 <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => {
-                                    if (confirm("Deseja remover a integração Stripe deste plano?")) {
-                                      updatePlanMutation.mutate({
-                                        id: plan.id,
-                                        data: {
-                                          ...form.getValues(),
-                                          stripe_product_id: null,
-                                          stripe_price_id: null,
-                                        },
-                                      });
-                                    }
-                                  }}
-                                  className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(field.value + 1)}
+                                  className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Plus className="h-4 w-4" />
                                 </Button>
                               </div>
-                            </TableCell>
+                              <FormDescription className="text-slate-500 text-xs">
+                                Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="commission_percentage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-slate-200">Percentual de Comissão (%)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  className="bg-slate-800 border-slate-700 text-white"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="is_active"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700 p-4 bg-slate-800">
+                              <div className="space-y-0.5">
+                                <FormLabel className="text-slate-200">Ativo</FormLabel>
+                                <FormDescription className="text-slate-500 text-xs">
+                                  Plano disponível para assinatura
+                                </FormDescription>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex gap-3 justify-end pt-6 border-t border-slate-800">
+                        <Button
+                          type="button"
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                          className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="submit"
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Salvar
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+
+                <TabsContent value="assinaturas" className="space-y-6">
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardHeader>
+                      <CardTitle className="text-white">Integração Stripe</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm text-slate-200">Banco</label>
+                          <Select
+                            value={stripeFormData.banco}
+                            onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
+                          >
+                            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-700 border-slate-600">
+                              <SelectItem value="STRIPE">STRIPE</SelectItem>
+                              <SelectItem value="PAYPAL">PAYPAL</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm text-slate-200">Conta</label>
+                          <Input
+                            value={stripeFormData.conta}
+                            onChange={(e) => setStripeFormData({ ...stripeFormData, conta: e.target.value })}
+                            placeholder="APP Financeiro Teste"
+                            className="bg-slate-700 border-slate-600 text-white"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm text-slate-200">Nome da assinatura (No cadastro do Stripe)</label>
+                          <Input
+                            value={stripeFormData.nome}
+                            onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
+                            placeholder="Plano Mensal"
+                            className="bg-slate-700 border-slate-600 text-white"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm text-slate-200">ID Produto</label>
+                          <Input
+                            value={stripeFormData.produto_id}
+                            onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
+                            placeholder="prod_XXXXXXXXXXXXX"
+                            className="bg-slate-700 border-slate-600 text-white"
+                          />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                          <label className="text-sm text-slate-200">ID Preço</label>
+                          <Input
+                            value={stripeFormData.preco_id}
+                            onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
+                            placeholder="price_XXXXXXXXXXXXX"
+                            className="bg-slate-700 border-slate-600 text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3 justify-end pt-4 border-t border-slate-700">
+                        <Button
+                          onClick={() => setStripeFormData({ banco: "STRIPE", conta: "", nome: "", produto_id: "", preco_id: "", plan_id: null })}
+                          variant="outline"
+                          className="bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancelar
+                        </Button>
+                        <Button
+                          onClick={handleSaveStripe}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Salvar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardHeader>
+                      <CardTitle className="text-white">Assinaturas Cadastradas</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-slate-700 hover:bg-slate-700/50">
+                            <TableHead className="text-slate-300">Banco</TableHead>
+                            <TableHead className="text-slate-300">Conta</TableHead>
+                            <TableHead className="text-slate-300">Nome</TableHead>
+                            <TableHead className="text-slate-300">ID Produto</TableHead>
+                            <TableHead className="text-slate-300">ID Preço</TableHead>
+                            <TableHead className="text-slate-300">Ações</TableHead>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                        </TableHeader>
+                        <TableBody>
+                          {plans?.filter((p: any) => p.stripe_product_id || p.stripe_price_id).map((plan: any) => (
+                            <TableRow key={plan.id} className="border-slate-700 hover:bg-slate-700/50">
+                              <TableCell className="text-white">STRIPE</TableCell>
+                              <TableCell className="text-white">-</TableCell>
+                              <TableCell className="text-white">{plan.name}</TableCell>
+                              <TableCell className="text-white font-mono text-xs">{plan.stripe_product_id || "-"}</TableCell>
+                              <TableCell className="text-white font-mono text-xs">{plan.stripe_price_id || "-"}</TableCell>
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleEditStripeIntegration(plan)}
+                                    className="text-green-400 hover:text-green-300 hover:bg-green-400/10"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDeleteStripeIntegration(plan.id)}
+                                    className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </DashboardLayout>
   );
