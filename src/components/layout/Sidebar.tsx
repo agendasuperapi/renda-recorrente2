@@ -32,6 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
+import { APP_VERSION } from "@/config/version";
 
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -140,10 +141,8 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <p className="text-xs text-sidebar-foreground/70">recorrente</p>
           </div>
         </div>
-        <div className="text-xs text-sidebar-foreground/50">
-          Versão: 4.1.70
-          <br />
-          {user?.email}
+        <div className="text-center text-xs text-sidebar-foreground/50">
+          Versão: {APP_VERSION}
         </div>
       </div>
 
