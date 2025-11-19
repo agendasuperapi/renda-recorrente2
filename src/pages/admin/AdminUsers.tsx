@@ -4,14 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users"],
@@ -42,6 +49,15 @@ const AdminUsers = () => {
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.affiliate_code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.ceil((filteredUsers?.length || 0) / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers?.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <DashboardLayout>
@@ -93,8 +109,8 @@ const AdminUsers = () => {
                       Carregando...
                     </TableCell>
                   </TableRow>
-                ) : filteredUsers && filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
+                ) : paginatedUsers && paginatedUsers.length > 0 ? (
+                  paginatedUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.username || "-"}</TableCell>
@@ -121,6 +137,53 @@ const AdminUsers = () => {
                 )}
               </TableBody>
             </Table>
+
+            {filteredUsers && filteredUsers.length > 0 && (
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Mostrando {startIndex + 1} a {Math.min(endIndex, filteredUsers.length)} de {filteredUsers.length} usuários
+                </p>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Anterior
+                      </Button>
+                    </PaginationItem>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                        >
+                          {page}
+                        </Button>
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        Próxima
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
