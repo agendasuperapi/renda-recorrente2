@@ -109,4 +109,15 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Previne flash branco durante navegação */
+  html, body, #root {
+    background-color: hsl(var(--background));
+    transition: none;
+  }
+
+  /* Suaviza transições de conteúdo */
+  main {
+    will-change: opacity;
+  }
 }
