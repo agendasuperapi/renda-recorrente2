@@ -16,13 +16,23 @@ import {
   LogOut,
   Crown,
   Link2,
+  Menu,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   user: SupabaseUser;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const affiliateMenuItems = [
@@ -49,9 +59,10 @@ const adminMenuItems = [
   { icon: Ticket, label: "Cupons", path: "/admin/coupons" },
 ];
 
-export const Sidebar = ({ user }: SidebarProps) => {
+export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
   const location = useLocation();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -96,8 +107,8 @@ export const Sidebar = ({ user }: SidebarProps) => {
 
   const menuItems = isAdmin ? adminMenuItems : affiliateMenuItems;
 
-  return (
-    <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col">
+  const SidebarContent = () => (
+    <>
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3 mb-4">
           <Link2 className="w-8 h-8 text-primary" />
@@ -127,6 +138,7 @@ export const Sidebar = ({ user }: SidebarProps) => {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => isMobile && onOpenChange?.(false)}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
                   isActive
@@ -169,6 +181,33 @@ export const Sidebar = ({ user }: SidebarProps) => {
           Sair
         </button>
       </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed top-4 left-4 z-50 md:hidden"
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground">
+          <div className="flex flex-col h-full">
+            <SidebarContent />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <aside className="hidden md:flex w-64 bg-sidebar text-sidebar-foreground flex-col">
+      <SidebarContent />
     </aside>
   );
 };
