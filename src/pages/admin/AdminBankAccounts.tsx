@@ -61,6 +61,8 @@ interface Account {
 interface Product {
   id: string;
   nome: string;
+  icone_light: string | null;
+  icone_dark: string | null;
 }
 
 const AdminBankAccounts = () => {
@@ -103,7 +105,7 @@ const AdminBankAccounts = () => {
           .from("accounts")
           .select("*, products (id, nome), banks (id, name)")
           .order("created_at", { ascending: false }),
-        client.from("products").select("id, nome").order("nome"),
+        client.from("products").select("id, nome, icone_light, icone_dark").order("nome"),
       ]);
 
       if (banksRes.error) throw banksRes.error;
@@ -663,19 +665,25 @@ const AdminBankAccounts = () => {
                 </div>
               ) : selectedProductFilter === "all" ? (
                 <>
-                  {products
-                    .filter((product) =>
-                      accounts.some((account) => account.product_id === product.id)
-                    )
-                    .map((product) => {
-                      const productAccounts = accounts.filter(
-                        (account) => account.product_id === product.id
-                      );
-                      return (
-                        <div key={product.id} className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-xl font-semibold text-white">{product.nome}</h3>
-                          </div>
+                      {products
+                        .filter((product) =>
+                          accounts.some((account) => account.product_id === product.id)
+                        )
+                        .map((product) => {
+                          const productAccounts = accounts.filter(
+                            (account) => account.product_id === product.id
+                          );
+                          return (
+                            <div key={product.id} className="space-y-4">
+                              <div className="flex items-center gap-2">
+                                {product.icone_light && (
+                                  <img src={product.icone_light} alt={product.nome} className="w-6 h-6 dark:hidden" />
+                                )}
+                                {product.icone_dark && (
+                                  <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
+                                )}
+                                <h3 className="text-xl font-semibold text-white">{product.nome}</h3>
+                              </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {productAccounts.map((account) => (
                               <Card key={account.id} className="bg-slate-800 border-slate-700">
