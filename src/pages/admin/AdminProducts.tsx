@@ -42,6 +42,10 @@ const AdminProducts = () => {
   const [iconLightFile, setIconLightFile] = useState<File | null>(null);
   const [logoDarkFile, setLogoDarkFile] = useState<File | null>(null);
   const [logoLightFile, setLogoLightFile] = useState<File | null>(null);
+  const [iconDarkPreview, setIconDarkPreview] = useState<string | null>(null);
+  const [iconLightPreview, setIconLightPreview] = useState<string | null>(null);
+  const [logoDarkPreview, setLogoDarkPreview] = useState<string | null>(null);
+  const [logoLightPreview, setLogoLightPreview] = useState<string | null>(null);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -200,7 +204,24 @@ const AdminProducts = () => {
     setIconLightFile(null);
     setLogoDarkFile(null);
     setLogoLightFile(null);
+    setIconDarkPreview(null);
+    setIconLightPreview(null);
+    setLogoDarkPreview(null);
+    setLogoLightPreview(null);
     form.reset();
+  };
+
+  const handleFileChange = (file: File | null, setter: (file: File | null) => void, previewSetter: (preview: string | null) => void) => {
+    setter(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previewSetter(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewSetter(null);
+    }
   };
 
   const uploadImage = async (file: File, path: string): Promise<string> => {
@@ -467,13 +488,19 @@ const AdminProducts = () => {
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setIconDarkFile(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconDarkFile, setIconDarkPreview)}
                         className="flex-1"
                       />
                       <Upload className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    {editingProduct?.icone_dark && !iconDarkFile && (
-                      <img src={editingProduct.icone_dark} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                    {(iconDarkPreview || editingProduct?.icone_dark) && (
+                      <div className="relative w-20 h-20 bg-muted rounded border">
+                        <img 
+                          src={iconDarkPreview || editingProduct.icone_dark} 
+                          alt="Preview" 
+                          className="w-full h-full object-contain p-1" 
+                        />
+                      </div>
                     )}
                   </div>
 
@@ -483,13 +510,19 @@ const AdminProducts = () => {
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setIconLightFile(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconLightFile, setIconLightPreview)}
                         className="flex-1"
                       />
                       <Upload className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    {editingProduct?.icone_light && !iconLightFile && (
-                      <img src={editingProduct.icone_light} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                    {(iconLightPreview || editingProduct?.icone_light) && (
+                      <div className="relative w-20 h-20 bg-muted rounded border">
+                        <img 
+                          src={iconLightPreview || editingProduct.icone_light} 
+                          alt="Preview" 
+                          className="w-full h-full object-contain p-1" 
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -501,13 +534,19 @@ const AdminProducts = () => {
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setLogoDarkFile(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoDarkFile, setLogoDarkPreview)}
                         className="flex-1"
                       />
                       <Upload className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    {editingProduct?.logo_dark && !logoDarkFile && (
-                      <img src={editingProduct.logo_dark} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                    {(logoDarkPreview || editingProduct?.logo_dark) && (
+                      <div className="relative w-32 h-20 bg-muted rounded border">
+                        <img 
+                          src={logoDarkPreview || editingProduct.logo_dark} 
+                          alt="Preview" 
+                          className="w-full h-full object-contain p-1" 
+                        />
+                      </div>
                     )}
                   </div>
 
@@ -517,13 +556,19 @@ const AdminProducts = () => {
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setLogoLightFile(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoLightFile, setLogoLightPreview)}
                         className="flex-1"
                       />
                       <Upload className="w-4 h-4 text-muted-foreground" />
                     </div>
-                    {editingProduct?.logo_light && !logoLightFile && (
-                      <img src={editingProduct.logo_light} alt="Preview" className="w-16 h-16 object-cover rounded" />
+                    {(logoLightPreview || editingProduct?.logo_light) && (
+                      <div className="relative w-32 h-20 bg-muted rounded border">
+                        <img 
+                          src={logoLightPreview || editingProduct.logo_light} 
+                          alt="Preview" 
+                          className="w-full h-full object-contain p-1" 
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
