@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -37,6 +37,11 @@ const AdminProducts = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [uploading, setUploading] = useState(false);
+  const [iconDarkFile, setIconDarkFile] = useState<File | null>(null);
+  const [iconLightFile, setIconLightFile] = useState<File | null>(null);
+  const [logoDarkFile, setLogoDarkFile] = useState<File | null>(null);
+  const [logoLightFile, setLogoLightFile] = useState<File | null>(null);
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -71,7 +76,20 @@ const AdminProducts = () => {
 
   const createProductMutation = useMutation({
     mutationFn: async (data: ProductFormData) => {
-      const { error } = await supabase.from("products").insert([data]);
+      const { error } = await supabase.from("products").insert([{
+        nome: data.nome!,
+        descricao: data.descricao,
+        telefone: data.telefone,
+        email: data.email,
+        texto_telefone: data.texto_telefone,
+        site: data.site,
+        icone_dark: data.icone_dark,
+        icone_light: data.icone_light,
+        logo_dark: data.logo_dark,
+        logo_light: data.logo_light,
+        site_landingpage: data.site_landingpage,
+        nome_apk: data.nome_apk,
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -178,14 +196,63 @@ const AdminProducts = () => {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingProduct(null);
+    setIconDarkFile(null);
+    setIconLightFile(null);
+    setLogoDarkFile(null);
+    setLogoLightFile(null);
     form.reset();
   };
 
-  const onSubmit = (data: ProductFormData) => {
-    if (editingProduct) {
-      updateProductMutation.mutate({ id: editingProduct.id, data });
-    } else {
-      createProductMutation.mutate(data);
+  const uploadImage = async (file: File, path: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${path}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const onSubmit = async (data: ProductFormData) => {
+    setUploading(true);
+    try {
+      const formData = { ...data };
+
+      // Upload images if files are selected
+      if (iconDarkFile) {
+        formData.icone_dark = await uploadImage(iconDarkFile, 'icons');
+      }
+      if (iconLightFile) {
+        formData.icone_light = await uploadImage(iconLightFile, 'icons');
+      }
+      if (logoDarkFile) {
+        formData.logo_dark = await uploadImage(logoDarkFile, 'logos');
+      }
+      if (logoLightFile) {
+        formData.logo_light = await uploadImage(logoLightFile, 'logos');
+      }
+
+      if (editingProduct) {
+        updateProductMutation.mutate({ id: editingProduct.id, data: formData });
+      } else {
+        createProductMutation.mutate(formData);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -374,71 +441,79 @@ const AdminProducts = () => {
                 />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="icone_dark"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Ícone Dark (URL)</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <div className="space-y-2">
+                    <Label>Ícone Dark</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setIconDarkFile(e.target.files?.[0] || null)}
+                        className="flex-1"
+                      />
+                      <Upload className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    {editingProduct?.icone_dark && !iconDarkFile && (
+                      <img src={editingProduct.icone_dark} alt="Preview" className="w-16 h-16 object-cover rounded" />
                     )}
-                  />
+                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="icone_light"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Ícone Light (URL)</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <div className="space-y-2">
+                    <Label>Ícone Light</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setIconLightFile(e.target.files?.[0] || null)}
+                        className="flex-1"
+                      />
+                      <Upload className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    {editingProduct?.icone_light && !iconLightFile && (
+                      <img src={editingProduct.icone_light} alt="Preview" className="w-16 h-16 object-cover rounded" />
                     )}
-                  />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="logo_dark"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Logo Dark (URL)</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <div className="space-y-2">
+                    <Label>Logo Dark</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setLogoDarkFile(e.target.files?.[0] || null)}
+                        className="flex-1"
+                      />
+                      <Upload className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    {editingProduct?.logo_dark && !logoDarkFile && (
+                      <img src={editingProduct.logo_dark} alt="Preview" className="w-16 h-16 object-cover rounded" />
                     )}
-                  />
+                  </div>
 
-                  <FormField
-                    control={form.control}
-                    name="logo_light"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Logo Light (URL)</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <div className="space-y-2">
+                    <Label>Logo Light</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setLogoLightFile(e.target.files?.[0] || null)}
+                        className="flex-1"
+                      />
+                      <Upload className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    {editingProduct?.logo_light && !logoLightFile && (
+                      <img src={editingProduct.logo_light} alt="Preview" className="w-16 h-16 object-cover rounded" />
                     )}
-                  />
+                  </div>
                 </div>
 
                 <div className="flex gap-2 justify-end pt-4">
                   <Button type="button" variant="outline" onClick={handleCloseDialog}>
                     Cancelar
                   </Button>
-                  <Button type="submit">
-                    {editingProduct ? "Atualizar" : "Criar"}
+                  <Button type="submit" disabled={uploading}>
+                    {uploading ? "Enviando..." : editingProduct ? "Atualizar" : "Criar"}
                   </Button>
                 </div>
               </form>
