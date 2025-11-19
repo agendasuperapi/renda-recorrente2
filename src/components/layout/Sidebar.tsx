@@ -61,7 +61,7 @@ const adminMenuItems = [
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
   { icon: Ticket, label: "Cupons", path: "/admin/coupons" },
   { icon: Package, label: "Produtos", path: "/admin/products" },
-  { icon: Building2, label: "Banco e Contas", path: "/admin/banks" },
+  { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
 ];
 
 export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
