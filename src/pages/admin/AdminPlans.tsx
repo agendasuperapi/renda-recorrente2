@@ -440,10 +440,10 @@ const AdminPlans = () => {
                                       </div>
                                     </CardHeader>
                                     <CardContent className="space-y-3">
-                                     <div className="space-y-1">
-                                        {plan.original_price && plan.original_price > 0 && (
+                                      <div className="space-y-1">
+                                        {Number(plan.original_price) > 0 && (
                                           <span className="text-sm text-slate-500 line-through">
-                                            R$ {parseFloat(plan.original_price).toFixed(2)}
+                                            R$ {Number(plan.original_price).toFixed(2)}
                                           </span>
                                         )}
                                         <span className="text-2xl font-bold text-white">
