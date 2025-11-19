@@ -130,33 +130,26 @@ export const Sidebar = ({ user, open, onOpenChange }: SidebarProps) => {
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {loading ? (
-          <div className="text-center py-4 text-sm text-muted-foreground">
-            Carregando...
-          </div>
-        ) : (
-          menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
 
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={closeSidebar}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
-                  isActive
-                    ? "bg-primary text-white"
-                    : "hover:bg-sidebar-accent text-sidebar-foreground"
-                )}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })
-        )}
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
+                isActive
+                  ? "bg-primary text-white"
+                  : "hover:bg-sidebar-accent text-sidebar-foreground"
+              )}
+            >
+              <Icon size={18} />
+              {item.label}
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="p-4 border-t border-sidebar-border space-y-2">
