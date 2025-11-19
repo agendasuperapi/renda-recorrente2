@@ -454,9 +454,10 @@ create policy "Admins can view all subscriptions"
   on public.subscriptions for select
   using (public.has_role(auth.uid(), 'super_admin'));
 
-create policy "System can manage subscriptions"
-  on public.subscriptions for all
-  using (true);
+-- REMOVED: Dangerous "System can manage subscriptions" policy
+-- The policy "using (true)" allowed ANY authenticated user to perform ALL operations on ALL subscriptions
+-- This was a critical security vulnerability that has been removed
+-- For Stripe webhooks/system operations, use edge functions with service role key instead
 
 -- COUPONS POLICIES
 create policy "Affiliates can view their coupons"
