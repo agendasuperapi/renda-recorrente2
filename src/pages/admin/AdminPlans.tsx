@@ -333,6 +333,14 @@ const AdminPlans = () => {
       console.error(error);
     } else {
       toast.success("Produto Stripe cadastrado com sucesso!");
+      
+      // Atualiza o estado local do plano selecionado
+      setSelectedPlanForStripe({
+        ...selectedPlanForStripe,
+        stripe_product_id: stripeFormData.produto_id,
+        stripe_price_id: stripeFormData.preco_id,
+      });
+      
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
       setStripeFormData({
         banco: "STRIPE",
