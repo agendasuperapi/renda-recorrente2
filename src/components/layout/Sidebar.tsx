@@ -33,10 +33,11 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface SidebarProps {
-  user: SupabaseUser;
+  user: SupabaseUser | null;
   isAdmin: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  isLoading?: boolean;
 }
 
 const affiliateMenuItems = [
@@ -65,14 +66,16 @@ const adminMenuItems = [
   { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
 ];
 
-export const Sidebar = ({ user, isAdmin, open, onOpenChange }: SidebarProps) => {
+export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }: SidebarProps) => {
   const location = useLocation();
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     // Limpar cache de role ao fazer logout
-    localStorage.removeItem(`user_role_${user.id}`);
+    if (user?.id) {
+      localStorage.removeItem(`user_role_${user.id}`);
+    }
     await supabase.auth.signOut();
     toast({
       title: "Logout realizado",
@@ -81,9 +84,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange }: SidebarProps) => 
   };
 
   const getInitials = () => {
-    const name = user.user_metadata?.name || user.email;
+    const name = user?.user_metadata?.name || user?.email;
     return name?.substring(0, 2).toUpperCase() || "U";
   };
+  
+  if (!user) return null;
 
   const menuItems = isAdmin ? adminMenuItems : affiliateMenuItems;
 
@@ -100,7 +105,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange }: SidebarProps) => 
         <div className="text-xs text-sidebar-foreground/50">
           Versão: 4.1.70
           <br />
-          {user.email}
+          {user?.email}
         </div>
       </div>
 

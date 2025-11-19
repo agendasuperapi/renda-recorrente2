@@ -66,7 +66,7 @@ const SubAffiliates = () => {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

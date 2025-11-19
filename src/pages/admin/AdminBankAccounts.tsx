@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -371,8 +370,7 @@ const AdminBankAccounts = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Banco e Contas</h1>
@@ -947,7 +945,7 @@ const AdminBankAccounts = () => {
         </Tabs>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

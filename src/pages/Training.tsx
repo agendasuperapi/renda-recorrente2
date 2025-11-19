@@ -1,38 +1,13 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, PlayCircle, FileText } from "lucide-react";
+import { GraduationCap, Video, FileText } from "lucide-react";
 
 const Training = () => {
   const courses = [
-    {
-      title: "Introdução ao Programa de Afiliados",
-      description: "Aprenda os conceitos básicos e como começar",
-      duration: "30 min",
-      type: "video",
-    },
-    {
-      title: "Como Gerar Links e Cupons",
-      description: "Técnicas para criar e compartilhar seus links",
-      duration: "20 min",
-      type: "video",
-    },
-    {
-      title: "Estratégias de Marketing Digital",
-      description: "Maximize suas conversões com essas dicas",
-      duration: "45 min",
-      type: "video",
-    },
-    {
-      title: "Guia de Comissões e Pagamentos",
-      description: "Entenda como funcionam os pagamentos",
-      duration: "15 min",
-      type: "pdf",
-    },
+...
   ];
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Treinamento</h1>
           <p className="text-muted-foreground">
@@ -80,7 +55,7 @@ const Training = () => {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

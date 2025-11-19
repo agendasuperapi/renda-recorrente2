@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -36,34 +37,39 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/training" element={<Training />} />
-          <Route path="/referrals" element={<Referrals />} />
-          <Route path="/sub-affiliates" element={<SubAffiliates />} />
-          <Route path="/commissions-daily" element={<CommissionsDaily />} />
-          <Route path="/commissions-monthly" element={<CommissionsMonthly />} />
-          <Route path="/activities" element={<Activities />} />
-          <Route path="/coupons" element={<Coupons />} />
-          <Route path="/withdrawals" element={<Withdrawals />} />
-          <Route path="/plan" element={<Plan />} />
-          <Route path="/google-business" element={<GoogleBusiness />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/plans" element={<AdminPlans />} />
-          <Route path="/admin/segments" element={<AdminSegments />} />
-          <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
-          <Route path="/admin/coupons" element={<AdminCoupons />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Protected Routes with DashboardLayout */}
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/training" element={<Training />} />
+              <Route path="/referrals" element={<Referrals />} />
+              <Route path="/sub-affiliates" element={<SubAffiliates />} />
+              <Route path="/commissions-daily" element={<CommissionsDaily />} />
+              <Route path="/commissions-monthly" element={<CommissionsMonthly />} />
+              <Route path="/activities" element={<Activities />} />
+              <Route path="/coupons" element={<Coupons />} />
+              <Route path="/withdrawals" element={<Withdrawals />} />
+              <Route path="/plan" element={<Plan />} />
+              <Route path="/google-business" element={<GoogleBusiness />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/plans" element={<AdminPlans />} />
+              <Route path="/admin/segments" element={<AdminSegments />} />
+              <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
+              <Route path="/admin/coupons" element={<AdminCoupons />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
+            </Route>
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
