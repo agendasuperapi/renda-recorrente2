@@ -325,16 +325,16 @@ const AdminBankAccounts = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-slate-950 p-6">
+      <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-white">Banco e Contas</h1>
+            <h1 className="text-3xl font-bold">Banco e Contas</h1>
           </div>
 
         <Tabs defaultValue="banks" className="space-y-4">
-          <TabsList className="bg-slate-800 border-slate-700">
-            <TabsTrigger value="banks" className="data-[state=active]:bg-slate-900 text-white">Bancos</TabsTrigger>
-            <TabsTrigger value="accounts" className="data-[state=active]:bg-slate-900 text-white">Contas</TabsTrigger>
+          <TabsList>
+            <TabsTrigger value="banks">Bancos</TabsTrigger>
+            <TabsTrigger value="accounts">Contas</TabsTrigger>
           </TabsList>
 
           <TabsContent value="banks" className="space-y-4">
@@ -441,14 +441,14 @@ const AdminBankAccounts = () => {
             <div className="flex items-center justify-between">
               <div className="flex gap-4 items-center">
                 <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
-                  <SelectTrigger className="w-[280px] bg-slate-800 border-slate-700 text-white">
+                  <SelectTrigger className="w-[280px]">
                     <SelectValue placeholder="Filtrar por produto" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="all" className="text-white">Todos os produtos</SelectItem>
-                    <SelectItem value="no-product" className="text-white">Sem produto</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os produtos</SelectItem>
+                    <SelectItem value="no-product">Sem produto</SelectItem>
                     {products?.map((product) => (
-                      <SelectItem key={product.id} value={product.id} className="text-white">
+                      <SelectItem key={product.id} value={product.id}>
                         {product.nome}
                       </SelectItem>
                     ))}
@@ -456,7 +456,6 @@ const AdminBankAccounts = () => {
                 </Select>
                 <Button
                   onClick={resetAccountForm}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
                   onClickCapture={() => setOpenAccountDialog(true)}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -466,28 +465,28 @@ const AdminBankAccounts = () => {
             </div>
             
             <Dialog open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border-slate-700">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle className="text-white">
+                    <DialogTitle>
                       {editingAccount ? "Editar Conta" : "Nova Conta"}
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleAccountSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="product_id" className="text-white">Produto</Label>
+                        <Label htmlFor="product_id">Produto</Label>
                         <Select
                           value={accountFormData.product_id}
                           onValueChange={(value) =>
                             setAccountFormData({ ...accountFormData, product_id: value })
                           }
                         >
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                          <SelectTrigger>
                             <SelectValue placeholder="Selecione um produto" />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-slate-700">
+                          <SelectContent>
                             {products.map((product) => (
-                              <SelectItem key={product.id} value={product.id} className="text-white">
+                              <SelectItem key={product.id} value={product.id}>
                                 {product.nome}
                               </SelectItem>
                             ))}
@@ -495,19 +494,19 @@ const AdminBankAccounts = () => {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="bank_id" className="text-white">Banco</Label>
+                        <Label htmlFor="bank_id">Banco</Label>
                         <Select
                           value={accountFormData.bank_id}
                           onValueChange={(value) =>
                             setAccountFormData({ ...accountFormData, bank_id: value })
                           }
                         >
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                          <SelectTrigger>
                             <SelectValue placeholder="Selecione um banco" />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-slate-700">
+                          <SelectContent>
                             {banks.map((bank) => (
-                              <SelectItem key={bank.id} value={bank.id} className="text-white">
+                              <SelectItem key={bank.id} value={bank.id}>
                                 {bank.name}
                               </SelectItem>
                             ))}
@@ -517,7 +516,7 @@ const AdminBankAccounts = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="account-name" className="text-white">Nome da conta</Label>
+                      <Label htmlFor="account-name">Nome da conta</Label>
                       <Input
                         id="account-name"
                         value={accountFormData.name}
@@ -525,12 +524,11 @@ const AdminBankAccounts = () => {
                           setAccountFormData({ ...accountFormData, name: e.target.value })
                         }
                         required
-                        className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="account-email" className="text-white">E-mail</Label>
+                      <Label htmlFor="account-email">E-mail</Label>
                       <Input
                         id="account-email"
                         type="email"
@@ -539,15 +537,14 @@ const AdminBankAccounts = () => {
                           setAccountFormData({ ...accountFormData, email: e.target.value })
                         }
                         required
-                        className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="key_authorization" className="text-white">Key Authorization</Label>
+                      <Label htmlFor="key_authorization">Key Authorization</Label>
                       <textarea
                         id="key_authorization"
-                        className="flex min-h-[100px] w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-base text-white ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
+                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
                         value={accountFormData.key_authorization}
                         onChange={(e) =>
                           setAccountFormData({
@@ -560,10 +557,10 @@ const AdminBankAccounts = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="signing_secret" className="text-white">Signing Secret</Label>
+                      <Label htmlFor="signing_secret">Signing Secret</Label>
                       <textarea
                         id="signing_secret"
-                        className="flex min-h-[100px] w-full rounded-md border border-slate-700 bg-slate-800 px-3 py-2 text-base text-white ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
+                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
                         value={accountFormData.signing_secret}
                         onChange={(e) =>
                           setAccountFormData({
@@ -576,7 +573,7 @@ const AdminBankAccounts = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="success_url" className="text-white">Success URL</Label>
+                      <Label htmlFor="success_url">Success URL</Label>
                       <Input
                         id="success_url"
                         type="url"
@@ -587,12 +584,11 @@ const AdminBankAccounts = () => {
                             success_url: e.target.value,
                           })
                         }
-                        className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="cancel_url" className="text-white">Cancel URL</Label>
+                      <Label htmlFor="cancel_url">Cancel URL</Label>
                       <Input
                         id="cancel_url"
                         type="url"
@@ -603,12 +599,11 @@ const AdminBankAccounts = () => {
                             cancel_url: e.target.value,
                           })
                         }
-                        className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="return_url" className="text-white">Return URL</Label>
+                      <Label htmlFor="return_url">Return URL</Label>
                       <Input
                         id="return_url"
                         type="url"
@@ -619,7 +614,6 @@ const AdminBankAccounts = () => {
                             return_url: e.target.value,
                           })
                         }
-                        className="bg-slate-800 border-slate-700 text-white"
                       />
                     </div>
 
@@ -635,7 +629,7 @@ const AdminBankAccounts = () => {
                             })
                           }
                         />
-                        <Label htmlFor="is_production" className="text-white">Conta de produção</Label>
+                        <Label htmlFor="is_production">Conta de produção</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Switch
@@ -645,11 +639,11 @@ const AdminBankAccounts = () => {
                             setAccountFormData({ ...accountFormData, is_active: checked })
                           }
                         />
-                        <Label htmlFor="account-active" className="text-white">Conta ativa</Label>
+                        <Label htmlFor="account-active">Conta ativa</Label>
                       </div>
                     </div>
 
-                    <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+                    <Button type="submit" className="w-full">
                       {editingAccount ? "Salvar alterações" : "Criar conta"}
                     </Button>
                   </form>
@@ -658,9 +652,9 @@ const AdminBankAccounts = () => {
 
             <div className="space-y-8">
               {loading ? (
-                <div className="text-center py-12 text-slate-400">Carregando contas...</div>
+                <div className="text-center py-12 text-muted-foreground">Carregando contas...</div>
               ) : accounts.length === 0 ? (
-                <div className="text-center py-12 text-slate-400">
+                <div className="text-center py-12 text-muted-foreground">
                   Nenhuma conta cadastrada ainda.
                 </div>
               ) : selectedProductFilter === "all" ? (
@@ -680,21 +674,21 @@ const AdminBankAccounts = () => {
                                   <img src={product.icone_light} alt={product.nome} className="w-6 h-6 dark:hidden" />
                                 )}
                                 {product.icone_dark && (
-                                  <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
-                                )}
-                                <h3 className="text-xl font-semibold text-white">{product.nome}</h3>
-                              </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {productAccounts.map((account) => (
-                              <Card key={account.id} className="bg-slate-800 border-slate-700">
-                                <CardContent className="p-6">
-                                  <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1">
-                                      <h4 className="text-lg font-semibold text-white mb-1">
+                                <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
+                              )}
+                              <h3 className="text-xl font-semibold">{product.nome}</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {productAccounts.map((account) => (
+                                <Card key={account.id}>
+                                  <CardContent className="p-6">
+                                    <div className="flex items-start justify-between mb-4">
+                                      <div className="flex-1">
+                                        <h4 className="text-lg font-semibold mb-1">
                                         {account.name}
                                       </h4>
-                                      <p className="text-sm text-slate-400">{account.banks?.name}</p>
-                                      <p className="text-sm text-slate-400 mt-1">{account.email}</p>
+                                      <p className="text-sm text-muted-foreground">{account.banks?.name}</p>
+                                      <p className="text-sm text-muted-foreground mt-1">{account.email}</p>
                                     </div>
                                     <div className="flex gap-1">
                                       <Button
@@ -702,7 +696,6 @@ const AdminBankAccounts = () => {
                                         size="icon"
                                         onClick={() => openAccountEditDialog(account)}
                                         aria-label="Editar conta"
-                                        className="text-slate-400 hover:text-white"
                                       >
                                         <Pencil className="h-4 w-4" />
                                       </Button>
@@ -711,7 +704,6 @@ const AdminBankAccounts = () => {
                                         size="icon"
                                         onClick={() => handleAccountDelete(account.id)}
                                         aria-label="Excluir conta"
-                                        className="text-slate-400 hover:text-red-400"
                                       >
                                         <Trash2 className="h-4 w-4" />
                                       </Button>
@@ -742,21 +734,21 @@ const AdminBankAccounts = () => {
                   {accounts.filter((account) => !account.product_id).length > 0 && (
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-xl font-semibold text-slate-400">Sem produto</h3>
+                        <h3 className="text-xl font-semibold text-muted-foreground">Sem produto</h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {accounts
                           .filter((account) => !account.product_id)
                           .map((account) => (
-                            <Card key={account.id} className="bg-slate-800 border-slate-700">
+                            <Card key={account.id}>
                               <CardContent className="p-6">
                                 <div className="flex items-start justify-between mb-4">
                                   <div className="flex-1">
-                                    <h4 className="text-lg font-semibold text-white mb-1">
+                                    <h4 className="text-lg font-semibold mb-1">
                                       {account.name}
                                     </h4>
-                                    <p className="text-sm text-slate-400">{account.banks?.name}</p>
-                                    <p className="text-sm text-slate-400 mt-1">{account.email}</p>
+                                    <p className="text-sm text-muted-foreground">{account.banks?.name}</p>
+                                    <p className="text-sm text-muted-foreground mt-1">{account.email}</p>
                                   </div>
                                   <div className="flex gap-1">
                                     <Button
@@ -764,7 +756,6 @@ const AdminBankAccounts = () => {
                                       size="icon"
                                       onClick={() => openAccountEditDialog(account)}
                                       aria-label="Editar conta"
-                                      className="text-slate-400 hover:text-white"
                                     >
                                       <Pencil className="h-4 w-4" />
                                     </Button>
@@ -773,7 +764,6 @@ const AdminBankAccounts = () => {
                                       size="icon"
                                       onClick={() => handleAccountDelete(account.id)}
                                       aria-label="Excluir conta"
-                                      className="text-slate-400 hover:text-red-400"
                                     >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -805,15 +795,15 @@ const AdminBankAccounts = () => {
                   {accounts
                     .filter((account) => !account.product_id)
                     .map((account) => (
-                      <Card key={account.id} className="bg-slate-800 border-slate-700">
+                      <Card key={account.id}>
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-white mb-1">
+                              <h4 className="text-lg font-semibold mb-1">
                                 {account.name}
                               </h4>
-                              <p className="text-sm text-slate-400">{account.banks?.name}</p>
-                              <p className="text-sm text-slate-400 mt-1">{account.email}</p>
+                              <p className="text-sm text-muted-foreground">{account.banks?.name}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{account.email}</p>
                             </div>
                             <div className="flex gap-1">
                               <Button
@@ -821,7 +811,6 @@ const AdminBankAccounts = () => {
                                 size="icon"
                                 onClick={() => openAccountEditDialog(account)}
                                 aria-label="Editar conta"
-                                className="text-slate-400 hover:text-white"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -830,7 +819,6 @@ const AdminBankAccounts = () => {
                                 size="icon"
                                 onClick={() => handleAccountDelete(account.id)}
                                 aria-label="Excluir conta"
-                                className="text-slate-400 hover:text-red-400"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -859,15 +847,15 @@ const AdminBankAccounts = () => {
                   {accounts
                     .filter((account) => account.product_id === selectedProductFilter)
                     .map((account) => (
-                      <Card key={account.id} className="bg-slate-800 border-slate-700">
+                      <Card key={account.id}>
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-white mb-1">
+                              <h4 className="text-lg font-semibold mb-1">
                                 {account.name}
                               </h4>
-                              <p className="text-sm text-slate-400">{account.banks?.name}</p>
-                              <p className="text-sm text-slate-400 mt-1">{account.email}</p>
+                              <p className="text-sm text-muted-foreground">{account.banks?.name}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{account.email}</p>
                             </div>
                             <div className="flex gap-1">
                               <Button
@@ -875,7 +863,6 @@ const AdminBankAccounts = () => {
                                 size="icon"
                                 onClick={() => openAccountEditDialog(account)}
                                 aria-label="Editar conta"
-                                className="text-slate-400 hover:text-white"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -884,7 +871,6 @@ const AdminBankAccounts = () => {
                                 size="icon"
                                 onClick={() => handleAccountDelete(account.id)}
                                 aria-label="Excluir conta"
-                                className="text-slate-400 hover:text-red-400"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>

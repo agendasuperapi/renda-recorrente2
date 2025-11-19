@@ -325,28 +325,26 @@ const AdminPlans = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-slate-950 p-6">
+      <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-white">Planos</h1>
+            <h1 className="text-3xl font-bold">Planos</h1>
             <div className="flex gap-4 items-center">
               <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
-                <SelectTrigger className="w-[280px] bg-slate-800 border-slate-700 text-white">
+                <SelectTrigger className="w-[280px]">
                   <SelectValue placeholder="Filtrar por produto" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="all" className="text-white">Todos os produtos</SelectItem>
-                  <SelectItem value="no-product" className="text-white">Sem produto</SelectItem>
+                <SelectContent>
+                  <SelectItem value="all">Todos os produtos</SelectItem>
+                  <SelectItem value="no-product">Sem produto</SelectItem>
                   {products?.map((product: any) => (
-                    <SelectItem key={product.id} value={product.id} className="text-white">
+                    <SelectItem key={product.id} value={product.id}>
                       {product.nome}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button
-                onClick={handleNewPlan}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+              <Button onClick={handleNewPlan}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Plano
@@ -356,7 +354,7 @@ const AdminPlans = () => {
 
           <div className="space-y-8">
             {isLoading ? (
-              <div className="text-center py-12 text-slate-400">Carregando planos...</div>
+              <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
             ) : selectedProductFilter === "all" ? (
               // Group by period and then by product when "all" is selected
               <>
@@ -393,7 +391,7 @@ const AdminPlans = () => {
                               {product?.icone_dark && (
                                 <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
                               )}
-                              <h3 className="text-lg font-semibold text-white">{product?.nome || "Produto"}</h3>
+                              <h3 className="text-lg font-semibold">{product?.nome || "Produto"}</h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {(productPlans as any[]).map((plan: any) => {
@@ -402,11 +400,11 @@ const AdminPlans = () => {
                                 const coupon = coupons?.find((c: any) => c.id === couponId);
 
                                 return (
-                                  <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
+                                  <Card key={plan.id} className="hover:border-primary/50 transition-colors">
                                     <CardHeader>
                                       <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                          <CardTitle className="text-white flex items-center gap-2">
+                                          <CardTitle className="flex items-center gap-2">
                                             {plan.name}
                                             {!plan.is_active && (
                                               <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
@@ -476,11 +474,11 @@ const AdminPlans = () => {
                               const coupon = coupons?.find((c: any) => c.id === couponId);
 
                               return (
-                                <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
+                                <Card key={plan.id} className="hover:border-primary/50 transition-colors">
                                   <CardHeader>
                                     <div className="flex items-start justify-between">
                                       <div className="flex-1">
-                                        <CardTitle className="text-white flex items-center gap-2">
+                                        <CardTitle className="flex items-center gap-2">
                                           {plan.name}
                                           {!plan.is_active && (
                                             <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
@@ -566,11 +564,11 @@ const AdminPlans = () => {
                           const product = plan.products;
 
                           return (
-                            <Card key={plan.id} className="bg-slate-900 border-slate-700 hover:border-purple-600 transition-colors">
+                            <Card key={plan.id} className="hover:border-primary/50 transition-colors">
                               <CardHeader>
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
-                                    <CardTitle className="text-white flex items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2">
                                       {plan.name}
                                       {!plan.is_active && (
                                         <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
@@ -654,9 +652,9 @@ const AdminPlans = () => {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border-slate-700">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-white">
+                <DialogTitle>
                   {editingPlan ? "Editar Plano" : "Novo Plano"}
                 </DialogTitle>
               </DialogHeader>
