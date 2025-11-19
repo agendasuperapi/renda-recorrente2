@@ -680,7 +680,7 @@ const AdminBankAccounts = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {productAccounts.map((account) => (
-                                <Card key={account.id}>
+                                <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
                                   <CardContent className="p-6">
                                     <div className="flex items-start justify-between mb-4">
                                       <div className="flex-1">
@@ -717,7 +717,7 @@ const AdminBankAccounts = () => {
                                       {account.is_production ? "Produção" : "Teste"}
                                     </Badge>
                                     <Badge
-                                      variant={account.is_active ? "default" : "outline"}
+                                      variant={account.is_active ? "default" : "destructive"}
                                       className="text-xs"
                                     >
                                       {account.is_active ? "Ativa" : "Inativa"}
@@ -740,7 +740,7 @@ const AdminBankAccounts = () => {
                         {accounts
                           .filter((account) => !account.product_id)
                           .map((account) => (
-                            <Card key={account.id}>
+                            <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
                               <CardContent className="p-6">
                                 <div className="flex items-start justify-between mb-4">
                                   <div className="flex-1">
@@ -777,7 +777,7 @@ const AdminBankAccounts = () => {
                                     {account.is_production ? "Produção" : "Teste"}
                                   </Badge>
                                   <Badge
-                                    variant={account.is_active ? "default" : "outline"}
+                                    variant={account.is_active ? "default" : "destructive"}
                                     className="text-xs"
                                   >
                                     {account.is_active ? "Ativa" : "Inativa"}
@@ -795,7 +795,7 @@ const AdminBankAccounts = () => {
                   {accounts
                     .filter((account) => !account.product_id)
                     .map((account) => (
-                      <Card key={account.id}>
+                      <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
@@ -832,7 +832,7 @@ const AdminBankAccounts = () => {
                               {account.is_production ? "Produção" : "Teste"}
                             </Badge>
                             <Badge
-                              variant={account.is_active ? "default" : "outline"}
+                              variant={account.is_active ? "default" : "destructive"}
                               className="text-xs"
                             >
                               {account.is_active ? "Ativa" : "Inativa"}
@@ -847,7 +847,7 @@ const AdminBankAccounts = () => {
                   {accounts
                     .filter((account) => account.product_id === selectedProductFilter)
                     .map((account) => (
-                      <Card key={account.id}>
+                      <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
@@ -884,7 +884,7 @@ const AdminBankAccounts = () => {
                               {account.is_production ? "Produção" : "Teste"}
                             </Badge>
                             <Badge
-                              variant={account.is_active ? "default" : "outline"}
+                              variant={account.is_active ? "default" : "destructive"}
                               className="text-xs"
                             >
                               {account.is_active ? "Ativa" : "Inativa"}
