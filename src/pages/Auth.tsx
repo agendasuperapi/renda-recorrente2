@@ -153,7 +153,7 @@ const Auth = () => {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
               required
               className="bg-white"
               placeholder="seu@email.com"
