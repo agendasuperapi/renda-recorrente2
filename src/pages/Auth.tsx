@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Eye, EyeOff } from "lucide-react";
 import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
@@ -116,13 +117,17 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <div className="w-full max-w-md p-8">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-40 h-40 mb-4">
             <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-40 h-40 rounded-full" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             APP Renda recorrente
           </h1>
         </div>
@@ -206,10 +211,10 @@ const Auth = () => {
         </div>
 
         <div className="mt-8 text-center">
-          <a href="#" className="text-slate-400 hover:text-slate-300 text-sm">
+          <a href="#" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
             Política de privacidade
           </a>
-          <p className="text-slate-500 text-xs mt-2">Versão: 4.1.70</p>
+          <p className="text-muted-foreground text-xs mt-2">Versão: 4.1.70</p>
         </div>
       </div>
     </div>
