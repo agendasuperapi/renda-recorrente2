@@ -19,6 +19,7 @@ import {
   Menu,
   Package,
   Building2,
+  FileSearch,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -61,7 +62,7 @@ const affiliateMenuItems = [
 const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
   { icon: Users, label: "Usuários", path: "/admin/users" },
-  
+  { icon: FileSearch, label: "API de CPF", path: "/admin/cpf-apis" },
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
   { icon: Ticket, label: "Cupons", path: "/admin/coupons" },
   { icon: Package, label: "Produtos", path: "/admin/products" },
