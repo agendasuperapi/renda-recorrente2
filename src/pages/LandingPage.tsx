@@ -574,9 +574,9 @@ const LandingPage = () => {
               <Card key={testimonial.id}>
                 <CardHeader>
                   <div className="flex items-center gap-4 mb-4">
-                    <Avatar>
+                    <Avatar className="w-20 h-20">
                       <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
-                      <AvatarFallback className="bg-primary text-primary-foreground">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                         {testimonial.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
