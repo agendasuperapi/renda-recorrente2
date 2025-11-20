@@ -371,12 +371,11 @@ const AdminPlans = () => {
       stripe_price_id: stripeFormData.preco_id,
       environment_type: stripeFormData.environment_type,
       is_active: true,
-      ...(editingIntegrationId ? { id: editingIntegrationId } : {}),
     };
 
     const { error } = await supabase
       .from("plan_integrations")
-      .upsert(payload, { onConflict: "id" });
+      .upsert(payload, { onConflict: "plan_id,environment_type" });
 
     if (error) {
       toast.error("Erro ao salvar integração Stripe");
