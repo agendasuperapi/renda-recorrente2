@@ -592,7 +592,7 @@ const AdminPlans = () => {
                                   <h3 className="text-lg font-semibold">{product?.nome || "Produto"}</h3>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  {(productPlans as any[]).map((plan: any) => {
+                                  {(productPlans as any[]).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any) => {
                                     const features = Array.isArray(plan.features) ? plan.features : [];
                                     const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
                                     const coupon = coupons?.find((c: any) => c.id === couponId);
@@ -741,7 +741,7 @@ const AdminPlans = () => {
                     {plans?.filter((p: any) => {
                       if (selectedProductFilter === "no-product") return !p.product_id;
                       return p.product_id === selectedProductFilter;
-                    }).map((plan: any) => {
+                    }).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any) => {
                       const features = Array.isArray(plan.features) ? plan.features : [];
                       const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
                       const coupon = coupons?.find((c: any) => c.id === couponId);
