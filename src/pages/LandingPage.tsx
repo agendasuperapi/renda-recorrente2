@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import logo from "@/assets/logo.png";
+import heroPerson from "@/assets/hero-person.png";
+import trustBadges from "@/assets/trust-badges.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -233,21 +235,31 @@ const LandingPage = () => {
 
       {/* Hero Section */}
       <section className="py-20 px-4">
-        <div className="container mx-auto text-center max-w-4xl">
-          <Badge className="mb-4" variant="secondary">
-            <Star className="w-3 h-3 mr-1" />
-            Sistema de Afiliados Premium
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Participe e ganhe dinheiro recomendando nossos aplicativos
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            Temos vários produtos para você indicar e criar uma renda recorrente.
-          </p>
-          <Button size="lg" onClick={scrollToPlans} className="text-lg px-8">
-            Começar Agora
-            <Target className="ml-2 w-5 h-5" />
-          </Button>
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="text-center md:text-left">
+              <Badge className="mb-4" variant="secondary">
+                <Star className="w-3 h-3 mr-1" />
+                Sistema de Afiliados Premium
+              </Badge>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Participe e ganhe dinheiro recomendando nossos aplicativos
+              </h1>
+              <p className="text-xl text-muted-foreground mb-8">
+                Temos vários produtos para você indicar e criar uma renda recorrente.
+              </p>
+              <Button size="lg" onClick={scrollToPlans} className="text-lg px-8 mb-8">
+                Começar Agora
+                <Target className="ml-2 w-5 h-5" />
+              </Button>
+              <div className="flex justify-center md:justify-start">
+                <img src={trustBadges} alt="Compra Segura, Satisfação Garantida, Privacidade Protegida" className="h-12" />
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <img src={heroPerson} alt="Afiliado" className="w-full max-w-md" />
+            </div>
+          </div>
         </div>
       </section>
 
