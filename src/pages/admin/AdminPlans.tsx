@@ -364,6 +364,20 @@ const AdminPlans = () => {
       return;
     }
 
+    // Ao criar uma nova integração ativa, desativa as outras do mesmo tipo
+    if (stripeFormData.environment_type) {
+      const { error: deactivateError } = await supabase
+        .from("plan_integrations")
+        .update({ is_active: false })
+        .eq("plan_id", editingPlan.id)
+        .eq("environment_type", stripeFormData.environment_type)
+        .eq("is_active", true);
+
+      if (deactivateError) {
+        console.error("Erro ao desativar integrações anteriores:", deactivateError);
+      }
+    }
+
     const payload = {
       plan_id: editingPlan.id,
       account_id: stripeFormData.conta,
@@ -373,9 +387,20 @@ const AdminPlans = () => {
       is_active: true,
     };
 
-    const { error } = await supabase
-      .from("plan_integrations")
-      .upsert(payload, { onConflict: "plan_id,environment_type" });
+    // Se estiver editando, atualiza; senão, insere
+    let error;
+    if (editingIntegrationId) {
+      const result = await supabase
+        .from("plan_integrations")
+        .update(payload)
+        .eq("id", editingIntegrationId);
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("plan_integrations")
+        .insert(payload);
+      error = result.error;
+    }
 
     if (error) {
       toast.error("Erro ao salvar integração Stripe");
@@ -398,17 +423,11 @@ const AdminPlans = () => {
     }
   };
 
-  const handleEditStripeIntegration = (plan: any, environmentType: "test" | "production") => {
+  const handleEditStripeIntegration = (plan: any, environmentType: "test" | "production", integrationId: string) => {
     setEditingPlan(plan);
-    setIsEditingIntegration(true);
-    setIsStripeDialogOpen(true);
-    
-    const integration = planIntegrations?.find(
-      (int) => int.plan_id === plan.id && int.environment_type === environmentType
-    );
+    const integration = planIntegrations?.find(int => int.id === integrationId);
     
     if (integration) {
-      setEditingIntegrationId(integration.id);
       setStripeFormData({
         banco: "STRIPE",
         conta: integration.account_id ?? "",
@@ -417,24 +436,15 @@ const AdminPlans = () => {
         preco_id: integration.stripe_price_id ?? "",
         environment_type: environmentType,
       });
-    } else {
-      setEditingIntegrationId(null);
-      setStripeFormData({
-        banco: "STRIPE",
-        conta: "",
-        nome: plan.name ?? "",
-        produto_id: "",
-        preco_id: "",
-        environment_type: environmentType,
-      });
+      setEditingIntegrationId(integration.id);
     }
+    
+    setIsEditingIntegration(true);
+    setIsStripeDialogOpen(true);
   };
 
   const handleNewStripeIntegration = (plan: any, environmentType: "test" | "production") => {
     setEditingPlan(plan);
-    setIsEditingIntegration(false);
-    setIsStripeDialogOpen(true);
-    setEditingIntegrationId(null);
     setStripeFormData({
       banco: "STRIPE",
       conta: "",
@@ -443,7 +453,46 @@ const AdminPlans = () => {
       preco_id: "",
       environment_type: environmentType,
     });
+    setEditingIntegrationId(null);
+    setIsEditingIntegration(true);
+    setIsStripeDialogOpen(true);
   };
+
+  const handleToggleIntegration = async (integration: any) => {
+    const newActiveState = !integration.is_active;
+    
+    // Se está ativando, desativa as outras do mesmo tipo primeiro
+    if (newActiveState) {
+      const { error: deactivateError } = await supabase
+        .from("plan_integrations")
+        .update({ is_active: false })
+        .eq("plan_id", integration.plan_id)
+        .eq("environment_type", integration.environment_type)
+        .eq("is_active", true)
+        .neq("id", integration.id);
+
+      if (deactivateError) {
+        toast.error("Erro ao desativar outras integrações");
+        console.error(deactivateError);
+        return;
+      }
+    }
+    
+    const { error } = await supabase
+      .from("plan_integrations")
+      .update({ is_active: newActiveState })
+      .eq("id", integration.id);
+
+    if (error) {
+      toast.error("Erro ao atualizar status da integração");
+      console.error(error);
+      return;
+    }
+
+    toast.success(`Integração ${newActiveState ? "ativada" : "desativada"} com sucesso`);
+    queryClient.invalidateQueries({ queryKey: ["plan-integrations"] });
+  };
+
 
   const handleDeleteStripeIntegration = async (integrationId: string) => {
     if (!confirm("Tem certeza que deseja excluir esta integração Stripe?")) {
@@ -1082,94 +1131,141 @@ const AdminPlans = () => {
                   </Form>
                 </TabsContent>
 
-                <TabsContent value="stripe" className="space-y-6">
-
-                  {/* Integração Stripe */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Integração Stripe</h3>
-                      <Button
-                        variant="outline"
-                        onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "production")}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Configurar Integração
-                      </Button>
+                <TabsContent value="stripe" className="space-y-4">
+                    {/* Integrações de Produção */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          Integrações de Produção
+                        </h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "production")}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Nova Integração
+                        </Button>
+                      </div>
+                      
+                      {planIntegrations
+                        ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "production")
+                        .map((integration) => (
+                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-muted"}>
+                            <CardContent className="pt-4 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant={integration.is_active ? "default" : "secondary"}>
+                                    {integration.is_active ? "Ativa" : "Inativa"}
+                                  </Badge>
+                                  <span className="text-sm font-medium">
+                                    {integration.accounts?.name}
+                                  </span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleToggleIntegration(integration)}
+                                  >
+                                    {integration.is_active ? "Desativar" : "Ativar"}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "production", integration.id)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteStripeIntegration(integration.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                <p>Produto: {integration.stripe_product_id}</p>
+                                <p>Preço: {integration.stripe_price_id}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                        
+                      {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "production") && (
+                        <p className="text-sm text-muted-foreground">Nenhuma integração de produção configurada</p>
+                      )}
                     </div>
 
-                    {planIntegrations?.some((int) => int.plan_id === editingPlan?.id && int.environment_type === "production") && (
-                      <Card className="bg-muted/50 border-border">
-                        <CardHeader>
-                          <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="text-foreground">Banco</TableHead>
-                                <TableHead className="text-foreground">Conta</TableHead>
-                                <TableHead className="text-foreground">Nome</TableHead>
-                                <TableHead className="text-foreground">ID Produto</TableHead>
-                                <TableHead className="text-foreground">ID Preço</TableHead>
-                                <TableHead className="text-foreground">Status</TableHead>
-                                <TableHead className="text-foreground">Ações</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {(() => {
-                                const integration = planIntegrations?.find(
-                                  (int) => int.plan_id === editingPlan?.id && int.environment_type === "production"
-                                );
-                                if (!integration) return null;
-                                
-                                return (
-                              <TableRow>
-                                <TableCell className="text-foreground">STRIPE</TableCell>
-                                <TableCell className="text-foreground">
-                                  {integration.accounts?.name || "Não definida"}
-                                </TableCell>
-                                <TableCell className="text-foreground">{editingPlan.name}</TableCell>
-                                <TableCell className="text-foreground font-mono text-sm">{integration.stripe_product_id}</TableCell>
-                                <TableCell className="text-foreground font-mono text-sm">{integration.stripe_price_id}</TableCell>
-                                <TableCell>
-                                  <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
-                                    {editingPlan.is_active ? "Ativo" : "Inativo"}
+                    {/* Integrações de Teste */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          Integrações de Teste
+                        </h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "test")}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Nova Integração
+                        </Button>
+                      </div>
+                      
+                      {planIntegrations
+                        ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "test")
+                        .map((integration) => (
+                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-muted"}>
+                            <CardContent className="pt-4 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant={integration.is_active ? "default" : "secondary"}>
+                                    {integration.is_active ? "Ativa" : "Inativa"}
                                   </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "production")}
-                                      title="Editar"
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={async () => {
-                                        if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
-                                        }
-                                      }}
-                                      className="hover:text-destructive"
-                                      title="Excluir integração"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                              );
-                              })()}
-                            </TableBody>
-                          </Table>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                </TabsContent>
+                                  <span className="text-sm font-medium">
+                                    {integration.accounts?.name}
+                                  </span>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleToggleIntegration(integration)}
+                                  >
+                                    {integration.is_active ? "Desativar" : "Ativar"}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "test", integration.id)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteStripeIntegration(integration.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                <p>Produto: {integration.stripe_product_id}</p>
+                                <p>Preço: {integration.stripe_price_id}</p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                        
+                      {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "test") && (
+                        <p className="text-sm text-muted-foreground">Nenhuma integração de teste configurada</p>
+                      )}
+                    </div>
+                  </TabsContent>
               </Tabs>
             </DialogContent>
           </Dialog>
