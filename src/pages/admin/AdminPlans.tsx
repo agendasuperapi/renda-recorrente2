@@ -1035,187 +1035,194 @@ const AdminPlans = () => {
                   </Form>
                 </TabsContent>
 
-                <TabsContent value="stripe" className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">Banco</label>
-                        <Select
-                          value={stripeFormData.banco}
-                          onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="STRIPE">STRIPE</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">Produto</label>
-                        <Input
-                          value={editingPlan?.products?.nome || "Sem produto associado"}
-                          onChange={(e) => {
-                            if (editingPlan?.products) {
-                              setEditingPlan({
-                                ...editingPlan,
-                                products: { ...editingPlan.products, nome: e.target.value }
-                              });
-                            }
-                          }}
-                          className="bg-background text-foreground"
-                        />
-                      </div>
+          {/* Dialog de Integração Stripe */}
+          <Dialog open={isStripeDialogOpen} onOpenChange={setIsStripeDialogOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
+              <DialogHeader>
+                <DialogTitle className="text-foreground">
+                  Integração Stripe - {editingPlan?.name}
+                </DialogTitle>
+              </DialogHeader>
 
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">
-                          Nome da assinatura (No cadastro do Stripe)
-                        </label>
-                        <Input
-                          value={stripeFormData.nome}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
-                          placeholder="Nome da assinatura"
-                          className="bg-background text-foreground"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">ID Produto *</label>
-                        <Input
-                          value={stripeFormData.produto_id}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
-                          placeholder="prod_XXXXXX"
-                          className="bg-background text-foreground"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">ID Preço *</label>
-                        <Input
-                          value={stripeFormData.preco_id}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
-                          placeholder="price_XXXXXX"
-                          className="bg-background text-foreground"
-                        />
-                      </div>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">Banco</label>
+                      <Select
+                        value={stripeFormData.banco}
+                        onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="STRIPE">STRIPE</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    <div className="flex gap-3 justify-end pt-6 border-t border-slate-800">
-                      <Button
-                        type="button"
-                        onClick={handleCancelEdit}
-                        variant="outline"
-                        className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Cancelar
-                      </Button>
-                      <Button
-                        onClick={handleSaveStripe}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
-                      >
-                        <Check className="h-4 w-4 mr-2" />
-                        Salvar Integração
-                      </Button>
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">Produto</label>
+                      <Input
+                        value={editingPlan?.products?.nome || "Sem produto associado"}
+                        onChange={(e) => {
+                          if (editingPlan?.products) {
+                            setEditingPlan({
+                              ...editingPlan,
+                              products: { ...editingPlan.products, nome: e.target.value }
+                            });
+                          }
+                        }}
+                        className="bg-background text-foreground"
+                      />
                     </div>
 
-                    {editingPlan?.stripe_product_id && (
-                      <Card className="mt-6 bg-muted/50 border-border">
-                        <CardHeader>
-                          <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="text-foreground">Banco</TableHead>
-                                <TableHead className="text-foreground">Nome</TableHead>
-                                <TableHead className="text-foreground">ID Produto</TableHead>
-                                <TableHead className="text-foreground">ID Preço</TableHead>
-                                <TableHead className="text-foreground">Status</TableHead>
-                                <TableHead className="text-foreground">Ações</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              <TableRow>
-                                <TableCell className="text-foreground">STRIPE</TableCell>
-                                <TableCell className="text-foreground">{editingPlan.name}</TableCell>
-                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
-                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
-                                <TableCell>
-                                  <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
-                                    {editingPlan.is_active ? "Ativo" : "Inativo"}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
-                                        setStripeFormData({
-                                          banco: "STRIPE",
-                                          conta: "",
-                                          nome: editingPlan.name,
-                                          produto_id: editingPlan.stripe_product_id || "",
-                                          preco_id: editingPlan.stripe_price_id || "",
-                                        });
-                                      }}
-                                      title="Editar"
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={async () => {
-                                        if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
-                                          const { error } = await supabase
-                                            .from("plans")
-                                            .update({
-                                              stripe_product_id: null,
-                                              stripe_price_id: null,
-                                            })
-                                            .eq("id", editingPlan.id);
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">
+                        Nome da assinatura (No cadastro do Stripe)
+                      </label>
+                      <Input
+                        value={stripeFormData.nome}
+                        onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
+                        placeholder="Nome da assinatura"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
 
-                                          if (error) {
-                                            toast.error("Erro ao remover integração");
-                                          } else {
-                                            toast.success("Integração removida com sucesso!");
-                                            setEditingPlan({
-                                              ...editingPlan,
-                                              stripe_product_id: null,
-                                              stripe_price_id: null,
-                                            });
-                                            setStripeFormData({
-                                              banco: "STRIPE",
-                                              conta: "",
-                                              nome: "",
-                                              produto_id: "",
-                                              preco_id: "",
-                                            });
-                                            queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
-                                          }
-                                        }
-                                      }}
-                                      className="hover:text-destructive"
-                                      title="Excluir integração"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </CardContent>
-                      </Card>
-                    )}
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">ID Produto *</label>
+                      <Input
+                        value={stripeFormData.produto_id}
+                        onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
+                        placeholder="prod_XXXXXX"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">ID Preço *</label>
+                      <Input
+                        value={stripeFormData.preco_id}
+                        onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
+                        placeholder="price_XXXXXX"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
                   </div>
-                </TabsContent>
-              </Tabs>
+
+                  <div className="flex gap-3 justify-end pt-6 border-t border-border">
+                    <Button
+                      type="button"
+                      onClick={() => setIsStripeDialogOpen(false)}
+                      variant="outline"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar
+                    </Button>
+                    <Button
+                      onClick={handleSaveStripe}
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      Salvar Integração
+                    </Button>
+                  </div>
+
+                  {editingPlan?.stripe_product_id && (
+                    <Card className="mt-6 bg-muted/50 border-border">
+                      <CardHeader>
+                        <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="text-foreground">Banco</TableHead>
+                              <TableHead className="text-foreground">Nome</TableHead>
+                              <TableHead className="text-foreground">ID Produto</TableHead>
+                              <TableHead className="text-foreground">ID Preço</TableHead>
+                              <TableHead className="text-foreground">Status</TableHead>
+                              <TableHead className="text-foreground">Ações</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className="text-foreground">STRIPE</TableCell>
+                              <TableCell className="text-foreground">{editingPlan.name}</TableCell>
+                              <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
+                              <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
+                              <TableCell>
+                                <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
+                                  {editingPlan.is_active ? "Ativo" : "Inativo"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      setStripeFormData({
+                                        banco: "STRIPE",
+                                        conta: "",
+                                        nome: editingPlan.name,
+                                        produto_id: editingPlan.stripe_product_id || "",
+                                        preco_id: editingPlan.stripe_price_id || "",
+                                      });
+                                    }}
+                                    title="Editar"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={async () => {
+                                      if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
+                                        const { error } = await supabase
+                                          .from("plans")
+                                          .update({
+                                            stripe_product_id: null,
+                                            stripe_price_id: null,
+                                          })
+                                          .eq("id", editingPlan.id);
+
+                                        if (error) {
+                                          toast.error("Erro ao remover integração");
+                                        } else {
+                                          toast.success("Integração removida com sucesso!");
+                                          setEditingPlan({
+                                            ...editingPlan,
+                                            stripe_product_id: null,
+                                            stripe_price_id: null,
+                                          });
+                                          setStripeFormData({
+                                            banco: "STRIPE",
+                                            conta: "",
+                                            nome: "",
+                                            produto_id: "",
+                                            preco_id: "",
+                                          });
+                                          queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+                                        }
+                                      }
+                                    }}
+                                    className="hover:text-destructive"
+                                    title="Excluir integração"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
