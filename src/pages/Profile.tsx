@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, KeyboardEvent } from "react";
-import { User } from "lucide-react";
+import { User, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -17,6 +17,9 @@ import {
 const Profile = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
   const [profile, setProfile] = useState({
     name: "",
     username: "",
@@ -46,6 +49,8 @@ const Profile = () => {
   const loadProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+    
+    setCurrentUserId(user.id);
 
     const { data, error } = await supabase
       .from("profiles")
@@ -172,6 +177,55 @@ const Profile = () => {
     setProfile({ ...profile, phone: cleaned });
   };
 
+  const normalizeUsername = (value: string) => {
+    // Remove espaços e caracteres especiais, mantém apenas letras e números
+    return value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  };
+
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+
+    setCheckingUsername(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .neq('id', currentUserId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      // Se data existe, significa que o username já está em uso
+      setUsernameAvailable(data === null);
+    } catch (error) {
+      console.error('Erro ao verificar username:', error);
+      setUsernameAvailable(null);
+    } finally {
+      setCheckingUsername(false);
+    }
+  };
+
+  const handleUsernameChange = (value: string) => {
+    const normalized = normalizeUsername(value);
+    setProfile({ ...profile, username: normalized });
+    
+    // Debounce para verificar disponibilidade
+    if (normalized.length >= 3) {
+      const timeoutId = setTimeout(() => {
+        checkUsernameAvailability(normalized);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setUsernameAvailable(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -249,14 +303,52 @@ const Profile = () => {
                     required
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <Label htmlFor="username">Nome de Usuário</Label>
-                  <Input
-                    id="username"
-                    value={profile.username}
-                    onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                    onKeyDown={handleKeyDown}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="username"
+                      value={profile.username}
+                      onChange={(e) => handleUsernameChange(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="seuusername"
+                      className={
+                        usernameAvailable === false 
+                          ? "border-destructive" 
+                          : usernameAvailable === true 
+                          ? "border-green-500" 
+                          : ""
+                      }
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {checkingUsername && (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      )}
+                      {!checkingUsername && usernameAvailable === true && (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      )}
+                      {!checkingUsername && usernameAvailable === false && (
+                        <XCircle className="h-4 w-4 text-destructive" />
+                      )}
+                    </div>
+                  </div>
+                  {profile.username.length >= 3 && !checkingUsername && (
+                    <p className={`text-xs mt-1 ${
+                      usernameAvailable === true 
+                        ? "text-green-600" 
+                        : usernameAvailable === false 
+                        ? "text-destructive" 
+                        : "text-muted-foreground"
+                    }`}>
+                      {usernameAvailable === true && "✓ Nome de usuário disponível"}
+                      {usernameAvailable === false && "✗ Nome de usuário já está em uso"}
+                    </p>
+                  )}
+                  {profile.username.length > 0 && profile.username.length < 3 && (
+                    <p className="text-xs mt-1 text-muted-foreground">
+                      Mínimo 3 caracteres
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="cpf">CPF</Label>
