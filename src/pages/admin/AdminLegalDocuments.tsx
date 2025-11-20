@@ -21,16 +21,16 @@ const AdminLegalDocuments = () => {
   const fetchDocuments = async () => {
     setLoading(true);
     const { data: terms } = await supabase
-      .from("legal_documents")
+      .from("legal_documents" as any)
       .select("content")
       .eq("type", "terms")
-      .single();
+      .maybeSingle() as any;
 
     const { data: privacy } = await supabase
-      .from("legal_documents")
+      .from("legal_documents" as any)
       .select("content")
       .eq("type", "privacy")
-      .single();
+      .maybeSingle() as any;
 
     if (terms) setTermsContent(terms.content);
     if (privacy) setPrivacyContent(privacy.content);
@@ -40,7 +40,7 @@ const AdminLegalDocuments = () => {
   const handleSaveTerms = async () => {
     setSaving(true);
     const { error } = await supabase
-      .from("legal_documents")
+      .from("legal_documents" as any)
       .update({ content: termsContent, updated_at: new Date().toISOString() })
       .eq("type", "terms");
 
@@ -62,7 +62,7 @@ const AdminLegalDocuments = () => {
   const handleSavePrivacy = async () => {
     setSaving(true);
     const { error } = await supabase
-      .from("legal_documents")
+      .from("legal_documents" as any)
       .update({ content: privacyContent, updated_at: new Date().toISOString() })
       .eq("type", "privacy");
 

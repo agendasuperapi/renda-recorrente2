@@ -14,10 +14,10 @@ const PrivacyPolicy = () => {
   useEffect(() => {
     const fetchPrivacy = async () => {
       const { data } = await supabase
-        .from("legal_documents")
+        .from("legal_documents" as any)
         .select("content")
         .eq("type", "privacy")
-        .single();
+        .maybeSingle() as any;
       
       if (data) {
         setContent(data.content);

@@ -14,10 +14,10 @@ const TermsOfService = () => {
   useEffect(() => {
     const fetchTerms = async () => {
       const { data } = await supabase
-        .from("legal_documents")
+        .from("legal_documents" as any)
         .select("content")
         .eq("type", "terms")
-        .single();
+        .maybeSingle() as any;
       
       if (data) {
         setContent(data.content);
