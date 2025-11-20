@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -170,6 +171,69 @@ const SortableFaqRow = ({ faq, onEdit, onDelete }: {
           variant="ghost"
           size="sm"
           onClick={() => onDelete(faq.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const SortableFeatureRow = ({ feature, onEdit, onDelete }: { 
+  feature: Feature; 
+  onEdit: (f: Feature) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: feature.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const getIconComponent = (iconName: string) => {
+    return (LucideIcons as any)[iconName] || CheckCircle2;
+  };
+
+  const IconComponent = getIconComponent(feature.icon);
+
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell>
+        <button className="cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </TableCell>
+      <TableCell className="font-medium">{feature.name}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <IconComponent className="h-4 w-4 text-primary" />
+          <span className="text-sm text-muted-foreground">{feature.icon}</span>
+        </div>
+      </TableCell>
+      <TableCell>
+        <Badge variant={feature.is_active ? "default" : "secondary"}>
+          {feature.is_active ? "Ativo" : "Inativo"}
+        </Badge>
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(feature)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(feature.id)}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -620,6 +684,35 @@ const AdminLandingPage = () => {
     fetchFeatures();
   };
 
+  const handleDragEndFeatures = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = features.findIndex((f) => f.id === active.id);
+    const newIndex = features.findIndex((f) => f.id === over.id);
+
+    const newFeatures = arrayMove(features, oldIndex, newIndex);
+    setFeatures(newFeatures);
+
+    // Update order_position for all items
+    const updates = newFeatures.map((feature, index) => 
+      (supabase as any)
+        .from("landing_features")
+        .update({ order_position: index })
+        .eq("id", feature.id)
+    );
+
+    await Promise.all(updates);
+
+    toast({
+      title: "Sucesso",
+      description: "Ordem atualizada!"
+    });
+  };
+
   const handleDragEndTestimonials = async (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -951,7 +1044,7 @@ const AdminLandingPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Funcionalidades</CardTitle>
-                  <CardDescription>Gerencie as funcionalidades do sistema exibidas na landing page.</CardDescription>
+                  <CardDescription>Gerencie as funcionalidades do sistema exibidas na landing page. Arraste para reordenar.</CardDescription>
                 </div>
                 <Button
                   onClick={() => setShowFeatureForm(!showFeatureForm)}
@@ -982,12 +1075,27 @@ const AdminLandingPage = () => {
                     </div>
                     <div>
                       <Label htmlFor="feature_icon">Ícone (nome do Lucide Icon) *</Label>
-                      <Input
-                        id="feature_icon"
-                        value={featureForm.icon}
-                        onChange={(e) => setFeatureForm({ ...featureForm, icon: e.target.value })}
-                        placeholder="Ex: CheckCircle2"
-                      />
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <Input
+                            id="feature_icon"
+                            value={featureForm.icon}
+                            onChange={(e) => setFeatureForm({ ...featureForm, icon: e.target.value })}
+                            placeholder="Ex: CheckCircle2"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted">
+                          {(() => {
+                            const IconPreview = (LucideIcons as any)[featureForm.icon] || CheckCircle2;
+                            return (
+                              <>
+                                <IconPreview className="h-5 w-5 text-primary" />
+                                <span className="text-sm text-muted-foreground">Preview</span>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         Veja os ícones disponíveis em: <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="text-primary underline">lucide.dev/icons</a>
                       </p>
@@ -1012,45 +1120,38 @@ const AdminLandingPage = () => {
                 </Card>
               )}
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Ícone</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {features.map((feature) => (
-                    <TableRow key={feature.id}>
-                      <TableCell className="font-medium">{feature.name}</TableCell>
-                      <TableCell>{feature.icon}</TableCell>
-                      <TableCell>
-                        <Badge variant={feature.is_active ? "default" : "secondary"}>
-                          {feature.is_active ? "Ativo" : "Inativo"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => editFeature(feature)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteFeature(feature.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEndFeatures}
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]"></TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Ícone</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    <SortableContext
+                      items={features.map(f => f.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {features.map((feature) => (
+                        <SortableFeatureRow
+                          key={feature.id}
+                          feature={feature}
+                          onEdit={editFeature}
+                          onDelete={handleDeleteFeature}
+                        />
+                      ))}
+                    </SortableContext>
+                  </TableBody>
+                </Table>
+              </DndContext>
             </CardContent>
           </Card>
         </TabsContent>
