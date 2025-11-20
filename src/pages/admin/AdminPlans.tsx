@@ -86,7 +86,7 @@ const AdminPlans = () => {
     },
   });
 
-  const { data: plans, isLoading } = useQuery({
+  const { data: plans, isLoading, error } = useQuery({
     queryKey: ["admin-plans"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -109,6 +109,8 @@ const AdminPlans = () => {
       if (error) throw error;
       return data;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnWindowFocus: false,
   });
 
   const { data: coupons } = useQuery({
@@ -545,6 +547,13 @@ const AdminPlans = () => {
             <div className="space-y-8">
               {isLoading ? (
                 <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <p className="text-destructive mb-4">Erro ao carregar planos</p>
+                  <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-plans"] })}>
+                    Tentar novamente
+                  </Button>
+                </div>
               ) : !plans || plans.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">Nenhum plano encontrado</p>
