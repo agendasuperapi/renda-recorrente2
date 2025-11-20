@@ -49,6 +49,7 @@ const AdminCpfApis = () => {
   const [testBirthDate, setTestBirthDate] = useState("");
   const [testResult, setTestResult] = useState<any>(null);
   const [isTesting, setIsTesting] = useState(false);
+  const [selectedApiId, setSelectedApiId] = useState<string>("all");
   const [newApi, setNewApi] = useState({
     name: "",
     url: "",
@@ -131,7 +132,11 @@ const AdminCpfApis = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('consultar-cpf', {
-        body: { cpf: testCpf, birthDate: testBirthDate },
+        body: { 
+          cpf: testCpf, 
+          birthDate: testBirthDate,
+          apiId: selectedApiId === "all" ? undefined : selectedApiId
+        },
       });
 
       if (error) throw error;
@@ -239,7 +244,7 @@ const AdminCpfApis = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="test-cpf">CPF</Label>
               <Input
@@ -258,6 +263,25 @@ const AdminCpfApis = () => {
                 value={testBirthDate}
                 onChange={(e) => setTestBirthDate(e.target.value)}
               />
+            </div>
+            <div>
+              <Label htmlFor="test-api">API</Label>
+              <Select
+                value={selectedApiId}
+                onValueChange={setSelectedApiId}
+              >
+                <SelectTrigger id="test-api">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas (por prioridade)</SelectItem>
+                  {apis?.filter(api => api.is_active).map((api) => (
+                    <SelectItem key={api.id} value={api.id}>
+                      {api.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-end">
               <Button 

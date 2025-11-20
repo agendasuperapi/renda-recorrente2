@@ -297,6 +297,39 @@ export type Database = {
           },
         ]
       }
+      cpf_apis: {
+        Row: {
+          api_type: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          priority: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          api_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          priority?: number
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          api_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          priority?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       plan_integrations: {
         Row: {
           account_id: string

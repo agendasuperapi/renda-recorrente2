@@ -141,7 +141,7 @@ serve(async (req) => {
   }
 
   try {
-    const { cpf, birthDate } = await req.json();
+    const { cpf, birthDate, apiId } = await req.json();
 
     if (!cpf) {
       throw new Error('CPF is required');
@@ -159,17 +159,26 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch active APIs ordered by priority
-    const { data: apis, error: dbError } = await supabase
-      .from('cpf_apis')
-      .select('*')
-      .eq('is_active', true)
-      .order('priority');
+    // Fetch APIs based on apiId parameter
+    let query = supabase.from('cpf_apis').select('*').eq('is_active', true);
+    
+    if (apiId) {
+      // Test only specific API
+      query = query.eq('id', apiId);
+    } else {
+      // Test all APIs by priority
+      query = query.order('priority');
+    }
+
+    const { data: apis, error: dbError } = await query;
 
     if (dbError) throw dbError;
 
     if (!apis || apis.length === 0) {
-      throw new Error('No active APIs configured');
+      const errorMsg = apiId 
+        ? 'API not found or inactive' 
+        : 'No active APIs configured';
+      throw new Error(errorMsg);
     }
 
     // Try each API in order until one succeeds
