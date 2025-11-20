@@ -102,6 +102,49 @@ const Profile = () => {
     }
   };
 
+  const handleCepChange = async (cep: string) => {
+    // Remove caracteres não numéricos
+    const cleanCep = cep.replace(/\D/g, '');
+    setProfile({ ...profile, cep: cleanCep });
+
+    // Busca CEP quando tiver 8 dígitos
+    if (cleanCep.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const data = await response.json();
+
+        if (!data.erro) {
+          setProfile(prev => ({
+            ...prev,
+            cep: cleanCep,
+            street: data.logradouro || '',
+            neighborhood: data.bairro || '',
+            city: data.localidade || '',
+            state: data.uf || '',
+          }));
+          
+          toast({
+            title: "CEP encontrado",
+            description: "Endereço preenchido automaticamente!",
+          });
+        } else {
+          toast({
+            title: "CEP não encontrado",
+            description: "Verifique o CEP digitado.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+        toast({
+          title: "Erro ao buscar CEP",
+          description: "Não foi possível buscar o endereço.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -247,8 +290,10 @@ const Profile = () => {
                   <Input
                     id="cep"
                     value={profile.cep}
-                    onChange={(e) => setProfile({ ...profile, cep: e.target.value })}
+                    onChange={(e) => handleCepChange(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    placeholder="00000-000"
+                    maxLength={8}
                   />
                 </div>
                 <div>
