@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Star, Heart, Home, User, Settings, Mail, Phone, Calendar, Clock, TrendingUp, Target, Award, Shield, Zap, ChevronRight, Activity, AlertCircle, Archive, BarChart, Bell, Bookmark, Box, Briefcase, Camera, Check, ChevronDown, ChevronLeft, ChevronUp, Circle, Clipboard, Code, Compass, Copy, CreditCard, Database, Download, Edit, Eye, File, Filter, Folder, Gift, Globe, Grid, Hash, Headphones, HelpCircle, Image, Inbox, Info, Key, Layers, Layout, Link, List, Lock, LogIn, LogOut, Map, Menu, MessageCircle, MessageSquare, Mic, Monitor, Moon, MoreHorizontal, MoreVertical, Move, Music, Navigation, Package, Paperclip, PieChart, Play, Power, Printer, Radio, RefreshCw, Repeat, RotateCw, Save, Send, Server, Share, ShoppingBag, ShoppingCart, Sidebar, Sliders, Smartphone, Smile, Speaker, Square, Sun, Tag, Trash, TrendingDown, Triangle, Truck, Tv, Twitter, Type, Umbrella, Upload, Users, Video, Volume, Watch, Wifi, X, Youtube, Zap as ZapIcon } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, LucideProps } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -282,116 +283,22 @@ const AdminLandingPage = () => {
     })
   );
 
-  const availableIcons = [
-    { name: "CheckCircle2", icon: CheckCircle2 },
-    { name: "Star", icon: Star },
-    { name: "Heart", icon: Heart },
-    { name: "Home", icon: Home },
-    { name: "User", icon: User },
-    { name: "Settings", icon: Settings },
-    { name: "Mail", icon: Mail },
-    { name: "Phone", icon: Phone },
-    { name: "Calendar", icon: Calendar },
-    { name: "Clock", icon: Clock },
-    { name: "TrendingUp", icon: TrendingUp },
-    { name: "Target", icon: Target },
-    { name: "Award", icon: Award },
-    { name: "Shield", icon: Shield },
-    { name: "Zap", icon: ZapIcon },
-    { name: "Activity", icon: Activity },
-    { name: "AlertCircle", icon: AlertCircle },
-    { name: "Archive", icon: Archive },
-    { name: "BarChart", icon: BarChart },
-    { name: "Bell", icon: Bell },
-    { name: "Bookmark", icon: Bookmark },
-    { name: "Box", icon: Box },
-    { name: "Briefcase", icon: Briefcase },
-    { name: "Camera", icon: Camera },
-    { name: "Check", icon: Check },
-    { name: "Circle", icon: Circle },
-    { name: "Clipboard", icon: Clipboard },
-    { name: "Code", icon: Code },
-    { name: "Compass", icon: Compass },
-    { name: "Copy", icon: Copy },
-    { name: "CreditCard", icon: CreditCard },
-    { name: "Database", icon: Database },
-    { name: "Download", icon: Download },
-    { name: "Edit", icon: Edit },
-    { name: "Eye", icon: Eye },
-    { name: "File", icon: File },
-    { name: "Filter", icon: Filter },
-    { name: "Folder", icon: Folder },
-    { name: "Gift", icon: Gift },
-    { name: "Globe", icon: Globe },
-    { name: "Grid", icon: Grid },
-    { name: "Hash", icon: Hash },
-    { name: "Headphones", icon: Headphones },
-    { name: "HelpCircle", icon: HelpCircle },
-    { name: "Image", icon: Image },
-    { name: "Inbox", icon: Inbox },
-    { name: "Info", icon: Info },
-    { name: "Key", icon: Key },
-    { name: "Layers", icon: Layers },
-    { name: "Layout", icon: Layout },
-    { name: "Link", icon: Link },
-    { name: "List", icon: List },
-    { name: "Lock", icon: Lock },
-    { name: "LogIn", icon: LogIn },
-    { name: "LogOut", icon: LogOut },
-    { name: "Map", icon: Map },
-    { name: "Menu", icon: Menu },
-    { name: "MessageCircle", icon: MessageCircle },
-    { name: "MessageSquare", icon: MessageSquare },
-    { name: "Mic", icon: Mic },
-    { name: "Monitor", icon: Monitor },
-    { name: "Moon", icon: Moon },
-    { name: "Music", icon: Music },
-    { name: "Navigation", icon: Navigation },
-    { name: "Package", icon: Package },
-    { name: "Paperclip", icon: Paperclip },
-    { name: "PieChart", icon: PieChart },
-    { name: "Play", icon: Play },
-    { name: "Power", icon: Power },
-    { name: "Printer", icon: Printer },
-    { name: "Radio", icon: Radio },
-    { name: "RefreshCw", icon: RefreshCw },
-    { name: "Repeat", icon: Repeat },
-    { name: "RotateCw", icon: RotateCw },
-    { name: "Save", icon: Save },
-    { name: "Send", icon: Send },
-    { name: "Server", icon: Server },
-    { name: "Share", icon: Share },
-    { name: "ShoppingBag", icon: ShoppingBag },
-    { name: "ShoppingCart", icon: ShoppingCart },
-    { name: "Sidebar", icon: Sidebar },
-    { name: "Sliders", icon: Sliders },
-    { name: "Smartphone", icon: Smartphone },
-    { name: "Smile", icon: Smile },
-    { name: "Speaker", icon: Speaker },
-    { name: "Square", icon: Square },
-    { name: "Sun", icon: Sun },
-    { name: "Tag", icon: Tag },
-    { name: "Trash", icon: Trash },
-    { name: "TrendingDown", icon: TrendingDown },
-    { name: "Triangle", icon: Triangle },
-    { name: "Truck", icon: Truck },
-    { name: "Tv", icon: Tv },
-    { name: "Twitter", icon: Twitter },
-    { name: "Type", icon: Type },
-    { name: "Umbrella", icon: Umbrella },
-    { name: "Upload", icon: Upload },
-    { name: "Users", icon: Users },
-    { name: "Video", icon: Video },
-    { name: "Volume", icon: Volume },
-    { name: "Watch", icon: Watch },
-    { name: "Wifi", icon: Wifi },
-    { name: "X", icon: X },
-    { name: "Youtube", icon: Youtube },
-  ];
-
-  const filteredIcons = availableIcons.filter(icon =>
-    icon.name.toLowerCase().includes(iconSearch.toLowerCase())
+  // Todos os ícones disponíveis do Lucide (1400+)
+  const allIconNames = Object.keys(dynamicIconImports) as Array<keyof typeof dynamicIconImports>;
+  
+  const filteredIcons = allIconNames.filter(iconName =>
+    iconName.toLowerCase().includes(iconSearch.toLowerCase())
   );
+
+  // Componente para renderizar ícone dinamicamente
+  const DynamicIcon = ({ name, ...props }: { name: keyof typeof dynamicIconImports } & Omit<LucideProps, 'ref'>) => {
+    const Icon = lazy(dynamicIconImports[name]);
+    return (
+      <Suspense fallback={<div className="h-6 w-6 bg-muted animate-pulse rounded" />}>
+        <Icon {...props} />
+      </Suspense>
+    );
+  };
 
   useEffect(() => {
     fetchTestimonials();
@@ -1219,24 +1126,37 @@ const AdminLandingPage = () => {
                               </div>
                               <ScrollArea className="h-96">
                                 <div className="grid grid-cols-6 gap-3 p-1">
-                                  {filteredIcons.map(({ name, icon: Icon }) => (
-                                    <button
-                                      key={name}
-                                      type="button"
-                                      onClick={() => {
-                                        setFeatureForm({ ...featureForm, icon: name });
-                                        setIconDialogOpen(false);
-                                        setIconSearch("");
-                                      }}
-                                      className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
-                                        featureForm.icon === name ? "border-primary bg-accent" : "border-border"
-                                      }`}
-                                    >
-                                      <Icon className="h-6 w-6" />
-                                      <span className="text-xs text-center break-all">{name}</span>
-                                    </button>
-                                  ))}
+                                  {filteredIcons.slice(0, 200).map((iconName) => {
+                                    // Converte de kebab-case para PascalCase para exibição
+                                    const displayName = iconName
+                                      .split('-')
+                                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                      .join('');
+                                    
+                                    return (
+                                      <button
+                                        key={iconName}
+                                        type="button"
+                                        onClick={() => {
+                                          setFeatureForm({ ...featureForm, icon: displayName });
+                                          setIconDialogOpen(false);
+                                          setIconSearch("");
+                                        }}
+                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
+                                          featureForm.icon === displayName ? "border-primary bg-accent" : "border-border"
+                                        }`}
+                                      >
+                                        <DynamicIcon name={iconName} className="h-6 w-6" />
+                                        <span className="text-xs text-center break-all">{displayName}</span>
+                                      </button>
+                                    );
+                                  })}
                                 </div>
+                                {filteredIcons.length > 200 && (
+                                  <p className="text-sm text-muted-foreground text-center py-4">
+                                    Mostrando 200 de {filteredIcons.length} ícones. Continue pesquisando para refinar.
+                                  </p>
+                                )}
                               </ScrollArea>
                             </div>
                           </DialogContent>
