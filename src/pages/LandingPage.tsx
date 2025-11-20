@@ -238,8 +238,14 @@ const LandingPage = () => {
             <ThemeToggle />
             {user ? (
               <>
-                <Button onClick={() => navigate(-1)} variant="outline">
-                  Voltar
+                <Button onClick={() => {
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    navigate("/dashboard");
+                  }
+                }} variant="outline">
+                  Acessar Painel
                 </Button>
                 <Button onClick={handleLogout} variant="ghost">
                   Sair
