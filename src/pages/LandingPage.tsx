@@ -188,7 +188,7 @@ const LandingPage = () => {
     const { data } = await supabase
       .from("products")
       .select("id, nome, descricao, icone_light, icone_dark, site_landingpage")
-      // Adicione .eq("show_on_landing", true) quando a coluna estiver criada no banco
+      .eq("show_on_landing", true)
       .order("nome");
 
     if (data) {
