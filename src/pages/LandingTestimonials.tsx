@@ -90,34 +90,131 @@ export default function LandingTestimonials() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate("/")}>
-            <Home className="mr-2 h-4 w-4" />
-            Voltar para Home
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h2 className="text-xl font-bold">Nossa Plataforma</h2>
+          <Button variant="default" onClick={() => navigate("/auth")}>
+            Começar Agora
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-24 md:py-32 px-4 bg-gradient-to-b from-primary/5 to-background">
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Bem-vindo à Nossa Plataforma
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Transforme seu Negócio com Nossa Plataforma
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Descubra o que nossos clientes têm a dizer sobre nós
+          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            A solução completa para gerenciar afiliados, comissões e vendas de forma simples e eficiente
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8">
+              Começar Gratuitamente
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => {
+              document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' });
+            }} className="text-lg px-8">
+              Ver Depoimentos
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              Recursos Poderosos
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Tudo que você precisa para gerenciar seu programa de afiliados
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Gestão de Afiliados</h3>
+                <p className="text-muted-foreground">
+                  Gerencie todos os seus afiliados em um só lugar com ferramentas intuitivas
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Comissões Automatizadas</h3>
+                <p className="text-muted-foreground">
+                  Sistema automático de cálculo e pagamento de comissões em tempo real
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Relatórios Detalhados</h3>
+                <p className="text-muted-foreground">
+                  Acompanhe o desempenho com dashboards e relatórios completos
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Cupons Personalizados</h3>
+                <p className="text-muted-foreground">
+                  Crie e gerencie cupons de desconto para seus afiliados
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Suporte Dedicado</h3>
+                <p className="text-muted-foreground">
+                  Equipe pronta para ajudar você a ter sucesso na plataforma
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Star className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Integração Fácil</h3>
+                <p className="text-muted-foreground">
+                  Integre facilmente com suas ferramentas e plataformas favoritas
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
       {testimonials.length > 0 && (
-        <section className="py-16 px-4 bg-muted/30">
+        <section id="testimonials" className="py-20 px-4 bg-muted/30">
           <div className="container mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-              Depoimentos
-            </h2>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                O Que Nossos Clientes Dizem
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Histórias reais de sucesso de quem já usa nossa plataforma
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {testimonials.map((testimonial) => (
                 <Card key={testimonial.id} className="overflow-hidden">
@@ -153,11 +250,16 @@ export default function LandingTestimonials() {
 
       {/* FAQs Section */}
       {faqs.length > 0 && (
-        <section className="py-16 px-4">
+        <section className="py-20 px-4">
           <div className="container mx-auto max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-              Perguntas Frequentes
-            </h2>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                Perguntas Frequentes
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Tire suas dúvidas sobre a plataforma
+              </p>
+            </div>
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
                 <AccordionItem key={faq.id} value={`item-${index}`}>
@@ -174,10 +276,49 @@ export default function LandingTestimonials() {
         </section>
       )}
 
+      {/* CTA Section */}
+      <section className="py-24 px-4 bg-primary text-primary-foreground">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Pronto para Começar?
+          </h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+            Junte-se a centenas de empresas que já transformaram seus programas de afiliados
+          </p>
+          <Button size="lg" variant="secondary" onClick={() => navigate("/auth")} className="text-lg px-8">
+            Criar Conta Gratuita
+          </Button>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="py-8 px-4 border-t">
-        <div className="container mx-auto text-center text-muted-foreground">
-          <p>&copy; 2024 Todos os direitos reservados</p>
+      <footer className="py-12 px-4 border-t bg-muted/30">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">Sobre</h3>
+              <p className="text-muted-foreground">
+                A plataforma completa para gerenciar seu programa de afiliados com eficiência e transparência.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Links Rápidos</h3>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate("/terms")}>Termos de Serviço</Button></li>
+                <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate("/privacy")}>Política de Privacidade</Button></li>
+                <li><Button variant="link" className="p-0 h-auto" onClick={() => navigate("/auth")}>Login</Button></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Contato</h3>
+              <p className="text-muted-foreground">
+                Entre em contato conosco para saber mais sobre a plataforma
+              </p>
+            </div>
+          </div>
+          <div className="text-center pt-8 border-t text-muted-foreground">
+            <p>&copy; 2024 Todos os direitos reservados</p>
+          </div>
         </div>
       </footer>
     </div>
