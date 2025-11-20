@@ -1048,19 +1048,27 @@ const AdminPlans = () => {
                         <label className="text-sm text-foreground font-medium">Produto</label>
                         <Input
                           value={editingPlan?.products?.nome || "Sem produto associado"}
-                          disabled
-                          className="bg-muted text-muted-foreground"
+                          onChange={(e) => {
+                            if (editingPlan?.products) {
+                              setEditingPlan({
+                                ...editingPlan,
+                                products: { ...editingPlan.products, nome: e.target.value }
+                              });
+                            }
+                          }}
+                          className="bg-background text-foreground"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm text-muted-foreground font-medium">
+                        <label className="text-sm text-foreground font-medium">
                           Nome da assinatura (No cadastro do Stripe)
                         </label>
                         <Input
-                          value={editingPlan?.name || stripeFormData.nome}
-                          disabled
-                          className="bg-muted text-muted-foreground"
+                          value={stripeFormData.nome}
+                          onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
+                          placeholder="Nome da assinatura"
+                          className="bg-background text-foreground"
                         />
                       </div>
 
