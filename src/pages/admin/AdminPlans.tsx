@@ -387,25 +387,13 @@ const AdminPlans = () => {
       is_active: true,
     };
 
-    // Se estiver editando, atualiza; senão, verifica se já existe uma integração para este plano/ambiente
+    // Se estiver editando, atualiza; senão, insere
     let error;
-    let targetIntegrationId = editingIntegrationId;
-
-    // Se não estiver em modo de edição explícito, verifica se já existe integração para este plano + ambiente
-    if (!targetIntegrationId && planIntegrations && editingPlan) {
-      const existingIntegration = planIntegrations.find(
-        (int: any) => int.plan_id === editingPlan.id && int.environment_type === stripeFormData.environment_type
-      );
-      if (existingIntegration) {
-        targetIntegrationId = existingIntegration.id;
-      }
-    }
-
-    if (targetIntegrationId) {
+    if (editingIntegrationId) {
       const result = await supabase
         .from("plan_integrations")
         .update(payload)
-        .eq("id", targetIntegrationId);
+        .eq("id", editingIntegrationId);
       error = result.error;
     } else {
       const result = await supabase
