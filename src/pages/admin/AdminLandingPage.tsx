@@ -548,11 +548,19 @@ const AdminLandingPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Configuração da Landing Page</h1>
-        <p className="text-muted-foreground mt-2">
-          Gerencie os depoimentos e perguntas frequentes da sua landing page
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Configuração da Landing Page</h1>
+          <p className="text-muted-foreground mt-2">
+            Gerencie os depoimentos e perguntas frequentes da sua landing page
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => window.open('/landing', '_blank')}
+        >
+          Ir para Landing Page
+        </Button>
       </div>
 
       <Tabs defaultValue="testimonials" className="w-full">
