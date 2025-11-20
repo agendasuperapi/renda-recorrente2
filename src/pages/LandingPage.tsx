@@ -145,10 +145,9 @@ const LandingPage = () => {
   };
 
   const fetchTestimonials = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("landing_testimonials")
       .select("*")
-      .eq("product_id", PRODUCT_ID)
       .eq("is_active", true)
       .order("order_position");
 
@@ -158,10 +157,9 @@ const LandingPage = () => {
   };
 
   const fetchFaqs = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("landing_faqs")
       .select("*")
-      .eq("product_id", PRODUCT_ID)
       .eq("is_active", true)
       .order("order_position");
 
