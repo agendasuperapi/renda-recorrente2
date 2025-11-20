@@ -269,6 +269,16 @@ const AdminPlans = () => {
       is_active: plan.is_active,
       product_id: plan.product_id || "",
     });
+    
+    // Carregar dados do Stripe se existirem
+    setStripeFormData({
+      banco: "STRIPE",
+      conta: "",
+      nome: plan.name,
+      produto_id: plan.stripe_product_id || "",
+      preco_id: plan.stripe_price_id || "",
+    });
+    setSelectedPlanForStripe(plan);
   };
 
   const handleNewPlan = () => {
@@ -289,6 +299,16 @@ const AdminPlans = () => {
       is_active: true,
       product_id: "",
     });
+    
+    // Resetar dados do Stripe
+    setStripeFormData({
+      banco: "STRIPE",
+      conta: "",
+      nome: "",
+      produto_id: "",
+      preco_id: "",
+    });
+    setSelectedPlanForStripe(null);
   };
 
   const handleDeletePlan = (id: string) => {
@@ -316,7 +336,7 @@ const AdminPlans = () => {
   };
 
   const handleSaveStripe = async () => {
-    if (!selectedPlanForStripe) {
+    if (!editingPlan) {
       toast.error("Nenhum plano selecionado");
       return;
     }
@@ -332,7 +352,7 @@ const AdminPlans = () => {
         stripe_product_id: stripeFormData.produto_id,
         stripe_price_id: stripeFormData.preco_id,
       })
-      .eq("id", selectedPlanForStripe.id);
+      .eq("id", editingPlan.id);
 
     if (error) {
       toast.error("Erro ao salvar integração Stripe");
@@ -341,20 +361,19 @@ const AdminPlans = () => {
       toast.success("Produto Stripe cadastrado com sucesso!");
       
       // Atualiza o estado local do plano selecionado
+      setEditingPlan({
+        ...editingPlan,
+        stripe_product_id: stripeFormData.produto_id,
+        stripe_price_id: stripeFormData.preco_id,
+      });
+      
       setSelectedPlanForStripe({
-        ...selectedPlanForStripe,
+        ...editingPlan,
         stripe_product_id: stripeFormData.produto_id,
         stripe_price_id: stripeFormData.preco_id,
       });
       
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
-      setStripeFormData({
-        banco: "STRIPE",
-        conta: "",
-        nome: "",
-        produto_id: "",
-        preco_id: "",
-      });
     }
   };
 
@@ -394,49 +413,43 @@ const AdminPlans = () => {
             <h1 className="text-3xl font-bold">Planos</h1>
           </div>
 
-          <Tabs defaultValue="plans" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="plans">Planos</TabsTrigger>
-              <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            <div className="flex gap-4 items-center justify-end">
+              <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
+                <SelectTrigger className="w-[280px]">
+                  <SelectValue placeholder="Filtrar por produto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os produtos</SelectItem>
+                  <SelectItem value="no-product">Sem produto</SelectItem>
+                  {products?.map((product: any) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={handleNewPlan}>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Plano
+              </Button>
+            </div>
 
-            <TabsContent value="plans" className="space-y-6">
-              <div className="flex gap-4 items-center justify-end">
-                <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
-                  <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Filtrar por produto" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os produtos</SelectItem>
-                    <SelectItem value="no-product">Sem produto</SelectItem>
-                    {products?.map((product: any) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleNewPlan}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Plano
-                </Button>
-              </div>
-
-              <div className="space-y-8">
-                {isLoading ? (
-                  <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
-                ) : !plans || plans.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground mb-4">Nenhum plano encontrado</p>
-                    <Button onClick={handleNewPlan}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Criar primeiro plano
-                    </Button>
-                  </div>
-                ) : selectedProductFilter === "all" ? (
-                  // Group by period and then by product when "all" is selected
-                  <>
-                    {["monthly", "yearly", "daily"].map((period) => {
+            <div className="space-y-8">
+              {isLoading ? (
+                <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
+              ) : !plans || plans.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground mb-4">Nenhum plano encontrado</p>
+                  <Button onClick={handleNewPlan}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Criar primeiro plano
+                  </Button>
+                </div>
+              ) : selectedProductFilter === "all" ? (
+                // Group by period and then by product when "all" is selected
+                <>
+                  {["monthly", "yearly", "daily"].map((period) => {
                       const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
                       if (periodPlans.length === 0) return null;
 
@@ -687,178 +700,7 @@ const AdminPlans = () => {
                   </div>
                 )}
               </div>
-            </TabsContent>
-
-            <TabsContent value="stripe" className="space-y-6">
-              <Card className="bg-muted/50 border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Cadastrar Produto Stripe</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm text-foreground font-medium">Banco</label>
-                      <Select
-                        value={stripeFormData.banco}
-                        onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="STRIPE">STRIPE</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm text-foreground font-medium">Conta</label>
-                      <Select
-                        value={stripeFormData.conta}
-                        onValueChange={(value) => setStripeFormData({ ...stripeFormData, conta: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione uma conta" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {accounts?.map((account: any) => (
-                            <SelectItem key={account.id} value={account.id}>
-                              {account.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm text-foreground font-medium">Plano</label>
-                      <Select
-                        value={selectedPlanForStripe?.id || ""}
-                        onValueChange={(value) => {
-                          const plan = plans?.find((p: any) => p.id === value);
-                          setSelectedPlanForStripe(plan);
-                          setStripeFormData({ 
-                            ...stripeFormData, 
-                            nome: plan?.name || "",
-                            produto_id: plan?.stripe_product_id || "",
-                            preco_id: plan?.stripe_price_id || ""
-                          });
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um plano" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {plans?.map((plan: any) => (
-                            <SelectItem key={plan.id} value={plan.id}>
-                              {plan.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm text-muted-foreground font-medium">
-                        Nome da assinatura (No cadastro do Stripe)
-                      </label>
-                      <Input
-                        value={stripeFormData.nome}
-                        onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
-                        placeholder="Nome do produto"
-                        className="bg-background text-foreground"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm text-foreground font-medium">ID Produto *</label>
-                      <Input
-                        value={stripeFormData.produto_id}
-                        onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
-                        placeholder="prod_XXXXXX"
-                        className="bg-background text-foreground"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm text-foreground font-medium">ID Preço *</label>
-                      <Input
-                        value={stripeFormData.preco_id}
-                        onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
-                        placeholder="price_XXXXXX"
-                        className="bg-background text-foreground"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={handleSaveStripe}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      Salvar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-muted/50 border-border">
-                <CardHeader>
-                  <CardTitle className="text-foreground">Produtos Cadastrados</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-foreground">Banco</TableHead>
-                        <TableHead className="text-foreground">Conta</TableHead>
-                        <TableHead className="text-foreground">Nome</TableHead>
-                        <TableHead className="text-foreground">ID Produto</TableHead>
-                        <TableHead className="text-foreground">ID Preço</TableHead>
-                        <TableHead className="text-foreground">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {plans?.filter((p: any) => p.stripe_product_id).map((plan: any) => (
-                        <TableRow key={plan.id}>
-                          <TableCell className="text-foreground">STRIPE</TableCell>
-                          <TableCell className="text-foreground">-</TableCell>
-                          <TableCell className="text-foreground">{plan.name}</TableCell>
-                          <TableCell className="text-foreground">{plan.stripe_product_id}</TableCell>
-                          <TableCell className="text-foreground">{plan.stripe_price_id}</TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedPlanForStripe(plan);
-                                setStripeFormData({
-                                  banco: "STRIPE",
-                                  conta: "",
-                                  nome: plan.name,
-                                  produto_id: plan.stripe_product_id || "",
-                                  preco_id: plan.stripe_price_id || "",
-                                });
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {(!plans?.filter((p: any) => p.stripe_product_id).length) && (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center text-muted-foreground">
-                            Nenhum produto Stripe cadastrado
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
@@ -868,7 +710,13 @@ const AdminPlans = () => {
                 </DialogTitle>
               </DialogHeader>
 
-              <div className="space-y-6">
+              <Tabs defaultValue="plan" className="space-y-6">
+                <TabsList>
+                  <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
+                  <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="plan" className="space-y-6">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1176,7 +1024,98 @@ const AdminPlans = () => {
                       </div>
                     </form>
                   </Form>
-                </div>
+                </TabsContent>
+
+                <TabsContent value="stripe" className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm text-foreground font-medium">Banco</label>
+                        <Select
+                          value={stripeFormData.banco}
+                          onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="STRIPE">STRIPE</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm text-foreground font-medium">Conta</label>
+                        <Select
+                          value={stripeFormData.conta}
+                          onValueChange={(value) => setStripeFormData({ ...stripeFormData, conta: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma conta" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {accounts?.map((account: any) => (
+                              <SelectItem key={account.id} value={account.id}>
+                                {account.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm text-muted-foreground font-medium">
+                          Nome da assinatura (No cadastro do Stripe)
+                        </label>
+                        <Input
+                          value={editingPlan?.name || stripeFormData.nome}
+                          disabled
+                          className="bg-muted text-muted-foreground"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm text-foreground font-medium">ID Produto *</label>
+                        <Input
+                          value={stripeFormData.produto_id}
+                          onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
+                          placeholder="prod_XXXXXX"
+                          className="bg-background text-foreground"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm text-foreground font-medium">ID Preço *</label>
+                        <Input
+                          value={stripeFormData.preco_id}
+                          onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
+                          placeholder="price_XXXXXX"
+                          className="bg-background text-foreground"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 justify-end pt-6 border-t border-slate-800">
+                      <Button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        variant="outline"
+                        className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Cancelar
+                      </Button>
+                      <Button
+                        onClick={handleSaveStripe}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        Salvar Integração
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </DialogContent>
           </Dialog>
         </div>
