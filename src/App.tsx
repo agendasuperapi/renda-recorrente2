@@ -28,6 +28,9 @@ import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import AdminCpfApis from "./pages/admin/AdminCpfApis";
+import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +45,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             
             {/* Protected Routes with DashboardLayout */}
             <Route element={<DashboardLayout />}>
@@ -66,6 +71,7 @@ const App = () => (
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
               <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
+              <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

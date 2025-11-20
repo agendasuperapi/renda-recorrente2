@@ -203,11 +203,31 @@ const Auth = () => {
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => setIsLogin(!isLogin)}
             className="text-primary hover:text-primary/80 transition-colors"
           >
             {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
           </button>
+        </div>
+
+        <div className="mt-4 text-center text-xs text-muted-foreground">
+          Ao continuar, estou de acordo com os{" "}
+          <a
+            href="/terms"
+            target="_blank"
+            className="text-primary hover:text-primary/80 underline"
+          >
+            Termos de Uso
+          </a>{" "}
+          e{" "}
+          <a
+            href="/privacy"
+            target="_blank"
+            className="text-primary hover:text-primary/80 underline"
+          >
+            Aviso de Privacidade
+          </a>
+          .
         </div>
       </div>
     </div>
