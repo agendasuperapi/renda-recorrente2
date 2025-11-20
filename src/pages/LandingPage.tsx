@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
@@ -575,6 +575,7 @@ const LandingPage = () => {
                 <CardHeader>
                   <div className="flex items-center gap-4 mb-4">
                     <Avatar>
+                      <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {testimonial.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
