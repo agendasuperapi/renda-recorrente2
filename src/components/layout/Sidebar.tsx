@@ -20,6 +20,7 @@ import {
   Package,
   Building2,
   FileSearch,
+  FileText,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -69,6 +70,7 @@ const adminMenuItems = [
   { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
   { icon: CreditCard, label: "Planos e Preços", path: "/admin/plans" },
   { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
+  { icon: FileText, label: "Termos e Privacidade", path: "/admin/legal-documents" },
 ];
 
 export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }: SidebarProps) => {
