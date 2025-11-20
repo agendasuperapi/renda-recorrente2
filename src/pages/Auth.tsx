@@ -130,7 +130,7 @@ const Auth = () => {
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-slate-200">
+              <Label htmlFor="name" className="text-foreground">
                 Nome completo
               </Label>
               <Input
@@ -139,14 +139,14 @@ const Auth = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required={!isLogin}
-                className="bg-white"
+                className="bg-background text-foreground border-input"
                 maxLength={100}
               />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-slate-200">
+            <Label htmlFor="email" className="text-foreground">
               E-mail
             </Label>
             <Input
@@ -155,14 +155,14 @@ const Auth = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
               required
-              className="bg-white"
+              className="bg-background text-foreground border-input"
               placeholder="seu@email.com"
               maxLength={255}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-slate-200">
+            <Label htmlFor="password" className="text-foreground">
               Senha
             </Label>
             <div className="relative">
@@ -172,14 +172,14 @@ const Auth = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
                 required
-                className="bg-white pr-10"
+                className="bg-background text-foreground border-input pr-10"
                 maxLength={128}
                 minLength={6}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
