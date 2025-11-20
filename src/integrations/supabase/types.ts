@@ -299,6 +299,7 @@ export type Database = {
       }
       plans: {
         Row: {
+          account_id: string | null
           billing_period: string
           commission_percentage: number
           created_at: string | null
@@ -315,6 +316,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          account_id?: string | null
           billing_period: string
           commission_percentage?: number
           created_at?: string | null
@@ -331,6 +333,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          account_id?: string | null
           billing_period?: string
           commission_percentage?: number
           created_at?: string | null
@@ -347,6 +350,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "plans_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "plans_product_id_fkey"
             columns: ["product_id"]
