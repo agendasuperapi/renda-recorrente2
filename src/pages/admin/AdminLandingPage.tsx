@@ -175,6 +175,8 @@ const AdminLandingPage = () => {
     is_active: true,
   });
 
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
   const [faqForm, setFaqForm] = useState({
     question: "",
     answer: "",
@@ -394,6 +396,66 @@ const AdminLandingPage = () => {
     fetchFaqs();
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 2MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `testimonials/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setTestimonialForm({ ...testimonialForm, avatar_url: publicUrl });
+
+      toast({
+        title: "Sucesso",
+        description: "Imagem enviada com sucesso!"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const editTestimonial = (testimonial: Testimonial) => {
     setEditingTestimonial(testimonial);
     setTestimonialForm({
@@ -545,12 +607,26 @@ const AdminLandingPage = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="avatar_url">URL do Avatar</Label>
+                        <Label htmlFor="avatar_upload">Avatar</Label>
                         <Input
-                          id="avatar_url"
-                          value={testimonialForm.avatar_url}
-                          onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar_url: e.target.value })}
+                          id="avatar_upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarUpload}
+                          disabled={uploadingAvatar}
                         />
+                        {uploadingAvatar && (
+                          <p className="text-sm text-muted-foreground mt-1">Enviando imagem...</p>
+                        )}
+                        {testimonialForm.avatar_url && !uploadingAvatar && (
+                          <div className="mt-2">
+                            <img 
+                              src={testimonialForm.avatar_url} 
+                              alt="Preview" 
+                              className="h-16 w-16 rounded-full object-cover"
+                            />
+                          </div>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="rating">Avaliação (1-5)</Label>
