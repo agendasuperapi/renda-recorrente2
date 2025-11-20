@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import LandingPage from "./pages/LandingPage";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -21,7 +22,7 @@ import GoogleBusiness from "./pages/GoogleBusiness";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPlans from "./pages/admin/AdminPlans";
-
+import AdminLandingPage from "./pages/admin/AdminLandingPage";
 import AdminStripeEvents from "./pages/admin/AdminStripeEvents";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -39,8 +40,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
             {/* Protected Routes with DashboardLayout */}
             <Route element={<DashboardLayout />}>
@@ -59,7 +60,7 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/plans" element={<AdminPlans />} />
-              
+              <Route path="/admin/landing-page" element={<AdminLandingPage />} />
               <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
               <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/admin/products" element={<AdminProducts />} />
