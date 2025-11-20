@@ -96,6 +96,10 @@ const AdminPlans = () => {
             nome,
             icone_light,
             icone_dark
+          ),
+          accounts (
+            id,
+            name
           )
         `)
         .order("created_at", { ascending: false });
@@ -335,11 +339,17 @@ const AdminPlans = () => {
       return;
     }
 
+    if (!stripeFormData.conta) {
+      toast.error("Selecione uma conta");
+      return;
+    }
+
     const { error } = await supabase
       .from("plans")
       .update({
         stripe_product_id: stripeFormData.produto_id,
         stripe_price_id: stripeFormData.preco_id,
+        account_id: stripeFormData.conta,
       })
       .eq("id", editingPlan.id);
 
@@ -354,6 +364,7 @@ const AdminPlans = () => {
         ...editingPlan,
         stripe_product_id: stripeFormData.produto_id,
         stripe_price_id: stripeFormData.preco_id,
+        account_id: stripeFormData.conta,
       });
       
       // Fecha o dialog e limpa o formulário
@@ -375,7 +386,7 @@ const AdminPlans = () => {
     setIsStripeDialogOpen(true);
     setStripeFormData({
       banco: "STRIPE",
-      conta: "",
+      conta: plan.account_id || "",
       nome: plan.name,
       produto_id: plan.stripe_product_id || "",
       preco_id: plan.stripe_price_id || "",
@@ -388,6 +399,7 @@ const AdminPlans = () => {
       .update({
         stripe_product_id: null,
         stripe_price_id: null,
+        account_id: null,
       })
       .eq("id", planId);
 
@@ -1051,6 +1063,7 @@ const AdminPlans = () => {
                             <TableHeader>
                               <TableRow>
                                 <TableHead className="text-foreground">Banco</TableHead>
+                                <TableHead className="text-foreground">Conta</TableHead>
                                 <TableHead className="text-foreground">Nome</TableHead>
                                 <TableHead className="text-foreground">ID Produto</TableHead>
                                 <TableHead className="text-foreground">ID Preço</TableHead>
@@ -1061,6 +1074,9 @@ const AdminPlans = () => {
                             <TableBody>
                               <TableRow>
                                 <TableCell className="text-foreground">STRIPE</TableCell>
+                                <TableCell className="text-foreground">
+                                  {editingPlan.accounts?.name || "Não definida"}
+                                </TableCell>
                                 <TableCell className="text-foreground">{editingPlan.name}</TableCell>
                                 <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
                                 <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
@@ -1077,7 +1093,7 @@ const AdminPlans = () => {
                                       onClick={() => {
                                         setStripeFormData({
                                           banco: "STRIPE",
-                                          conta: "",
+                                          conta: editingPlan.account_id || "",
                                           nome: editingPlan.name,
                                           produto_id: editingPlan.stripe_product_id || "",
                                           preco_id: editingPlan.stripe_price_id || "",
