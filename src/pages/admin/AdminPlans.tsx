@@ -324,18 +324,6 @@ const AdminPlans = () => {
     form.reset();
   };
 
-  const handleOpenStripeDialog = (plan: any) => {
-    setSelectedPlanForStripe(plan);
-    setIsStripeDialogOpen(true);
-    setStripeFormData({
-      banco: "STRIPE",
-      conta: "",
-      nome: "",
-      produto_id: "",
-      preco_id: "",
-    });
-  };
-
   const handleSaveStripe = async () => {
     if (!editingPlan) {
       toast.error("Nenhum plano selecionado");
@@ -359,22 +347,17 @@ const AdminPlans = () => {
       toast.error("Erro ao salvar integração Stripe");
       console.error(error);
     } else {
-      toast.success("Produto Stripe cadastrado com sucesso!");
+      toast.success("Integração Stripe salva com sucesso!");
       
-      // Atualiza o estado local do plano selecionado
+      // Atualiza o estado local do plano
       setEditingPlan({
         ...editingPlan,
         stripe_product_id: stripeFormData.produto_id,
         stripe_price_id: stripeFormData.preco_id,
       });
       
-      setSelectedPlanForStripe({
-        ...editingPlan,
-        stripe_product_id: stripeFormData.produto_id,
-        stripe_price_id: stripeFormData.preco_id,
-      });
-      
-      // Limpa os campos do formulário
+      // Fecha o dialog e limpa o formulário
+      setIsStripeDialogOpen(false);
       setStripeFormData({
         banco: "STRIPE",
         conta: "",
@@ -1042,7 +1025,16 @@ const AdminPlans = () => {
                       <h3 className="text-lg font-semibold">Integração Stripe</h3>
                       <Button
                         variant="outline"
-                        onClick={() => setIsStripeDialogOpen(true)}
+                        onClick={() => {
+                          setStripeFormData({
+                            banco: "STRIPE",
+                            conta: "",
+                            nome: editingPlan?.name || "",
+                            produto_id: "",
+                            preco_id: "",
+                          });
+                          setIsStripeDialogOpen(true);
+                        }}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Nova Integração
