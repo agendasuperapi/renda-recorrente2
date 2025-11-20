@@ -177,9 +177,69 @@ const Profile = () => {
     setProfile({ ...profile, phone: cleaned });
   };
 
-  const handleCpfChange = (value: string) => {
+  const handleCpfChange = async (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     setProfile({ ...profile, cpf: cleaned });
+
+    // Consulta CPF quando tiver 11 dígitos
+    if (cleaned.length === 11) {
+      try {
+        const { data, error } = await supabase.functions.invoke('consultar-cpf', {
+          body: { 
+            cpf: cleaned,
+            birthDate: profile.birth_date || undefined
+          },
+        });
+
+        if (error) throw error;
+
+        if (!data.error) {
+          const updates: any = {};
+          
+          // Preenche nome completo
+          if (data.name) {
+            updates.name = data.name;
+          }
+          
+          // Preenche data de nascimento se disponível
+          if (data.birthDate && data.birthDate !== '****-**-**') {
+            updates.birth_date = data.birthDate;
+          }
+          
+          // Preenche gênero se disponível
+          if (data.gender) {
+            const genderMap: { [key: string]: string } = {
+              'm': 'masculino',
+              'f': 'feminino',
+              'male': 'masculino',
+              'female': 'feminino'
+            };
+            updates.gender = genderMap[data.gender.toLowerCase()] || data.gender;
+          }
+
+          if (Object.keys(updates).length > 0) {
+            setProfile(prev => ({ ...prev, ...updates }));
+            toast({
+              title: "Dados encontrados",
+              description: "Informações preenchidas automaticamente!",
+            });
+          }
+        } else {
+          toast({
+            title: "CPF não encontrado",
+            description: "Não foi possível consultar os dados do CPF.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao consultar CPF:', error);
+        toast({
+          title: "Erro ao consultar CPF",
+          description: "Não foi possível buscar os dados.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const formatCpf = (value: string) => {
