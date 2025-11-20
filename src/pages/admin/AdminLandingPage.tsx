@@ -559,7 +559,7 @@ const AdminLandingPage = () => {
         </div>
         <Button
           variant="outline"
-          onClick={() => navigate('/landing')}
+          onClick={() => navigate('/')}
         >
           Ir para Landing Page
         </Button>
