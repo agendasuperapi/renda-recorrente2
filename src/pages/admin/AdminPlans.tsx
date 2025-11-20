@@ -1167,6 +1167,7 @@ const AdminPlans = () => {
                       
                       {planIntegrations
                         ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "production")
+                        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
                         .map((integration) => (
                           <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-muted"}>
                             <CardContent className="pt-4 space-y-2">
@@ -1234,6 +1235,7 @@ const AdminPlans = () => {
                       
                       {planIntegrations
                         ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "test")
+                        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
                         .map((integration) => (
                           <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-muted"}>
                             <CardContent className="pt-4 space-y-2">
