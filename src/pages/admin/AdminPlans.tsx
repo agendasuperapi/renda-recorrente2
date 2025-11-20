@@ -1168,19 +1168,24 @@ const AdminPlans = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm text-foreground font-medium">Produto</label>
-                    <Input
-                      value={editingPlan?.products?.nome || "Sem produto associado"}
-                      onChange={(e) => {
-                        if (editingPlan?.products) {
-                          setEditingPlan({
-                            ...editingPlan,
-                            products: { ...editingPlan.products, nome: e.target.value }
-                          });
-                        }
-                      }}
-                      className="bg-background text-foreground"
-                    />
+                    <label className="text-sm text-foreground font-medium">Conta</label>
+                    <Select
+                      value={stripeFormData.conta}
+                      onValueChange={(value) => setStripeFormData({ ...stripeFormData, conta: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma conta" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {accounts
+                          ?.filter((account: any) => account.product_id === editingPlan?.product_id)
+                          .map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.name} - {account.banks?.name || "Sem banco"}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-2">
