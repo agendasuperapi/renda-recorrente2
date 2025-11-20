@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, KeyboardEvent } from "react";
 import { User } from "lucide-react";
 import {
   Select,
@@ -83,6 +83,25 @@ const Profile = () => {
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const form = e.currentTarget.form;
+      if (!form) return;
+
+      const inputs = Array.from(form.querySelectorAll<HTMLInputElement | HTMLButtonElement>(
+        'input:not([type="submit"]):not([disabled]), select, textarea, button[type="submit"]'
+      ));
+      
+      const currentIndex = inputs.indexOf(e.currentTarget);
+      const nextInput = inputs[currentIndex + 1];
+      
+      if (nextInput) {
+        nextInput.focus();
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -156,6 +175,7 @@ const Profile = () => {
                     id="name"
                     value={profile.name}
                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                    onKeyDown={handleKeyDown}
                     required
                   />
                 </div>
@@ -165,6 +185,7 @@ const Profile = () => {
                     id="username"
                     value={profile.username}
                     onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -173,6 +194,7 @@ const Profile = () => {
                     id="cpf"
                     value={profile.cpf}
                     onChange={(e) => setProfile({ ...profile, cpf: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -181,6 +203,7 @@ const Profile = () => {
                     id="phone"
                     value={profile.phone}
                     onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -190,6 +213,7 @@ const Profile = () => {
                     type="date"
                     value={profile.birth_date}
                     onChange={(e) => setProfile({ ...profile, birth_date: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -224,6 +248,7 @@ const Profile = () => {
                     id="cep"
                     value={profile.cep}
                     onChange={(e) => setProfile({ ...profile, cep: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -232,6 +257,7 @@ const Profile = () => {
                     id="street"
                     value={profile.street}
                     onChange={(e) => setProfile({ ...profile, street: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -240,6 +266,7 @@ const Profile = () => {
                     id="number"
                     value={profile.number}
                     onChange={(e) => setProfile({ ...profile, number: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -248,6 +275,7 @@ const Profile = () => {
                     id="complement"
                     value={profile.complement}
                     onChange={(e) => setProfile({ ...profile, complement: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -256,6 +284,7 @@ const Profile = () => {
                     id="neighborhood"
                     value={profile.neighborhood}
                     onChange={(e) => setProfile({ ...profile, neighborhood: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -264,6 +293,7 @@ const Profile = () => {
                     id="city"
                     value={profile.city}
                     onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -272,6 +302,7 @@ const Profile = () => {
                     id="state"
                     value={profile.state}
                     onChange={(e) => setProfile({ ...profile, state: e.target.value })}
+                    onKeyDown={handleKeyDown}
                     maxLength={2}
                   />
                 </div>
@@ -291,6 +322,7 @@ const Profile = () => {
                     id="instagram"
                     value={profile.instagram}
                     onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                    onKeyDown={handleKeyDown}
                     placeholder="@usuario"
                   />
                 </div>
@@ -300,6 +332,7 @@ const Profile = () => {
                     id="facebook"
                     value={profile.facebook}
                     onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <div>
@@ -308,6 +341,7 @@ const Profile = () => {
                     id="tiktok"
                     value={profile.tiktok}
                     onChange={(e) => setProfile({ ...profile, tiktok: e.target.value })}
+                    onKeyDown={handleKeyDown}
                     placeholder="@usuario"
                   />
                 </div>
@@ -344,6 +378,7 @@ const Profile = () => {
                     id="pix_key"
                     value={profile.pix_key}
                     onChange={(e) => setProfile({ ...profile, pix_key: e.target.value })}
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
               </div>
