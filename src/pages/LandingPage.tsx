@@ -238,13 +238,7 @@ const LandingPage = () => {
             <ThemeToggle />
             {user ? (
               <>
-                <Button onClick={() => {
-                  if (window.history.length > 1) {
-                    navigate(-1);
-                  } else {
-                    navigate("/dashboard");
-                  }
-                }} variant="outline">
+                <Button onClick={() => navigate("/dashboard")} variant="outline">
                   Acessar Painel
                 </Button>
                 <Button onClick={handleLogout} variant="ghost">
