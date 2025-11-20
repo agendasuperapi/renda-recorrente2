@@ -825,7 +825,24 @@ const AdminPlans = () => {
 
                 <TabsContent value="plan" className="space-y-6">
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <form 
+                      onSubmit={form.handleSubmit(onSubmit)} 
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+                          e.preventDefault();
+                          const form = e.target.form;
+                          if (form) {
+                            const inputs = Array.from(form.querySelectorAll('input, select, textarea'));
+                            const index = inputs.indexOf(e.target);
+                            const nextInput = inputs[index + 1] as HTMLElement;
+                            if (nextInput) {
+                              nextInput.focus();
+                            }
+                          }
+                        }
+                      }}
+                      className="space-y-6"
+                    >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormField
                           control={form.control}
