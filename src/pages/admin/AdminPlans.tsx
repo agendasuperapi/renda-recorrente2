@@ -720,421 +720,424 @@ const AdminPlans = () => {
                 </DialogTitle>
               </DialogHeader>
 
-              <div className="space-y-6">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="billing_period"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Período do plano</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
+              <Tabs defaultValue="plan" className="space-y-6">
+                <TabsList>
+                  <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
+                  <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="plan" className="space-y-6">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="billing_period"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Período do plano</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o período" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="monthly">Mensal</SelectItem>
+                                  <SelectItem value="yearly">Anual</SelectItem>
+                                  <SelectItem value="daily">Diário</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nome do Plano</FormLabel>
                               <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione o período" />
-                                </SelectTrigger>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: Plano Mensal"
+                                />
                               </FormControl>
-                              <SelectContent>
-                                <SelectItem value="monthly">Mensal</SelectItem>
-                                <SelectItem value="yearly">Anual</SelectItem>
-                                <SelectItem value="daily">Diário</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nome do Plano</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                placeholder="Ex: Plano Mensal"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="product_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Produto</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              value={field.value || ""}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione um produto" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="none">Nenhum produto</SelectItem>
-                                {products?.map((product: Product) => (
-                                  <SelectItem key={product.id} value={product.id}>
-                                    {product.nome}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Valor Assinatura/Recorrente</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="original_price"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Preço anterior</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                type="number"
-                                step="0.01"
-                                placeholder="0.00"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem className="md:col-span-2">
-                            <FormLabel>Detalhes</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                {...field} 
-                                placeholder="Será usada na Landing Page"
-                                rows={3}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="obs_plan"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Observação do Plano</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                placeholder="Ex: Mais contratado"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="obs_discount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Observação de Desconto</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                placeholder="Ex: R$10,00 de desconto"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="obs_coupon"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Observação Cupom</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                placeholder="Ex: Cupom de desconto 10%"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="coupon_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Selecione o CUPOM</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              value={field.value || ""}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione um cupom" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {coupons?.map((coupon: Coupon) => (
-                                  <SelectItem key={coupon.id} value={coupon.id}>
-                                    {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="trial_days"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tempo de teste (dias)</FormLabel>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                        <FormField
+                          control={form.control}
+                          name="product_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Produto</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value || ""}
                               >
-                                <Minus className="h-4 w-4" />
-                              </Button>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione um produto" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="none">Nenhum produto</SelectItem>
+                                  {products?.map((product: Product) => (
+                                    <SelectItem key={product.id} value={product.id}>
+                                      {product.nome}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Valor Assinatura/Recorrente</FormLabel>
                               <FormControl>
                                 <Input 
                                   {...field} 
                                   type="number"
-                                  className="text-center"
+                                  step="0.01"
+                                  placeholder="0.00"
                                 />
                               </FormControl>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => field.onChange(field.value + 1)}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="original_price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Preço anterior</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="0.00"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem className="md:col-span-2">
+                              <FormLabel>Detalhes</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field} 
+                                  placeholder="Será usada na Landing Page"
+                                  rows={3}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="obs_plan"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Observação do Plano</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: Mais contratado"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="obs_discount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Observação de Desconto</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: R$10,00 de desconto"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="obs_coupon"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Observação Cupom</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  placeholder="Ex: Cupom de desconto 10%"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="coupon_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Selecione o CUPOM</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                value={field.value || ""}
                               >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <FormDescription className="text-xs">
-                              Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecione um cupom" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {coupons?.map((coupon: Coupon) => (
+                                    <SelectItem key={coupon.id} value={coupon.id}>
+                                      {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <FormField
-                        control={form.control}
-                        name="commission_percentage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Percentual de Comissão (%)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                {...field} 
-                                type="number"
-                                min="0"
-                                max="100"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="is_active"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                              <FormLabel>Ativo</FormLabel>
+                        <FormField
+                          control={form.control}
+                          name="trial_days"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tempo de teste (dias)</FormLabel>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="number"
+                                    className="text-center"
+                                  />
+                                </FormControl>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(field.value + 1)}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                              </div>
                               <FormDescription className="text-xs">
-                                Plano disponível para assinatura
+                                Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
                               </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                    <div className="flex gap-3 justify-end pt-6 border-t border-border">
+                        <FormField
+                          control={form.control}
+                          name="commission_percentage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Percentual de Comissão (%)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field} 
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="is_active"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                              <div className="space-y-0.5">
+                                <FormLabel>Ativo</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Plano disponível para assinatura
+                                </FormDescription>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex gap-3 justify-end pt-6 border-t border-border">
+                        <Button
+                          type="button"
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="submit"
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Salvar
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+
+                <TabsContent value="stripe" className="space-y-6">
+
+                  {/* Integração Stripe */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Integração Stripe</h3>
                       <Button
-                        type="button"
-                        onClick={handleCancelEdit}
                         variant="outline"
+                        onClick={() => setIsStripeDialogOpen(true)}
                       >
-                        <X className="h-4 w-4 mr-2" />
-                        Cancelar
-                      </Button>
-                      <Button
-                        type="submit"
-                      >
-                        <Check className="h-4 w-4 mr-2" />
-                        Salvar
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nova Integração
                       </Button>
                     </div>
-                  </form>
-                </Form>
 
-                {/* Integração Stripe */}
-                <div className="space-y-4 pt-6 border-t border-border">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Integração Stripe</h3>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsStripeDialogOpen(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Nova Integração
-                    </Button>
-                  </div>
+                    {editingPlan?.stripe_product_id && (
+                      <Card className="bg-muted/50 border-border">
+                        <CardHeader>
+                          <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="text-foreground">Banco</TableHead>
+                                <TableHead className="text-foreground">Nome</TableHead>
+                                <TableHead className="text-foreground">ID Produto</TableHead>
+                                <TableHead className="text-foreground">ID Preço</TableHead>
+                                <TableHead className="text-foreground">Status</TableHead>
+                                <TableHead className="text-foreground">Ações</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="text-foreground">STRIPE</TableCell>
+                                <TableCell className="text-foreground">{editingPlan.name}</TableCell>
+                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
+                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
+                                <TableCell>
+                                  <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
+                                    {editingPlan.is_active ? "Ativo" : "Inativo"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setStripeFormData({
+                                          banco: "STRIPE",
+                                          conta: "",
+                                          nome: editingPlan.name,
+                                          produto_id: editingPlan.stripe_product_id || "",
+                                          preco_id: editingPlan.stripe_price_id || "",
+                                        });
+                                        setIsStripeDialogOpen(true);
+                                      }}
+                                      title="Editar"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={async () => {
+                                        if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
+                                          const { error } = await supabase
+                                            .from("plans")
+                                            .update({
+                                              stripe_product_id: null,
+                                              stripe_price_id: null,
+                                            })
+                                            .eq("id", editingPlan.id);
 
-                  {editingPlan?.stripe_product_id && (
-                    <Card className="mt-6 bg-muted/50 border-border">
-                      <CardHeader>
-                        <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="text-foreground">Banco</TableHead>
-                              <TableHead className="text-foreground">Nome</TableHead>
-                              <TableHead className="text-foreground">ID Produto</TableHead>
-                              <TableHead className="text-foreground">ID Preço</TableHead>
-                              <TableHead className="text-foreground">Status</TableHead>
-                              <TableHead className="text-foreground">Ações</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell className="text-foreground">STRIPE</TableCell>
-                              <TableCell className="text-foreground">{editingPlan.name}</TableCell>
-                              <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
-                              <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
-                              <TableCell>
-                                <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
-                                  {editingPlan.is_active ? "Ativo" : "Inativo"}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      setStripeFormData({
-                                        banco: "STRIPE",
-                                        conta: "",
-                                        nome: editingPlan.name,
-                                        produto_id: editingPlan.stripe_product_id || "",
-                                        preco_id: editingPlan.stripe_price_id || "",
-                                      });
-                                      setIsStripeDialogOpen(true);
-                                    }}
-                                    title="Editar"
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={async () => {
-                                      if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
-                                        const { error } = await supabase
-                                          .from("plans")
-                                          .update({
-                                            stripe_product_id: null,
-                                            stripe_price_id: null,
-                                          })
-                                          .eq("id", editingPlan.id);
-
-                                        if (error) {
-                                          toast.error("Erro ao remover integração");
-                                        } else {
-                                          toast.success("Integração removida com sucesso!");
-                                          setEditingPlan({
-                                            ...editingPlan,
-                                            stripe_product_id: null,
-                                            stripe_price_id: null,
-                                          });
-                                          setStripeFormData({
-                                            banco: "STRIPE",
-                                            conta: "",
-                                            nome: "",
-                                            produto_id: "",
-                                            preco_id: "",
-                                          });
-                                          queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+                                          if (error) {
+                                            toast.error("Erro ao remover integração");
+                                          } else {
+                                            toast.success("Integração removida com sucesso!");
+                                            setEditingPlan({
+                                              ...editingPlan,
+                                              stripe_product_id: null,
+                                              stripe_price_id: null,
+                                            });
+                                            queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+                                          }
                                         }
-                                      }
-                                    }}
-                                    className="hover:text-destructive"
-                                    title="Excluir integração"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </div>
+                                      }}
+                                      className="hover:text-destructive"
+                                      title="Excluir integração"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </DialogContent>
           </Dialog>
 
