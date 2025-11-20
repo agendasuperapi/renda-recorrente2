@@ -177,6 +177,20 @@ const Profile = () => {
     setProfile({ ...profile, phone: cleaned });
   };
 
+  const handleCpfChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    setProfile({ ...profile, cpf: cleaned });
+  };
+
+  const formatCpf = (value: string) => {
+    if (!value) return '';
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
   const normalizeUsername = (value: string) => {
     // Remove espaços e caracteres especiais, mantém apenas letras e números
     return value.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -354,9 +368,11 @@ const Profile = () => {
                   <Label htmlFor="cpf">CPF</Label>
                   <Input
                     id="cpf"
-                    value={profile.cpf}
-                    onChange={(e) => setProfile({ ...profile, cpf: e.target.value })}
+                    value={formatCpf(profile.cpf)}
+                    onChange={(e) => handleCpfChange(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
                   />
                 </div>
                 <div>
