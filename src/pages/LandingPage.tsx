@@ -10,8 +10,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
-  CheckCircle2, Star, MessageSquare
+  CheckCircle2, Star, MessageSquare, LucideIcon
 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import logo from "@/assets/logo.png";
 import heroPerson from "@/assets/hero-person.png";
@@ -53,6 +54,13 @@ interface AffiliateProduct {
   icone_light: string | null;
   icone_dark: string | null;
   site_landingpage: string | null;
+}
+
+interface Feature {
+  id: string;
+  name: string;
+  icon: string;
+  is_active: boolean;
 }
 
 const defaultTestimonials: Testimonial[] = [
@@ -116,6 +124,7 @@ const LandingPage = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [products, setProducts] = useState<AffiliateProduct[]>([]);
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
@@ -136,6 +145,8 @@ const LandingPage = () => {
     fetchTestimonials();
     // Fetch FAQs
     fetchFaqs();
+    // Fetch features
+    fetchFeatures();
     // Fetch products
     fetchProducts();
     // Fetch product info
@@ -169,6 +180,18 @@ const LandingPage = () => {
 
     if (data && data.length > 0) {
       setTestimonials(data as Testimonial[]);
+    }
+  };
+
+  const fetchFeatures = async () => {
+    const { data } = await (supabase as any)
+      .from("landing_features")
+      .select("*")
+      .eq("is_active", true)
+      .order("order_position");
+
+    if (data && data.length > 0) {
+      setFeatures(data);
     }
   };
 
@@ -222,6 +245,10 @@ const LandingPage = () => {
     if (!whatsappPhone || !whatsappText) return "#";
     const encodedText = encodeURIComponent(whatsappText);
     return `https://api.whatsapp.com/send/?phone=${whatsappPhone}&text=${encodedText}&type=phone_number&app_absent=0`;
+  };
+
+  const getIconComponent = (iconName: string): LucideIcon => {
+    return (LucideIcons as any)[iconName] || CheckCircle2;
   };
 
   return (
@@ -576,19 +603,15 @@ const LandingPage = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="grid md:grid-cols-2 gap-4">
-                {[
-                  "Dashboard completo",
-                  "Treinamento integrado",
-                  "Relatórios de indicações",
-                  "Relatórios de comissões",
-                  "Cadastro de cupons",
-                  "Solicitação de saques"
-                ].map((feature, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
+                {features.map((feature) => {
+                  const IconComponent = getIconComponent(feature.icon);
+                  return (
+                    <div key={feature.id} className="flex items-center gap-3">
+                      <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span>{feature.name}</span>
+                    </div>
+                  );
+                })}
               </div>
               <p className="text-center text-muted-foreground mt-6 italic">
                 O sistema está em constante atualização, então em breve teremos novas funcionalidades.

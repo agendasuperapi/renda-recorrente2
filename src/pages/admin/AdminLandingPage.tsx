@@ -50,6 +50,14 @@ interface FAQ {
   order_position: number;
 }
 
+interface Feature {
+  id: string;
+  name: string;
+  icon: string;
+  is_active: boolean;
+  order_position: number;
+}
+
 const SortableTestimonialRow = ({ testimonial, onEdit, onDelete }: { 
   testimonial: Testimonial; 
   onEdit: (t: Testimonial) => void;
@@ -175,10 +183,13 @@ const AdminLandingPage = () => {
   const { toast } = useToast();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
+  const [showFeatureForm, setShowFeatureForm] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
+  const [editingFeature, setEditingFeature] = useState<Feature | null>(null);
 
   const [testimonialForm, setTestimonialForm] = useState({
     name: "",
@@ -197,6 +208,12 @@ const AdminLandingPage = () => {
     is_active: true,
   });
 
+  const [featureForm, setFeatureForm] = useState({
+    name: "",
+    icon: "CheckCircle2",
+    is_active: true,
+  });
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -207,6 +224,7 @@ const AdminLandingPage = () => {
   useEffect(() => {
     fetchTestimonials();
     fetchFaqs();
+    fetchFeatures();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -223,6 +241,14 @@ const AdminLandingPage = () => {
       .select("*")
       .order("order_position");
     if (data) setFaqs(data as FAQ[]);
+  };
+
+  const fetchFeatures = async () => {
+    const { data } = await (supabase as any)
+      .from("landing_features")
+      .select("*")
+      .order("order_position");
+    if (data) setFeatures(data as Feature[]);
   };
 
   const resetTestimonialForm = () => {
@@ -246,6 +272,16 @@ const AdminLandingPage = () => {
     });
     setEditingFaq(null);
     setShowFaqForm(false);
+  };
+
+  const resetFeatureForm = () => {
+    setFeatureForm({
+      name: "",
+      icon: "CheckCircle2",
+      is_active: true,
+    });
+    setEditingFeature(null);
+    setShowFeatureForm(false);
   };
 
   const handleSaveTestimonial = async () => {
@@ -493,6 +529,97 @@ const AdminLandingPage = () => {
     setShowFaqForm(true);
   };
 
+  const editFeature = (feature: Feature) => {
+    setEditingFeature(feature);
+    setFeatureForm({
+      name: feature.name,
+      icon: feature.icon,
+      is_active: feature.is_active,
+    });
+    setShowFeatureForm(true);
+  };
+
+  const handleSaveFeature = async () => {
+    if (!featureForm.name || !featureForm.icon) {
+      toast({
+        title: "Erro",
+        description: "Preencha todos os campos obrigatórios",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (editingFeature) {
+      const { error } = await (supabase as any)
+        .from("landing_features")
+        .update(featureForm)
+        .eq("id", editingFeature.id);
+
+      if (error) {
+        toast({
+          title: "Erro ao atualizar",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Funcionalidade atualizada!"
+      });
+    } else {
+      const maxOrder = features.length > 0 
+        ? Math.max(...features.map(f => f.order_position))
+        : -1;
+
+      const { error } = await (supabase as any)
+        .from("landing_features")
+        .insert([{ ...featureForm, order_position: maxOrder + 1 }]);
+
+      if (error) {
+        toast({
+          title: "Erro ao criar",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Funcionalidade criada!"
+      });
+    }
+
+    resetFeatureForm();
+    fetchFeatures();
+  };
+
+  const handleDeleteFeature = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir esta funcionalidade?")) return;
+
+    const { error } = await (supabase as any)
+      .from("landing_features")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Erro ao excluir",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Sucesso",
+      description: "Funcionalidade excluída!"
+    });
+    fetchFeatures();
+  };
+
   const handleDragEndTestimonials = async (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -572,6 +699,7 @@ const AdminLandingPage = () => {
         <TabsList>
           <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
           <TabsTrigger value="faqs">FAQs</TabsTrigger>
+          <TabsTrigger value="features">Funcionalidades</TabsTrigger>
         </TabsList>
 
         <TabsContent value="testimonials" className="space-y-4">
@@ -813,6 +941,116 @@ const AdminLandingPage = () => {
                   </TableBody>
                 </Table>
               </DndContext>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="features" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Funcionalidades</CardTitle>
+                  <CardDescription>Gerencie as funcionalidades do sistema exibidas na landing page.</CardDescription>
+                </div>
+                <Button
+                  onClick={() => setShowFeatureForm(!showFeatureForm)}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {showFeatureForm ? "Cancelar" : "Nova Funcionalidade"}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {showFeatureForm && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">
+                      {editingFeature ? "Editar Funcionalidade" : "Nova Funcionalidade"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="feature_name">Nome *</Label>
+                      <Input
+                        id="feature_name"
+                        value={featureForm.name}
+                        onChange={(e) => setFeatureForm({ ...featureForm, name: e.target.value })}
+                        placeholder="Ex: Dashboard completo"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="feature_icon">Ícone (nome do Lucide Icon) *</Label>
+                      <Input
+                        id="feature_icon"
+                        value={featureForm.icon}
+                        onChange={(e) => setFeatureForm({ ...featureForm, icon: e.target.value })}
+                        placeholder="Ex: CheckCircle2"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Veja os ícones disponíveis em: <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="text-primary underline">lucide.dev/icons</a>
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="feature_active"
+                        checked={featureForm.is_active}
+                        onCheckedChange={(checked) => setFeatureForm({ ...featureForm, is_active: checked })}
+                      />
+                      <Label htmlFor="feature_active">Ativo</Label>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleSaveFeature}>
+                        {editingFeature ? "Atualizar" : "Criar"}
+                      </Button>
+                      <Button variant="outline" onClick={resetFeatureForm}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Ícone</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {features.map((feature) => (
+                    <TableRow key={feature.id}>
+                      <TableCell className="font-medium">{feature.name}</TableCell>
+                      <TableCell>{feature.icon}</TableCell>
+                      <TableCell>
+                        <Badge variant={feature.is_active ? "default" : "secondary"}>
+                          {feature.is_active ? "Ativo" : "Inativo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => editFeature(feature)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteFeature(feature.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
