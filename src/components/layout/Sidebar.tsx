@@ -21,6 +21,7 @@ import {
   Building2,
   FileSearch,
   FileText,
+  Home,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -61,6 +62,7 @@ const affiliateMenuItems = [
 ];
 
 const adminMenuItems = [
+  { icon: Home, label: "Home Landing Page", path: "/" },
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
   { icon: Users, label: "Usuários", path: "/admin/users" },
   { icon: FileSearch, label: "API de CPF", path: "/admin/cpf-apis" },
