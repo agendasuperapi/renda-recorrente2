@@ -56,7 +56,7 @@ const AdminPlans = () => {
   const [selectedProductFilter, setSelectedProductFilter] = useState<string>("all");
   const [isStripeDialogOpen, setIsStripeDialogOpen] = useState(false);
   const [selectedPlanForStripe, setSelectedPlanForStripe] = useState<any>(null);
-  const [showStripeIntegration, setShowStripeIntegration] = useState(false);
+  
   const [stripeFormData, setStripeFormData] = useState({
     banco: "STRIPE",
     conta: "",
@@ -1031,102 +1031,14 @@ const AdminPlans = () => {
                 <div className="space-y-4 pt-6 border-t border-border">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Integração Stripe</h3>
-                    {!showStripeIntegration && (
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowStripeIntegration(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Nova Integração
-                      </Button>
-                    )}
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsStripeDialogOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nova Integração
+                    </Button>
                   </div>
-
-                  {showStripeIntegration && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-sm text-foreground font-medium">Banco</label>
-                          <Select
-                            value={stripeFormData.banco}
-                            onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="STRIPE">STRIPE</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-sm text-foreground font-medium">Produto</label>
-                          <Input
-                            value={editingPlan?.products?.nome || "Sem produto associado"}
-                            onChange={(e) => {
-                              if (editingPlan?.products) {
-                                setEditingPlan({
-                                  ...editingPlan,
-                                  products: { ...editingPlan.products, nome: e.target.value }
-                                });
-                              }
-                            }}
-                            className="bg-background text-foreground"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-sm text-foreground font-medium">
-                            Nome da assinatura (No cadastro do Stripe)
-                          </label>
-                          <Input
-                            value={stripeFormData.nome}
-                            onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
-                            placeholder="Nome da assinatura"
-                            className="bg-background text-foreground"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-sm text-foreground font-medium">ID Produto *</label>
-                          <Input
-                            value={stripeFormData.produto_id}
-                            onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
-                            placeholder="prod_XXXXXX"
-                            className="bg-background text-foreground"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-sm text-foreground font-medium">ID Preço *</label>
-                          <Input
-                            value={stripeFormData.preco_id}
-                            onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
-                            placeholder="price_XXXXXX"
-                            className="bg-background text-foreground"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 justify-end pt-4">
-                        <Button
-                          type="button"
-                          onClick={() => setShowStripeIntegration(false)}
-                          variant="outline"
-                        >
-                          <X className="h-4 w-4 mr-2" />
-                          Cancelar
-                        </Button>
-                        <Button
-                          onClick={handleSaveStripe}
-                        >
-                          <Check className="h-4 w-4 mr-2" />
-                          Salvar Integração
-                        </Button>
-                      </div>
-                    </div>
-                  )}
 
                   {editingPlan?.stripe_product_id && (
                     <Card className="mt-6 bg-muted/50 border-border">
@@ -1169,7 +1081,7 @@ const AdminPlans = () => {
                                         produto_id: editingPlan.stripe_product_id || "",
                                         preco_id: editingPlan.stripe_price_id || "",
                                       });
-                                      setShowStripeIntegration(true);
+                                      setIsStripeDialogOpen(true);
                                     }}
                                     title="Editar"
                                   >
@@ -1221,6 +1133,101 @@ const AdminPlans = () => {
                       </CardContent>
                     </Card>
                   )}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Dialog de Integração Stripe */}
+          <Dialog open={isStripeDialogOpen} onOpenChange={setIsStripeDialogOpen}>
+            <DialogContent className="max-w-2xl bg-card">
+              <DialogHeader>
+                <DialogTitle className="text-foreground">
+                  {stripeFormData.produto_id ? "Editar Integração Stripe" : "Nova Integração Stripe"}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm text-foreground font-medium">Banco</label>
+                    <Select
+                      value={stripeFormData.banco}
+                      onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="STRIPE">STRIPE</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-foreground font-medium">Produto</label>
+                    <Input
+                      value={editingPlan?.products?.nome || "Sem produto associado"}
+                      onChange={(e) => {
+                        if (editingPlan?.products) {
+                          setEditingPlan({
+                            ...editingPlan,
+                            products: { ...editingPlan.products, nome: e.target.value }
+                          });
+                        }
+                      }}
+                      className="bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-foreground font-medium">
+                      Nome da assinatura (No cadastro do Stripe)
+                    </label>
+                    <Input
+                      value={stripeFormData.nome}
+                      onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
+                      placeholder="Nome da assinatura"
+                      className="bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm text-foreground font-medium">ID Produto *</label>
+                    <Input
+                      value={stripeFormData.produto_id}
+                      onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
+                      placeholder="prod_XXXXXX"
+                      className="bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-sm text-foreground font-medium">ID Preço *</label>
+                    <Input
+                      value={stripeFormData.preco_id}
+                      onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
+                      placeholder="price_XXXXXX"
+                      className="bg-background text-foreground"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <Button
+                    type="button"
+                    onClick={() => setIsStripeDialogOpen(false)}
+                    variant="outline"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancelar
+                  </Button>
+                  <Button
+                    onClick={handleSaveStripe}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Salvar Integração
+                  </Button>
                 </div>
               </div>
             </DialogContent>
