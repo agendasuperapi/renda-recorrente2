@@ -107,9 +107,10 @@ const AdminPlans = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
+      console.log("[AdminPlans] Planos carregados:", data?.length ?? 0);
       return data;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
   });
 
@@ -556,10 +557,10 @@ const AdminPlans = () => {
                 </div>
               ) : !plans || plans.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground mb-4">Nenhum plano encontrado</p>
+                  <p className="text-muted-foreground mb-4">Nenhum plano cadastrado no sistema</p>
                   <Button onClick={handleNewPlan}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Criar primeiro plano
+                    Criar Primeiro Plano
                   </Button>
                 </div>
               ) : selectedProductFilter === "all" ? (
@@ -746,11 +747,25 @@ const AdminPlans = () => {
                   </>
                 ) : (
                   // Show plans for specific product filter
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {plans?.filter((p: any) => {
+                  (() => {
+                    const filteredPlans = plans?.filter((p: any) => {
                       if (selectedProductFilter === "no-product") return !p.product_id;
                       return p.product_id === selectedProductFilter;
-                    }).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any) => {
+                    }) || [];
+
+                    console.log("[AdminPlans] Planos após filtro:", filteredPlans.length, "de", plans?.length ?? 0);
+
+                    if (filteredPlans.length === 0) {
+                      return (
+                        <div className="text-center py-12 text-muted-foreground">
+                          Nenhum plano encontrado para este filtro
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredPlans.sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any) => {
                       const features = Array.isArray(plan.features) ? plan.features : [];
                       const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
                       const coupon = coupons?.find((c: any) => c.id === couponId);
@@ -814,9 +829,11 @@ const AdminPlans = () => {
                       );
                     })}
                   </div>
-                )}
-              </div>
+                );
+              })()
+            )}
             </div>
+          </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
