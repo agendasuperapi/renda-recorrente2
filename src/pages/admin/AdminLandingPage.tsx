@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2 } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -248,6 +250,8 @@ const AdminLandingPage = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [features, setFeatures] = useState<Feature[]>([]);
+  const [iconSearch, setIconSearch] = useState("");
+  const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
   const [showFeatureForm, setShowFeatureForm] = useState(false);
@@ -346,6 +350,28 @@ const AdminLandingPage = () => {
     });
     setEditingFeature(null);
     setShowFeatureForm(false);
+  };
+
+  // Get all available Lucide icons
+  const availableIcons = useMemo(() => {
+    const iconNames = Object.keys(LucideIcons).filter(
+      (key) => typeof (LucideIcons as any)[key] === 'function' && key !== 'createLucideIcon' && key !== 'Icon'
+    );
+    return iconNames;
+  }, []);
+
+  // Filter icons based on search
+  const filteredIcons = useMemo(() => {
+    if (!iconSearch) return availableIcons;
+    return availableIcons.filter((name) =>
+      name.toLowerCase().includes(iconSearch.toLowerCase())
+    );
+  }, [availableIcons, iconSearch]);
+
+  const handleIconSelect = (iconName: string) => {
+    setFeatureForm({ ...featureForm, icon: iconName });
+    setIconDialogOpen(false);
+    setIconSearch("");
   };
 
   const handleSaveTestimonial = async () => {
@@ -1077,27 +1103,71 @@ const AdminLandingPage = () => {
                       <Label htmlFor="feature_icon">Ícone (nome do Lucide Icon) *</Label>
                       <div className="flex items-center gap-3">
                         <div className="flex-1">
-                          <Input
-                            id="feature_icon"
-                            value={featureForm.icon}
-                            onChange={(e) => setFeatureForm({ ...featureForm, icon: e.target.value })}
-                            placeholder="Ex: CheckCircle2"
-                          />
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted">
-                          {(() => {
-                            const IconPreview = (LucideIcons as any)[featureForm.icon] || CheckCircle2;
-                            return (
-                              <>
-                                <IconPreview className="h-5 w-5 text-primary" />
-                                <span className="text-sm text-muted-foreground">Preview</span>
-                              </>
-                            );
-                          })()}
+                          <Dialog open={iconDialogOpen} onOpenChange={setIconDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-start"
+                              >
+                                {(() => {
+                                  const IconPreview = (LucideIcons as any)[featureForm.icon] || CheckCircle2;
+                                  return (
+                                    <>
+                                      <IconPreview className="h-4 w-4 mr-2 text-primary" />
+                                      <span>{featureForm.icon || "Selecione um ícone"}</span>
+                                    </>
+                                  );
+                                })()}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl">
+                              <DialogHeader>
+                                <DialogTitle>Selecionar Ícone</DialogTitle>
+                                <DialogDescription>
+                                  Pesquise e selecione o ícone desejado
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div className="relative">
+                                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    placeholder="Pesquisar ícone..."
+                                    value={iconSearch}
+                                    onChange={(e) => setIconSearch(e.target.value)}
+                                    className="pl-9"
+                                  />
+                                </div>
+                                <ScrollArea className="h-[400px] rounded-md border p-4">
+                                  <div className="grid grid-cols-6 gap-4">
+                                    {filteredIcons.map((iconName) => {
+                                      const IconComponent = (LucideIcons as any)[iconName];
+                                      return (
+                                        <button
+                                          key={iconName}
+                                          type="button"
+                                          onClick={() => handleIconSelect(iconName)}
+                                          className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-muted transition-colors border border-transparent hover:border-primary"
+                                        >
+                                          <IconComponent className="h-6 w-6" />
+                                          <span className="text-xs text-center break-all">{iconName}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                  {filteredIcons.length === 0 && (
+                                    <div className="text-center py-8 text-muted-foreground">
+                                      Nenhum ícone encontrado
+                                    </div>
+                                  )}
+                                </ScrollArea>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Veja os ícones disponíveis em: <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="text-primary underline">lucide.dev/icons</a>
+                        Clique no botão acima para selecionar um ícone
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
