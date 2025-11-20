@@ -16,6 +16,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import logo from "@/assets/logo.png";
 import heroPerson from "@/assets/hero-person.png";
 import trustBadges from "@/assets/trust-badges.png";
+import logoAlt from "@/assets/logo-alt.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -238,10 +239,7 @@ const LandingPage = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="text-center md:text-left">
-              <Badge className="mb-4" variant="secondary">
-                <Star className="w-3 h-3 mr-1" />
-                Sistema de Afiliados Premium
-              </Badge>
+              <img src={logoAlt} alt="Renda Recorrente" className="h-16 mb-4" />
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 Participe e ganhe dinheiro recomendando nossos aplicativos
               </h1>
