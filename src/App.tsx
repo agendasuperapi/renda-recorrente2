@@ -21,7 +21,7 @@ import GoogleBusiness from "./pages/GoogleBusiness";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPlans from "./pages/admin/AdminPlans";
-import AdminSegments from "./pages/admin/AdminSegments";
+
 import AdminStripeEvents from "./pages/admin/AdminStripeEvents";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -58,7 +58,7 @@ const App = () => (
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/plans" element={<AdminPlans />} />
-              <Route path="/admin/segments" element={<AdminSegments />} />
+              
               <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
               <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/admin/products" element={<AdminProducts />} />

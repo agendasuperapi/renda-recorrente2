@@ -61,7 +61,7 @@ const affiliateMenuItems = [
 const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
   { icon: Users, label: "Usuários", path: "/admin/users" },
-  { icon: Target, label: "Segmentos", path: "/admin/segments" },
+  
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
   { icon: Ticket, label: "Cupons", path: "/admin/coupons" },
   { icon: Package, label: "Produtos", path: "/admin/products" },
@@ -101,7 +101,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       '/admin/coupons': ['admin-coupons'],
       '/admin/plans': ['admin-plans'],
       '/admin/products': ['admin-products'],
-      '/admin/segments': ['admin-segments'],
+      
       '/admin/bank-accounts': ['admin-bank-accounts'],
       '/admin/stripe-events': ['admin-stripe-events'],
       '/commissions/daily': ['commissions-daily'],
