@@ -9,8 +9,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Testimonial {
   id: string;
@@ -31,6 +48,115 @@ interface FAQ {
   order_position: number;
 }
 
+const SortableTestimonialRow = ({ testimonial, onEdit, onDelete }: { 
+  testimonial: Testimonial; 
+  onEdit: (t: Testimonial) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: testimonial.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell>
+        <button className="cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </TableCell>
+      <TableCell>{testimonial.name}</TableCell>
+      <TableCell>{testimonial.role}</TableCell>
+      <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
+      <TableCell>
+        <Badge variant={testimonial.is_active ? "default" : "secondary"}>
+          {testimonial.is_active ? "Ativo" : "Inativo"}
+        </Badge>
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(testimonial)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(testimonial.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const SortableFaqRow = ({ faq, onEdit, onDelete }: { 
+  faq: FAQ; 
+  onEdit: (f: FAQ) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: faq.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell>
+        <button className="cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </TableCell>
+      <TableCell>
+        <div className="space-y-2">
+          <p className="font-bold">{faq.question}</p>
+          <p className="text-sm text-muted-foreground">{faq.answer}</p>
+        </div>
+      </TableCell>
+      <TableCell>
+        <Badge variant={faq.is_active ? "default" : "secondary"}>
+          {faq.is_active ? "Ativo" : "Inativo"}
+        </Badge>
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(faq)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(faq.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 const AdminLandingPage = () => {
   const { toast } = useToast();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -47,15 +173,20 @@ const AdminLandingPage = () => {
     avatar_url: "",
     rating: 5,
     is_active: true,
-    order_position: 0
   });
 
   const [faqForm, setFaqForm] = useState({
     question: "",
     answer: "",
     is_active: true,
-    order_position: 0
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     fetchTestimonials();
@@ -86,7 +217,6 @@ const AdminLandingPage = () => {
       avatar_url: "",
       rating: 5,
       is_active: true,
-      order_position: 0
     });
     setEditingTestimonial(null);
     setShowTestimonialForm(false);
@@ -97,7 +227,6 @@ const AdminLandingPage = () => {
       question: "",
       answer: "",
       is_active: true,
-      order_position: 0
     });
     setEditingFaq(null);
     setShowFaqForm(false);
@@ -133,9 +262,13 @@ const AdminLandingPage = () => {
         description: "Depoimento atualizado!"
       });
     } else {
+      const maxOrder = testimonials.length > 0 
+        ? Math.max(...testimonials.map(t => t.order_position))
+        : -1;
+
       const { error } = await (supabase as any)
         .from("landing_testimonials")
-        .insert([testimonialForm]);
+        .insert([{ ...testimonialForm, order_position: maxOrder + 1 }]);
 
       if (error) {
         toast({
@@ -186,9 +319,13 @@ const AdminLandingPage = () => {
         description: "FAQ atualizada!"
       });
     } else {
+      const maxOrder = faqs.length > 0 
+        ? Math.max(...faqs.map(f => f.order_position))
+        : -1;
+
       const { error } = await (supabase as any)
         .from("landing_faqs")
-        .insert([faqForm]);
+        .insert([{ ...faqForm, order_position: maxOrder + 1 }]);
 
       if (error) {
         toast({
@@ -266,7 +403,6 @@ const AdminLandingPage = () => {
       avatar_url: testimonial.avatar_url || "",
       rating: testimonial.rating,
       is_active: testimonial.is_active,
-      order_position: testimonial.order_position
     });
     setShowTestimonialForm(true);
   };
@@ -277,9 +413,66 @@ const AdminLandingPage = () => {
       question: faq.question,
       answer: faq.answer,
       is_active: faq.is_active,
-      order_position: faq.order_position
     });
     setShowFaqForm(true);
+  };
+
+  const handleDragEndTestimonials = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = testimonials.findIndex((t) => t.id === active.id);
+    const newIndex = testimonials.findIndex((t) => t.id === over.id);
+
+    const newTestimonials = arrayMove(testimonials, oldIndex, newIndex);
+    setTestimonials(newTestimonials);
+
+    // Update order_position for all items
+    const updates = newTestimonials.map((testimonial, index) => 
+      (supabase as any)
+        .from("landing_testimonials")
+        .update({ order_position: index })
+        .eq("id", testimonial.id)
+    );
+
+    await Promise.all(updates);
+
+    toast({
+      title: "Sucesso",
+      description: "Ordem atualizada!"
+    });
+  };
+
+  const handleDragEndFaqs = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = faqs.findIndex((f) => f.id === active.id);
+    const newIndex = faqs.findIndex((f) => f.id === over.id);
+
+    const newFaqs = arrayMove(faqs, oldIndex, newIndex);
+    setFaqs(newFaqs);
+
+    // Update order_position for all items
+    const updates = newFaqs.map((faq, index) => 
+      (supabase as any)
+        .from("landing_faqs")
+        .update({ order_position: index })
+        .eq("id", faq.id)
+    );
+
+    await Promise.all(updates);
+
+    toast({
+      title: "Sucesso",
+      description: "Ordem atualizada!"
+    });
   };
 
   return (
@@ -303,7 +496,7 @@ const AdminLandingPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Depoimentos</CardTitle>
-                  <CardDescription>Gerencie os depoimentos de clientes</CardDescription>
+                  <CardDescription>Gerencie os depoimentos de clientes. Arraste para reordenar.</CardDescription>
                 </div>
                 <Button
                   onClick={() => setShowTestimonialForm(!showTestimonialForm)}
@@ -371,24 +564,13 @@ const AdminLandingPage = () => {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="order">Ordem</Label>
-                        <Input
-                          id="order"
-                          type="number"
-                          value={testimonialForm.order_position}
-                          onChange={(e) => setTestimonialForm({ ...testimonialForm, order_position: parseInt(e.target.value) })}
-                        />
-                      </div>
-                      <div className="flex items-center space-x-2 pt-8">
-                        <Switch
-                          id="active"
-                          checked={testimonialForm.is_active}
-                          onCheckedChange={(checked) => setTestimonialForm({ ...testimonialForm, is_active: checked })}
-                        />
-                        <Label htmlFor="active">Ativo</Label>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="active"
+                        checked={testimonialForm.is_active}
+                        onCheckedChange={(checked) => setTestimonialForm({ ...testimonialForm, is_active: checked })}
+                      />
+                      <Label htmlFor="active">Ativo</Label>
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleSaveTestimonial}>
@@ -402,49 +584,39 @@ const AdminLandingPage = () => {
                 </Card>
               )}
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Cargo</TableHead>
-                    <TableHead>Avaliação</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ordem</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {testimonials.map((testimonial) => (
-                    <TableRow key={testimonial.id}>
-                      <TableCell>{testimonial.name}</TableCell>
-                      <TableCell>{testimonial.role}</TableCell>
-                      <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
-                      <TableCell>
-                        <Badge variant={testimonial.is_active ? "default" : "secondary"}>
-                          {testimonial.is_active ? "Ativo" : "Inativo"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{testimonial.order_position}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => editTestimonial(testimonial)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteTestimonial(testimonial.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEndTestimonials}
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]"></TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Cargo</TableHead>
+                      <TableHead>Avaliação</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    <SortableContext
+                      items={testimonials.map(t => t.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {testimonials.map((testimonial) => (
+                        <SortableTestimonialRow
+                          key={testimonial.id}
+                          testimonial={testimonial}
+                          onEdit={editTestimonial}
+                          onDelete={handleDeleteTestimonial}
+                        />
+                      ))}
+                    </SortableContext>
+                  </TableBody>
+                </Table>
+              </DndContext>
             </CardContent>
           </Card>
         </TabsContent>
@@ -455,7 +627,7 @@ const AdminLandingPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Perguntas Frequentes</CardTitle>
-                  <CardDescription>Gerencie as FAQs da landing page</CardDescription>
+                  <CardDescription>Gerencie as FAQs da landing page. Arraste para reordenar.</CardDescription>
                 </div>
                 <Button
                   onClick={() => setShowFaqForm(!showFaqForm)}
@@ -492,24 +664,13 @@ const AdminLandingPage = () => {
                         rows={4}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="faq_order">Ordem</Label>
-                        <Input
-                          id="faq_order"
-                          type="number"
-                          value={faqForm.order_position}
-                          onChange={(e) => setFaqForm({ ...faqForm, order_position: parseInt(e.target.value) })}
-                        />
-                      </div>
-                      <div className="flex items-center space-x-2 pt-8">
-                        <Switch
-                          id="faq_active"
-                          checked={faqForm.is_active}
-                          onCheckedChange={(checked) => setFaqForm({ ...faqForm, is_active: checked })}
-                        />
-                        <Label htmlFor="faq_active">Ativo</Label>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="faq_active"
+                        checked={faqForm.is_active}
+                        onCheckedChange={(checked) => setFaqForm({ ...faqForm, is_active: checked })}
+                      />
+                      <Label htmlFor="faq_active">Ativo</Label>
                     </div>
                     <div className="flex gap-2">
                       <Button onClick={handleSaveFaq}>
@@ -523,50 +684,37 @@ const AdminLandingPage = () => {
                 </Card>
               )}
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Pergunta e Resposta</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Ordem</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {faqs.map((faq) => (
-                    <TableRow key={faq.id}>
-                      <TableCell>
-                        <div className="space-y-2">
-                          <p className="font-bold">{faq.question}</p>
-                          <p className="text-sm text-muted-foreground">{faq.answer}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={faq.is_active ? "default" : "secondary"}>
-                          {faq.is_active ? "Ativo" : "Inativo"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{faq.order_position}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => editFaq(faq)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteFaq(faq.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEndFaqs}
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]"></TableHead>
+                      <TableHead>Pergunta e Resposta</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    <SortableContext
+                      items={faqs.map(f => f.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {faqs.map((faq) => (
+                        <SortableFaqRow
+                          key={faq.id}
+                          faq={faq}
+                          onEdit={editFaq}
+                          onDelete={handleDeleteFaq}
+                        />
+                      ))}
+                    </SortableContext>
+                  </TableBody>
+                </Table>
+              </DndContext>
             </CardContent>
           </Card>
         </TabsContent>
