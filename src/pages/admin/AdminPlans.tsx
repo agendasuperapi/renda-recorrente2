@@ -55,7 +55,6 @@ const AdminPlans = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProductFilter, setSelectedProductFilter] = useState<string>("all");
   const [isStripeDialogOpen, setIsStripeDialogOpen] = useState(false);
-  const [selectedPlanForStripe, setSelectedPlanForStripe] = useState<any>(null);
   
   const [stripeFormData, setStripeFormData] = useState({
     banco: "STRIPE",
@@ -63,8 +62,10 @@ const AdminPlans = () => {
     nome: "",
     produto_id: "",
     preco_id: "",
+    environment_type: "production" as "test" | "production",
   });
   const [isEditingIntegration, setIsEditingIntegration] = useState(false);
+  const [editingIntegrationId, setEditingIntegrationId] = useState<string | null>(null);
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
