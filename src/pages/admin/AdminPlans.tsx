@@ -373,6 +373,15 @@ const AdminPlans = () => {
         stripe_price_id: stripeFormData.preco_id,
       });
       
+      // Limpa os campos do formulário
+      setStripeFormData({
+        banco: "STRIPE",
+        conta: "",
+        nome: "",
+        produto_id: "",
+        preco_id: "",
+      });
+      
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
     }
   };
