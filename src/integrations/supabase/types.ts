@@ -555,6 +555,7 @@ export type Database = {
           logo_light: string | null
           nome: string
           nome_apk: string | null
+          show_on_landing: boolean | null
           site: string | null
           site_landingpage: string | null
           telefone: string | null
@@ -572,6 +573,7 @@ export type Database = {
           logo_light?: string | null
           nome: string
           nome_apk?: string | null
+          show_on_landing?: boolean | null
           site?: string | null
           site_landingpage?: string | null
           telefone?: string | null
@@ -589,6 +591,7 @@ export type Database = {
           logo_light?: string | null
           nome?: string
           nome_apk?: string | null
+          show_on_landing?: boolean | null
           site?: string | null
           site_landingpage?: string | null
           telefone?: string | null
