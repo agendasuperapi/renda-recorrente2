@@ -526,7 +526,7 @@ const AdminLandingPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Pergunta</TableHead>
+                    <TableHead>Pergunta e Resposta</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Ordem</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
@@ -535,7 +535,12 @@ const AdminLandingPage = () => {
                 <TableBody>
                   {faqs.map((faq) => (
                     <TableRow key={faq.id}>
-                      <TableCell>{faq.question}</TableCell>
+                      <TableCell>
+                        <div className="space-y-2">
+                          <p className="font-bold">{faq.question}</p>
+                          <p className="text-sm text-muted-foreground">{faq.answer}</p>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         <Badge variant={faq.is_active ? "default" : "secondary"}>
                           {faq.is_active ? "Ativo" : "Inativo"}

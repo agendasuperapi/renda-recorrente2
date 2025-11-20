@@ -330,6 +330,75 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_faqs: {
+        Row: {
+          answer: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          order_position: number | null
+          question: string
+          updated_at: string | null
+        }
+        Insert: {
+          answer: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_position?: number | null
+          question: string
+          updated_at?: string | null
+        }
+        Update: {
+          answer?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_position?: number | null
+          question?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      landing_testimonials: {
+        Row: {
+          avatar_url: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_position: number | null
+          rating: number
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_position?: number | null
+          rating?: number
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_position?: number | null
+          rating?: number
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       legal_documents: {
         Row: {
           content: string
