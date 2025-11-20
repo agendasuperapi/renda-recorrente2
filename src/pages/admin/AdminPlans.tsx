@@ -1315,7 +1315,10 @@ const AdminPlans = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {accounts
-                          ?.filter((account: any) => account.product_id === editingPlan?.product_id)
+                          ?.filter((account: any) => 
+                            account.product_id === editingPlan?.product_id &&
+                            account.is_production === (stripeFormData.environment_type === "production")
+                          )
                           .map((account: any) => (
                             <SelectItem key={account.id} value={account.id}>
                               {account.name} - {account.banks?.name || "Sem banco"}
