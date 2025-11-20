@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
@@ -207,7 +208,8 @@ const LandingPage = () => {
             <span className="font-bold text-lg">Renda Recorrente</span>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             {user ? (
               <>
                 <Button onClick={() => navigate("/dashboard")} variant="outline">
