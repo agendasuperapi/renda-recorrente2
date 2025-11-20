@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,19 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, LayoutTemplate } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-interface Product {
-  id: string;
-  nome: string;
-  descricao: string | null;
-  logo_light: string | null;
-}
 
 interface Testimonial {
   id: string;
-  product_id: string;
   name: string;
   role: string;
   content: string;
@@ -34,7 +25,6 @@ interface Testimonial {
 
 interface FAQ {
   id: string;
-  product_id: string;
   question: string;
   answer: string;
   is_active: boolean;
@@ -43,11 +33,8 @@ interface FAQ {
 
 const AdminLandingPage = () => {
   const { toast } = useToast();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [showDialog, setShowDialog] = useState(false);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
@@ -71,37 +58,24 @@ const AdminLandingPage = () => {
   });
 
   useEffect(() => {
-    fetchProducts();
+    fetchTestimonials();
+    fetchFaqs();
   }, []);
 
-  const fetchProducts = async () => {
-    const { data } = await supabase.from("products").select("*").order("nome");
-    if (data) setProducts(data);
-  };
-
-  const fetchTestimonials = async (productId: string) => {
+  const fetchTestimonials = async () => {
     const { data } = await (supabase as any)
       .from("landing_testimonials")
       .select("*")
-      .eq("product_id", productId)
       .order("order_position");
     if (data) setTestimonials(data as Testimonial[]);
   };
 
-  const fetchFaqs = async (productId: string) => {
+  const fetchFaqs = async () => {
     const { data } = await (supabase as any)
       .from("landing_faqs")
       .select("*")
-      .eq("product_id", productId)
       .order("order_position");
     if (data) setFaqs(data as FAQ[]);
-  };
-
-  const openProductConfig = (product: Product) => {
-    setSelectedProduct(product);
-    setShowDialog(true);
-    fetchTestimonials(product.id);
-    fetchFaqs(product.id);
   };
 
   const resetTestimonialForm = () => {
@@ -130,79 +104,157 @@ const AdminLandingPage = () => {
   };
 
   const handleSaveTestimonial = async () => {
-    if (!selectedProduct) return;
-
-    const data = {
-      ...testimonialForm,
-      product_id: selectedProduct.id
-    };
-
-    const { error } = editingTestimonial
-      ? await (supabase as any).from("landing_testimonials").update(data).eq("id", editingTestimonial.id)
-      : await (supabase as any).from("landing_testimonials").insert(data);
-
-    if (error) {
+    if (!testimonialForm.name || !testimonialForm.role || !testimonialForm.content) {
       toast({
         title: "Erro",
-        description: error.message,
+        description: "Preencha todos os campos obrigatórios",
         variant: "destructive"
       });
-    } else {
+      return;
+    }
+
+    if (editingTestimonial) {
+      const { error } = await (supabase as any)
+        .from("landing_testimonials")
+        .update(testimonialForm)
+        .eq("id", editingTestimonial.id);
+
+      if (error) {
+        toast({
+          title: "Erro ao atualizar",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "Sucesso",
-        description: `Depoimento ${editingTestimonial ? "atualizado" : "criado"} com sucesso!`
+        description: "Depoimento atualizado!"
       });
-      fetchTestimonials(selectedProduct.id);
-      resetTestimonialForm();
+    } else {
+      const { error } = await (supabase as any)
+        .from("landing_testimonials")
+        .insert([testimonialForm]);
+
+      if (error) {
+        toast({
+          title: "Erro ao criar",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Depoimento criado!"
+      });
     }
+
+    resetTestimonialForm();
+    fetchTestimonials();
   };
 
   const handleSaveFaq = async () => {
-    if (!selectedProduct) return;
-
-    const data = {
-      ...faqForm,
-      product_id: selectedProduct.id
-    };
-
-    const { error } = editingFaq
-      ? await (supabase as any).from("landing_faqs").update(data).eq("id", editingFaq.id)
-      : await (supabase as any).from("landing_faqs").insert([data]);
-
-    if (error) {
+    if (!faqForm.question || !faqForm.answer) {
       toast({
         title: "Erro",
-        description: error.message,
+        description: "Preencha todos os campos obrigatórios",
         variant: "destructive"
       });
-    } else {
+      return;
+    }
+
+    if (editingFaq) {
+      const { error } = await (supabase as any)
+        .from("landing_faqs")
+        .update(faqForm)
+        .eq("id", editingFaq.id);
+
+      if (error) {
+        toast({
+          title: "Erro ao atualizar",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "Sucesso",
-        description: `FAQ ${editingFaq ? "atualizada" : "criada"} com sucesso!`
+        description: "FAQ atualizada!"
       });
-      fetchFaqs(selectedProduct.id);
-      resetFaqForm();
+    } else {
+      const { error } = await (supabase as any)
+        .from("landing_faqs")
+        .insert([faqForm]);
+
+      if (error) {
+        toast({
+          title: "Erro ao criar",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "FAQ criada!"
+      });
     }
+
+    resetFaqForm();
+    fetchFaqs();
   };
 
   const handleDeleteTestimonial = async (id: string) => {
-    const { error } = await (supabase as any).from("landing_testimonials").delete().eq("id", id);
+    if (!confirm("Tem certeza que deseja excluir este depoimento?")) return;
+
+    const { error } = await (supabase as any)
+      .from("landing_testimonials")
+      .delete()
+      .eq("id", id);
+
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Sucesso", description: "Depoimento excluído!" });
-      if (selectedProduct) fetchTestimonials(selectedProduct.id);
+      toast({
+        title: "Erro ao excluir",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
     }
+
+    toast({
+      title: "Sucesso",
+      description: "Depoimento excluído!"
+    });
+    fetchTestimonials();
   };
 
   const handleDeleteFaq = async (id: string) => {
-    const { error } = await (supabase as any).from("landing_faqs").delete().eq("id", id);
+    if (!confirm("Tem certeza que deseja excluir esta FAQ?")) return;
+
+    const { error } = await (supabase as any)
+      .from("landing_faqs")
+      .delete()
+      .eq("id", id);
+
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Sucesso", description: "FAQ excluída!" });
-      if (selectedProduct) fetchFaqs(selectedProduct.id);
+      toast({
+        title: "Erro ao excluir",
+        description: error.message,
+        variant: "destructive"
+      });
+      return;
     }
+
+    toast({
+      title: "Sucesso",
+      description: "FAQ excluída!"
+    });
+    fetchFaqs();
   };
 
   const editTestimonial = (testimonial: Testimonial) => {
@@ -231,77 +283,68 @@ const AdminLandingPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <LayoutTemplate className="w-8 h-8" />
-        <h1 className="text-3xl font-bold">Landing Page</h1>
+    <div className="container mx-auto p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Configuração da Landing Page</h1>
+        <p className="text-muted-foreground mt-2">
+          Gerencie os depoimentos e perguntas frequentes da sua landing page
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => (
-          <Card key={product.id} className="hover:border-primary transition-colors cursor-pointer">
+      <Tabs defaultValue="testimonials" className="w-full">
+        <TabsList>
+          <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
+          <TabsTrigger value="faqs">FAQs</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="testimonials" className="space-y-4">
+          <Card>
             <CardHeader>
-              <CardTitle>{product.nome}</CardTitle>
-              <CardDescription>{product.descricao || "Sem descrição"}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => openProductConfig(product)} className="w-full">
-                Configurar Landing Page
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Configurar Landing Page - {selectedProduct?.nome}</DialogTitle>
-            <DialogDescription>
-              Gerencie depoimentos e perguntas frequentes para este produto
-            </DialogDescription>
-          </DialogHeader>
-
-          <Tabs defaultValue="testimonials" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
-              <TabsTrigger value="faqs">Perguntas e Respostas</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="testimonials" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Depoimentos</h3>
-                <Button onClick={() => setShowTestimonialForm(true)} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar Depoimento
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Depoimentos</CardTitle>
+                  <CardDescription>Gerencie os depoimentos de clientes</CardDescription>
+                </div>
+                <Button
+                  onClick={() => setShowTestimonialForm(!showTestimonialForm)}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {showTestimonialForm ? "Cancelar" : "Novo Depoimento"}
                 </Button>
               </div>
-
+            </CardHeader>
+            <CardContent className="space-y-4">
               {showTestimonialForm && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>{editingTestimonial ? "Editar" : "Novo"} Depoimento</CardTitle>
+                    <CardTitle className="text-lg">
+                      {editingTestimonial ? "Editar Depoimento" : "Novo Depoimento"}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Nome</Label>
+                        <Label htmlFor="name">Nome *</Label>
                         <Input
+                          id="name"
                           value={testimonialForm.name}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
                         />
                       </div>
                       <div>
-                        <Label>Cargo/Função</Label>
+                        <Label htmlFor="role">Cargo/Função *</Label>
                         <Input
+                          id="role"
                           value={testimonialForm.role}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
                         />
                       </div>
                     </div>
                     <div>
-                      <Label>Conteúdo</Label>
+                      <Label htmlFor="content">Depoimento *</Label>
                       <Textarea
+                        id="content"
                         value={testimonialForm.content}
                         onChange={(e) => setTestimonialForm({ ...testimonialForm, content: e.target.value })}
                         rows={4}
@@ -309,15 +352,17 @@ const AdminLandingPage = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Avatar URL (opcional)</Label>
+                        <Label htmlFor="avatar_url">URL do Avatar</Label>
                         <Input
+                          id="avatar_url"
                           value={testimonialForm.avatar_url}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar_url: e.target.value })}
                         />
                       </div>
                       <div>
-                        <Label>Avaliação (1-5)</Label>
+                        <Label htmlFor="rating">Avaliação (1-5)</Label>
                         <Input
+                          id="rating"
                           type="number"
                           min="1"
                           max="5"
@@ -328,24 +373,30 @@ const AdminLandingPage = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Ordem de Exibição</Label>
+                        <Label htmlFor="order">Ordem</Label>
                         <Input
+                          id="order"
                           type="number"
                           value={testimonialForm.order_position}
                           onChange={(e) => setTestimonialForm({ ...testimonialForm, order_position: parseInt(e.target.value) })}
                         />
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center space-x-2 pt-8">
                         <Switch
+                          id="active"
                           checked={testimonialForm.is_active}
                           onCheckedChange={(checked) => setTestimonialForm({ ...testimonialForm, is_active: checked })}
                         />
-                        <Label>Ativo</Label>
+                        <Label htmlFor="active">Ativo</Label>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={handleSaveTestimonial}>Salvar</Button>
-                      <Button onClick={resetTestimonialForm} variant="outline">Cancelar</Button>
+                      <Button onClick={handleSaveTestimonial}>
+                        {editingTestimonial ? "Atualizar" : "Criar"}
+                      </Button>
+                      <Button variant="outline" onClick={resetTestimonialForm}>
+                        Cancelar
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -357,9 +408,9 @@ const AdminLandingPage = () => {
                     <TableHead>Nome</TableHead>
                     <TableHead>Cargo</TableHead>
                     <TableHead>Avaliação</TableHead>
-                    <TableHead>Ordem</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
+                    <TableHead>Ordem</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -367,54 +418,75 @@ const AdminLandingPage = () => {
                     <TableRow key={testimonial.id}>
                       <TableCell>{testimonial.name}</TableCell>
                       <TableCell>{testimonial.role}</TableCell>
-                      <TableCell>⭐ {testimonial.rating}</TableCell>
-                      <TableCell>{testimonial.order_position}</TableCell>
+                      <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
                       <TableCell>
                         <Badge variant={testimonial.is_active ? "default" : "secondary"}>
                           {testimonial.is_active ? "Ativo" : "Inativo"}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="ghost" onClick={() => editTestimonial(testimonial)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => handleDeleteTestimonial(testimonial.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                      <TableCell>{testimonial.order_position}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => editTestimonial(testimonial)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteTestimonial(testimonial.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </TabsContent>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-            <TabsContent value="faqs" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Perguntas e Respostas</h3>
-                <Button onClick={() => setShowFaqForm(true)} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar FAQ
+        <TabsContent value="faqs" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Perguntas Frequentes</CardTitle>
+                  <CardDescription>Gerencie as FAQs da landing page</CardDescription>
+                </div>
+                <Button
+                  onClick={() => setShowFaqForm(!showFaqForm)}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {showFaqForm ? "Cancelar" : "Nova FAQ"}
                 </Button>
               </div>
-
+            </CardHeader>
+            <CardContent className="space-y-4">
               {showFaqForm && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>{editingFaq ? "Editar" : "Nova"} Pergunta</CardTitle>
+                    <CardTitle className="text-lg">
+                      {editingFaq ? "Editar FAQ" : "Nova FAQ"}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label>Pergunta</Label>
+                      <Label htmlFor="question">Pergunta *</Label>
                       <Input
+                        id="question"
                         value={faqForm.question}
                         onChange={(e) => setFaqForm({ ...faqForm, question: e.target.value })}
                       />
                     </div>
                     <div>
-                      <Label>Resposta</Label>
+                      <Label htmlFor="answer">Resposta *</Label>
                       <Textarea
+                        id="answer"
                         value={faqForm.answer}
                         onChange={(e) => setFaqForm({ ...faqForm, answer: e.target.value })}
                         rows={4}
@@ -422,24 +494,30 @@ const AdminLandingPage = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Ordem de Exibição</Label>
+                        <Label htmlFor="faq_order">Ordem</Label>
                         <Input
+                          id="faq_order"
                           type="number"
                           value={faqForm.order_position}
                           onChange={(e) => setFaqForm({ ...faqForm, order_position: parseInt(e.target.value) })}
                         />
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center space-x-2 pt-8">
                         <Switch
+                          id="faq_active"
                           checked={faqForm.is_active}
                           onCheckedChange={(checked) => setFaqForm({ ...faqForm, is_active: checked })}
                         />
-                        <Label>Ativo</Label>
+                        <Label htmlFor="faq_active">Ativo</Label>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={handleSaveFaq}>Salvar</Button>
-                      <Button onClick={resetFaqForm} variant="outline">Cancelar</Button>
+                      <Button onClick={handleSaveFaq}>
+                        {editingFaq ? "Atualizar" : "Criar"}
+                      </Button>
+                      <Button variant="outline" onClick={resetFaqForm}>
+                        Cancelar
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -449,39 +527,45 @@ const AdminLandingPage = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Pergunta</TableHead>
-                    <TableHead>Ordem</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
+                    <TableHead>Ordem</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {faqs.map((faq) => (
                     <TableRow key={faq.id}>
                       <TableCell>{faq.question}</TableCell>
-                      <TableCell>{faq.order_position}</TableCell>
                       <TableCell>
                         <Badge variant={faq.is_active ? "default" : "secondary"}>
                           {faq.is_active ? "Ativo" : "Inativo"}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="ghost" onClick={() => editFaq(faq)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => handleDeleteFaq(faq.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                      <TableCell>{faq.order_position}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => editFaq(faq)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteFaq(faq.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
