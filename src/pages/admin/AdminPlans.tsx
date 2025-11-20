@@ -1113,6 +1113,99 @@ const AdminPlans = () => {
                         Salvar Integração
                       </Button>
                     </div>
+
+                    {editingPlan?.stripe_product_id && (
+                      <Card className="mt-6 bg-muted/50 border-border">
+                        <CardHeader>
+                          <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="text-foreground">Banco</TableHead>
+                                <TableHead className="text-foreground">Nome</TableHead>
+                                <TableHead className="text-foreground">ID Produto</TableHead>
+                                <TableHead className="text-foreground">ID Preço</TableHead>
+                                <TableHead className="text-foreground">Status</TableHead>
+                                <TableHead className="text-foreground">Ações</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="text-foreground">STRIPE</TableCell>
+                                <TableCell className="text-foreground">{editingPlan.name}</TableCell>
+                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
+                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
+                                <TableCell>
+                                  <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
+                                    {editingPlan.is_active ? "Ativo" : "Inativo"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setStripeFormData({
+                                          banco: "STRIPE",
+                                          conta: "",
+                                          nome: editingPlan.name,
+                                          produto_id: editingPlan.stripe_product_id || "",
+                                          preco_id: editingPlan.stripe_price_id || "",
+                                        });
+                                      }}
+                                      title="Editar"
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={async () => {
+                                        if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
+                                          const { error } = await supabase
+                                            .from("plans")
+                                            .update({
+                                              stripe_product_id: null,
+                                              stripe_price_id: null,
+                                            })
+                                            .eq("id", editingPlan.id);
+
+                                          if (error) {
+                                            toast.error("Erro ao remover integração");
+                                          } else {
+                                            toast.success("Integração removida com sucesso!");
+                                            setEditingPlan({
+                                              ...editingPlan,
+                                              stripe_product_id: null,
+                                              stripe_price_id: null,
+                                            });
+                                            setStripeFormData({
+                                              banco: "STRIPE",
+                                              conta: "",
+                                              nome: "",
+                                              produto_id: "",
+                                              preco_id: "",
+                                            });
+                                            queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+                                          }
+                                        }
+                                      }}
+                                      className="hover:text-destructive"
+                                      title="Excluir integração"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
