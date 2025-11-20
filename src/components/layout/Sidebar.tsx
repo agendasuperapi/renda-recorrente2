@@ -68,6 +68,7 @@ const adminMenuItems = [
   { icon: Package, label: "Produtos", path: "/admin/products" },
   { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
   { icon: CreditCard, label: "Planos e Preços", path: "/admin/plans" },
+  { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
 ];
 
 export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }: SidebarProps) => {
