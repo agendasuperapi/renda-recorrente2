@@ -640,7 +640,7 @@ const LandingPage = () => {
                         className="w-full"
                         onClick={() => window.open(product.site_landingpage!, "_blank")}
                       >
-                        Ver Produto
+                        Visitar site {product.nome}
                       </Button>
                     </CardFooter>
                   )}
