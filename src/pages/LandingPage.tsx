@@ -635,7 +635,7 @@ const LandingPage = () => {
                       )}
                       <CardTitle className="text-xl">{product.nome}</CardTitle>
                     </div>
-                    <CardDescription className="text-base">
+                    <CardDescription className="text-base whitespace-pre-line">
                       {product.descricao || "Produto disponível para afiliação"}
                     </CardDescription>
                   </CardHeader>
