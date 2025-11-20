@@ -74,6 +74,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const [showAdminMenu, setShowAdminMenu] = useState(true);
 
   const handleLogout = async () => {
     // Limpar cache de role ao fazer logout
@@ -130,7 +131,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   
   if (!user) return null;
 
-  const menuItems = isAdmin ? adminMenuItems : affiliateMenuItems;
+  const menuItems = isAdmin 
+    ? (showAdminMenu ? adminMenuItems : affiliateMenuItems)
+    : affiliateMenuItems;
 
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
@@ -182,7 +185,18 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               {user.email}
             </p>
             {isAdmin && (
-              <p className="text-xs text-primary font-medium">Super Admin</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-primary font-medium">Super Admin</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setShowAdminMenu(!showAdminMenu)}
+                  title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
+                >
+                  {showAdminMenu ? <Crown className="w-3 h-3" /> : <User className="w-3 h-3" />}
+                </Button>
+              </div>
             )}
           </div>
           <ThemeToggle />
