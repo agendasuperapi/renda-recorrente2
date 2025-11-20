@@ -361,6 +361,9 @@ export type Database = {
           original_price: number | null
           price: number
           product_id: string | null
+          test_account_id: string | null
+          test_stripe_price_id: string | null
+          test_stripe_product_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -375,6 +378,9 @@ export type Database = {
           original_price?: number | null
           price: number
           product_id?: string | null
+          test_account_id?: string | null
+          test_stripe_price_id?: string | null
+          test_stripe_product_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -389,6 +395,9 @@ export type Database = {
           original_price?: number | null
           price?: number
           product_id?: string | null
+          test_account_id?: string | null
+          test_stripe_price_id?: string | null
+          test_stripe_product_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -397,6 +406,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plans_test_account_id_fkey"
+            columns: ["test_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]
