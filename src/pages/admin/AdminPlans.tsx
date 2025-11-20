@@ -156,6 +156,24 @@ const AdminPlans = () => {
     },
   });
 
+  const { data: planIntegrations } = useQuery({
+    queryKey: ["plan-integrations"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("plan_integrations")
+        .select(`
+          *,
+          accounts (
+            id,
+            name
+          )
+        `);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const createPlanMutation = useMutation({
     mutationFn: async (data: PlanFormData) => {
       const features = [
@@ -277,15 +295,15 @@ const AdminPlans = () => {
       product_id: plan.product_id || "",
     });
     
-    // Carregar dados do Stripe se existirem
+    // Limpar dados do Stripe
     setStripeFormData({
       banco: "STRIPE",
       conta: "",
-      nome: plan.name,
-      produto_id: plan.stripe_product_id || "",
-      preco_id: plan.stripe_price_id || "",
+      nome: plan.name ?? "",
+      produto_id: "",
+      preco_id: "",
+      environment_type: "production",
     });
-    setSelectedPlanForStripe(plan);
   };
 
   const handleNewPlan = () => {
@@ -314,8 +332,8 @@ const AdminPlans = () => {
       nome: "",
       produto_id: "",
       preco_id: "",
+      environment_type: "production",
     });
-    setSelectedPlanForStripe(null);
   };
 
   const handleDeletePlan = (id: string) => {
@@ -346,31 +364,29 @@ const AdminPlans = () => {
       return;
     }
 
+    const payload = {
+      plan_id: editingPlan.id,
+      account_id: stripeFormData.conta,
+      stripe_product_id: stripeFormData.produto_id,
+      stripe_price_id: stripeFormData.preco_id,
+      environment_type: stripeFormData.environment_type,
+      is_active: true,
+      ...(editingIntegrationId ? { id: editingIntegrationId } : {}),
+    };
+
     const { error } = await supabase
-      .from("plans")
-      .update({
-        stripe_product_id: stripeFormData.produto_id,
-        stripe_price_id: stripeFormData.preco_id,
-        account_id: stripeFormData.conta,
-      })
-      .eq("id", editingPlan.id);
+      .from("plan_integrations")
+      .upsert(payload, { onConflict: "id" });
 
     if (error) {
       toast.error("Erro ao salvar integração Stripe");
       console.error(error);
     } else {
-      toast.success("Integração Stripe salva com sucesso!");
-      
-      // Atualiza o estado local do plano
-      setEditingPlan({
-        ...editingPlan,
-        stripe_product_id: stripeFormData.produto_id,
-        stripe_price_id: stripeFormData.preco_id,
-        account_id: stripeFormData.conta,
-      });
-      
-      // Fecha o dialog e limpa o formulário
+      toast.success("Integração Stripe salva com sucesso");
       setIsStripeDialogOpen(false);
+      setEditingIntegrationId(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["plan-integrations"] });
       setIsEditingIntegration(false);
       setStripeFormData({
         banco: "STRIPE",
@@ -378,51 +394,74 @@ const AdminPlans = () => {
         nome: "",
         produto_id: "",
         preco_id: "",
+        environment_type: "production",
       });
-      
-      queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
     }
   };
 
-  const handleEditStripeIntegration = (plan: any) => {
+  const handleEditStripeIntegration = (plan: any, environmentType: "test" | "production") => {
+    setEditingPlan(plan);
     setIsEditingIntegration(true);
     setIsStripeDialogOpen(true);
-    setStripeFormData({
-      banco: "STRIPE",
-      conta: plan.account_id || "",
-      nome: plan.name,
-      produto_id: plan.stripe_product_id || "",
-      preco_id: plan.stripe_price_id || "",
-    });
+    
+    const integration = planIntegrations?.find(
+      (int) => int.plan_id === plan.id && int.environment_type === environmentType
+    );
+    
+    if (integration) {
+      setEditingIntegrationId(integration.id);
+      setStripeFormData({
+        banco: "STRIPE",
+        conta: integration.account_id ?? "",
+        nome: plan.name ?? "",
+        produto_id: integration.stripe_product_id ?? "",
+        preco_id: integration.stripe_price_id ?? "",
+        environment_type: environmentType,
+      });
+    } else {
+      setEditingIntegrationId(null);
+      setStripeFormData({
+        banco: "STRIPE",
+        conta: "",
+        nome: plan.name ?? "",
+        produto_id: "",
+        preco_id: "",
+        environment_type: environmentType,
+      });
+    }
   };
 
-  const handleNewStripeIntegration = () => {
+  const handleNewStripeIntegration = (plan: any, environmentType: "test" | "production") => {
+    setEditingPlan(plan);
     setIsEditingIntegration(false);
     setIsStripeDialogOpen(true);
+    setEditingIntegrationId(null);
     setStripeFormData({
       banco: "STRIPE",
       conta: "",
-      nome: editingPlan?.name || "",
+      nome: plan.name ?? "",
       produto_id: "",
       preco_id: "",
+      environment_type: environmentType,
     });
   };
 
-  const handleDeleteStripeIntegration = async (planId: string) => {
+  const handleDeleteStripeIntegration = async (integrationId: string) => {
+    if (!confirm("Tem certeza que deseja excluir esta integração Stripe?")) {
+      return;
+    }
+
     const { error } = await supabase
-      .from("plans")
-      .update({
-        stripe_product_id: null,
-        stripe_price_id: null,
-        account_id: null,
-      })
-      .eq("id", planId);
+      .from("plan_integrations")
+      .delete()
+      .eq("id", integrationId);
 
     if (error) {
       toast.error("Erro ao remover integração Stripe");
+      console.error(error);
     } else {
-      toast.success("Integração Stripe removida com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+      toast.success("Integração Stripe removida com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["plan-integrations"] });
     }
   };
 
@@ -1052,14 +1091,14 @@ const AdminPlans = () => {
                       <h3 className="text-lg font-semibold">Integração Stripe</h3>
                       <Button
                         variant="outline"
-                        onClick={handleNewStripeIntegration}
+                        onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "production")}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Configurar Integração
                       </Button>
                     </div>
 
-                    {editingPlan?.stripe_product_id && (
+                    {planIntegrations?.some((int) => int.plan_id === editingPlan?.id && int.environment_type === "production") && (
                       <Card className="bg-muted/50 border-border">
                         <CardHeader>
                           <CardTitle className="text-foreground">Integração Cadastrada</CardTitle>
@@ -1078,14 +1117,21 @@ const AdminPlans = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
+                              {(() => {
+                                const integration = planIntegrations?.find(
+                                  (int) => int.plan_id === editingPlan?.id && int.environment_type === "production"
+                                );
+                                if (!integration) return null;
+                                
+                                return (
                               <TableRow>
                                 <TableCell className="text-foreground">STRIPE</TableCell>
                                 <TableCell className="text-foreground">
-                                  {editingPlan.accounts?.name || "Não definida"}
+                                  {integration.accounts?.name || "Não definida"}
                                 </TableCell>
                                 <TableCell className="text-foreground">{editingPlan.name}</TableCell>
-                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_product_id}</TableCell>
-                                <TableCell className="text-foreground font-mono text-sm">{editingPlan.stripe_price_id}</TableCell>
+                                <TableCell className="text-foreground font-mono text-sm">{integration.stripe_product_id}</TableCell>
+                                <TableCell className="text-foreground font-mono text-sm">{integration.stripe_price_id}</TableCell>
                                 <TableCell>
                                   <Badge variant={editingPlan.is_active ? "default" : "secondary"}>
                                     {editingPlan.is_active ? "Ativo" : "Inativo"}
@@ -1096,7 +1142,7 @@ const AdminPlans = () => {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => handleEditStripeIntegration(editingPlan)}
+                                      onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "production")}
                                       title="Editar"
                                     >
                                       <Edit className="h-4 w-4" />
@@ -1106,25 +1152,6 @@ const AdminPlans = () => {
                                       size="sm"
                                       onClick={async () => {
                                         if (confirm("Tem certeza que deseja remover a integração Stripe deste plano?")) {
-                                          const { error } = await supabase
-                                            .from("plans")
-                                            .update({
-                                              stripe_product_id: null,
-                                              stripe_price_id: null,
-                                            })
-                                            .eq("id", editingPlan.id);
-
-                                          if (error) {
-                                            toast.error("Erro ao remover integração");
-                                          } else {
-                                            toast.success("Integração removida com sucesso!");
-                                            setEditingPlan({
-                                              ...editingPlan,
-                                              stripe_product_id: null,
-                                              stripe_price_id: null,
-                                            });
-                                            queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
-                                          }
                                         }
                                       }}
                                       className="hover:text-destructive"
@@ -1135,6 +1162,8 @@ const AdminPlans = () => {
                                   </div>
                                 </TableCell>
                               </TableRow>
+                              );
+                              })()}
                             </TableBody>
                           </Table>
                         </CardContent>
