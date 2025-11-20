@@ -102,9 +102,31 @@ const Profile = () => {
     }
   };
 
-  const handleCepChange = async (cep: string) => {
+  const formatCep = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 5) {
+      return cleaned;
+    }
+    return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 8)}`;
+  };
+
+  const formatPhone = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    if (cleaned.length <= 2) {
+      return cleaned;
+    }
+    if (cleaned.length <= 7) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+    }
+    if (cleaned.length <= 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+    }
+    return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+  };
+
+  const handleCepChange = async (value: string) => {
     // Remove caracteres não numéricos
-    const cleanCep = cep.replace(/\D/g, '');
+    const cleanCep = value.replace(/\D/g, '');
     setProfile({ ...profile, cep: cleanCep });
 
     // Busca CEP quando tiver 8 dígitos
@@ -143,6 +165,11 @@ const Profile = () => {
         });
       }
     }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, '');
+    setProfile({ ...profile, phone: cleaned });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -244,9 +271,11 @@ const Profile = () => {
                   <Label htmlFor="phone">Telefone</Label>
                   <Input
                     id="phone"
-                    value={profile.phone}
-                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                    value={formatPhone(profile.phone)}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
                   />
                 </div>
                 <div>
@@ -289,11 +318,11 @@ const Profile = () => {
                   <Label htmlFor="cep">CEP</Label>
                   <Input
                     id="cep"
-                    value={profile.cep}
+                    value={formatCep(profile.cep)}
                     onChange={(e) => handleCepChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="00000-000"
-                    maxLength={8}
+                    maxLength={9}
                   />
                 </div>
                 <div>
