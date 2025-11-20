@@ -10,9 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Star, Heart, Home, User, Settings, Mail, Phone, Calendar, Clock, TrendingUp, Target, Award, Shield, Zap } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Star, Heart, Home, User, Settings, Mail, Phone, Calendar, Clock, TrendingUp, Target, Award, Shield, Zap, ChevronRight, Activity, AlertCircle, Archive, BarChart, Bell, Bookmark, Box, Briefcase, Camera, Check, ChevronDown, ChevronLeft, ChevronUp, Circle, Clipboard, Code, Compass, Copy, CreditCard, Database, Download, Edit, Eye, File, Filter, Folder, Gift, Globe, Grid, Hash, Headphones, HelpCircle, Image, Inbox, Info, Key, Layers, Layout, Link, List, Lock, LogIn, LogOut, Map, Menu, MessageCircle, MessageSquare, Mic, Monitor, Moon, MoreHorizontal, MoreVertical, Move, Music, Navigation, Package, Paperclip, PieChart, Play, Power, Printer, Radio, RefreshCw, Repeat, RotateCw, Save, Send, Server, Share, ShoppingBag, ShoppingCart, Sidebar, Sliders, Smartphone, Smile, Speaker, Square, Sun, Tag, Trash, TrendingDown, Triangle, Truck, Tv, Twitter, Type, Umbrella, Upload, Users, Video, Volume, Watch, Wifi, X, Youtube, Zap as ZapIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DndContext,
   closestCenter,
@@ -247,6 +249,8 @@ const AdminLandingPage = () => {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [editingFeature, setEditingFeature] = useState<Feature | null>(null);
+  const [iconSearch, setIconSearch] = useState("");
+  const [iconDialogOpen, setIconDialogOpen] = useState(false);
 
   const [testimonialForm, setTestimonialForm] = useState({
     name: "",
@@ -276,6 +280,117 @@ const AdminLandingPage = () => {
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
+  );
+
+  const availableIcons = [
+    { name: "CheckCircle2", icon: CheckCircle2 },
+    { name: "Star", icon: Star },
+    { name: "Heart", icon: Heart },
+    { name: "Home", icon: Home },
+    { name: "User", icon: User },
+    { name: "Settings", icon: Settings },
+    { name: "Mail", icon: Mail },
+    { name: "Phone", icon: Phone },
+    { name: "Calendar", icon: Calendar },
+    { name: "Clock", icon: Clock },
+    { name: "TrendingUp", icon: TrendingUp },
+    { name: "Target", icon: Target },
+    { name: "Award", icon: Award },
+    { name: "Shield", icon: Shield },
+    { name: "Zap", icon: ZapIcon },
+    { name: "Activity", icon: Activity },
+    { name: "AlertCircle", icon: AlertCircle },
+    { name: "Archive", icon: Archive },
+    { name: "BarChart", icon: BarChart },
+    { name: "Bell", icon: Bell },
+    { name: "Bookmark", icon: Bookmark },
+    { name: "Box", icon: Box },
+    { name: "Briefcase", icon: Briefcase },
+    { name: "Camera", icon: Camera },
+    { name: "Check", icon: Check },
+    { name: "Circle", icon: Circle },
+    { name: "Clipboard", icon: Clipboard },
+    { name: "Code", icon: Code },
+    { name: "Compass", icon: Compass },
+    { name: "Copy", icon: Copy },
+    { name: "CreditCard", icon: CreditCard },
+    { name: "Database", icon: Database },
+    { name: "Download", icon: Download },
+    { name: "Edit", icon: Edit },
+    { name: "Eye", icon: Eye },
+    { name: "File", icon: File },
+    { name: "Filter", icon: Filter },
+    { name: "Folder", icon: Folder },
+    { name: "Gift", icon: Gift },
+    { name: "Globe", icon: Globe },
+    { name: "Grid", icon: Grid },
+    { name: "Hash", icon: Hash },
+    { name: "Headphones", icon: Headphones },
+    { name: "HelpCircle", icon: HelpCircle },
+    { name: "Image", icon: Image },
+    { name: "Inbox", icon: Inbox },
+    { name: "Info", icon: Info },
+    { name: "Key", icon: Key },
+    { name: "Layers", icon: Layers },
+    { name: "Layout", icon: Layout },
+    { name: "Link", icon: Link },
+    { name: "List", icon: List },
+    { name: "Lock", icon: Lock },
+    { name: "LogIn", icon: LogIn },
+    { name: "LogOut", icon: LogOut },
+    { name: "Map", icon: Map },
+    { name: "Menu", icon: Menu },
+    { name: "MessageCircle", icon: MessageCircle },
+    { name: "MessageSquare", icon: MessageSquare },
+    { name: "Mic", icon: Mic },
+    { name: "Monitor", icon: Monitor },
+    { name: "Moon", icon: Moon },
+    { name: "Music", icon: Music },
+    { name: "Navigation", icon: Navigation },
+    { name: "Package", icon: Package },
+    { name: "Paperclip", icon: Paperclip },
+    { name: "PieChart", icon: PieChart },
+    { name: "Play", icon: Play },
+    { name: "Power", icon: Power },
+    { name: "Printer", icon: Printer },
+    { name: "Radio", icon: Radio },
+    { name: "RefreshCw", icon: RefreshCw },
+    { name: "Repeat", icon: Repeat },
+    { name: "RotateCw", icon: RotateCw },
+    { name: "Save", icon: Save },
+    { name: "Send", icon: Send },
+    { name: "Server", icon: Server },
+    { name: "Share", icon: Share },
+    { name: "ShoppingBag", icon: ShoppingBag },
+    { name: "ShoppingCart", icon: ShoppingCart },
+    { name: "Sidebar", icon: Sidebar },
+    { name: "Sliders", icon: Sliders },
+    { name: "Smartphone", icon: Smartphone },
+    { name: "Smile", icon: Smile },
+    { name: "Speaker", icon: Speaker },
+    { name: "Square", icon: Square },
+    { name: "Sun", icon: Sun },
+    { name: "Tag", icon: Tag },
+    { name: "Trash", icon: Trash },
+    { name: "TrendingDown", icon: TrendingDown },
+    { name: "Triangle", icon: Triangle },
+    { name: "Truck", icon: Truck },
+    { name: "Tv", icon: Tv },
+    { name: "Twitter", icon: Twitter },
+    { name: "Type", icon: Type },
+    { name: "Umbrella", icon: Umbrella },
+    { name: "Upload", icon: Upload },
+    { name: "Users", icon: Users },
+    { name: "Video", icon: Video },
+    { name: "Volume", icon: Volume },
+    { name: "Watch", icon: Watch },
+    { name: "Wifi", icon: Wifi },
+    { name: "X", icon: X },
+    { name: "Youtube", icon: Youtube },
+  ];
+
+  const filteredIcons = availableIcons.filter(icon =>
+    icon.name.toLowerCase().includes(iconSearch.toLowerCase())
   );
 
   useEffect(() => {
@@ -1067,7 +1182,7 @@ const AdminLandingPage = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="feature_icon">Ícone (nome do Lucide Icon) *</Label>
+                      <Label htmlFor="feature_icon">Ícone *</Label>
                       <div className="flex items-center gap-3">
                         <div className="flex-1">
                           <Input
@@ -1075,19 +1190,62 @@ const AdminLandingPage = () => {
                             value={featureForm.icon}
                             onChange={(e) => setFeatureForm({ ...featureForm, icon: e.target.value })}
                             placeholder="Ex: CheckCircle2"
+                            readOnly
                           />
                         </div>
+                        <Dialog open={iconDialogOpen} onOpenChange={setIconDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button type="button" variant="outline" size="sm">
+                              <Search className="h-4 w-4 mr-2" />
+                              Selecionar
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Selecione um ícone</DialogTitle>
+                              <DialogDescription>
+                                Pesquise e selecione o ícone que deseja usar
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  placeholder="Pesquisar ícone..."
+                                  value={iconSearch}
+                                  onChange={(e) => setIconSearch(e.target.value)}
+                                  className="pl-10"
+                                />
+                              </div>
+                              <ScrollArea className="h-96">
+                                <div className="grid grid-cols-6 gap-3 p-1">
+                                  {filteredIcons.map(({ name, icon: Icon }) => (
+                                    <button
+                                      key={name}
+                                      type="button"
+                                      onClick={() => {
+                                        setFeatureForm({ ...featureForm, icon: name });
+                                        setIconDialogOpen(false);
+                                        setIconSearch("");
+                                      }}
+                                      className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
+                                        featureForm.icon === name ? "border-primary bg-accent" : "border-border"
+                                      }`}
+                                    >
+                                      <Icon className="h-6 w-6" />
+                                      <span className="text-xs text-center break-all">{name}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </ScrollArea>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                         <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted">
                           <CheckCircle2 className="h-5 w-5 text-primary" />
                           <span className="text-sm text-muted-foreground">Preview</span>
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Ícones comuns: CheckCircle2, Star, Heart, Home, User, Settings, Mail, Phone, Calendar, Clock, TrendingUp, Target, Award, Shield, Zap
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Veja mais em: <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="text-primary underline">lucide.dev/icons</a>
-                      </p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
