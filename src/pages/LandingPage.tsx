@@ -46,6 +46,15 @@ interface FAQ {
   answer: string;
 }
 
+interface AffiliateProduct {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  icone_light: string | null;
+  icone_dark: string | null;
+  site_landingpage: string | null;
+}
+
 const defaultTestimonials: Testimonial[] = [
   {
     id: "1",
@@ -107,6 +116,7 @@ const LandingPage = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs);
+  const [products, setProducts] = useState<AffiliateProduct[]>([]);
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
 
@@ -126,6 +136,8 @@ const LandingPage = () => {
     fetchTestimonials();
     // Fetch FAQs
     fetchFaqs();
+    // Fetch products
+    fetchProducts();
     // Fetch product info
     fetchProductInfo();
 
@@ -169,6 +181,18 @@ const LandingPage = () => {
 
     if (data && data.length > 0) {
       setFaqs(data as FAQ[]);
+    }
+  };
+
+  const fetchProducts = async () => {
+    const { data } = await supabase
+      .from("products")
+      .select("id, nome, descricao, icone_light, icone_dark, site_landingpage")
+      // Adicione .eq("show_on_landing", true) quando a coluna estiver criada no banco
+      .order("nome");
+
+    if (data) {
+      setProducts(data as AffiliateProduct[]);
     }
   };
 
@@ -574,8 +598,61 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Produtos Disponíveis */}
+      {products.length > 0 && (
+        <section className="py-16 px-4 bg-muted/50">
+          <div className="container mx-auto max-w-6xl">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+              Produtos Disponíveis para Afiliação
+            </h2>
+            <p className="text-xl text-center text-muted-foreground mb-12">
+              Escolha os produtos que deseja divulgar e comece a ganhar comissões
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <Card key={product.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-4 mb-4">
+                      {product.icone_light && (
+                        <img 
+                          src={product.icone_light} 
+                          alt={product.nome}
+                          className="w-16 h-16 object-contain dark:hidden"
+                        />
+                      )}
+                      {product.icone_dark && (
+                        <img 
+                          src={product.icone_dark} 
+                          alt={product.nome}
+                          className="w-16 h-16 object-contain hidden dark:block"
+                        />
+                      )}
+                      <CardTitle className="text-xl">{product.nome}</CardTitle>
+                    </div>
+                    <CardDescription className="text-base">
+                      {product.descricao || "Produto disponível para afiliação"}
+                    </CardDescription>
+                  </CardHeader>
+                  {product.site_landingpage && (
+                    <CardFooter>
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => window.open(product.site_landingpage!, "_blank")}
+                      >
+                        Ver Produto
+                      </Button>
+                    </CardFooter>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Depoimentos */}
-      <section className="py-16 px-4 bg-muted/50">
+      <section className="py-16 px-4">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             O que dizem nossos afiliados

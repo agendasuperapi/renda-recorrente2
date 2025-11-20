@@ -12,7 +12,8 @@ import { Plus, Pencil, Trash2, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 
 const productSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -27,6 +28,7 @@ const productSchema = z.object({
   logo_light: z.string().optional(),
   site_landingpage: z.string().optional(),
   nome_apk: z.string().optional(),
+  show_on_landing: z.boolean().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -61,6 +63,7 @@ const AdminProducts = () => {
       logo_light: "",
       site_landingpage: "",
       nome_apk: "",
+      show_on_landing: true,
     },
   });
 
@@ -92,6 +95,7 @@ const AdminProducts = () => {
         logo_light: data.logo_light,
         site_landingpage: data.site_landingpage,
         nome_apk: data.nome_apk,
+        show_on_landing: data.show_on_landing ?? true,
       }]);
       if (error) throw error;
     },
@@ -173,6 +177,7 @@ const AdminProducts = () => {
       logo_light: "",
       site_landingpage: "",
       nome_apk: "",
+      show_on_landing: true,
     });
     setIsDialogOpen(true);
   };
@@ -192,6 +197,7 @@ const AdminProducts = () => {
       logo_light: product.logo_light || "",
       site_landingpage: product.site_landingpage || "",
       nome_apk: product.nome_apk || "",
+      show_on_landing: product.show_on_landing ?? true,
     });
     setIsDialogOpen(true);
   };
@@ -475,6 +481,29 @@ const AdminProducts = () => {
                         <Input {...field} />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="show_on_landing"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Exibir na Landing Page
+                        </FormLabel>
+                        <FormDescription>
+                          Marque esta opção para que o produto apareça na seção de produtos da landing page de afiliados
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />
