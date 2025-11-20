@@ -360,6 +360,36 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_features: {
+        Row: {
+          created_at: string | null
+          icon: string
+          id: string
+          is_active: boolean | null
+          name: string
+          order_position: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          icon: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_position?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_position?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_testimonials: {
         Row: {
           avatar_url: string | null
