@@ -209,13 +209,6 @@ const Auth = () => {
             {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
           </button>
         </div>
-
-        <div className="mt-8 text-center">
-          <a href="#" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-            Política de privacidade
-          </a>
-          <p className="text-muted-foreground text-xs mt-2">Versão: 4.1.70</p>
-        </div>
       </div>
     </div>
   );
