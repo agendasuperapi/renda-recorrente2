@@ -26,6 +26,7 @@ import AdminStripeEvents from "./pages/admin/AdminStripeEvents";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
+import AdminCpfApis from "./pages/admin/AdminCpfApis";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
+              <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
