@@ -297,9 +297,59 @@ export type Database = {
           },
         ]
       }
+      plan_integrations: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          environment_type: string
+          id: string
+          is_active: boolean | null
+          plan_id: string
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          environment_type: string
+          id?: string
+          is_active?: boolean | null
+          plan_id: string
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          environment_type?: string
+          id?: string
+          is_active?: boolean | null
+          plan_id?: string
+          stripe_price_id?: string
+          stripe_product_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_integrations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_integrations_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
-          account_id: string | null
           billing_period: string
           commission_percentage: number
           created_at: string | null
@@ -311,12 +361,9 @@ export type Database = {
           original_price: number | null
           price: number
           product_id: string | null
-          stripe_price_id: string | null
-          stripe_product_id: string | null
           updated_at: string | null
         }
         Insert: {
-          account_id?: string | null
           billing_period: string
           commission_percentage?: number
           created_at?: string | null
@@ -328,12 +375,9 @@ export type Database = {
           original_price?: number | null
           price: number
           product_id?: string | null
-          stripe_price_id?: string | null
-          stripe_product_id?: string | null
           updated_at?: string | null
         }
         Update: {
-          account_id?: string | null
           billing_period?: string
           commission_percentage?: number
           created_at?: string | null
@@ -345,18 +389,9 @@ export type Database = {
           original_price?: number | null
           price?: number
           product_id?: string | null
-          stripe_price_id?: string | null
-          stripe_product_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "plans_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "plans_product_id_fkey"
             columns: ["product_id"]
