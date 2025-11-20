@@ -64,6 +64,7 @@ const AdminPlans = () => {
     produto_id: "",
     preco_id: "",
   });
+  const [isEditingIntegration, setIsEditingIntegration] = useState(false);
 
   const form = useForm<PlanFormData>({
     resolver: zodResolver(planFormSchema),
@@ -369,6 +370,7 @@ const AdminPlans = () => {
       
       // Fecha o dialog e limpa o formulário
       setIsStripeDialogOpen(false);
+      setIsEditingIntegration(false);
       setStripeFormData({
         banco: "STRIPE",
         conta: "",
@@ -382,7 +384,7 @@ const AdminPlans = () => {
   };
 
   const handleEditStripeIntegration = (plan: any) => {
-    setSelectedPlanForStripe(plan);
+    setIsEditingIntegration(true);
     setIsStripeDialogOpen(true);
     setStripeFormData({
       banco: "STRIPE",
@@ -390,6 +392,18 @@ const AdminPlans = () => {
       nome: plan.name,
       produto_id: plan.stripe_product_id || "",
       preco_id: plan.stripe_price_id || "",
+    });
+  };
+
+  const handleNewStripeIntegration = () => {
+    setIsEditingIntegration(false);
+    setIsStripeDialogOpen(true);
+    setStripeFormData({
+      banco: "STRIPE",
+      conta: "",
+      nome: editingPlan?.name || "",
+      produto_id: "",
+      preco_id: "",
     });
   };
 
@@ -1037,19 +1051,10 @@ const AdminPlans = () => {
                       <h3 className="text-lg font-semibold">Integração Stripe</h3>
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          setStripeFormData({
-                            banco: "STRIPE",
-                            conta: "",
-                            nome: editingPlan?.name || "",
-                            produto_id: "",
-                            preco_id: "",
-                          });
-                          setIsStripeDialogOpen(true);
-                        }}
+                        onClick={handleNewStripeIntegration}
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Nova Integração
+                        Configurar Integração
                       </Button>
                     </div>
 
@@ -1090,16 +1095,7 @@ const AdminPlans = () => {
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => {
-                                        setStripeFormData({
-                                          banco: "STRIPE",
-                                          conta: editingPlan.account_id || "",
-                                          nome: editingPlan.name,
-                                          produto_id: editingPlan.stripe_product_id || "",
-                                          preco_id: editingPlan.stripe_price_id || "",
-                                        });
-                                        setIsStripeDialogOpen(true);
-                                      }}
+                                      onClick={() => handleEditStripeIntegration(editingPlan)}
                                       title="Editar"
                                     >
                                       <Edit className="h-4 w-4" />
@@ -1150,12 +1146,20 @@ const AdminPlans = () => {
           </Dialog>
 
           {/* Dialog de Integração Stripe */}
-          <Dialog open={isStripeDialogOpen} onOpenChange={setIsStripeDialogOpen}>
+          <Dialog open={isStripeDialogOpen} onOpenChange={(open) => {
+            setIsStripeDialogOpen(open);
+            if (!open) setIsEditingIntegration(false);
+          }}>
             <DialogContent className="max-w-2xl bg-card">
               <DialogHeader>
                 <DialogTitle className="text-foreground">
-                  {stripeFormData.produto_id ? "Editar Integração Stripe" : "Nova Integração Stripe"}
+                  {isEditingIntegration ? "Editar Integração Stripe" : "Configurar Integração Stripe"}
                 </DialogTitle>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {isEditingIntegration 
+                    ? "Atualize os dados da integração Stripe deste plano."
+                    : "Configure a integração Stripe para este plano. Ao salvar, substituirá a integração atual (se existir)."}
+                </p>
               </DialogHeader>
 
               <div className="space-y-4">
