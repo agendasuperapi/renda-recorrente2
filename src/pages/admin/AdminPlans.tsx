@@ -291,6 +291,12 @@ const AdminPlans = () => {
     });
   };
 
+  const handleDeletePlan = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este plano?")) {
+      deletePlanMutation.mutate(id);
+    }
+  };
+
   const handleCancelEdit = () => {
     setEditingPlan(null);
     setIsDialogOpen(false);
@@ -386,365 +392,473 @@ const AdminPlans = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold">Planos</h1>
-            <div className="flex gap-4 items-center">
-              <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
-                <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Filtrar por produto" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os produtos</SelectItem>
-                  <SelectItem value="no-product">Sem produto</SelectItem>
-                  {products?.map((product: any) => (
-                    <SelectItem key={product.id} value={product.id}>
-                      {product.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button onClick={handleNewPlan}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Novo Plano
-              </Button>
-            </div>
           </div>
 
-          <div className="space-y-8">
-            {isLoading ? (
-              <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
-            ) : !plans || plans.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground mb-4">Nenhum plano encontrado</p>
+          <Tabs defaultValue="plans" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="plans">Planos</TabsTrigger>
+              <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="plans" className="space-y-6">
+              <div className="flex gap-4 items-center justify-end">
+                <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
+                  <SelectTrigger className="w-[280px]">
+                    <SelectValue placeholder="Filtrar por produto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os produtos</SelectItem>
+                    <SelectItem value="no-product">Sem produto</SelectItem>
+                    {products?.map((product: any) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button onClick={handleNewPlan}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Criar primeiro plano
+                  Novo Plano
                 </Button>
               </div>
-            ) : selectedProductFilter === "all" ? (
-              // Group by period and then by product when "all" is selected
-              <>
-                {["monthly", "yearly", "daily"].map((period) => {
-                  const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
-                  if (periodPlans.length === 0) return null;
 
-                  const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
-                  
-                  // Group plans by product for this period
-                  const plansWithProduct = periodPlans.filter((p: any) => p.product_id);
-                  const plansWithoutProduct = periodPlans.filter((p: any) => !p.product_id);
-                  
-                  const productGroups = plansWithProduct.reduce((acc: any, plan: any) => {
-                    const productId = plan.product_id;
-                    if (!acc[productId]) acc[productId] = [];
-                    acc[productId].push(plan);
-                    return acc;
-                  }, {});
+              <div className="space-y-8">
+                {isLoading ? (
+                  <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
+                ) : !plans || plans.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground mb-4">Nenhum plano encontrado</p>
+                    <Button onClick={handleNewPlan}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Criar primeiro plano
+                    </Button>
+                  </div>
+                ) : selectedProductFilter === "all" ? (
+                  // Group by period and then by product when "all" is selected
+                  <>
+                    {["monthly", "yearly", "daily"].map((period) => {
+                      const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
+                      if (periodPlans.length === 0) return null;
 
-                  return (
-                    <div key={period} className="space-y-6">
-                      <h2 className="text-2xl font-bold text-purple-400 border-b border-purple-600/30 pb-2">{periodTitle}</h2>
+                      const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
                       
-                      {/* Plans grouped by product */}
-                      {Object.entries(productGroups).map(([productId, productPlans]: [string, any]) => {
-                        const product = (productPlans as any[])[0]?.products;
-                        return (
-                          <div key={productId} className="space-y-3">
-                            <div className="flex items-center gap-2 pl-4">
-                              {product?.icone_light && (
-                                <img src={product.icone_light} alt={product.nome} className="w-6 h-6 dark:hidden" />
-                              )}
-                              {product?.icone_dark && (
-                                <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
-                              )}
-                              <h3 className="text-lg font-semibold">{product?.nome || "Produto"}</h3>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {(productPlans as any[]).map((plan: any) => {
-                                const features = Array.isArray(plan.features) ? plan.features : [];
-                                const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
-                                const coupon = coupons?.find((c: any) => c.id === couponId);
+                      // Group plans by product for this period
+                      const plansWithProduct = periodPlans.filter((p: any) => p.product_id);
+                      const plansWithoutProduct = periodPlans.filter((p: any) => !p.product_id);
+                      
+                      const productGroups = plansWithProduct.reduce((acc: any, plan: any) => {
+                        const productId = plan.product_id;
+                        if (!acc[productId]) acc[productId] = [];
+                        acc[productId].push(plan);
+                        return acc;
+                      }, {});
 
-                                return (
-                                  <Card 
-                                    key={plan.id} 
-                                    className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
-                                  >
-                                    <CardHeader>
-                                      <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                          <CardTitle className="flex items-center gap-2">
-                                            {plan.name}
-                                            {!plan.is_active && (
-                                              <Badge variant="destructive" className="text-xs">Inativo</Badge>
-                                            )}
-                                          </CardTitle>
-                                          {coupon && (
-                                            <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
-                                              <Tag className="h-3 w-3" />
-                                              <span>{coupon.code} - {coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`}</span>
-                                            </div>
-                                          )}
-                                        </div>
-                                       <div className="flex gap-2">
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleOpenStripeDialog(plan)}
-                                            className="text-purple-400 hover:text-purple-300"
-                                            title="Integração Stripe"
-                                          >
-                                            <Tag className="h-4 w-4" />
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleEditPlan(plan)}
-                                            className="text-slate-400 hover:text-white"
-                                          >
-                                            <Edit className="h-4 w-4" />
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => deletePlanMutation.mutate(plan.id)}
-                                            className="text-red-400 hover:text-red-300"
-                                          >
-                                            <Trash2 className="h-4 w-4" />
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                      <div className="space-y-1">
-                                        {Number(plan.original_price) > 0 && (
-                                          <span className="text-sm text-muted-foreground line-through">
-                                            R$ {Number(plan.original_price).toFixed(2)}
-                                          </span>
-                                        )}
-                                        <span className="text-2xl font-bold text-foreground">
-                                          R$ {parseFloat(plan.price).toFixed(2)}
-                                        </span>
-                                      </div>
-                                      {plan.description && (
-                                        <p className="text-sm text-muted-foreground line-clamp-2">{plan.description}</p>
-                                      )}
-                                      <div className="pt-2 border-t border-border text-xs text-muted-foreground">
-                                        Comissão: {plan.commission_percentage}%
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-
-                      {/* Plans without product */}
-                      {plansWithoutProduct.length > 0 && (
-                        <div className="space-y-3">
-                          <h3 className="text-lg font-semibold text-slate-400 pl-4">Sem produto</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {plansWithoutProduct.map((plan: any) => {
-                              const features = Array.isArray(plan.features) ? plan.features : [];
-                              const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
-                              const coupon = coupons?.find((c: any) => c.id === couponId);
-
-                              return (
-                                <Card key={plan.id} className="hover:border-primary/50 transition-colors">
-                                  <CardHeader>
-                                    <div className="flex items-start justify-between">
-                                      <div className="flex-1">
-                                        <CardTitle className="flex items-center gap-2">
-                                          {plan.name}
-                                          {!plan.is_active && (
-                                            <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
-                                          )}
-                                        </CardTitle>
-                                        {coupon && (
-                                          <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
-                                            <Tag className="h-3 w-3" />
-                                            <span>{coupon.code} - {coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="flex gap-2">
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => handleOpenStripeDialog(plan)}
-                                          className="text-purple-400 hover:text-purple-300"
-                                          title="Integração Stripe"
-                                        >
-                                          <Tag className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => handleEditPlan(plan)}
-                                          className="text-slate-400 hover:text-white"
-                                        >
-                                          <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => deletePlanMutation.mutate(plan.id)}
-                                          className="text-red-400 hover:text-red-300"
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </CardHeader>
-                                  <CardContent className="space-y-3">
-                                  <div className="space-y-1">
-                                    {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
-                                      <span className="text-sm text-slate-500 line-through">
-                                        R$ {parseFloat(plan.original_price).toFixed(2)}
-                                      </span>
-                                    )}
-                                    <span className="text-2xl font-bold text-white">
-                                      R$ {parseFloat(plan.price).toFixed(2)}
-                                    </span>
-                                  </div>
-                                    {plan.description && (
-                                      <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
-                                    )}
-                                    <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
-                                      Comissão: {plan.commission_percentage}%
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </>
-            ) : (
-              // Original single-level grouping when a specific filter is selected
-              <>
-                {["monthly", "yearly", "daily"].map((period) => {
-                  const filteredPlans = plans?.filter((p: any) => {
-                    if (p.billing_period !== period) return false;
-                    if (selectedProductFilter === "no-product") return !p.product_id;
-                    return p.product_id === selectedProductFilter;
-                  }) || [];
-                  
-                  if (filteredPlans.length === 0) return null;
-
-                  const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
-
-                  return (
-                    <div key={period}>
-                      <h2 className="text-xl font-semibold text-purple-400 mb-4">{periodTitle}</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {filteredPlans.map((plan: any) => {
-                          const features = Array.isArray(plan.features) ? plan.features : [];
-                          const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
-                          const coupon = coupons?.find((c: any) => c.id === couponId);
-                          const product = plan.products;
-
-                          return (
-                            <Card key={plan.id} className="hover:border-primary/50 transition-colors">
-                              <CardHeader>
-                                <div className="flex items-start justify-between">
-                                  <div className="flex-1">
-                                    <CardTitle className="flex items-center gap-2">
-                                      {plan.name}
-                                      {!plan.is_active && (
-                                        <span className="text-xs bg-slate-700 text-slate-400 px-2 py-1 rounded">Inativo</span>
-                                      )}
-                                    </CardTitle>
-                                    {product && (
-                                      <div className="flex items-center gap-2 mt-2">
-                                        {product.icone_light && (
-                                          <img 
-                                            src={product.icone_light} 
-                                            alt={product.nome} 
-                                            className="h-5 w-5 object-contain dark:hidden"
-                                          />
-                                        )}
-                                        {product.icone_dark && (
-                                          <img 
-                                            src={product.icone_dark} 
-                                            alt={product.nome} 
-                                            className="h-5 w-5 object-contain hidden dark:block"
-                                          />
-                                        )}
-                                        <span className="text-xs bg-purple-600/20 text-purple-400 px-2 py-1 rounded">
-                                          {product.nome}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {coupon && (
-                                      <div className="flex items-center gap-1 mt-2 text-sm text-purple-400">
-                                        <Tag className="h-3 w-3" />
-                                        <span>{coupon.code} - {coupon.type === "percentage" ? `${coupon.value}%` : `${coupon.value} dias`}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleOpenStripeDialog(plan)}
-                                      className="text-purple-400 hover:text-purple-300"
-                                      title="Integração Stripe"
-                                    >
-                                      <Tag className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleEditPlan(plan)}
-                                      className="text-slate-400 hover:text-white"
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => deletePlanMutation.mutate(plan.id)}
-                                      className="text-red-400 hover:text-red-300"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardHeader>
-                              <CardContent className="space-y-3">
-                                <div className="space-y-1">
-                                  {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
-                                    <span className="text-sm text-muted-foreground line-through">
-                                      R$ {parseFloat(plan.original_price).toFixed(2)}
-                                    </span>
+                      return (
+                        <div key={period} className="space-y-6">
+                          <h2 className="text-2xl font-bold text-purple-400 border-b border-purple-600/30 pb-2">{periodTitle}</h2>
+                          
+                          {/* Plans grouped by product */}
+                          {Object.entries(productGroups).map(([productId, productPlans]: [string, any]) => {
+                            const product = (productPlans as any[])[0]?.products;
+                            return (
+                              <div key={productId} className="space-y-3">
+                                <div className="flex items-center gap-2 pl-4">
+                                  {product?.icone_light && (
+                                    <img src={product.icone_light} alt={product.nome} className="w-6 h-6 dark:hidden" />
                                   )}
-                                  <span className="text-2xl font-bold text-foreground">
-                                    R$ {parseFloat(plan.price).toFixed(2)}
-                                  </span>
+                                  {product?.icone_dark && (
+                                    <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
+                                  )}
+                                  <h3 className="text-lg font-semibold">{product?.nome || "Produto"}</h3>
                                 </div>
-                                {plan.description && (
-                                  <p className="text-sm text-slate-400 line-clamp-2">{plan.description}</p>
-                                )}
-                                <div className="pt-2 border-t border-slate-800 text-xs text-slate-500">
-                                  Comissão: {plan.commission_percentage}%
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {(productPlans as any[]).map((plan: any) => {
+                                    const features = Array.isArray(plan.features) ? plan.features : [];
+                                    const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
+                                    const coupon = coupons?.find((c: any) => c.id === couponId);
+
+                                    return (
+                                      <Card 
+                                        key={plan.id} 
+                                        className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                                      >
+                                        <CardHeader>
+                                          <div className="flex items-start justify-between">
+                                            <CardTitle className="text-base">{plan.name}</CardTitle>
+                                            <div className="flex gap-1">
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8"
+                                              onClick={() => handleEditPlan(plan)}
+                                              >
+                                                <Edit className="h-4 w-4" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 hover:text-destructive"
+                                              onClick={() => handleDeletePlan(plan.id)}
+                                              >
+                                                <Trash2 className="h-4 w-4" />
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-3">
+                                          <div className="space-y-1">
+                                            {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
+                                              <span className="text-sm text-muted-foreground line-through">
+                                                R$ {parseFloat(plan.original_price).toFixed(2)}
+                                              </span>
+                                            )}
+                                            <span className="text-2xl font-bold text-foreground">
+                                              R$ {parseFloat(plan.price).toFixed(2)}
+                                            </span>
+                                          </div>
+                                          {plan.description && (
+                                            <p className="text-sm text-muted-foreground line-clamp-2">{plan.description}</p>
+                                          )}
+                                          {coupon && (
+                                            <Badge variant="outline" className="gap-1">
+                                              <Tag className="h-3 w-3" />
+                                              {coupon.code}
+                                            </Badge>
+                                          )}
+                                          <div className="flex flex-wrap gap-2 pt-2">
+                                            <Badge variant={plan.is_active ? "default" : "secondary"}>
+                                              {plan.is_active ? "Ativo" : "Inativo"}
+                                            </Badge>
+                                            <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    );
+                                  })}
                                 </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                      </div>
+                              </div>
+                            );
+                          })}
+
+                          {/* Plans without product */}
+                          {plansWithoutProduct.length > 0 && (
+                            <div className="space-y-3">
+                              <h3 className="text-lg font-semibold pl-4">Sem produto associado</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {plansWithoutProduct.map((plan: any) => {
+                                  const features = Array.isArray(plan.features) ? plan.features : [];
+                                  const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
+                                  const coupon = coupons?.find((c: any) => c.id === couponId);
+
+                                  return (
+                                    <Card 
+                                      key={plan.id} 
+                                      className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                                    >
+                                      <CardHeader>
+                                        <div className="flex items-start justify-between">
+                                          <CardTitle className="text-base">{plan.name}</CardTitle>
+                                          <div className="flex gap-1">
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-8 w-8"
+                                            onClick={() => handleEditPlan(plan)}
+                                            >
+                                              <Edit className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-8 w-8 hover:text-destructive"
+                                            onClick={() => handleDeletePlan(plan.id)}
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className="space-y-3">
+                                        <div className="space-y-1">
+                                          {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
+                                            <span className="text-sm text-muted-foreground line-through">
+                                              R$ {parseFloat(plan.original_price).toFixed(2)}
+                                            </span>
+                                          )}
+                                          <span className="text-2xl font-bold text-foreground">
+                                            R$ {parseFloat(plan.price).toFixed(2)}
+                                          </span>
+                                        </div>
+                                        {plan.description && (
+                                          <p className="text-sm text-muted-foreground line-clamp-2">{plan.description}</p>
+                                        )}
+                                        {coupon && (
+                                          <Badge variant="outline" className="gap-1">
+                                            <Tag className="h-3 w-3" />
+                                            {coupon.code}
+                                          </Badge>
+                                        )}
+                                        <div className="flex flex-wrap gap-2 pt-2">
+                                          <Badge variant={plan.is_active ? "default" : "secondary"}>
+                                            {plan.is_active ? "Ativo" : "Inativo"}
+                                          </Badge>
+                                          <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
+                  // Show plans for specific product filter
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {plans?.filter((p: any) => {
+                      if (selectedProductFilter === "no-product") return !p.product_id;
+                      return p.product_id === selectedProductFilter;
+                    }).map((plan: any) => {
+                      const features = Array.isArray(plan.features) ? plan.features : [];
+                      const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
+                      const coupon = coupons?.find((c: any) => c.id === couponId);
+
+                      return (
+                        <Card 
+                          key={plan.id} 
+                          className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                        >
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <CardTitle className="text-base">{plan.name}</CardTitle>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => handleEditPlan(plan)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 hover:text-destructive"
+                                  onClick={() => handleDeletePlan(plan.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div className="space-y-1">
+                              {plan.original_price && plan.original_price > 0 && plan.original_price > plan.price && (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  R$ {parseFloat(plan.original_price).toFixed(2)}
+                                </span>
+                              )}
+                              <span className="text-2xl font-bold text-foreground">
+                                R$ {parseFloat(plan.price).toFixed(2)}
+                              </span>
+                            </div>
+                            {plan.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">{plan.description}</p>
+                            )}
+                            {coupon && (
+                              <Badge variant="outline" className="gap-1">
+                                <Tag className="h-3 w-3" />
+                                {coupon.code}
+                              </Badge>
+                            )}
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              <Badge variant={plan.is_active ? "default" : "secondary"}>
+                                {plan.is_active ? "Ativo" : "Inativo"}
+                              </Badge>
+                              <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stripe" className="space-y-6">
+              <Card className="bg-muted/50 border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Cadastrar Produto Stripe</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">Banco</label>
+                      <Select
+                        value={stripeFormData.banco}
+                        onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="STRIPE">STRIPE</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  );
-                })}
-              </>
-            )}
-          </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">Conta</label>
+                      <Select
+                        value={stripeFormData.conta}
+                        onValueChange={(value) => setStripeFormData({ ...stripeFormData, conta: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma conta" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accounts?.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">Plano</label>
+                      <Select
+                        value={selectedPlanForStripe?.id || ""}
+                        onValueChange={(value) => {
+                          const plan = plans?.find((p: any) => p.id === value);
+                          setSelectedPlanForStripe(plan);
+                          setStripeFormData({ 
+                            ...stripeFormData, 
+                            nome: plan?.name || "",
+                            produto_id: plan?.stripe_product_id || "",
+                            preco_id: plan?.stripe_price_id || ""
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {plans?.map((plan: any) => (
+                            <SelectItem key={plan.id} value={plan.id}>
+                              {plan.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground font-medium">
+                        Nome da assinatura (No cadastro do Stripe)
+                      </label>
+                      <Input
+                        value={stripeFormData.nome}
+                        onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
+                        placeholder="Nome do produto"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">ID Produto *</label>
+                      <Input
+                        value={stripeFormData.produto_id}
+                        onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
+                        placeholder="prod_XXXXXX"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-foreground font-medium">ID Preço *</label>
+                      <Input
+                        value={stripeFormData.preco_id}
+                        onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
+                        placeholder="price_XXXXXX"
+                        className="bg-background text-foreground"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleSaveStripe}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      Salvar
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-muted/50 border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Produtos Cadastrados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-foreground">Banco</TableHead>
+                        <TableHead className="text-foreground">Conta</TableHead>
+                        <TableHead className="text-foreground">Nome</TableHead>
+                        <TableHead className="text-foreground">ID Produto</TableHead>
+                        <TableHead className="text-foreground">ID Preço</TableHead>
+                        <TableHead className="text-foreground">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {plans?.filter((p: any) => p.stripe_product_id).map((plan: any) => (
+                        <TableRow key={plan.id}>
+                          <TableCell className="text-foreground">STRIPE</TableCell>
+                          <TableCell className="text-foreground">-</TableCell>
+                          <TableCell className="text-foreground">{plan.name}</TableCell>
+                          <TableCell className="text-foreground">{plan.stripe_product_id}</TableCell>
+                          <TableCell className="text-foreground">{plan.stripe_price_id}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedPlanForStripe(plan);
+                                setStripeFormData({
+                                  banco: "STRIPE",
+                                  conta: "",
+                                  nome: plan.name,
+                                  produto_id: plan.stripe_product_id || "",
+                                  preco_id: plan.stripe_price_id || "",
+                                });
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {(!plans?.filter((p: any) => p.stripe_product_id).length) && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                            Nenhum produto Stripe cadastrado
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
@@ -1065,172 +1179,9 @@ const AdminPlans = () => {
                 </div>
             </DialogContent>
           </Dialog>
-
-          <Dialog open={isStripeDialogOpen} onOpenChange={setIsStripeDialogOpen}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-card">
-              <DialogHeader>
-                <DialogTitle className="text-foreground">
-                  Integração Stripe - {selectedPlanForStripe?.name}
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-6">
-                <Card className="bg-muted/50 border-border">
-                  <CardHeader>
-                    <CardTitle className="text-foreground">Cadastrar Produto Stripe</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">Banco</label>
-                        <Select
-                          value={stripeFormData.banco}
-                          onValueChange={(value) => setStripeFormData({ ...stripeFormData, banco: value })}
-                        >
-                          <SelectTrigger className="bg-background border-input text-foreground">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background border-input">
-                            <SelectItem value="STRIPE">STRIPE</SelectItem>
-                            <SelectItem value="PAYPAL">PAYPAL</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">Conta</label>
-                        <Select
-                          value={stripeFormData.conta}
-                          onValueChange={(value) => setStripeFormData({ ...stripeFormData, conta: value })}
-                        >
-                          <SelectTrigger className="bg-background border-input text-foreground">
-                            <SelectValue placeholder="Selecione uma conta" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background border-input z-50">
-                            {accounts?.filter((account: any) => account.product_id === selectedPlanForStripe?.product_id).map((account: any) => (
-                              <SelectItem key={account.id} value={account.id}>
-                                {account.name} {account.banks?.name ? `- ${account.banks.name}` : ''}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">Nome da assinatura (No cadastro do Stripe)</label>
-                        <Input
-                          value={stripeFormData.nome}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, nome: e.target.value })}
-                          placeholder="Plano Mensal"
-                          className="bg-background border-input text-foreground"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm text-foreground font-medium">ID Produto *</label>
-                        <Input
-                          value={stripeFormData.produto_id}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, produto_id: e.target.value })}
-                          placeholder="prod_XXXXXXXXXXXXX"
-                          className="bg-background border-input text-foreground"
-                        />
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm text-foreground font-medium">ID Preço *</label>
-                        <Input
-                          value={stripeFormData.preco_id}
-                          onChange={(e) => setStripeFormData({ ...stripeFormData, preco_id: e.target.value })}
-                          placeholder="price_XXXXXXXXXXXXX"
-                          className="bg-background border-input text-foreground"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 justify-end pt-4 border-t border-border">
-                      <Button
-                        onClick={() => {
-                          setStripeFormData({ banco: "STRIPE", conta: "", nome: "", produto_id: "", preco_id: "" });
-                          setIsStripeDialogOpen(false);
-                        }}
-                        variant="outline"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Cancelar
-                      </Button>
-                      <Button
-                        onClick={handleSaveStripe}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                      >
-                        <Check className="h-4 w-4 mr-2" />
-                        Salvar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-muted/50 border-border">
-                  <CardHeader>
-                    <CardTitle className="text-foreground">Produtos Cadastrados</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-border hover:bg-muted/50">
-                          <TableHead className="text-muted-foreground">Banco</TableHead>
-                          <TableHead className="text-muted-foreground">Conta</TableHead>
-                          <TableHead className="text-muted-foreground">Nome</TableHead>
-                          <TableHead className="text-muted-foreground">ID Produto</TableHead>
-                          <TableHead className="text-muted-foreground">ID Preço</TableHead>
-                          <TableHead className="text-muted-foreground">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {selectedPlanForStripe?.stripe_product_id || selectedPlanForStripe?.stripe_price_id ? (
-                          <TableRow className="border-border hover:bg-muted/50">
-                            <TableCell className="text-foreground">STRIPE</TableCell>
-                            <TableCell className="text-foreground">-</TableCell>
-                            <TableCell className="text-foreground">{selectedPlanForStripe.name}</TableCell>
-                            <TableCell className="text-foreground font-mono text-xs">{selectedPlanForStripe.stripe_product_id || "-"}</TableCell>
-                            <TableCell className="text-foreground font-mono text-xs">{selectedPlanForStripe.stripe_price_id || "-"}</TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleEditStripeIntegration(selectedPlanForStripe)}
-                                  className="text-primary hover:text-primary/80 hover:bg-primary/10"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteStripeIntegration(selectedPlanForStripe.id)}
-                                  className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                              Nenhum produto Stripe cadastrado para este plano
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
-  );
-};
-
-export default AdminPlans;
+    );
+  };
+  
+  export default AdminPlans;
