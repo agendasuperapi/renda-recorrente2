@@ -75,15 +75,18 @@ const SortableTestimonialRow = ({ testimonial, onEdit, onDelete }: {
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </button>
       </TableCell>
-        <TableCell>
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
-              <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <span>{testimonial.name}</span>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
+            <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="font-medium">{testimonial.name}</span>
+            <span className="text-sm text-muted-foreground line-clamp-2">{testimonial.content}</span>
           </div>
-        </TableCell>
+        </div>
+      </TableCell>
       <TableCell>{testimonial.role}</TableCell>
       <TableCell>{"⭐".repeat(testimonial.rating)}</TableCell>
       <TableCell>
