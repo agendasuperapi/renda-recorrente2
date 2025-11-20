@@ -1169,11 +1169,11 @@ const AdminPlans = () => {
                         ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "production")
                         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
                         .map((integration) => (
-                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-muted"}>
+                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
                             <CardContent className="pt-4 space-y-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <Badge variant={integration.is_active ? "default" : "secondary"}>
+                                  <Badge variant={integration.is_active ? "default" : "destructive"}>
                                     {integration.is_active ? "Ativa" : "Inativa"}
                                   </Badge>
                                   <span className="text-sm font-medium">
@@ -1237,11 +1237,11 @@ const AdminPlans = () => {
                         ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "test")
                         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
                         .map((integration) => (
-                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-muted"}>
+                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
                             <CardContent className="pt-4 space-y-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <Badge variant={integration.is_active ? "default" : "secondary"}>
+                                  <Badge variant={integration.is_active ? "default" : "destructive"}>
                                     {integration.is_active ? "Ativa" : "Inativa"}
                                   </Badge>
                                   <span className="text-sm font-medium">
