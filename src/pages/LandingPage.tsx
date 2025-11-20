@@ -608,7 +608,7 @@ const LandingPage = () => {
             <p className="text-xl text-center text-muted-foreground mb-12">
               Escolha os produtos que deseja divulgar e comece a ganhar comissões
             </p>
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="space-y-6">
               {products.map((product) => (
                 <Card key={product.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
