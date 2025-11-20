@@ -61,6 +61,21 @@ interface Feature {
   order_position: number;
 }
 
+// Componente para renderizar ícone dinamicamente
+const DynamicIcon = ({ name, ...props }: { name: keyof typeof dynamicIconImports } & Omit<LucideProps, 'ref'>) => {
+  const Icon = lazy(dynamicIconImports[name]);
+  return (
+    <Suspense fallback={<div className="h-6 w-6 bg-muted animate-pulse rounded" />}>
+      <Icon {...props} />
+    </Suspense>
+  );
+};
+
+// Converte de PascalCase para kebab-case
+const getKebabCase = (str: string) => {
+  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+};
+
 const SortableTestimonialRow = ({ testimonial, onEdit, onDelete }: { 
   testimonial: Testimonial; 
   onEdit: (t: Testimonial) => void;
@@ -199,6 +214,13 @@ const SortableFeatureRow = ({ feature, onEdit, onDelete }: {
     transition,
   };
 
+  // Converte de PascalCase para kebab-case para o dynamicIconImports
+  const getKebabCase = (str: string) => {
+    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  };
+
+  const iconName = getKebabCase(feature.icon) as keyof typeof dynamicIconImports;
+
   return (
     <TableRow ref={setNodeRef} style={style}>
       <TableCell>
@@ -209,7 +231,11 @@ const SortableFeatureRow = ({ feature, onEdit, onDelete }: {
       <TableCell className="font-medium">{feature.name}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-primary" />
+          {dynamicIconImports[iconName] ? (
+            <DynamicIcon name={iconName} className="h-4 w-4 text-primary" />
+          ) : (
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+          )}
           <span className="text-sm text-muted-foreground">{feature.icon}</span>
         </div>
       </TableCell>
@@ -283,22 +309,14 @@ const AdminLandingPage = () => {
     })
   );
 
-  // Todos os ícones disponíveis do Lucide (1400+)
   const allIconNames = Object.keys(dynamicIconImports) as Array<keyof typeof dynamicIconImports>;
   
   const filteredIcons = allIconNames.filter(iconName =>
     iconName.toLowerCase().includes(iconSearch.toLowerCase())
   );
 
-  // Componente para renderizar ícone dinamicamente
-  const DynamicIcon = ({ name, ...props }: { name: keyof typeof dynamicIconImports } & Omit<LucideProps, 'ref'>) => {
-    const Icon = lazy(dynamicIconImports[name]);
-    return (
-      <Suspense fallback={<div className="h-6 w-6 bg-muted animate-pulse rounded" />}>
-        <Icon {...props} />
-      </Suspense>
-    );
-  };
+  // Preview do ícone selecionado
+  const selectedIconKebab = getKebabCase(featureForm.icon) as keyof typeof dynamicIconImports;
 
   useEffect(() => {
     fetchTestimonials();
@@ -1162,7 +1180,11 @@ const AdminLandingPage = () => {
                           </DialogContent>
                         </Dialog>
                         <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted">
-                          <CheckCircle2 className="h-5 w-5 text-primary" />
+                          {dynamicIconImports[selectedIconKebab] ? (
+                            <DynamicIcon name={selectedIconKebab} className="h-5 w-5 text-primary" />
+                          ) : (
+                            <CheckCircle2 className="h-5 w-5 text-primary" />
+                          )}
                           <span className="text-sm text-muted-foreground">Preview</span>
                         </div>
                       </div>
