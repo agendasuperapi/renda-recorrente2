@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -167,6 +168,7 @@ const SortableFaqRow = ({ faq, onEdit, onDelete }: {
 };
 
 const AdminLandingPage = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -557,7 +559,7 @@ const AdminLandingPage = () => {
         </div>
         <Button
           variant="outline"
-          onClick={() => window.open('/landing', '_blank')}
+          onClick={() => navigate('/landing')}
         >
           Ir para Landing Page
         </Button>
