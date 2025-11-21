@@ -76,6 +76,22 @@ const Auth = () => {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Busca descrição do produto
+  const { data: productData } = useQuery({
+    queryKey: ['authProduct'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('descricao')
+        .eq('id', 'bb582482-b006-47b8-b6ea-a6944d8cfdfd')
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
   useEffect(() => {
     if (gradientConfigsData && gradientConfigsData.length > 0) {
       const configs: Record<string, GradientConfig> = {};
@@ -272,22 +288,8 @@ const Auth = () => {
             >
               APP Renda recorrente
             </h2>
-            <div className="space-y-4 leading-relaxed" style={{ color: getTextColor('auth_left_panel') }}>
-              <p className="text-lg">
-                💸 App de Renda Recorrente
-              </p>
-              <p>
-                Compartilhe links dos nossos produtos e ganhe comissões toda vez que alguém comprar através de você!
-              </p>
-              <p>
-                E o melhor: nas renovações mensais, você continua recebendo.
-              </p>
-              <p>
-                📊 Acompanhe tudo pelo painel em tempo real.
-              </p>
-              <p className="font-semibold" style={{ color: getHeadingColor('auth_left_panel') }}>
-                Transforme suas indicações em renda automática e recorrente!
-              </p>
+            <div className="space-y-4 leading-relaxed whitespace-pre-line" style={{ color: getTextColor('auth_left_panel') }}>
+              {productData?.descricao || '💸 App de Renda Recorrente\n\nCompartilhe links dos nossos produtos e ganhe comissões toda vez que alguém comprar através de você!\n\nE o melhor: nas renovações mensais, você continua recebendo.\n\n📊 Acompanhe tudo pelo painel em tempo real.\n\nTransforme suas indicações em renda automática e recorrente!'}
             </div>
           </CardContent>
         </Card>
