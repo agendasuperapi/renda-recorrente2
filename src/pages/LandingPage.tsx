@@ -488,7 +488,7 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="py-20 px-4 bg-gradient-to-b from-background via-[#00bf63]/20 to-[#00bf63]">
+      <section id="hero" className="py-20 px-4 bg-gradient-to-b from-background via-brand-green/20 to-brand-green">
         <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
@@ -544,7 +544,7 @@ const LandingPage = () => {
       </section>
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/5 to-[#00bf63]/15">
+      <section id="seja-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/5 to-brand-green/15">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Seja um Afiliado
@@ -624,7 +624,7 @@ const LandingPage = () => {
       </section>
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
+      <section id="como-funciona" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Como funciona o programa de afiliados?
@@ -761,7 +761,7 @@ const LandingPage = () => {
       </section>
 
       {/* Vantagens */}
-      <section id="vantagens" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
+      <section id="vantagens" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Vantagens de trabalhar com nosso sistema
@@ -876,7 +876,7 @@ const LandingPage = () => {
       </section>
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
+      <section id="layout-responsivo" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
         <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Layout Responsivo
@@ -899,7 +899,7 @@ const LandingPage = () => {
 
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
-        <section id="produtos" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
+        <section id="produtos" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
           <div className="container mx-auto max-w-7xl transition-all duration-700 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
               Produtos Disponíveis para Afiliação
