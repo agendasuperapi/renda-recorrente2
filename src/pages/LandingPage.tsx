@@ -526,17 +526,19 @@ const LandingPage = () => {
               </div>
             </div>
             <div 
-              className="flex justify-center animate-fade-in"
+              className="flex justify-center animate-fade-in relative"
               style={{ animationDelay: '200ms' }}
             >
               {getHeroImage('Hero Person') && (
-                <img 
-                  src={getHeroImage('Hero Person')} 
-                  alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
-                  className="w-full max-w-md animate-fade-in"
-                  style={{ animationDelay: '400ms' }}
-                  loading="eager"
-                />
+                <div className="relative overflow-hidden before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse">
+                  <img 
+                    src={getHeroImage('Hero Person')} 
+                    alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
+                    className="w-full max-w-md animate-fade-in relative z-10"
+                    style={{ animationDelay: '400ms' }}
+                    loading="eager"
+                  />
+                </div>
               )}
             </div>
           </div>
