@@ -602,7 +602,7 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-16 px-4">
+      <section id="comissao-recorrente" className="py-16 px-4 bg-gradient-to-b from-brand-green/15 to-brand-green/30">
         <div className={`container mx-auto max-w-4xl text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             O que é Comissão Recorrente?
@@ -610,7 +610,7 @@ const LandingPage = () => {
           <p className="text-xl text-muted-foreground mb-8">
             Todo mês que o cliente renovar a assinatura você ganhará a comissão.
           </p>
-          <Card className="bg-primary/5 border-primary/20">
+          <Card className="bg-primary/5 border-primary/20 transition-all duration-700 hover:shadow-lg">
             <CardContent className="pt-6">
               <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
               <p className="text-lg">
@@ -831,7 +831,7 @@ const LandingPage = () => {
       </section>
 
       {/* Funcionalidades */}
-      <section id="funcionalidades" className="py-16 px-4">
+      <section id="funcionalidades" className="py-16 px-4 bg-gradient-to-b from-brand-green/8 to-brand-green/18">
         <div className="container mx-auto max-w-7xl">
           <div className={`grid lg:grid-cols-2 gap-12 items-start transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
             {/* Imagem do laptop à esquerda */}
@@ -876,7 +876,7 @@ const LandingPage = () => {
       </section>
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
+      <section id="layout-responsivo" className="py-16 px-4 bg-gradient-to-b from-brand-green/12 to-background">
         <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Layout Responsivo
@@ -955,7 +955,7 @@ const LandingPage = () => {
       )}
 
       {/* Depoimentos */}
-      <section id="depoimentos" className="py-16 px-4">
+      <section id="depoimentos" className="py-16 px-4 bg-gradient-to-b from-brand-green/10 to-brand-green/25">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             O que dizem nossos afiliados
@@ -1050,7 +1050,7 @@ const LandingPage = () => {
 
       {/* WhatsApp */}
       {whatsappPhone && whatsappText && (
-        <section className="py-16 px-4 bg-muted/50">
+        <section className="py-16 px-4 bg-gradient-to-r from-brand-green/5 via-muted/50 to-brand-green/5">
           <div className="container mx-auto max-w-4xl text-center">
             <MessageSquare className="w-16 h-16 text-primary mx-auto mb-6" />
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
@@ -1074,7 +1074,7 @@ const LandingPage = () => {
       )}
 
       {/* FAQs */}
-      <section id="faq" className="py-16 px-4">
+      <section id="faq" className="py-16 px-4 bg-gradient-to-b from-brand-green/5 to-brand-green/12">
         <div className={`container mx-auto max-w-4xl transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Perguntas Frequentes
