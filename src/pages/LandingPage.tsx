@@ -194,7 +194,7 @@ const LandingPage = () => {
       });
       setGradientConfigs(configs);
     }
-  }, [gradientConfigsData.length]);
+  }, [gradientConfigsData]);
 
   // Helper para pegar imagem por nome
   const getHeroImage = (imageName: string) => {
