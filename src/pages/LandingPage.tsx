@@ -1161,7 +1161,7 @@ const LandingPage = () => {
                 })}
               </div>
 
-              <p className="text-sm text-muted-foreground mt-8" style={{ color: getTextColor('funcionalidades') }}>
+              <p className="text-base text-muted-foreground mt-8" style={{ color: getTextColor('funcionalidades') }}>
                 O sistema está em constante atualização, então em breve teremos novas funcionalidades.
               </p>
             </div>
