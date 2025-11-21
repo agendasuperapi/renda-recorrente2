@@ -506,9 +506,13 @@ const LandingPage = () => {
               <p className="text-xl text-muted-foreground mb-8">
                 Temos vários produtos para você indicar e criar uma renda recorrente.
               </p>
-              <Button size="lg" onClick={() => scrollToSection("planos")} className="text-lg px-8 mb-8">
+              <Button 
+                size="lg" 
+                onClick={() => scrollToSection("planos")} 
+                className="text-lg px-8 mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse"
+              >
                 Começar Agora
-                <Target className="ml-2 w-5 h-5" />
+                <Target className="ml-2 w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
               </Button>
               <div className="flex justify-center md:justify-start">
                 {getHeroImage('Trust Badges') && (
@@ -549,7 +553,7 @@ const LandingPage = () => {
             Seja um Afiliado
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
+            <Card className={`transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <GraduationCap className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Curso Completo</CardTitle>
@@ -561,7 +565,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Award className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Certificação</CardTitle>
@@ -573,7 +577,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Share2 className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Divulgue</CardTitle>
@@ -585,7 +589,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <DollarSign className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Ganhe Comissões</CardTitle>
