@@ -288,7 +288,7 @@ const Auth = () => {
             >
               APP Renda recorrente
             </h2>
-            <div className="space-y-4 leading-relaxed whitespace-pre-line text-left" style={{ color: getTextColor('auth_left_panel') }}>
+            <div className="space-y-4 leading-relaxed whitespace-pre-line" style={{ color: getTextColor('auth_left_panel') }}>
               {productData?.descricao || '💸 App de Renda Recorrente\n\nCompartilhe links dos nossos produtos e ganhe comissões toda vez que alguém comprar através de você!\n\nE o melhor: nas renovações mensais, você continua recebendo.\n\n📊 Acompanhe tudo pelo painel em tempo real.\n\nTransforme suas indicações em renda automática e recorrente!'}
             </div>
           </CardContent>
