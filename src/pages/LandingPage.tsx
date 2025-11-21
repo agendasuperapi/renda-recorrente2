@@ -16,8 +16,6 @@ import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import logo from "@/assets/logo.png";
-import logoHeader from "@/assets/logo-header.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -372,7 +370,14 @@ const LandingPage = () => {
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <img src={logoHeader} alt="APP Renda recorrente" className="h-10" />
+            {getHeroImage('Logo Header') && (
+              <img 
+                src={getHeroImage('Logo Header')} 
+                alt={heroImages.find(img => img.name === 'Logo Header')?.alt_text || 'APP Renda recorrente'} 
+                className="h-10"
+                loading="eager"
+              />
+            )}
             <span className="font-bold text-lg hidden sm:inline">APP Renda recorrente</span>
           </div>
           
@@ -1005,7 +1010,13 @@ const LandingPage = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <img src={logo} alt="Logo" className="h-8 mb-4" />
+              {getHeroImage('Logo Alternativo') && (
+                <img 
+                  src={getHeroImage('Logo Alternativo')} 
+                  alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Logo'} 
+                  className="h-8 mb-4"
+                />
+              )}
               <p className="text-sm text-muted-foreground">
                 Sistema completo para gerenciar seu programa de afiliados.
               </p>
