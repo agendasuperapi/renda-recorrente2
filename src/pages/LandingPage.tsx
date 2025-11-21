@@ -878,8 +878,8 @@ const LandingPage = () => {
               {products.map((product, index) => (
                 <Card 
                   key={product.id} 
-                  className={`hover:shadow-lg transition-all duration-700 ${visibleSections.has('produtos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}
-                  style={{ transitionDelay: `${index * 100}ms` }}
+                  className="hover:shadow-lg transition-all duration-300 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <CardHeader>
                     <div className="flex items-center gap-4 mb-4">
