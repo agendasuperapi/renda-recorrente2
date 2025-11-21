@@ -710,7 +710,7 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('hero')}>
+      <section id="hero" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('hero')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'hero' ? null : 'hero')}
@@ -776,7 +776,7 @@ const LandingPage = () => {
       </section>
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('seja-afiliado')}>
+      <section id="seja-afiliado" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('seja-afiliado')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'seja-afiliado' ? null : 'seja-afiliado')}
@@ -844,7 +844,7 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('comissao-recorrente')}>
+      <section id="comissao-recorrente" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('comissao-recorrente')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'comissao-recorrente' ? null : 'comissao-recorrente')}
@@ -876,7 +876,7 @@ const LandingPage = () => {
       </section>
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('como-funciona')}>
+      <section id="como-funciona" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('como-funciona')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'como-funciona' ? null : 'como-funciona')}
@@ -950,7 +950,7 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('painel-afiliado')}>
+      <section id="painel-afiliado" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('painel-afiliado')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')}
@@ -1033,7 +1033,7 @@ const LandingPage = () => {
       </section>
 
       {/* Vantagens */}
-      <section id="vantagens" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('vantagens')}>
+      <section id="vantagens" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('vantagens')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'vantagens' ? null : 'vantagens')}
@@ -1113,7 +1113,7 @@ const LandingPage = () => {
       </section>
 
       {/* Funcionalidades */}
-      <section id="funcionalidades" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('funcionalidades')}>
+      <section id="funcionalidades" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('funcionalidades')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'funcionalidades' ? null : 'funcionalidades')}
@@ -1170,7 +1170,7 @@ const LandingPage = () => {
       </section>
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('layout-responsivo')}>
+      <section id="layout-responsivo" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('layout-responsivo')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'layout-responsivo' ? null : 'layout-responsivo')}
@@ -1203,7 +1203,7 @@ const LandingPage = () => {
 
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
-        <section id="produtos" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('produtos')}>
+        <section id="produtos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('produtos')}>
           {isAdmin && (
             <Button
               onClick={() => setEditingBlock(editingBlock === 'produtos' ? null : 'produtos')}
@@ -1268,7 +1268,7 @@ const LandingPage = () => {
       )}
 
       {/* Depoimentos */}
-      <section id="depoimentos" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('depoimentos')}>
+      <section id="depoimentos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('depoimentos')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'depoimentos' ? null : 'depoimentos')}
@@ -1315,7 +1315,7 @@ const LandingPage = () => {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('planos')}>
+      <section id="planos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('planos')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')}
@@ -1382,7 +1382,7 @@ const LandingPage = () => {
       </section>
 
       {/* FAQs */}
-      <section id="faq" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('faq')}>
+      <section id="faq" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('faq')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'faq' ? null : 'faq')}
@@ -1413,7 +1413,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 md:py-12 px-4 md:px-6">
+      <footer className="border-t border-border py-8 md:py-12 px-3 md:px-6">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-6 md:mb-8">
             <div>
