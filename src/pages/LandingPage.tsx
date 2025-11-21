@@ -570,7 +570,7 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="py-20 px-4 relative bg-gradient-to-b from-background via-background to-brand-green/70">
+      <section id="hero" className="py-20 px-4 relative" style={getGradientStyle('hero')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'hero' ? null : 'hero')}
@@ -592,10 +592,10 @@ const LandingPage = () => {
                   loading="eager"
                 />
               )}
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: getHeadingColor('hero') }}>
                 Participe e ganhe dinheiro recomendando nossos aplicativos
               </h1>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-xl mb-8" style={{ color: getTextColor('hero') }}>
                 Temos vários produtos para você indicar e criar uma renda recorrente.
               </p>
               <Button 
@@ -636,7 +636,7 @@ const LandingPage = () => {
       </section>
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-16 px-4 relative bg-gradient-to-b from-brand-green/70 to-brand-green/85">
+      <section id="seja-afiliado" className="py-16 px-4 relative" style={getGradientStyle('seja-afiliado')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'seja-afiliado' ? null : 'seja-afiliado')}
@@ -648,7 +648,7 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('seja-afiliado') }}>
             Seja um Afiliado
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -704,18 +704,28 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-16 px-4 bg-gradient-to-b from-background to-background/80">
+      <section id="comissao-recorrente" className="py-16 px-4 relative" style={getGradientStyle('comissao-recorrente')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'comissao-recorrente' ? null : 'comissao-recorrente')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-4xl text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: getHeadingColor('comissao-recorrente') }}>
             O que é Comissão Recorrente?
           </h2>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-xl mb-8" style={{ color: getTextColor('comissao-recorrente') }}>
             Todo mês que o cliente renovar a assinatura você ganhará a comissão.
           </p>
           <Card className="bg-primary/5 border-primary/20 transition-all duration-700 hover:shadow-lg">
             <CardContent className="pt-6">
               <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
-              <p className="text-lg">
+              <p className="text-lg" style={{ color: getTextColor('comissao-recorrente') }}>
                 Com a comissão recorrente, todo mês você receberá comissões das indicações antigas 
                 somando com as novas que são feitas, assim se você continuar indicando sua comissão 
                 mensal só irá <strong>aumentando gradativamente</strong>.
@@ -1032,10 +1042,10 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: getHeadingColor('layout-responsivo') }}>
             Layout Responsivo
           </h2>
-          <p className="text-xl text-muted-foreground mb-12">
+          <p className="text-xl mb-12" style={{ color: getTextColor('layout-responsivo') }}>
             Acesse o APP Renda recorrente em todos os dispositivos, Notebooks, PCs, celulares e tablets
           </p>
           <div className="flex justify-center">
@@ -1081,7 +1091,7 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('depoimentos') }}>
             O que dizem nossos afiliados
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
@@ -1096,8 +1106,8 @@ const LandingPage = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-semibold">{testimonial.name}</p>
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      <p className="font-semibold" style={{ color: getTextColor('depoimentos') }}>{testimonial.name}</p>
+                      <p className="text-sm" style={{ color: getTextColor('depoimentos') }}>{testimonial.role}</p>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -1107,7 +1117,7 @@ const LandingPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground italic">"{testimonial.content}"</p>
+                  <p className="italic" style={{ color: getTextColor('depoimentos') }}>"{testimonial.content}"</p>
                 </CardContent>
               </Card>
             ))}
@@ -1116,7 +1126,7 @@ const LandingPage = () => {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-16 px-4 relative">
+      <section id="planos" className="py-16 px-4 relative" style={getGradientStyle('planos')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')}
@@ -1128,10 +1138,10 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4" style={{ color: getHeadingColor('planos') }}>
             Escolha seu Plano
           </h2>
-          <p className="text-xl text-center text-muted-foreground mb-12">
+          <p className="text-xl text-center mb-12" style={{ color: getTextColor('planos') }}>
             Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1195,16 +1205,16 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-4xl transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('faq') }}>
             Perguntas Frequentes
           </h2>
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem key={faq.id} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
+                <AccordionTrigger className="text-left" style={{ color: getTextColor('faq') }}>
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent style={{ color: getTextColor('faq') }}>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
