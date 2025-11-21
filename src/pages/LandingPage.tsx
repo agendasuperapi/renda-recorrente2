@@ -1447,9 +1447,9 @@ const LandingPage = () => {
             <div>
               <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Legal</h3>
               <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/terms-of-service")}>Termos de Uso</li>
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/privacy-policy")}>Privacidade</li>
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/privacy-policy")}>Cookies</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/terms")}>Termos de Uso</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/privacy")}>Privacidade</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/cookies")}>Cookies</li>
               </ul>
             </div>
           </div>
