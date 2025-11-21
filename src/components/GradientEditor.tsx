@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Save, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface GradientConfig {
   block_name: string;
@@ -27,6 +28,7 @@ interface GradientEditorProps {
 }
 
 export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientEditorProps) => {
+  const queryClient = useQueryClient();
   const [name, setName] = useState(config.block_name || blockName);
   const [colorStart, setColorStart] = useState(config.color_start);
   const [colorEnd, setColorEnd] = useState(config.color_end);
@@ -58,6 +60,7 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
       if (error) throw error;
 
       toast.success('Gradiente salvo com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['gradientConfigs'] });
       onSave({
         block_name: name,
         color_start: colorStart,
