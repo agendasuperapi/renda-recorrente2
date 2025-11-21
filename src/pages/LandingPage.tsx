@@ -130,15 +130,24 @@ const LandingPage = () => {
   const [whatsappText, setWhatsappText] = useState("");
   const [showHomeButton, setShowHomeButton] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("inicio");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Check auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        setIsAdmin(false);
+      }
     });
 
     // Fetch plans
@@ -219,6 +228,28 @@ const LandingPage = () => {
 
     if (data && data.length > 0) {
       setTestimonials(data as Testimonial[]);
+    }
+  };
+
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'super_admin')
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking admin role:', error);
+        setIsAdmin(false);
+        return;
+      }
+      
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+      setIsAdmin(false);
     }
   };
 
@@ -355,9 +386,11 @@ const LandingPage = () => {
             
             {user ? (
               <>
-                <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
-                  Painel
-                </Button>
+                {isAdmin && (
+                  <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
+                    Painel
+                  </Button>
+                )}
                 <Button onClick={handleLogout} variant="ghost" size="sm">
                   Sair
                 </Button>
