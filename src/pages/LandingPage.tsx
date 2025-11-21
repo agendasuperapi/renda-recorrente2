@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -138,6 +138,7 @@ const LandingPage = () => {
   const [showHomeButton, setShowHomeButton] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("inicio");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
 
   // Busca imagens do hero com cache
   const { data: heroImages = [] } = useQuery({
@@ -219,13 +220,31 @@ const LandingPage = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
+    // Intersection Observer para animações de scroll
+    const animationObserverOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const animationObserverCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.target.id) {
+          setVisibleSections(prev => new Set(prev).add(entry.target.id));
+        }
+      });
+    };
+
+    const animationObserver = new IntersectionObserver(animationObserverCallback, animationObserverOptions);
+
     // Observar todas as seções - usa setTimeout para garantir que elementos condicionais sejam renderizados
     const observeSections = () => {
-      const sections = ['como-funciona', 'vantagens', 'produtos', 'planos'];
+      const sections = ['hero', 'seja-afiliado', 'comissao-recorrente', 'como-funciona', 'painel-afiliado', 'vantagens', 'funcionalidades', 'produtos', 'depoimentos', 'planos', 'faq'];
       sections.forEach((sectionId) => {
         const element = document.getElementById(sectionId);
         if (element) {
           observer.observe(element);
+          animationObserver.observe(element);
         }
       });
     };
@@ -238,6 +257,7 @@ const LandingPage = () => {
       subscription.unsubscribe();
       window.removeEventListener('scroll', handleScroll);
       observer.disconnect();
+      animationObserver.disconnect();
       clearTimeout(timeoutId);
     };
   }, []);
@@ -458,10 +478,10 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section id="hero" className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="text-center md:text-left">
+            <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
               {getHeroImage('Logo Alternativo') && (
                 <img 
                   src={getHeroImage('Logo Alternativo')} 
@@ -491,7 +511,7 @@ const LandingPage = () => {
                 )}
               </div>
             </div>
-            <div className="flex justify-center">
+            <div className={`flex justify-center transition-all duration-700 delay-200 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
               {getHeroImage('Hero Person') && (
                 <img 
                   src={getHeroImage('Hero Person')} 
@@ -506,8 +526,8 @@ const LandingPage = () => {
       </section>
 
       {/* Seja um Afiliado */}
-      <section className="py-16 px-4 bg-muted/50">
-        <div className="container mx-auto max-w-6xl">
+      <section id="seja-afiliado" className="py-16 px-4 bg-muted/50">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Seja um Afiliado
           </h2>
@@ -564,8 +584,8 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
+      <section id="comissao-recorrente" className="py-16 px-4">
+        <div className={`container mx-auto max-w-4xl text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             O que é Comissão Recorrente?
           </h2>
@@ -587,7 +607,7 @@ const LandingPage = () => {
 
       {/* Como Funciona */}
       <section id="como-funciona" className="py-16 px-4 bg-muted/50">
-        <div className="container mx-auto max-w-6xl">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Como funciona o programa de afiliados?
           </h2>
@@ -644,8 +664,8 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+      <section id="painel-afiliado" className="py-16 px-4">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Painel de Afiliado
           </h2>
@@ -718,7 +738,7 @@ const LandingPage = () => {
 
       {/* Vantagens */}
       <section id="vantagens" className="py-16 px-4 bg-muted/50">
-        <div className="container mx-auto max-w-6xl">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Vantagens de trabalhar com nosso sistema
           </h2>
@@ -787,9 +807,9 @@ const LandingPage = () => {
       </section>
 
       {/* Funcionalidades */}
-      <section className="py-16 px-4">
+      <section id="funcionalidades" className="py-16 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className={`grid lg:grid-cols-2 gap-12 items-start transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
             {/* Imagem do laptop à esquerda */}
             <div className="flex justify-center lg:justify-start">
               <img 
@@ -826,7 +846,7 @@ const LandingPage = () => {
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
         <section id="produtos" className="py-16 px-4 bg-muted/50">
-          <div className="container mx-auto max-w-6xl">
+          <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('produtos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
               Produtos Disponíveis para Afiliação
             </h2>
@@ -877,8 +897,8 @@ const LandingPage = () => {
       )}
 
       {/* Depoimentos */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+      <section id="depoimentos" className="py-16 px-4">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             O que dizem nossos afiliados
           </h2>
@@ -915,7 +935,7 @@ const LandingPage = () => {
 
       {/* Planos */}
       <section id="planos" className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
             Escolha seu Plano
           </h2>
@@ -996,8 +1016,8 @@ const LandingPage = () => {
       )}
 
       {/* FAQs */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-4xl">
+      <section id="faq" className="py-16 px-4">
+        <div className={`container mx-auto max-w-4xl transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Perguntas Frequentes
           </h2>
