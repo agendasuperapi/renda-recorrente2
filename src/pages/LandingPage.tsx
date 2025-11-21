@@ -1074,7 +1074,54 @@ const LandingPage = () => {
               <Edit className="w-4 h-4" />
             </Button>
           )}
-...
+          <div className="container mx-auto max-w-7xl">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('produtos') }}>
+              Produtos Disponíveis para Afiliação
+            </h2>
+            <p className="text-xl text-center mb-12" style={{ color: getTextColor('produtos') }}>
+              Escolha entre nossos produtos e comece a ganhar comissões recorrentes
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product, index) => {
+                const isDark = theme === 'dark';
+                const iconUrl = isDark ? (product.icone_dark || product.icone_light) : (product.icone_light || product.icone_dark);
+                
+                return (
+                  <Card 
+                    key={product.id} 
+                    className="transition-all duration-300 hover:shadow-lg cursor-pointer"
+                    onClick={() => product.site_landingpage && window.open(product.site_landingpage, '_blank')}
+                  >
+                    <CardHeader>
+                      {iconUrl && (
+                        <img 
+                          src={iconUrl} 
+                          alt={product.nome}
+                          className="w-16 h-16 mb-4 object-contain"
+                        />
+                      )}
+                      <CardTitle>{product.nome}</CardTitle>
+                      <CardDescription>{product.descricao}</CardDescription>
+                    </CardHeader>
+                    <CardFooter>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (product.site_landingpage) {
+                            window.open(product.site_landingpage, '_blank');
+                          }
+                        }}
+                      >
+                        Saiba Mais
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
         </section>
       )}
 
