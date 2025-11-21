@@ -312,6 +312,7 @@ const LandingPage = () => {
                   onClick={() => scrollToSection("inicio")} 
                   variant={activeSection === "inicio" ? "secondary" : "ghost"} 
                   size="sm"
+                  className="transition-all duration-300"
                 >
                   Início
                 </Button>
@@ -320,6 +321,7 @@ const LandingPage = () => {
                 onClick={() => scrollToSection("como-funciona")} 
                 variant={activeSection === "como-funciona" ? "secondary" : "ghost"} 
                 size="sm"
+                className="transition-all duration-300"
               >
                 Como funciona
               </Button>
@@ -327,6 +329,7 @@ const LandingPage = () => {
                 onClick={() => scrollToSection("vantagens")} 
                 variant={activeSection === "vantagens" ? "secondary" : "ghost"} 
                 size="sm"
+                className="transition-all duration-300"
               >
                 Vantagens
               </Button>
@@ -335,6 +338,7 @@ const LandingPage = () => {
                   onClick={() => scrollToSection("produtos")} 
                   variant={activeSection === "produtos" ? "secondary" : "ghost"} 
                   size="sm"
+                  className="transition-all duration-300"
                 >
                   Produtos
                 </Button>
@@ -343,6 +347,7 @@ const LandingPage = () => {
                 onClick={() => scrollToSection("planos")} 
                 variant={activeSection === "planos" ? "secondary" : "ghost"} 
                 size="sm"
+                className="transition-all duration-300"
               >
                 Quero contratar
               </Button>
