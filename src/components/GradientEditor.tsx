@@ -196,42 +196,6 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
         </div>
 
         <div className="space-y-2">
-          <Label className="text-xs font-semibold">Cor do Texto - Modo Claro</Label>
-          <div className="flex gap-2">
-            <Input
-              type="color"
-              value={textColorLight}
-              onChange={(e) => setTextColorLight(e.target.value)}
-              className="w-16 h-8"
-            />
-            <Input
-              type="text"
-              value={textColorLight}
-              onChange={(e) => setTextColorLight(e.target.value)}
-              className="flex-1 text-xs"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-xs font-semibold">Cor do Texto - Modo Escuro</Label>
-          <div className="flex gap-2">
-            <Input
-              type="color"
-              value={textColorDark}
-              onChange={(e) => setTextColorDark(e.target.value)}
-              className="w-16 h-8"
-            />
-            <Input
-              type="text"
-              value={textColorDark}
-              onChange={(e) => setTextColorDark(e.target.value)}
-              className="flex-1 text-xs"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
           <Label className="text-xs font-semibold">Cor dos Títulos - Modo Claro</Label>
           <div className="flex gap-2">
             <Input
@@ -262,6 +226,42 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
               type="text"
               value={headingColorDark}
               onChange={(e) => setHeadingColorDark(e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold">Cor do Texto - Modo Claro</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              value={textColorLight}
+              onChange={(e) => setTextColorLight(e.target.value)}
+              className="w-16 h-8"
+            />
+            <Input
+              type="text"
+              value={textColorLight}
+              onChange={(e) => setTextColorLight(e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold">Cor do Texto - Modo Escuro</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              value={textColorDark}
+              onChange={(e) => setTextColorDark(e.target.value)}
+              className="w-16 h-8"
+            />
+            <Input
+              type="text"
+              value={textColorDark}
+              onChange={(e) => setTextColorDark(e.target.value)}
               className="flex-1 text-xs"
             />
           </div>
