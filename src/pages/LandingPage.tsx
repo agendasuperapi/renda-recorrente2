@@ -488,7 +488,7 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="py-20 px-4">
+      <section id="hero" className="py-20 px-4 bg-gradient-to-b from-[#00bf63]/10 to-[#00bf63]/30">
         <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
