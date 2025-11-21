@@ -578,9 +578,14 @@ const LandingPage = () => {
               {user ? (
                 <>
                   {isAdmin && (
-                    <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
-                      Painel
-                    </Button>
+                    <>
+                      <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
+                        Painel
+                      </Button>
+                      <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
+                        Configurar Login
+                      </Button>
+                    </>
                   )}
                   <Button onClick={handleLogout} variant="ghost" size="sm">
                     Sair
