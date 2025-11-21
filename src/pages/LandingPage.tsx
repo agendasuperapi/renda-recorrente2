@@ -789,38 +789,36 @@ const LandingPage = () => {
       {/* Funcionalidades */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Funcionalidades
-          </h2>
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Imagem do laptop à esquerda */}
             <div className="flex justify-center lg:justify-start">
               <img 
                 src={laptopImage} 
                 alt="Dashboard do sistema em laptop" 
-                className="w-full max-w-lg object-contain"
+                className="w-full max-w-2xl object-contain"
               />
             </div>
             
             {/* Funcionalidades à direita em coluna única */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col gap-4">
-                  {features.map((feature) => {
-                    const IconComponent = getIconComponent(feature.icon);
-                    return (
-                      <div key={feature.id} className="flex items-center gap-3">
-                        <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
-                        <span>{feature.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <p className="text-center text-muted-foreground mt-6 italic">
-                  O sistema está em constante atualização, então em breve teremos novas funcionalidades.
-                </p>
-              </CardContent>
-            </Card>
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-8">
+                Funcionalidades
+              </h2>
+              <div className="flex flex-col gap-4">
+                {features.map((feature) => {
+                  const IconComponent = getIconComponent(feature.icon);
+                  return (
+                    <div key={feature.id} className="flex items-center gap-3">
+                      <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span>{feature.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-muted-foreground mt-6 italic">
+                O sistema está em constante atualização, então em breve teremos novas funcionalidades.
+              </p>
+            </div>
           </div>
         </div>
       </section>
