@@ -269,7 +269,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
@@ -300,26 +300,26 @@ const Auth = () => {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex items-center justify-center p-8 relative" style={getGradientStyle('auth_right_panel')}>
+      <div className="flex items-center justify-center p-3 sm:p-6 lg:p-8 relative" style={getGradientStyle('auth_right_panel')}>
         {isAdmin && (
           <div className="absolute top-4 left-4 z-10">
             <AuthGradientEditor blockName="auth_right_panel" initialConfig={gradientConfigs['auth_right_panel']} />
           </div>
         )}
-        <div className="w-full max-w-2xl bg-background/80 backdrop-blur-sm rounded-lg p-6">
-          <div className="text-center mb-8 lg:hidden">
-            <div className="inline-flex items-center justify-center w-32 h-32 mb-4">
-              <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-32 h-32 rounded-full" />
+        <div className="w-full max-w-2xl bg-background/80 backdrop-blur-sm rounded-lg p-4 sm:p-6">
+          <div className="text-center mb-6 lg:hidden">
+            <div className="inline-flex items-center justify-center w-24 h-24 sm:w-32 sm:h-32 mb-3">
+              <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-24 h-24 sm:w-32 sm:h-32 rounded-full" />
             </div>
             <h1 
-              className="text-2xl font-bold mb-2"
+              className="text-xl sm:text-2xl font-bold"
               style={{ color: getHeadingColor('auth_right_panel') }}
             >
               APP Renda recorrente
             </h1>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={handleAuth} className="space-y-3 sm:space-y-4">
             {!isLogin && (
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-foreground">
