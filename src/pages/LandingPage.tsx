@@ -533,7 +533,8 @@ const LandingPage = () => {
                 <img 
                   src={getHeroImage('Hero Person')} 
                   alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
-                  className="w-full max-w-md"
+                  className="w-full max-w-md animate-fade-in"
+                  style={{ animationDelay: '400ms' }}
                   loading="eager"
                 />
               )}
