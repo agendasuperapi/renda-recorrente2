@@ -187,19 +187,26 @@ const LandingPage = () => {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    // Observar todas as seções
-    const sections = ['como-funciona', 'vantagens', 'produtos', 'planos'];
-    sections.forEach((sectionId) => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        observer.observe(element);
-      }
-    });
+    // Observar todas as seções - usa setTimeout para garantir que elementos condicionais sejam renderizados
+    const observeSections = () => {
+      const sections = ['como-funciona', 'vantagens', 'produtos', 'planos'];
+      sections.forEach((sectionId) => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          observer.observe(element);
+        }
+      });
+    };
+
+    // Observa imediatamente e depois de um delay para elementos condicionais
+    observeSections();
+    const timeoutId = setTimeout(observeSections, 100);
 
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('scroll', handleScroll);
       observer.disconnect();
+      clearTimeout(timeoutId);
     };
   }, []);
 
