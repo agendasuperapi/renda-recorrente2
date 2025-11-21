@@ -396,7 +396,9 @@ const LandingPage = () => {
     if (data) {
       setPlans(data.map((plan: any) => ({
         ...plan,
-        features: Array.isArray(plan.features) ? plan.features.map(String) : []
+        features: plan.description 
+          ? plan.description.split('\n').filter((line: string) => line.trim()) 
+          : []
       })));
     }
   };
