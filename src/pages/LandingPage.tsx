@@ -689,7 +689,7 @@ const LandingPage = () => {
 
       {/* Painel de Afiliado */}
       <section id="painel-afiliado" className="py-16 px-4">
-        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Painel de Afiliado
           </h2>
@@ -762,7 +762,7 @@ const LandingPage = () => {
 
       {/* Vantagens */}
       <section id="vantagens" className="py-16 px-4 bg-muted/50">
-        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Vantagens de trabalhar com nosso sistema
           </h2>
@@ -832,7 +832,7 @@ const LandingPage = () => {
 
       {/* Funcionalidades */}
       <section id="funcionalidades" className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           <div className={`grid lg:grid-cols-2 gap-12 items-start transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
             {/* Imagem do laptop à esquerda */}
             <div className="flex justify-center lg:justify-start">
@@ -877,7 +877,7 @@ const LandingPage = () => {
 
       {/* Layout Responsivo */}
       <section id="layout-responsivo" className="py-16 px-4 bg-muted/50">
-        <div className={`container mx-auto max-w-6xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Layout Responsivo
           </h2>
@@ -900,7 +900,7 @@ const LandingPage = () => {
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
         <section id="produtos" className="py-16 px-4 bg-muted/50">
-          <div className="container mx-auto max-w-6xl transition-all duration-700 animate-fade-in">
+          <div className="container mx-auto max-w-7xl transition-all duration-700 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
               Produtos Disponíveis para Afiliação
             </h2>
@@ -956,7 +956,7 @@ const LandingPage = () => {
 
       {/* Depoimentos */}
       <section id="depoimentos" className="py-16 px-4">
-        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             O que dizem nossos afiliados
           </h2>
@@ -993,7 +993,7 @@ const LandingPage = () => {
 
       {/* Planos */}
       <section id="planos" className="py-16 px-4">
-        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
             Escolha seu Plano
           </h2>
