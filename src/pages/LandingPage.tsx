@@ -526,12 +526,8 @@ const LandingPage = () => {
               </div>
             </div>
             <div 
-              ref={heroImageRef}
-              className={`flex justify-center transition-all duration-700 delay-200 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}
-              style={{
-                transform: `translateY(${parallaxOffset}px)`,
-                transition: 'transform 0.1s ease-out'
-              }}
+              className="flex justify-center animate-fade-in"
+              style={{ animationDelay: '200ms' }}
             >
               {getHeroImage('Hero Person') && (
                 <img 
