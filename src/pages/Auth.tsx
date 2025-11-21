@@ -138,21 +138,25 @@ const Auth = () => {
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .single();
+        // Defer Supabase calls to prevent auth deadlock
+        setTimeout(() => {
+          supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", session.user.id)
+            .single()
+            .then(({ data: roleData }) => {
+              const isUserAdmin = roleData?.role === "super_admin";
+              setIsAdmin(isUserAdmin);
 
-        const isUserAdmin = roleData?.role === "super_admin";
-        setIsAdmin(isUserAdmin);
-
-        // Only redirect on auth changes if NOT admin
-        if (_event === 'SIGNED_IN' && !isUserAdmin) {
-          navigate("/dashboard");
-        }
+              // Only redirect on auth changes if NOT admin
+              if (_event === 'SIGNED_IN' && !isUserAdmin) {
+                navigate("/dashboard");
+              }
+            });
+        }, 0);
       } else {
         setIsAdmin(false);
       }
