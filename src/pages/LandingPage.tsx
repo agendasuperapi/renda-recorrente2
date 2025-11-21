@@ -970,7 +970,7 @@ const LandingPage = () => {
                 <img 
                   src={getHeroImage('Funcionalidades')} 
                   alt="Dashboard do Sistema"
-                  className="w-full h-auto rounded-lg shadow-2xl"
+                  className="w-full h-auto"
                 />
               )}
             </div>
