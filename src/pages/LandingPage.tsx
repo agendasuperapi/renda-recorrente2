@@ -355,7 +355,7 @@ const LandingPage = () => {
             
             {user ? (
               <>
-                <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
+                <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
                   Painel
                 </Button>
                 <Button onClick={handleLogout} variant="ghost" size="sm">
