@@ -11,6 +11,7 @@ const AdminLegalDocuments = () => {
   const { toast } = useToast();
   const [termsContent, setTermsContent] = useState("");
   const [privacyContent, setPrivacyContent] = useState("");
+  const [cookiesContent, setCookiesContent] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -32,8 +33,15 @@ const AdminLegalDocuments = () => {
       .eq("type", "privacy")
       .maybeSingle() as any;
 
+    const { data: cookies } = await supabase
+      .from("legal_documents" as any)
+      .select("content")
+      .eq("type", "cookies")
+      .maybeSingle() as any;
+
     if (terms) setTermsContent(terms.content);
     if (privacy) setPrivacyContent(privacy.content);
+    if (cookies) setCookiesContent(cookies.content);
     setLoading(false);
   };
 
@@ -81,6 +89,28 @@ const AdminLegalDocuments = () => {
     setSaving(false);
   };
 
+  const handleSaveCookies = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("legal_documents" as any)
+      .update({ content: cookiesContent, updated_at: new Date().toISOString() })
+      .eq("type", "cookies");
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao salvar",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Cookies atualizada",
+        description: "A Política de Cookies foi salva com sucesso!",
+      });
+    }
+    setSaving(false);
+  };
+
   if (loading) {
     return (
       <div className="p-8">
@@ -95,9 +125,10 @@ const AdminLegalDocuments = () => {
       <h1 className="text-3xl font-bold mb-6">Termos e Privacidade</h1>
       
       <Tabs defaultValue="terms" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="terms">Termos de Uso</TabsTrigger>
           <TabsTrigger value="privacy">Aviso de Privacidade</TabsTrigger>
+          <TabsTrigger value="cookies">Política de Cookies</TabsTrigger>
         </TabsList>
 
         <TabsContent value="terms">
@@ -135,6 +166,26 @@ const AdminLegalDocuments = () => {
               </div>
               <Button onClick={handleSavePrivacy} disabled={saving}>
                 {saving ? "Salvando..." : "Salvar Aviso de Privacidade"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="cookies">
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="cookies">Conteúdo da Política de Cookies</Label>
+                <Textarea
+                  id="cookies"
+                  value={cookiesContent}
+                  onChange={(e) => setCookiesContent(e.target.value)}
+                  className="mt-2 min-h-[500px] font-mono text-sm"
+                  placeholder="Digite o conteúdo da Política de Cookies..."
+                />
+              </div>
+              <Button onClick={handleSaveCookies} disabled={saving}>
+                {saving ? "Salvando..." : "Salvar Política de Cookies"}
               </Button>
             </div>
           </Card>

@@ -32,6 +32,7 @@ import AdminCpfApis from "./pages/admin/AdminCpfApis";
 import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CookiesPolicy from "./pages/CookiesPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/cookies" element={<CookiesPolicy />} />
             
             {/* Protected Routes with DashboardLayout */}
             <Route element={<DashboardLayout />}>
