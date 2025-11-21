@@ -185,14 +185,14 @@ const LandingPage = () => {
   });
 
   useEffect(() => {
-    if (gradientConfigsData) {
+    if (gradientConfigsData && gradientConfigsData.length > 0) {
       const configs: Record<string, GradientConfig> = {};
       gradientConfigsData.forEach(config => {
         configs[config.block_name] = config;
       });
       setGradientConfigs(configs);
     }
-  }, [gradientConfigsData]);
+  }, [gradientConfigsData.length]);
 
   // Helper para pegar imagem por nome
   const getHeroImage = (imageName: string) => {
