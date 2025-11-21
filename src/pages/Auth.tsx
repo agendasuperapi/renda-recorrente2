@@ -136,21 +136,28 @@ const Auth = () => {
       {/* Left side - Product description (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div 
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0"
           style={{
-            background: `linear-gradient(135deg, #00bf63 0%, #00bf6300 100%)`
+            background: `linear-gradient(135deg, #00bf63 0%, #00bf63 100%)`
           }}
         />
-        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-center">
-          <div className="max-w-lg">
-            <div className="inline-flex items-center justify-center w-32 h-32 mb-8">
-              <img src={logoAuth} alt="Logo" className="w-32 h-32 rounded-full" />
+        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-white">
+          <div className="flex flex-col items-center space-y-8 max-w-md">
+            {/* Card with logo and title */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
+              <div className="flex flex-col items-center space-y-4">
+                <img 
+                  src={logoAuth} 
+                  alt="Logo" 
+                  className="w-32 h-32 rounded-2xl shadow-xl"
+                />
+                <h2 className="text-3xl font-bold text-center text-white">APP Renda Recorrente</h2>
+              </div>
             </div>
-            <h2 className="text-4xl font-bold mb-6 text-foreground">
-              APP Renda Recorrente
-            </h2>
+            
+            {/* Product description below */}
             {product?.descricao && (
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg leading-relaxed text-center opacity-95 text-white">
                 {product.descricao}
               </p>
             )}
