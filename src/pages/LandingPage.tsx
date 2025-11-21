@@ -630,7 +630,7 @@ const LandingPage = () => {
             Como funciona o programa de afiliados?
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <Card className={`${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <UserPlus className="w-12 h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -648,7 +648,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('como-funciona') ? 'animate-fade-in [animation-delay:200ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Megaphone className="w-12 h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -666,7 +666,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('como-funciona') ? 'animate-fade-in [animation-delay:400ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <DollarSign className="w-12 h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -697,7 +697,7 @@ const LandingPage = () => {
             Acompanhe suas indicações e seus ganhos de forma prática e rápida.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Painel Exclusivo</CardTitle>
@@ -707,7 +707,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:100ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Target className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Metas de Ganhos</CardTitle>
@@ -717,7 +717,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:200ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Share2 className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Link de Compartilhamento</CardTitle>
@@ -727,7 +727,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:300ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Award className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Cupons de Descontos</CardTitle>
@@ -737,7 +737,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:400ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-[400ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Shield className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Sistema Seguro</CardTitle>
@@ -747,7 +747,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:500ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-[500ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <FileText className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Relatórios Completos</CardTitle>
@@ -767,7 +767,7 @@ const LandingPage = () => {
             Vantagens de trabalhar com nosso sistema
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <TrendingUp className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Comissão Recorrente</CardTitle>
@@ -777,7 +777,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:100ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <GraduationCap className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Treinamento Completo</CardTitle>
@@ -787,7 +787,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:200ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <DollarSign className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Baixo Custo</CardTitle>
@@ -797,7 +797,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:300ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Zap className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Comece GRÁTIS</CardTitle>
@@ -807,7 +807,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:400ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-[400ms] ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <Clock className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Autonomia de Trabalho</CardTitle>
@@ -817,7 +817,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:500ms]' : 'opacity-0'}`}>
+            <Card className={`transition-all duration-700 delay-[500ms] ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <CheckCircle2 className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Fácil de Usar</CardTitle>
@@ -962,7 +962,7 @@ const LandingPage = () => {
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.slice(0, 3).map((testimonial, index) => (
-              <Card key={testimonial.id} className={`${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: `${index * 150}ms` }}>
+              <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${visibleSections.has('depoimentos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
                 <CardHeader>
                   <div className="flex items-center gap-4 mb-4">
                     <Avatar className="w-20 h-20">
@@ -1002,7 +1002,7 @@ const LandingPage = () => {
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan, index) => (
-              <Card key={plan.id} className={`${index === 1 ? "border-primary shadow-lg" : ""} ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: `${index * 150}ms` }}>
+              <Card key={plan.id} className={`transition-all duration-700 ${index === 1 ? "border-primary shadow-lg delay-100" : index === 2 ? "delay-200" : ""} ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
                 {index === 1 && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
                     Mais Popular
