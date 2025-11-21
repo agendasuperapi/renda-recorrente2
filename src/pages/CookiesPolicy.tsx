@@ -4,11 +4,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+
+interface CookiePreferences {
+  necessary: boolean;
+  functional: boolean;
+  analytics: boolean;
+  marketing: boolean;
+}
 
 const CookiesPolicy = () => {
   const navigate = useNavigate();
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [preferences, setPreferences] = useState<CookiePreferences>(() => {
+    const saved = localStorage.getItem("cookiePreferences");
+    return saved
+      ? JSON.parse(saved)
+      : { necessary: true, functional: false, analytics: false, marketing: false };
+  });
 
   useEffect(() => {
     fetchCookiesPolicy();
@@ -25,6 +42,16 @@ const CookiesPolicy = () => {
       setContent(data.content);
     }
     setLoading(false);
+  };
+
+  const savePreferences = (newPreferences: CookiePreferences) => {
+    localStorage.setItem("cookiePreferences", JSON.stringify(newPreferences));
+    setPreferences(newPreferences);
+  };
+
+  const handleSaveCustom = () => {
+    savePreferences(preferences);
+    setShowPreferences(false);
   };
 
   return (
@@ -54,9 +81,86 @@ const CookiesPolicy = () => {
             <div className="whitespace-pre-wrap text-foreground leading-relaxed">
               {content}
             </div>
+            <div className="mt-8 pt-6 border-t border-border">
+              <Button
+                variant="link"
+                onClick={() => setShowPreferences(true)}
+                className="text-primary hover:text-primary/80 p-0 h-auto font-normal"
+              >
+                Consulte as Preferências de cookies
+              </Button>
+            </div>
           </div>
         )}
       </main>
+
+      <Dialog open={showPreferences} onOpenChange={setShowPreferences}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Preferências de Cookies</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="necessary">Cookies Necessários</Label>
+                <p className="text-sm text-muted-foreground">Essenciais para o funcionamento</p>
+              </div>
+              <Switch id="necessary" checked={true} disabled />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="functional">Cookies Funcionais</Label>
+                <p className="text-sm text-muted-foreground">Melhoram a experiência</p>
+              </div>
+              <Switch
+                id="functional"
+                checked={preferences.functional}
+                onCheckedChange={(checked) =>
+                  setPreferences({ ...preferences, functional: checked })
+                }
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="analytics">Cookies de Análise</Label>
+                <p className="text-sm text-muted-foreground">Ajudam a melhorar o site</p>
+              </div>
+              <Switch
+                id="analytics"
+                checked={preferences.analytics}
+                onCheckedChange={(checked) =>
+                  setPreferences({ ...preferences, analytics: checked })
+                }
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="marketing">Cookies de Marketing</Label>
+                <p className="text-sm text-muted-foreground">Para anúncios relevantes</p>
+              </div>
+              <Switch
+                id="marketing"
+                checked={preferences.marketing}
+                onCheckedChange={(checked) =>
+                  setPreferences({ ...preferences, marketing: checked })
+                }
+              />
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowPreferences(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveCustom}>
+              Salvar Preferências
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
