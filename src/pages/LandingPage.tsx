@@ -1224,6 +1224,7 @@ const LandingPage = () => {
             setGradientConfigs(prev => ({ ...prev, [config.block_name]: config }));
             setEditingBlock(null);
           }}
+          onClose={() => setEditingBlock(null)}
         />
       )}
     </div>
