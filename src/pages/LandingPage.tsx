@@ -875,8 +875,12 @@ const LandingPage = () => {
               Escolha os produtos que deseja divulgar e comece a ganhar comissões
             </p>
             <div className="space-y-6">
-              {products.map((product) => (
-                <Card key={product.id} className="hover:shadow-lg transition-shadow">
+              {products.map((product, index) => (
+                <Card 
+                  key={product.id} 
+                  className={`hover:shadow-lg transition-all duration-700 ${visibleSections.has('produtos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
                   <CardHeader>
                     <div className="flex items-center gap-4 mb-4">
                       {product.icone_light && (
