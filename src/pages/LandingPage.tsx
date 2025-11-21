@@ -962,26 +962,49 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        {features.length > 0 && (
-          <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-              Funcionalidades do Sistema
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((feature, index) => {
-                const IconComponent = getIconComponent(feature.icon);
-                return (
-                  <Card key={feature.id} className={`transition-all duration-700 delay-${index % 3 * 100} ${visibleSections.has('funcionalidades') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-                    <CardHeader>
-                      <IconComponent className="w-10 h-10 text-primary mb-2" />
-                      <CardTitle>{feature.name}</CardTitle>
-                    </CardHeader>
-                  </Card>
-                );
-              })}
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Imagem do Dashboard */}
+            <div className="order-2 md:order-1">
+              {getHeroImage('Funcionalidades') && (
+                <img 
+                  src={getHeroImage('Funcionalidades')} 
+                  alt="Dashboard do Sistema"
+                  className="w-full h-auto rounded-lg shadow-2xl"
+                />
+              )}
+            </div>
+
+            {/* Lista de Funcionalidades */}
+            <div className="order-1 md:order-2 space-y-8">
+              <h2 className="text-3xl md:text-4xl font-bold mb-8">
+                Funcionalidades
+              </h2>
+              
+              <div className="space-y-4">
+                {features.map((feature, index) => {
+                  const IconComponent = getIconComponent(feature.icon);
+                  return (
+                    <div 
+                      key={feature.id} 
+                      className={`flex items-center gap-4 transition-all duration-700 delay-${index * 100}`}
+                      style={{ transitionDelay: `${index * 100}ms` }}
+                    >
+                      <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <IconComponent className="w-6 h-6 text-primary" />
+                      </div>
+                      <p className="text-lg font-medium">{feature.name}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="text-sm text-muted-foreground mt-8">
+                O sistema está em constante atualização, então em breve teremos novas funcionalidades.
+              </p>
             </div>
           </div>
-        )}
+        </div>
       </section>
 
       {/* Layout Responsivo */}
