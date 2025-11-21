@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
+import { CookieConsent } from "@/components/CookieConsent";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
@@ -1503,6 +1504,8 @@ const LandingPage = () => {
           onClose={() => setEditingBlock(null)}
         />
       )}
+
+      <CookieConsent />
     </div>
   );
 };
