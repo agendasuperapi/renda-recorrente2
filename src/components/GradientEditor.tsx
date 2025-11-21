@@ -29,10 +29,12 @@ interface GradientEditorProps {
   config: GradientConfig;
   onSave: (config: GradientConfig) => void;
   onClose: () => void;
+  onPreview?: (config: GradientConfig) => void;
 }
 
-export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientEditorProps) => {
+export const GradientEditor = ({ blockName, config, onSave, onClose, onPreview }: GradientEditorProps) => {
   const queryClient = useQueryClient();
+  const [originalConfig] = useState(config);
   const [name, setName] = useState(config.block_name || blockName);
   const [colorStart, setColorStart] = useState(config.color_start);
   const [colorEnd, setColorEnd] = useState(config.color_end);
@@ -46,6 +48,28 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
   const [headingColorLight, setHeadingColorLight] = useState(config.heading_color_light || '#000000');
   const [headingColorDark, setHeadingColorDark] = useState(config.heading_color_dark || '#ffffff');
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const getCurrentConfig = (): GradientConfig => ({
+    block_name: name,
+    color_start: colorStart,
+    color_end: colorEnd,
+    intensity_start: intensityStart,
+    intensity_end: intensityEnd,
+    gradient_start_position: gradientStartPos,
+    text_color: textColor,
+    heading_color: headingColor,
+    text_color_light: textColorLight,
+    text_color_dark: textColorDark,
+    heading_color_light: headingColorLight,
+    heading_color_dark: headingColorDark,
+  });
+
+  const applyPreview = () => {
+    if (onPreview) {
+      onPreview(getCurrentConfig());
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -73,26 +97,21 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
 
       toast.success('Gradiente salvo com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['gradientConfigs'] });
-      onSave({
-        block_name: name,
-        color_start: colorStart,
-        color_end: colorEnd,
-        intensity_start: intensityStart,
-        intensity_end: intensityEnd,
-        gradient_start_position: gradientStartPos,
-        text_color: textColor,
-        heading_color: headingColor,
-        text_color_light: textColorLight,
-        text_color_dark: textColorDark,
-        heading_color_light: headingColorLight,
-        heading_color_dark: headingColorDark,
-      });
+      setIsSaved(true);
+      onSave(getCurrentConfig());
     } catch (error) {
       console.error('Error saving gradient:', error);
       toast.error('Erro ao salvar gradiente');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleClose = () => {
+    if (!isSaved && onPreview) {
+      onPreview(originalConfig);
+    }
+    onClose();
   };
 
   return (
@@ -102,7 +121,7 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
         <Button
           variant="ghost"
           size="icon"
-          onClick={onClose}
+          onClick={handleClose}
           className="h-8 w-8"
         >
           <X className="h-4 w-4" />
@@ -128,13 +147,13 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
               id="color-start"
               type="color"
               value={colorStart}
-              onChange={(e) => setColorStart(e.target.value)}
+              onChange={(e) => { setColorStart(e.target.value); applyPreview(); }}
               className="w-16 h-8"
             />
             <Input
               type="text"
               value={colorStart}
-              onChange={(e) => setColorStart(e.target.value)}
+              onChange={(e) => { setColorStart(e.target.value); applyPreview(); }}
               className="flex-1 text-xs"
             />
           </div>
@@ -147,13 +166,13 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
               id="color-end"
               type="color"
               value={colorEnd}
-              onChange={(e) => setColorEnd(e.target.value)}
+              onChange={(e) => { setColorEnd(e.target.value); applyPreview(); }}
               className="w-16 h-8"
             />
             <Input
               type="text"
               value={colorEnd}
-              onChange={(e) => setColorEnd(e.target.value)}
+              onChange={(e) => { setColorEnd(e.target.value); applyPreview(); }}
               className="flex-1 text-xs"
             />
           </div>
@@ -163,7 +182,7 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
           <Label className="text-xs">Intensidade Inicial: {intensityStart}%</Label>
           <Slider
             value={[intensityStart]}
-            onValueChange={(value) => setIntensityStart(value[0])}
+            onValueChange={(value) => { setIntensityStart(value[0]); applyPreview(); }}
             min={0}
             max={100}
             step={5}
@@ -175,7 +194,7 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
           <Label className="text-xs">Intensidade Final: {intensityEnd}%</Label>
           <Slider
             value={[intensityEnd]}
-            onValueChange={(value) => setIntensityEnd(value[0])}
+            onValueChange={(value) => { setIntensityEnd(value[0]); applyPreview(); }}
             min={0}
             max={100}
             step={5}
@@ -187,7 +206,7 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
           <Label className="text-xs">Posição Início: {gradientStartPos}%</Label>
           <Slider
             value={[gradientStartPos]}
-            onValueChange={(value) => setGradientStartPos(value[0])}
+            onValueChange={(value) => { setGradientStartPos(value[0]); applyPreview(); }}
             min={0}
             max={100}
             step={10}
@@ -201,13 +220,13 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
             <Input
               type="color"
               value={headingColorLight}
-              onChange={(e) => setHeadingColorLight(e.target.value)}
+              onChange={(e) => { setHeadingColorLight(e.target.value); applyPreview(); }}
               className="w-16 h-8"
             />
             <Input
               type="text"
               value={headingColorLight}
-              onChange={(e) => setHeadingColorLight(e.target.value)}
+              onChange={(e) => { setHeadingColorLight(e.target.value); applyPreview(); }}
               className="flex-1 text-xs"
             />
           </div>
@@ -219,13 +238,13 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
             <Input
               type="color"
               value={headingColorDark}
-              onChange={(e) => setHeadingColorDark(e.target.value)}
+              onChange={(e) => { setHeadingColorDark(e.target.value); applyPreview(); }}
               className="w-16 h-8"
             />
             <Input
               type="text"
               value={headingColorDark}
-              onChange={(e) => setHeadingColorDark(e.target.value)}
+              onChange={(e) => { setHeadingColorDark(e.target.value); applyPreview(); }}
               className="flex-1 text-xs"
             />
           </div>
@@ -237,13 +256,13 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
             <Input
               type="color"
               value={textColorLight}
-              onChange={(e) => setTextColorLight(e.target.value)}
+              onChange={(e) => { setTextColorLight(e.target.value); applyPreview(); }}
               className="w-16 h-8"
             />
             <Input
               type="text"
               value={textColorLight}
-              onChange={(e) => setTextColorLight(e.target.value)}
+              onChange={(e) => { setTextColorLight(e.target.value); applyPreview(); }}
               className="flex-1 text-xs"
             />
           </div>
@@ -255,13 +274,13 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
             <Input
               type="color"
               value={textColorDark}
-              onChange={(e) => setTextColorDark(e.target.value)}
+              onChange={(e) => { setTextColorDark(e.target.value); applyPreview(); }}
               className="w-16 h-8"
             />
             <Input
               type="text"
               value={textColorDark}
-              onChange={(e) => setTextColorDark(e.target.value)}
+              onChange={(e) => { setTextColorDark(e.target.value); applyPreview(); }}
               className="flex-1 text-xs"
             />
           </div>

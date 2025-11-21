@@ -1477,6 +1477,9 @@ const LandingPage = () => {
             setGradientConfigs(prev => ({ ...prev, [config.block_name]: config }));
             setEditingBlock(null);
           }}
+          onPreview={(config) => {
+            setGradientConfigs(prev => ({ ...prev, [config.block_name]: config }));
+          }}
           onClose={() => setEditingBlock(null)}
         />
       )}
