@@ -865,7 +865,7 @@ const LandingPage = () => {
           <Card className="bg-primary/5 border-primary/20 transition-all duration-700 hover:shadow-lg mx-3 md:mx-0">
             <CardContent className="pt-6">
               <TrendingUp className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto mb-4" />
-              <p className="text-base md:text-lg" style={{ color: getTextColor('comissao-recorrente') }}>
+              <p className="text-base md:text-lg text-foreground">
                 Com a comissão recorrente, todo mês você receberá comissões das indicações antigas 
                 somando com as novas que são feitas, assim se você continuar indicando sua comissão 
                 mensal só irá <strong>aumentando gradativamente</strong>.
