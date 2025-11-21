@@ -24,6 +24,7 @@ interface GradientEditorProps {
 }
 
 export const GradientEditor = ({ blockName, config, onSave }: GradientEditorProps) => {
+  const [name, setName] = useState(config.block_name || blockName);
   const [colorStart, setColorStart] = useState(config.color_start);
   const [colorEnd, setColorEnd] = useState(config.color_end);
   const [intensityStart, setIntensityStart] = useState(config.intensity_start);
@@ -37,19 +38,21 @@ export const GradientEditor = ({ blockName, config, onSave }: GradientEditorProp
       const { error } = await supabase
         .from('landing_block_gradients' as any)
         .upsert({
-          block_name: blockName,
+          block_name: name,
           color_start: colorStart,
           color_end: colorEnd,
           intensity_start: intensityStart,
           intensity_end: intensityEnd,
           gradient_start_position: gradientStartPos,
+        }, {
+          onConflict: 'block_name'
         });
 
       if (error) throw error;
 
       toast.success('Gradiente salvo com sucesso!');
       onSave({
-        block_name: blockName,
+        block_name: name,
         color_start: colorStart,
         color_end: colorEnd,
         intensity_start: intensityStart,
@@ -67,9 +70,21 @@ export const GradientEditor = ({ blockName, config, onSave }: GradientEditorProp
   return (
     <Card className="fixed right-4 top-20 w-80 z-50 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-sm">Editor de Gradiente: {blockName}</CardTitle>
+        <CardTitle className="text-sm">Editor de Gradiente</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="block-name" className="text-xs">Nome do Bloco</Label>
+          <Input
+            id="block-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="text-xs"
+            placeholder="nome-do-bloco"
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="color-start" className="text-xs">Cor Inicial</Label>
           <div className="flex gap-2">
