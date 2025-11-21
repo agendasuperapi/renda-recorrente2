@@ -1093,15 +1093,17 @@ const LandingPage = () => {
                     onClick={() => product.site_landingpage && window.open(product.site_landingpage, '_blank')}
                   >
                     <CardHeader>
-                      {iconUrl && (
-                        <img 
-                          src={iconUrl} 
-                          alt={product.nome}
-                          className="w-16 h-16 mb-4 object-contain"
-                        />
-                      )}
-                      <CardTitle>{product.nome}</CardTitle>
-                      <CardDescription className="whitespace-pre-line">{product.descricao}</CardDescription>
+                      <div className="flex items-center gap-4">
+                        {iconUrl && (
+                          <img 
+                            src={iconUrl} 
+                            alt={product.nome}
+                            className="w-16 h-16 object-contain flex-shrink-0"
+                          />
+                        )}
+                        <CardTitle>{product.nome}</CardTitle>
+                      </div>
+                      <CardDescription className="whitespace-pre-line mt-4">{product.descricao}</CardDescription>
                     </CardHeader>
                     <CardFooter>
                       <Button 
