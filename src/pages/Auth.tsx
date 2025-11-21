@@ -141,20 +141,27 @@ const Auth = () => {
             background: `linear-gradient(135deg, #00bf63 0%, #00bf6300 100%)`
           }}
         />
-        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-center">
-          <div className="max-w-lg">
-            <div className="inline-flex items-center justify-center w-32 h-32 mb-8">
-              <img src={logoAuth} alt="Logo" className="w-32 h-32 rounded-full" />
+        <div className="relative z-10 flex flex-col items-center justify-center p-12 gap-8">
+          {/* Card centralizado */}
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-border/50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-32 h-32">
+                <img src={logoAuth} alt="Logo" className="w-full h-full rounded-full" />
+              </div>
+              <h2 className="text-3xl font-bold text-foreground text-center">
+                APP Renda Recorrente
+              </h2>
             </div>
-            <h2 className="text-4xl font-bold mb-6 text-foreground">
-              APP Renda Recorrente
-            </h2>
-            {product?.descricao && (
-              <p className="text-lg text-muted-foreground leading-relaxed">
+          </div>
+          
+          {/* Descrição do produto abaixo */}
+          {product?.descricao && (
+            <div className="max-w-lg">
+              <p className="text-lg text-muted-foreground leading-relaxed text-center">
                 {product.descricao}
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
