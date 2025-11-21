@@ -129,6 +129,7 @@ const LandingPage = () => {
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
   const [showHomeButton, setShowHomeButton] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("inicio");
 
   useEffect(() => {
     // Check auth state
@@ -160,9 +161,36 @@ const LandingPage = () => {
 
     window.addEventListener('scroll', handleScroll);
 
+    // Intersection Observer para seções ativas
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -70% 0px',
+      threshold: 0
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id || "inicio");
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observar todas as seções
+    const sections = ['como-funciona', 'vantagens', 'produtos', 'planos'];
+    sections.forEach((sectionId) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('scroll', handleScroll);
+      observer.disconnect();
     };
   }, []);
 
@@ -280,22 +308,42 @@ const LandingPage = () => {
           <div className="flex items-center gap-1">
             <nav className="hidden md:flex items-center gap-1">
               {showHomeButton && (
-                <Button onClick={() => scrollToSection("inicio")} variant="ghost" size="sm">
+                <Button 
+                  onClick={() => scrollToSection("inicio")} 
+                  variant={activeSection === "inicio" ? "secondary" : "ghost"} 
+                  size="sm"
+                >
                   Início
                 </Button>
               )}
-              <Button onClick={() => scrollToSection("como-funciona")} variant="ghost" size="sm">
+              <Button 
+                onClick={() => scrollToSection("como-funciona")} 
+                variant={activeSection === "como-funciona" ? "secondary" : "ghost"} 
+                size="sm"
+              >
                 Como funciona
               </Button>
-              <Button onClick={() => scrollToSection("vantagens")} variant="ghost" size="sm">
+              <Button 
+                onClick={() => scrollToSection("vantagens")} 
+                variant={activeSection === "vantagens" ? "secondary" : "ghost"} 
+                size="sm"
+              >
                 Vantagens
               </Button>
               {products.length > 0 && (
-                <Button onClick={() => scrollToSection("produtos")} variant="ghost" size="sm">
+                <Button 
+                  onClick={() => scrollToSection("produtos")} 
+                  variant={activeSection === "produtos" ? "secondary" : "ghost"} 
+                  size="sm"
+                >
                   Produtos
                 </Button>
               )}
-              <Button onClick={() => scrollToSection("planos")} variant="ghost" size="sm">
+              <Button 
+                onClick={() => scrollToSection("planos")} 
+                variant={activeSection === "planos" ? "secondary" : "ghost"} 
+                size="sm"
+              >
                 Quero contratar
               </Button>
             </nav>
