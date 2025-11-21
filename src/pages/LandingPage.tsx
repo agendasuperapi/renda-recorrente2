@@ -788,7 +788,17 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/15 to-brand-green/30">
+      <section id="painel-afiliado" className="py-16 px-4 relative bg-gradient-to-b from-brand-green/15 to-brand-green/30">
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Painel de Afiliado
