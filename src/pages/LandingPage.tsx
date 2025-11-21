@@ -688,7 +688,7 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-16 px-4">
+      <section id="painel-afiliado" className="py-16 px-4 bg-gradient-to-b from-background/50 to-background">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Painel de Afiliado
