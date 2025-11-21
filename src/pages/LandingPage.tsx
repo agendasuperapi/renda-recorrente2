@@ -6,12 +6,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
-  CheckCircle2, Star, MessageSquare, LucideIcon, Edit
+  CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -159,6 +160,7 @@ const LandingPage = () => {
   const heroImageRef = useRef<HTMLDivElement>(null);
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Busca imagens do hero com cache
   const { data: heroImages = [] } = useQuery({
@@ -296,12 +298,12 @@ const LandingPage = () => {
     // Fetch product info
     fetchProductInfo();
 
-    // Scroll listener para mostrar botão Início e parallax
+    // Scroll listener para mostrar botão Início e parallax (desabilitado em mobile)
     const handleScroll = () => {
       setShowHomeButton(window.scrollY > 100);
       
-      // Parallax effect para a imagem do hero
-      if (heroImageRef.current) {
+      // Parallax effect para a imagem do hero (apenas desktop)
+      if (heroImageRef.current && window.innerWidth >= 768) {
         const rect = heroImageRef.current.getBoundingClientRect();
         const scrolled = window.scrollY;
         const rate = scrolled * 0.3; // Ajuste a velocidade do parallax
@@ -497,21 +499,22 @@ const LandingPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             {getHeroImage('Logo Header') && (
               <img 
                 src={getHeroImage('Logo Header')} 
                 alt={heroImages.find(img => img.name === 'Logo Header')?.alt_text || 'APP Renda recorrente'} 
-                className="h-10"
+                className="h-8 sm:h-10"
                 loading="eager"
               />
             )}
-            <span className="font-bold text-lg hidden sm:inline">APP Renda recorrente</span>
+            <span className="font-bold text-base sm:text-lg hidden sm:inline">APP Renda recorrente</span>
           </div>
           
-          <div className="flex items-center gap-1">
-            <nav className="hidden md:flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-2">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
               {showHomeButton && (
                 <Button 
                   onClick={() => scrollToSection("inicio")} 
@@ -558,35 +561,156 @@ const LandingPage = () => {
               </Button>
             </nav>
             
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
-                    Painel
+            {/* Desktop Auth Buttons */}
+            <div className="hidden lg:flex items-center gap-1">
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
+                      Painel
+                    </Button>
+                  )}
+                  <Button onClick={handleLogout} variant="ghost" size="sm">
+                    Sair
                   </Button>
-                )}
-                <Button onClick={handleLogout} variant="ghost" size="sm">
-                  Sair
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
-                  Entrar
-                </Button>
-                <Button onClick={() => scrollToSection("planos")} size="sm" className="hidden sm:flex">
-                  Quero Contratar
-                </Button>
-              </>
-            )}
+                </>
+              ) : (
+                <>
+                  <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
+                    Entrar
+                  </Button>
+                  <Button onClick={() => scrollToSection("planos")} size="sm">
+                    Quero Contratar
+                  </Button>
+                </>
+              )}
+            </div>
             
             <ThemeToggle />
+            
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="sm">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64">
+                <nav className="flex flex-col gap-4 mt-8">
+                  {showHomeButton && (
+                    <Button 
+                      onClick={() => {
+                        scrollToSection("inicio");
+                        setMobileMenuOpen(false);
+                      }} 
+                      variant={activeSection === "inicio" ? "secondary" : "ghost"} 
+                      className="w-full justify-start"
+                    >
+                      Início
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={() => {
+                      scrollToSection("como-funciona");
+                      setMobileMenuOpen(false);
+                    }} 
+                    variant={activeSection === "como-funciona" ? "secondary" : "ghost"} 
+                    className="w-full justify-start"
+                  >
+                    Como funciona
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      scrollToSection("vantagens");
+                      setMobileMenuOpen(false);
+                    }} 
+                    variant={activeSection === "vantagens" ? "secondary" : "ghost"} 
+                    className="w-full justify-start"
+                  >
+                    Vantagens
+                  </Button>
+                  {products.length > 0 && (
+                    <Button 
+                      onClick={() => {
+                        scrollToSection("produtos");
+                        setMobileMenuOpen(false);
+                      }} 
+                      variant={activeSection === "produtos" ? "secondary" : "ghost"} 
+                      className="w-full justify-start"
+                    >
+                      Produtos
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={() => {
+                      scrollToSection("planos");
+                      setMobileMenuOpen(false);
+                    }} 
+                    variant={activeSection === "planos" ? "secondary" : "ghost"} 
+                    className="w-full justify-start"
+                  >
+                    Quero contratar
+                  </Button>
+                  
+                  <div className="border-t pt-4 mt-4 space-y-2">
+                    {user ? (
+                      <>
+                        {isAdmin && (
+                          <Button 
+                            onClick={() => {
+                              navigate("/admin/landing-page");
+                              setMobileMenuOpen(false);
+                            }} 
+                            variant="outline" 
+                            className="w-full"
+                          >
+                            Painel
+                          </Button>
+                        )}
+                        <Button 
+                          onClick={() => {
+                            handleLogout();
+                            setMobileMenuOpen(false);
+                          }} 
+                          variant="ghost" 
+                          className="w-full"
+                        >
+                          Sair
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button 
+                          onClick={() => {
+                            navigate("/auth");
+                            setMobileMenuOpen(false);
+                          }} 
+                          variant="outline" 
+                          className="w-full"
+                        >
+                          Entrar
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            scrollToSection("planos");
+                            setMobileMenuOpen(false);
+                          }} 
+                          className="w-full"
+                        >
+                          Quero Contratar
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="py-20 px-4 relative" style={getGradientStyle('hero')}>
+      <section id="hero" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('hero')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'hero' ? null : 'hero')}
@@ -597,37 +721,37 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
               {getHeroImage('Logo Alternativo') && (
                 <img 
                   src={getHeroImage('Logo Alternativo')} 
                   alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Renda Recorrente'} 
-                  className="h-16 mb-4"
+                  className="h-12 sm:h-14 md:h-16 mb-4 mx-auto md:mx-0"
                   loading="eager"
                 />
               )}
-              <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: getHeadingColor('hero') }}>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6" style={{ color: getHeadingColor('hero') }}>
                 Participe e ganhe dinheiro recomendando nossos aplicativos
               </h1>
-              <p className="text-xl mb-8" style={{ color: getTextColor('hero') }}>
+              <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8" style={{ color: getTextColor('hero') }}>
                 Temos vários produtos para você indicar e criar uma renda recorrente.
               </p>
               <Button 
                 size="lg" 
                 onClick={() => scrollToSection("planos")} 
-                className="text-lg px-8 mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse"
+                className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 mb-6 md:mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse"
               >
                 Começar Agora
-                <Target className="ml-2 w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                <Target className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform duration-300" />
               </Button>
               <div className="flex justify-center md:justify-start">
                 {getHeroImage('Trust Badges') && (
                   <img 
                     src={getHeroImage('Trust Badges')} 
                     alt={heroImages.find(img => img.name === 'Trust Badges')?.alt_text || 'Selos de segurança'}
-                    className="h-12"
+                    className="h-10 sm:h-12"
                     loading="eager"
                   />
                 )}
@@ -641,7 +765,7 @@ const LandingPage = () => {
                 <img 
                   src={getHeroImage('Hero Person')} 
                   alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
-                  className="w-full max-w-md animate-fade-in"
+                  className="w-full max-w-xs sm:max-w-sm md:max-w-md animate-fade-in"
                   style={{ animationDelay: '400ms' }}
                   loading="eager"
                 />
@@ -652,7 +776,7 @@ const LandingPage = () => {
       </section>
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-16 px-4 relative" style={getGradientStyle('seja-afiliado')}>
+      <section id="seja-afiliado" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('seja-afiliado')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'seja-afiliado' ? null : 'seja-afiliado')}
@@ -663,11 +787,11 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('seja-afiliado') }}>
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('seja-afiliado') }}>
             Seja um Afiliado
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <Card className={`transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <GraduationCap className="w-12 h-12 text-primary mb-2" />
@@ -720,7 +844,7 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-16 px-4 relative" style={getGradientStyle('comissao-recorrente')}>
+      <section id="comissao-recorrente" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('comissao-recorrente')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'comissao-recorrente' ? null : 'comissao-recorrente')}
@@ -732,16 +856,16 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-4xl text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: getHeadingColor('comissao-recorrente') }}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6" style={{ color: getHeadingColor('comissao-recorrente') }}>
             O que é Comissão Recorrente?
           </h2>
-          <p className="text-xl mb-8" style={{ color: getTextColor('comissao-recorrente') }}>
+          <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8" style={{ color: getTextColor('comissao-recorrente') }}>
             Todo mês que o cliente renovar a assinatura você ganhará a comissão.
           </p>
           <Card className="bg-primary/5 border-primary/20 transition-all duration-700 hover:shadow-lg">
             <CardContent className="pt-6">
-              <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
-              <p className="text-lg" style={{ color: getTextColor('comissao-recorrente') }}>
+              <TrendingUp className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto mb-4" />
+              <p className="text-base md:text-lg" style={{ color: getTextColor('comissao-recorrente') }}>
                 Com a comissão recorrente, todo mês você receberá comissões das indicações antigas 
                 somando com as novas que são feitas, assim se você continuar indicando sua comissão 
                 mensal só irá <strong>aumentando gradativamente</strong>.
@@ -752,7 +876,7 @@ const LandingPage = () => {
       </section>
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-16 px-4 relative" style={getGradientStyle('como-funciona')}>
+      <section id="como-funciona" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('como-funciona')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'como-funciona' ? null : 'como-funciona')}
@@ -763,14 +887,14 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('como-funciona') }}>
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('como-funciona') }}>
             Como funciona o programa de afiliados?
           </h2>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             <Card className={`transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
-                <UserPlus className="w-12 h-12 text-primary mb-4" />
+                <UserPlus className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
                     1
@@ -788,7 +912,7 @@ const LandingPage = () => {
 
             <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
-                <Megaphone className="w-12 h-12 text-primary mb-4" />
+                <Megaphone className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
                     2
@@ -806,7 +930,7 @@ const LandingPage = () => {
 
             <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
-                <DollarSign className="w-12 h-12 text-primary mb-4" />
+                <DollarSign className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
                     3
@@ -826,7 +950,7 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-16 px-4 relative" style={getGradientStyle('painel-afiliado')}>
+      <section id="painel-afiliado" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('painel-afiliado')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')}
@@ -837,14 +961,14 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('painel-afiliado') }}>
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('painel-afiliado') }}>
             Painel de Afiliado
           </h2>
-          <p className="text-xl text-center text-muted-foreground mb-12" style={{ color: getTextColor('painel-afiliado') }}>
+          <p className="text-base sm:text-lg md:text-xl text-center text-muted-foreground mb-8 md:mb-12" style={{ color: getTextColor('painel-afiliado') }}>
             Acompanhe suas indicações e seus ganhos de forma prática e rápida.
           </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <Card className={`transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
@@ -909,7 +1033,7 @@ const LandingPage = () => {
       </section>
 
       {/* Vantagens */}
-      <section id="vantagens" className="py-16 px-4 relative" style={getGradientStyle('vantagens')}>
+      <section id="vantagens" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('vantagens')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'vantagens' ? null : 'vantagens')}
@@ -920,11 +1044,11 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('vantagens') }}>
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('vantagens') }}>
             Vantagens de trabalhar com nosso sistema
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <Card className={`transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <TrendingUp className="w-10 h-10 text-primary mb-2" />
@@ -989,7 +1113,7 @@ const LandingPage = () => {
       </section>
 
       {/* Funcionalidades */}
-      <section id="funcionalidades" className="py-16 px-4 relative" style={getGradientStyle('funcionalidades')}>
+      <section id="funcionalidades" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('funcionalidades')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'funcionalidades' ? null : 'funcionalidades')}
@@ -1000,8 +1124,8 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Imagem do Dashboard */}
             <div className="order-2 md:order-1">
               {getHeroImage('Funcionalidades') && (
@@ -1014,12 +1138,12 @@ const LandingPage = () => {
             </div>
 
             {/* Lista de Funcionalidades */}
-            <div className="order-1 md:order-2 space-y-8">
-              <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: getHeadingColor('funcionalidades') }}>
+            <div className="order-1 md:order-2 space-y-6 md:space-y-8">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 md:mb-8" style={{ color: getHeadingColor('funcionalidades') }}>
                 Funcionalidades
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {features.map((feature, index) => {
                   const IconComponent = getIconComponent(feature.icon);
                   return (
@@ -1028,10 +1152,10 @@ const LandingPage = () => {
                       className={`flex items-center gap-4 transition-all duration-700 delay-${index * 100}`}
                       style={{ transitionDelay: `${index * 100}ms` }}
                     >
-                      <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <IconComponent className="w-6 h-6 text-primary" />
+                      <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                       </div>
-                      <p className="text-lg font-medium" style={{ color: getTextColor('funcionalidades') }}>{feature.name}</p>
+                      <p className="text-base md:text-lg font-medium" style={{ color: getTextColor('funcionalidades') }}>{feature.name}</p>
                     </div>
                   );
                 })}
@@ -1046,7 +1170,7 @@ const LandingPage = () => {
       </section>
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-16 px-4 relative" style={getGradientStyle('layout-responsivo')}>
+      <section id="layout-responsivo" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('layout-responsivo')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'layout-responsivo' ? null : 'layout-responsivo')}
@@ -1057,11 +1181,11 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: getHeadingColor('layout-responsivo') }}>
+        <div className={`container mx-auto max-w-6xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6" style={{ color: getHeadingColor('layout-responsivo') }}>
             Layout Responsivo
           </h2>
-          <p className="text-xl mb-12" style={{ color: getTextColor('layout-responsivo') }}>
+          <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-12" style={{ color: getTextColor('layout-responsivo') }}>
             Acesse o APP Renda recorrente em todos os dispositivos, Notebooks, PCs, celulares e tablets
           </p>
           <div className="flex justify-center">
@@ -1069,7 +1193,7 @@ const LandingPage = () => {
               <img 
                 src={getHeroImage('Responsivo')} 
                 alt={heroImages.find(img => img.name === 'Responsivo')?.alt_text || 'APP em diversos dispositivos'} 
-                className="w-full max-w-4xl object-contain animate-fade-in"
+                className="w-full max-w-full md:max-w-3xl lg:max-w-4xl object-contain animate-fade-in"
                 style={{ animationDelay: '200ms' }}
               />
             )}
@@ -1079,7 +1203,7 @@ const LandingPage = () => {
 
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
-        <section id="produtos" className="py-16 px-4 relative" style={getGradientStyle('produtos')}>
+        <section id="produtos" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('produtos')}>
           {isAdmin && (
             <Button
               onClick={() => setEditingBlock(editingBlock === 'produtos' ? null : 'produtos')}
@@ -1090,14 +1214,14 @@ const LandingPage = () => {
               <Edit className="w-4 h-4" />
             </Button>
           )}
-          <div className="container mx-auto max-w-7xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('produtos') }}>
+          <div className="container mx-auto max-w-6xl">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('produtos') }}>
               Produtos Disponíveis para Afiliação
             </h2>
-            <p className="text-xl text-center mb-12" style={{ color: getTextColor('produtos') }}>
+            <p className="text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12" style={{ color: getTextColor('produtos') }}>
               Escolha entre nossos produtos e comece a ganhar comissões recorrentes
             </p>
-            <div className="grid grid-cols-1 gap-6 max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 gap-4 md:gap-6 max-w-3xl mx-auto">
               {products.map((product, index) => {
                 const isDark = theme === 'dark';
                 const iconUrl = isDark ? (product.icone_dark || product.icone_light) : (product.icone_light || product.icone_dark);
@@ -1109,15 +1233,15 @@ const LandingPage = () => {
                     onClick={() => product.site_landingpage && window.open(product.site_landingpage, '_blank')}
                   >
                     <CardHeader>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 md:gap-4">
                         {iconUrl && (
                           <img 
                             src={iconUrl} 
                             alt={product.nome}
-                            className="w-16 h-16 object-contain flex-shrink-0"
+                            className="w-12 h-12 md:w-16 md:h-16 object-contain flex-shrink-0"
                           />
                         )}
-                        <CardTitle>{product.nome}</CardTitle>
+                        <CardTitle className="text-lg md:text-xl">{product.nome}</CardTitle>
                       </div>
                       <CardDescription className="whitespace-pre-line mt-4">{product.descricao}</CardDescription>
                     </CardHeader>
@@ -1144,7 +1268,7 @@ const LandingPage = () => {
       )}
 
       {/* Depoimentos */}
-      <section id="depoimentos" className="py-16 px-4 relative" style={getGradientStyle('depoimentos')}>
+      <section id="depoimentos" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('depoimentos')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'depoimentos' ? null : 'depoimentos')}
@@ -1155,24 +1279,24 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('depoimentos') }}>
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('depoimentos') }}>
             O que dizem nossos afiliados
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {testimonials.slice(0, 3).map((testimonial, index) => (
               <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${visibleSections.has('depoimentos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
                 <CardHeader>
-                  <div className="flex items-center gap-4 mb-4">
-                    <Avatar className="w-20 h-20">
+                  <div className="flex items-center gap-3 md:gap-4 mb-4">
+                    <Avatar className="w-16 h-16 md:w-20 md:h-20">
                       <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
                         {testimonial.name.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-semibold" style={{ color: getTextColor('depoimentos') }}>{testimonial.name}</p>
-                      <p className="text-sm" style={{ color: getTextColor('depoimentos') }}>{testimonial.role}</p>
+                      <p className="font-semibold text-sm md:text-base" style={{ color: getTextColor('depoimentos') }}>{testimonial.name}</p>
+                      <p className="text-xs md:text-sm" style={{ color: getTextColor('depoimentos') }}>{testimonial.role}</p>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -1182,7 +1306,7 @@ const LandingPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="italic" style={{ color: getTextColor('depoimentos') }}>"{testimonial.content}"</p>
+                  <p className="italic text-sm md:text-base" style={{ color: getTextColor('depoimentos') }}>"{testimonial.content}"</p>
                 </CardContent>
               </Card>
             ))}
@@ -1191,7 +1315,7 @@ const LandingPage = () => {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-16 px-4 relative" style={getGradientStyle('planos')}>
+      <section id="planos" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('planos')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')}
@@ -1202,14 +1326,14 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4" style={{ color: getHeadingColor('planos') }}>
+        <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-3 md:mb-4" style={{ color: getHeadingColor('planos') }}>
             Escolha seu Plano
           </h2>
-          <p className="text-xl text-center mb-12" style={{ color: getTextColor('planos') }}>
+          <p className="text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12" style={{ color: getTextColor('planos') }}>
             Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
           </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {plans.map((plan, index) => (
               <Card key={plan.id} className={`transition-all duration-700 ${index === 1 ? "border-primary shadow-lg delay-100" : index === 2 ? "delay-200" : ""} ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
                 {index === 1 && (
@@ -1218,18 +1342,18 @@ const LandingPage = () => {
                   </Badge>
                 )}
                 <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                  <div className="mt-4">
+                  <CardTitle className="text-xl md:text-2xl">{plan.name}</CardTitle>
+                  <CardDescription className="text-sm md:text-base">{plan.description}</CardDescription>
+                  <div className="mt-3 md:mt-4">
                     {plan.original_price && plan.original_price > plan.price && (
-                      <span className="text-muted-foreground line-through text-sm mr-2">
+                      <span className="text-muted-foreground line-through text-xs md:text-sm mr-2">
                         R$ {plan.original_price.toFixed(2)}
                       </span>
                     )}
-                    <span className="text-4xl font-bold">
+                    <span className="text-3xl md:text-4xl font-bold">
                       R$ {plan.price.toFixed(2)}
                     </span>
-                    <span className="text-muted-foreground">/{plan.billing_period}</span>
+                    <span className="text-muted-foreground text-sm md:text-base">/{plan.billing_period}</span>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -1258,7 +1382,7 @@ const LandingPage = () => {
       </section>
 
       {/* FAQs */}
-      <section id="faq" className="py-16 px-4 relative" style={getGradientStyle('faq')}>
+      <section id="faq" className="py-12 md:py-16 lg:py-20 px-4 md:px-6 relative" style={getGradientStyle('faq')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'faq' ? null : 'faq')}
@@ -1270,7 +1394,7 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-4xl transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('faq') }}>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('faq') }}>
             Perguntas Frequentes
           </h2>
           <Accordion type="single" collapsible className="w-full">
@@ -1289,47 +1413,47 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12 px-4">
+      <footer className="border-t border-border py-8 md:py-12 px-4 md:px-6">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-6 md:mb-8">
             <div>
               {getHeroImage('Logo Alternativo') && (
                 <img 
                   src={getHeroImage('Logo Alternativo')} 
                   alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Logo'} 
-                  className="h-8 mb-4"
+                  className="h-6 md:h-8 mb-3 md:mb-4"
                 />
               )}
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs md:text-sm text-muted-foreground">
                 Sistema completo para gerenciar seu programa de afiliados.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Produto</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Produto</h3>
+              <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
                 <li>Funcionalidades</li>
                 <li>Preços</li>
                 <li>Treinamento</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Suporte</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Suporte</h3>
+              <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
                 <li>Central de Ajuda</li>
                 <li>WhatsApp</li>
                 <li>FAQ</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Legal</h3>
+              <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
                 <li>Termos de Uso</li>
                 <li>Privacidade</li>
                 <li>Cookies</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t border-border pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
             <p>&copy; 2024 APP Renda Recorrente. Todos os direitos reservados.</p>
           </div>
         </div>
