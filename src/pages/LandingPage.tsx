@@ -1283,7 +1283,7 @@ const LandingPage = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('depoimentos') }}>
             O que dizem nossos afiliados
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {testimonials.slice(0, 3).map((testimonial, index) => (
               <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${visibleSections.has('depoimentos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
                 <CardHeader>
