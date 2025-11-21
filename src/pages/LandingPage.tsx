@@ -13,7 +13,8 @@ import { CookieConsent } from "@/components/CookieConsent";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
-  CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu
+  CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check,
+  MousePointer2, Trophy, Lock
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -1350,50 +1351,107 @@ const LandingPage = () => {
           <p className="text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 px-3 md:px-0" style={{ color: getTextColor('planos') }}>
             Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
-            {plans.map((plan, index) => (
-              <Card key={plan.id} className={`transition-all duration-700 ${index === 1 ? "border-primary shadow-lg delay-100" : index === 2 ? "delay-200" : ""} ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-                {index === 1 && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    Mais Popular
-                  </Badge>
-                )}
-                <CardHeader>
-                  <CardTitle className="text-xl md:text-2xl">{plan.name}</CardTitle>
-                  <CardDescription className="text-sm md:text-base">{plan.description}</CardDescription>
-                  <div className="mt-3 md:mt-4">
-                    {plan.original_price && plan.original_price > plan.price && (
-                      <span className="text-muted-foreground line-through text-xs md:text-sm mr-2">
-                        R$ {plan.original_price.toFixed(2)}
-                      </span>
-                    )}
-                    <span className="text-3xl md:text-4xl font-bold">
-                      R$ {plan.price.toFixed(2)}
-                    </span>
-                    <span className="text-muted-foreground text-sm md:text-base">/{plan.billing_period}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 px-3 md:px-0 max-w-4xl mx-auto">
+            {plans.map((plan, index) => {
+              const isFree = plan.price === 0;
+              const isPro = !isFree;
+              
+              return (
+                <div 
+                  key={plan.id} 
+                  className={`relative bg-[#2a2a2a] rounded-2xl p-6 md:p-8 shadow-xl transition-all duration-700 hover:scale-105 ${
+                    index === 0 ? '' : 'delay-100'
+                  } ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}
+                >
+                  {/* Badge */}
+                  <div className="absolute top-4 right-4 bg-[#22c55e] text-[#1a1a1a] px-3 py-1 rounded-full text-xs font-semibold">
+                    {isFree ? 'Para conhecer' : 'Mais lucrativo'}
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
+
+                  {/* Ícone Circular */}
+                  <div className="flex justify-center mb-6">
+                    <div className="w-20 h-20 md:w-24 md:h-24 bg-[#22c55e] rounded-full flex items-center justify-center">
+                      {isFree ? (
+                        <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                      ) : (
+                        <Link className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Título */}
+                  <h3 className="text-[#22c55e] text-2xl md:text-3xl font-bold text-center mb-6">
+                    {plan.name}
+                  </h3>
+
+                  {/* Features */}
+                  <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
+                      <li key={i} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+                        <span className="text-white text-sm md:text-base">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full" 
-                    variant={index === 1 ? "default" : "outline"}
+
+                  {/* Preço */}
+                  <div className="mb-6">
+                    {isPro && plan.original_price && plan.original_price > plan.price && (
+                      <div className="text-center mb-2">
+                        <span className="text-white text-sm">de </span>
+                        <span className="text-white line-through text-sm">
+                          R${plan.original_price.toFixed(2)}
+                        </span>
+                        <span className="text-white text-sm"> por:</span>
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <span className="text-[#22c55e] text-4xl md:text-5xl font-bold">
+                        R${plan.price.toFixed(2)}
+                      </span>
+                      <span className="text-white text-lg">/{plan.billing_period}</span>
+                    </div>
+                    {isPro && plan.original_price && plan.original_price > plan.price && (
+                      <p className="text-white text-center text-sm mt-2">
+                        {(plan.original_price - plan.price).toFixed(2)} de desconto
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Botão */}
+                  <Button
+                    className="w-full bg-[#86efac] hover:bg-[#4ade80] text-gray-900 font-semibold py-6 rounded-lg transition-all duration-300"
                     onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
                   >
-                    {user ? "Assinar Agora" : "Começar Agora"}
+                    <MousePointer2 className="w-5 h-5 mr-2" />
+                    Selecionar Plano {plan.name}
                   </Button>
-                </CardFooter>
-              </Card>
-            ))}
+
+                  {/* Trust Badges */}
+                  <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-700">
+                    <div className="flex flex-col items-center gap-1">
+                      <Shield className="w-5 h-5 text-white" />
+                      <span className="text-white text-xs">Compra Segura</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <Trophy className="w-5 h-5 text-white" />
+                      <span className="text-white text-xs">Satisfação Garantida</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <Lock className="w-5 h-5 text-white" />
+                      <span className="text-white text-xs">Privacidade Protegida</span>
+                    </div>
+                  </div>
+
+                  {/* Teste Grátis */}
+                  {isPro && (
+                    <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
+                      Teste Grátis por 7 dias
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
