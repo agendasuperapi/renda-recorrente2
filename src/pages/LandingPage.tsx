@@ -1400,7 +1400,7 @@ const LandingPage = () => {
                   <div className="mt-auto">
                     {/* Preço */}
                     <div className="mb-6">
-                      {isPro && plan.original_price && plan.original_price > plan.price && (
+                      {isPro && plan.original_price && plan.original_price > plan.price ? (
                         <div className="text-center mb-2">
                           <span className="text-white text-sm">de </span>
                           <span className="text-white line-through text-sm">
@@ -1408,6 +1408,8 @@ const LandingPage = () => {
                           </span>
                           <span className="text-white text-sm"> por:</span>
                         </div>
+                      ) : (
+                        <div className="h-6 mb-2"></div>
                       )}
                       <div className="text-center">
                         <span className="text-[#22c55e] text-4xl md:text-5xl font-bold">
@@ -1415,10 +1417,12 @@ const LandingPage = () => {
                         </span>
                         <span className="text-white text-lg">/{plan.billing_period}</span>
                       </div>
-                      {isPro && plan.original_price && plan.original_price > plan.price && (
+                      {isPro && plan.original_price && plan.original_price > plan.price ? (
                         <p className="text-white text-center text-sm mt-2">
                           {(plan.original_price - plan.price).toFixed(2)} de desconto
                         </p>
+                      ) : (
+                        <div className="h-5 mt-2"></div>
                       )}
                     </div>
 
@@ -1448,10 +1452,12 @@ const LandingPage = () => {
                     </div>
 
                     {/* Teste Grátis */}
-                    {isPro && (
+                    {isPro ? (
                       <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
                         Teste Grátis por 7 dias
                       </p>
+                    ) : (
+                      <div className="h-5 mt-4"></div>
                     )}
                   </div>
                 </div>
