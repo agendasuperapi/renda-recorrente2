@@ -875,57 +875,36 @@ const LandingPage = () => {
               {products.map((product, index) => (
                 <Card 
                   key={product.id} 
-                  className="hover:shadow-lg transition-all duration-500 opacity-0 animate-fade-in"
-                  style={{ 
-                    animationDelay: `${index * 150}ms`,
-                    animationFillMode: 'forwards'
-                  }}
+                  className="hover:shadow-lg transition-all duration-300 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <CardHeader>
-                    <div 
-                      className="flex items-center gap-4 mb-4 opacity-0 animate-fade-in"
-                      style={{ 
-                        animationDelay: `${index * 150 + 100}ms`,
-                        animationFillMode: 'forwards'
-                      }}
-                    >
+                    <div className="flex items-center gap-4 mb-4">
                       {product.icone_light && (
                         <img 
                           src={product.icone_light} 
                           alt={product.nome}
-                          className="w-16 h-16 object-contain dark:hidden transition-transform duration-300 hover:scale-110"
+                          className="w-16 h-16 object-contain dark:hidden"
                         />
                       )}
                       {product.icone_dark && (
                         <img 
                           src={product.icone_dark} 
                           alt={product.nome}
-                          className="w-16 h-16 object-contain hidden dark:block transition-transform duration-300 hover:scale-110"
+                          className="w-16 h-16 object-contain hidden dark:block"
                         />
                       )}
                       <CardTitle className="text-xl">{product.nome}</CardTitle>
                     </div>
-                    <CardDescription 
-                      className="text-base whitespace-pre-line opacity-0 animate-fade-in"
-                      style={{ 
-                        animationDelay: `${index * 150 + 200}ms`,
-                        animationFillMode: 'forwards'
-                      }}
-                    >
+                    <CardDescription className="text-base whitespace-pre-line">
                       {product.descricao || "Produto disponível para afiliação"}
                     </CardDescription>
                   </CardHeader>
                   {product.site_landingpage && (
-                    <CardFooter 
-                      className="opacity-0 animate-fade-in"
-                      style={{ 
-                        animationDelay: `${index * 150 + 300}ms`,
-                        animationFillMode: 'forwards'
-                      }}
-                    >
+                    <CardFooter>
                       <Button
                         variant="outline"
-                        className="w-full transition-all duration-300 hover:scale-105"
+                        className="w-full"
                         onClick={() => window.open(product.site_landingpage!, "_blank")}
                       >
                         Visitar site {product.nome}
