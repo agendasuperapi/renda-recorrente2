@@ -962,7 +962,26 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-...
+        {features.length > 0 && (
+          <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Funcionalidades do Sistema
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((feature, index) => {
+                const IconComponent = getIconComponent(feature.icon);
+                return (
+                  <Card key={feature.id} className={`transition-all duration-700 delay-${index % 3 * 100} ${visibleSections.has('funcionalidades') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+                    <CardHeader>
+                      <IconComponent className="w-10 h-10 text-primary mb-2" />
+                      <CardTitle>{feature.name}</CardTitle>
+                    </CardHeader>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Layout Responsivo */}
