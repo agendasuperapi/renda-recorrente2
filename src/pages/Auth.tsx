@@ -99,24 +99,44 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/dashboard");
-      } else {
-        // Check if user is admin when not logged in for gradient editing
-        const checkAuth = async () => {
-          const { data: { session: currentSession } } = await supabase.auth.getSession();
-          if (currentSession?.user) {
-            checkAdminRole(currentSession.user.id);
-          }
-        };
-        checkAuth();
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        // Check if user is admin first
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .single();
+
+        const isUserAdmin = roleData?.role === "super_admin";
+        setIsAdmin(isUserAdmin);
+
+        // Only redirect if NOT admin (admins can access to configure)
+        if (!isUserAdmin) {
+          navigate("/dashboard");
+        }
+      }
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .single();
+
+        const isUserAdmin = roleData?.role === "super_admin";
+        setIsAdmin(isUserAdmin);
+
+        // Only redirect on auth changes if NOT admin
+        if (_event === 'SIGNED_IN' && !isUserAdmin) {
+          navigate("/dashboard");
+        }
       } else {
         setIsAdmin(false);
       }
