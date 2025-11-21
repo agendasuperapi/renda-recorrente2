@@ -532,8 +532,8 @@ const LandingPage = () => {
             <div className={`relative transition-all duration-700 delay-200 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`} ref={heroImageRef}>
               <div className="relative">
                 <img 
-                  src={theme === 'dark' ? (heroImages[0]?.dark_image_url || heroPersonImage) : (heroImages[0]?.light_image_url || heroPersonImage)} 
-                  alt={heroImages[0]?.alt_text || "Dashboard de Afiliado"} 
+                  src={getHeroImage('Hero Person') || heroPersonImage} 
+                  alt="Dashboard de Afiliado" 
                   className="w-full h-auto rounded-lg"
                   style={{
                     transform: `translateY(${parallaxY * 0.5}px)`,
