@@ -9,7 +9,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Eye, EyeOff } from "lucide-react";
 import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
 
 const authSchema = z.object({
   email: z
@@ -39,20 +38,6 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-
-  const { data: product } = useQuery({
-    queryKey: ['product-description'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('descricao')
-        .eq('id', 'bb582482-b006-47b8-b6ea-a6944d8cfdfd')
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -132,58 +117,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side - Product description (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        <div 
-          className="absolute inset-0 opacity-10"
-          style={{
-            background: `linear-gradient(135deg, #00bf63 0%, #00bf6300 100%)`
-          }}
-        />
-        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-center">
-          <div className="max-w-lg">
-            <div className="inline-flex items-center justify-center w-32 h-32 mb-8">
-              <img src={logoAuth} alt="Logo" className="w-32 h-32 rounded-full" />
-            </div>
-            <h2 className="text-4xl font-bold mb-6 text-foreground">
-              APP Renda Recorrente
-            </h2>
-            {product?.descricao && (
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                {product.descricao}
-              </p>
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
       </div>
-
-      {/* Right side - Auth form */}
-      <div className="w-full lg:w-1/2 relative flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-background">
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            background: `linear-gradient(225deg, #00bf63 0%, #00bf6300 100%)`
-          }}
-        />
-        
-        <div className="absolute top-4 right-4 z-20">
-          <ThemeToggle />
-        </div>
-        
-        <div className="w-full max-w-md p-8 relative z-10">
-        <div className="text-center mb-8 lg:hidden">
-          <div className="inline-flex items-center justify-center w-32 h-32 mb-4">
-            <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-32 h-32 rounded-full" />
+      
+      <div className="w-full max-w-md p-8">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-40 h-40 mb-4">
+            <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-40 h-40 rounded-full" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             APP Renda recorrente
           </h1>
         </div>
-
-        <h2 className="hidden lg:block text-2xl font-bold text-foreground mb-8 text-center">
-          {isLogin ? "Entrar" : "Criar Conta"}
-        </h2>
 
         <form onSubmit={handleAuth} className="space-y-4">
           {!isLogin && (
@@ -279,7 +226,6 @@ const Auth = () => {
             Aviso de Privacidade
           </span>
           .
-        </div>
         </div>
       </div>
     </div>
