@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GradientEditor } from "@/components/GradientEditor";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
-  CheckCircle2, Star, MessageSquare, LucideIcon
+  CheckCircle2, Star, MessageSquare, LucideIcon, Edit
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -67,6 +68,15 @@ interface HeroImage {
   light_image_url: string | null;
   dark_image_url: string | null;
   alt_text: string;
+}
+
+interface GradientConfig {
+  block_name: string;
+  color_start: string;
+  color_end: string;
+  intensity_start: number;
+  intensity_end: number;
+  gradient_start_position: number;
 }
 
 const defaultTestimonials: Testimonial[] = [
@@ -141,6 +151,8 @@ const LandingPage = () => {
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [parallaxOffset, setParallaxOffset] = useState(0);
   const heroImageRef = useRef<HTMLDivElement>(null);
+  const [editingBlock, setEditingBlock] = useState<string | null>(null);
+  const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
 
   // Busca imagens do hero com cache
   const { data: heroImages = [] } = useQuery({
@@ -158,6 +170,30 @@ const LandingPage = () => {
     gcTime: 1000 * 60 * 60, // 1 hora
   });
 
+  // Busca configurações de gradiente
+  const { data: gradientConfigsData = [] } = useQuery({
+    queryKey: ['gradientConfigs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('landing_block_gradients' as any)
+        .select('*');
+      
+      if (error) throw error;
+      return data as unknown as GradientConfig[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (gradientConfigsData) {
+      const configs: Record<string, GradientConfig> = {};
+      gradientConfigsData.forEach(config => {
+        configs[config.block_name] = config;
+      });
+      setGradientConfigs(configs);
+    }
+  }, [gradientConfigsData]);
+
   // Helper para pegar imagem por nome
   const getHeroImage = (imageName: string) => {
     const image = heroImages.find(img => img.name === imageName);
@@ -165,6 +201,40 @@ const LandingPage = () => {
     
     const isDark = theme === 'dark';
     return isDark ? (image.dark_image_url || image.light_image_url || '') : (image.light_image_url || '');
+  };
+
+  // Helper para criar classe de gradiente
+  const getGradientClass = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    if (!config) return '';
+    
+    const hexToRgb = (hex: string) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+    
+    const startRgb = hexToRgb(config.color_start);
+    const endRgb = hexToRgb(config.color_end);
+    
+    if (!startRgb || !endRgb) return '';
+    
+    return `bg-gradient-to-b`;
+  };
+
+  const getGradientStyle = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    if (!config) return {};
+    
+    const startAlpha = config.intensity_start / 100;
+    const endAlpha = config.intensity_end / 100;
+    
+    return {
+      background: `linear-gradient(to bottom, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
+    };
   };
 
   useEffect(() => {
@@ -602,29 +672,32 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-16 px-4 bg-gradient-to-b from-background to-background/80">
-        <div className={`container mx-auto max-w-4xl text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            O que é Comissão Recorrente?
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Todo mês que o cliente renovar a assinatura você ganhará a comissão.
-          </p>
-          <Card className="bg-primary/5 border-primary/20 transition-all duration-700 hover:shadow-lg">
-            <CardContent className="pt-6">
-              <TrendingUp className="w-16 h-16 text-primary mx-auto mb-4" />
-              <p className="text-lg">
-                Com a comissão recorrente, todo mês você receberá comissões das indicações antigas 
-                somando com as novas que são feitas, assim se você continuar indicando sua comissão 
-                mensal só irá <strong>aumentando gradativamente</strong>.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      <section id="comissao-recorrente" className="py-16 px-4 relative" style={getGradientStyle('comissao-recorrente')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'comissao-recorrente' ? null : 'comissao-recorrente')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
+...
       </section>
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-16 px-4 bg-gradient-to-b from-brand-green/70 to-brand-green/90">
+      <section id="como-funciona" className="py-16 px-4 relative" style={getGradientStyle('como-funciona')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'como-funciona' ? null : 'como-funciona')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Como funciona o programa de afiliados?
@@ -688,80 +761,32 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/15 to-brand-green/30">
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Painel de Afiliado
-          </h2>
-          <p className="text-xl text-center text-muted-foreground mb-12">
-            Acompanhe suas indicações e seus ganhos de forma prática e rápida.
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className={`transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <CardHeader>
-                <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Painel Exclusivo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Dashboard completo com todas as informações importantes.</p>
-              </CardContent>
-            </Card>
-
-            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <CardHeader>
-                <Target className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Metas de Ganhos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Acompanhe suas metas e conquistas em tempo real.</p>
-              </CardContent>
-            </Card>
-
-            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <CardHeader>
-                <Share2 className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Link de Compartilhamento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Seu link exclusivo pronto para compartilhar.</p>
-              </CardContent>
-            </Card>
-
-            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <CardHeader>
-                <Award className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Cupons de Descontos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Crie cupons e ofereça dias grátis para seus indicados.</p>
-              </CardContent>
-            </Card>
-
-            <Card className={`transition-all duration-700 delay-[400ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <CardHeader>
-                <Shield className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Sistema Seguro</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">100% seguro e inteligente para sua proteção.</p>
-              </CardContent>
-            </Card>
-
-            <Card className={`transition-all duration-700 delay-[500ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-              <CardHeader>
-                <FileText className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Relatórios Completos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Relatórios detalhados de indicações e comissões.</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+      <section id="painel-afiliado" className="py-16 px-4 relative" style={getGradientStyle('painel-afiliado')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
+...
       </section>
 
       {/* Vantagens */}
-      <section id="vantagens" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
+      <section id="vantagens" className="py-16 px-4 relative" style={getGradientStyle('vantagens')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'vantagens' ? null : 'vantagens')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Vantagens de trabalhar com nosso sistema
@@ -831,52 +856,32 @@ const LandingPage = () => {
       </section>
 
       {/* Funcionalidades */}
-      <section id="funcionalidades" className="py-16 px-4 bg-gradient-to-b from-brand-green/8 to-brand-green/18">
-        <div className="container mx-auto max-w-7xl">
-          <div className={`grid lg:grid-cols-2 gap-12 items-start transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-            {/* Imagem do laptop à esquerda */}
-            <div className="flex justify-center lg:justify-start">
-              {getHeroImage('Funcionalidades') ? (
-                <img 
-                  src={getHeroImage('Funcionalidades')} 
-                  alt={heroImages.find(img => img.name === 'Funcionalidades')?.alt_text || 'Dashboard do sistema'} 
-                  className="w-full max-w-2xl object-contain"
-                />
-              ) : (
-                <img 
-                  src={laptopImage} 
-                  alt="Dashboard do sistema em laptop" 
-                  className="w-full max-w-2xl object-contain"
-                />
-              )}
-            </div>
-            
-            {/* Funcionalidades à direita em coluna única */}
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-8">
-                Funcionalidades
-              </h2>
-              <div className="flex flex-col gap-4">
-                {features.map((feature) => {
-                  const IconComponent = getIconComponent(feature.icon);
-                  return (
-                    <div key={feature.id} className="flex items-center gap-3">
-                      <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
-                      <span>{feature.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-muted-foreground mt-6 italic">
-                O sistema está em constante atualização, então em breve teremos novas funcionalidades.
-              </p>
-            </div>
-          </div>
-        </div>
+      <section id="funcionalidades" className="py-16 px-4 relative" style={getGradientStyle('funcionalidades')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'funcionalidades' ? null : 'funcionalidades')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
+...
       </section>
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-16 px-4 bg-gradient-to-b from-brand-green/12 to-background">
+      <section id="layout-responsivo" className="py-16 px-4 relative" style={getGradientStyle('layout-responsivo')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'layout-responsivo' ? null : 'layout-responsivo')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Layout Responsivo
@@ -899,63 +904,33 @@ const LandingPage = () => {
 
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
-        <section id="produtos" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
-          <div className="container mx-auto max-w-7xl transition-all duration-700 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-              Produtos Disponíveis para Afiliação
-            </h2>
-            <p className="text-xl text-center text-muted-foreground mb-12">
-              Escolha os produtos que deseja divulgar e comece a ganhar comissões
-            </p>
-            <div className="space-y-6">
-              {products.map((product, index) => (
-                <Card 
-                  key={product.id} 
-                  className="hover:shadow-lg transition-all duration-300 animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <CardHeader>
-                    <div className="flex items-center gap-4 mb-4">
-                      {product.icone_light && (
-                        <img 
-                          src={product.icone_light} 
-                          alt={product.nome}
-                          className="w-16 h-16 object-contain dark:hidden"
-                        />
-                      )}
-                      {product.icone_dark && (
-                        <img 
-                          src={product.icone_dark} 
-                          alt={product.nome}
-                          className="w-16 h-16 object-contain hidden dark:block"
-                        />
-                      )}
-                      <CardTitle className="text-xl">{product.nome}</CardTitle>
-                    </div>
-                    <CardDescription className="text-base whitespace-pre-line">
-                      {product.descricao || "Produto disponível para afiliação"}
-                    </CardDescription>
-                  </CardHeader>
-                  {product.site_landingpage && (
-                    <CardFooter>
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => window.open(product.site_landingpage!, "_blank")}
-                      >
-                        Visitar site {product.nome}
-                      </Button>
-                    </CardFooter>
-                  )}
-                </Card>
-              ))}
-            </div>
-          </div>
+        <section id="produtos" className="py-16 px-4 relative" style={getGradientStyle('produtos')}>
+          {isAdmin && (
+            <Button
+              onClick={() => setEditingBlock(editingBlock === 'produtos' ? null : 'produtos')}
+              className="absolute top-4 right-4 z-40"
+              size="sm"
+              variant="outline"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+          )}
+...
         </section>
       )}
 
       {/* Depoimentos */}
-      <section id="depoimentos" className="py-16 px-4 bg-gradient-to-b from-brand-green/10 to-brand-green/25">
+      <section id="depoimentos" className="py-16 px-4 relative" style={getGradientStyle('depoimentos')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'depoimentos' ? null : 'depoimentos')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             O que dizem nossos afiliados
@@ -992,89 +967,32 @@ const LandingPage = () => {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-16 px-4">
-        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Escolha seu Plano
-          </h2>
-          <p className="text-xl text-center text-muted-foreground mb-12">
-            Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {plans.map((plan, index) => (
-              <Card key={plan.id} className={`transition-all duration-700 ${index === 1 ? "border-primary shadow-lg delay-100" : index === 2 ? "delay-200" : ""} ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-                {index === 1 && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    Mais Popular
-                  </Badge>
-                )}
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                  <div className="mt-4">
-                    {plan.original_price && plan.original_price > plan.price && (
-                      <span className="text-muted-foreground line-through text-sm mr-2">
-                        R$ {plan.original_price.toFixed(2)}
-                      </span>
-                    )}
-                    <span className="text-4xl font-bold">
-                      R$ {plan.price.toFixed(2)}
-                    </span>
-                    <span className="text-muted-foreground">/{plan.billing_period}</span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full" 
-                    variant={index === 1 ? "default" : "outline"}
-                    onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
-                  >
-                    {user ? "Assinar Agora" : "Começar Agora"}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
+      <section id="planos" className="py-16 px-4 relative" style={getGradientStyle('planos')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
+...
       </section>
 
-      {/* WhatsApp */}
-      {whatsappPhone && whatsappText && (
-        <section className="py-16 px-4 bg-gradient-to-r from-brand-green/5 via-muted/50 to-brand-green/5">
-          <div className="container mx-auto max-w-4xl text-center">
-            <MessageSquare className="w-16 h-16 text-primary mx-auto mb-6" />
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Precisa de um atendimento humanizado?
-            </h2>
-            <p className="text-lg text-muted-foreground mb-6">
-              Fale conosco no WhatsApp
-            </p>
-            <Button
-              size="lg"
-              className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
-              onClick={() => window.open(getWhatsappUrl(), "_blank")}
-            >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-              </svg>
-              Falar no WhatsApp
-            </Button>
-          </div>
-        </section>
-      )}
-
       {/* FAQs */}
-      <section id="faq" className="py-16 px-4 bg-gradient-to-b from-brand-green/5 to-brand-green/12">
+      <section id="faq" className="py-16 px-4 relative" style={getGradientStyle('faq')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'faq' ? null : 'faq')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
         <div className={`container mx-auto max-w-4xl transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Perguntas Frequentes
@@ -1140,6 +1058,18 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Gradient Editor */}
+      {isAdmin && editingBlock && gradientConfigs[editingBlock] && (
+        <GradientEditor
+          blockName={editingBlock}
+          config={gradientConfigs[editingBlock]}
+          onSave={(config) => {
+            setGradientConfigs(prev => ({ ...prev, [config.block_name]: config }));
+            setEditingBlock(null);
+          }}
+        />
+      )}
     </div>
   );
 };
