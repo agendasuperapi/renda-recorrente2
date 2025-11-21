@@ -6,10 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AuthGradientEditor } from "@/components/AuthGradientEditor";
 import { Eye, EyeOff } from "lucide-react";
 import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
 
 const authSchema = z.object({
   email: z
@@ -30,23 +33,131 @@ const authSchema = z.object({
     .or(z.literal("")),
 });
 
+interface GradientConfig {
+  block_name: string;
+  color_start: string;
+  color_end: string;
+  intensity_start: number;
+  intensity_end: number;
+  gradient_start_position: number;
+  text_color?: string;
+  heading_color?: string;
+  text_color_light?: string;
+  text_color_dark?: string;
+  heading_color_light?: string;
+  heading_color_dark?: string;
+}
+
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme } = useTheme();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
+
+  // Busca configurações de gradiente
+  const { data: gradientConfigsData = [] } = useQuery({
+    queryKey: ['authGradientConfigs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('landing_block_gradients' as any)
+        .select('*')
+        .in('block_name', ['auth_left_panel', 'auth_right_panel']);
+      
+      if (error) throw error;
+      return data as unknown as GradientConfig[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (gradientConfigsData && gradientConfigsData.length > 0) {
+      const configs: Record<string, GradientConfig> = {};
+      gradientConfigsData.forEach(config => {
+        configs[config.block_name] = config;
+      });
+      setGradientConfigs(configs);
+    }
+  }, [gradientConfigsData]);
+
+  const checkAdminRole = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+
+    if (!error && data && data.role === "super_admin") {
+      setIsAdmin(true);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate("/dashboard");
+      } else {
+        // Check if user is admin when not logged in for gradient editing
+        const checkAuth = async () => {
+          const { data: { session: currentSession } } = await supabase.auth.getSession();
+          if (currentSession?.user) {
+            checkAdminRole(currentSession.user.id);
+          }
+        };
+        checkAuth();
       }
     });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const getGradientStyle = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    if (!config) return {};
+    
+    const startAlpha = config.intensity_start / 100;
+    const endAlpha = config.intensity_end / 100;
+    
+    return {
+      background: `linear-gradient(to bottom, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
+    };
+  };
+
+  const getTextColor = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    if (!config) return undefined;
+    
+    if (theme === 'dark') {
+      return config.text_color_dark || config.text_color || undefined;
+    } else {
+      return config.text_color_light || config.text_color || undefined;
+    }
+  };
+
+  const getHeadingColor = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    if (!config) return undefined;
+    
+    if (theme === 'dark') {
+      return config.heading_color_dark || config.heading_color || undefined;
+    } else {
+      return config.heading_color_light || config.heading_color || undefined;
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,16 +235,24 @@ const Auth = () => {
       </div>
       
       {/* Left Panel - Marketing Info */}
-      <div className="hidden lg:flex items-center justify-center p-8">
-        <Card className="max-w-md w-full">
+      <div className="hidden lg:flex items-center justify-center p-8 relative" style={getGradientStyle('auth_left_panel')}>
+        {isAdmin && (
+          <div className="absolute top-4 left-4 z-10">
+            <AuthGradientEditor blockName="auth_left_panel" initialConfig={gradientConfigs['auth_left_panel']} />
+          </div>
+        )}
+        <Card className="max-w-md w-full bg-background/80 backdrop-blur-sm">
           <CardContent className="pt-6 text-center space-y-6">
             <div className="inline-flex items-center justify-center w-32 h-32 mb-2">
               <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-32 h-32 rounded-full" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground">
+            <h2 
+              className="text-2xl font-bold"
+              style={{ color: getHeadingColor('auth_left_panel') }}
+            >
               APP Renda recorrente
             </h2>
-            <div className="text-muted-foreground space-y-4 leading-relaxed">
+            <div className="space-y-4 leading-relaxed" style={{ color: getTextColor('auth_left_panel') }}>
               <p className="text-lg">
                 💸 App de Renda Recorrente
               </p>
@@ -146,7 +265,7 @@ const Auth = () => {
               <p>
                 📊 Acompanhe tudo pelo painel em tempo real.
               </p>
-              <p className="font-semibold text-foreground">
+              <p className="font-semibold" style={{ color: getHeadingColor('auth_left_panel') }}>
                 Transforme suas indicações em renda automática e recorrente!
               </p>
             </div>
@@ -155,13 +274,21 @@ const Auth = () => {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
+      <div className="flex items-center justify-center p-8 relative" style={getGradientStyle('auth_right_panel')}>
+        {isAdmin && (
+          <div className="absolute top-4 left-4 z-10">
+            <AuthGradientEditor blockName="auth_right_panel" initialConfig={gradientConfigs['auth_right_panel']} />
+          </div>
+        )}
+        <div className="w-full max-w-md bg-background/80 backdrop-blur-sm rounded-lg p-6">
           <div className="text-center mb-8 lg:hidden">
             <div className="inline-flex items-center justify-center w-32 h-32 mb-4">
               <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-32 h-32 rounded-full" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 
+              className="text-2xl font-bold mb-2"
+              style={{ color: getHeadingColor('auth_right_panel') }}
+            >
               APP Renda recorrente
             </h1>
           </div>
