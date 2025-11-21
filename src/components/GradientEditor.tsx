@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { Save, X } from "lucide-react";
 
 interface GradientConfig {
   block_name: string;
@@ -21,9 +21,10 @@ interface GradientEditorProps {
   blockName: string;
   config: GradientConfig;
   onSave: (config: GradientConfig) => void;
+  onClose: () => void;
 }
 
-export const GradientEditor = ({ blockName, config, onSave }: GradientEditorProps) => {
+export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientEditorProps) => {
   const [name, setName] = useState(config.block_name || blockName);
   const [colorStart, setColorStart] = useState(config.color_start);
   const [colorEnd, setColorEnd] = useState(config.color_end);
@@ -69,8 +70,16 @@ export const GradientEditor = ({ blockName, config, onSave }: GradientEditorProp
 
   return (
     <Card className="fixed right-4 top-20 w-80 z-50 shadow-lg">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm">Editor de Gradiente</CardTitle>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-8 w-8"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
