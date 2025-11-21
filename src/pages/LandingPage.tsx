@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -128,6 +128,7 @@ const LandingPage = () => {
   const [products, setProducts] = useState<AffiliateProduct[]>([]);
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
+  const [showHomeButton, setShowHomeButton] = useState(false);
 
   useEffect(() => {
     // Check auth state
@@ -152,7 +153,17 @@ const LandingPage = () => {
     // Fetch product info
     fetchProductInfo();
 
-    return () => subscription.unsubscribe();
+    // Scroll listener para mostrar botão Início
+    const handleScroll = () => {
+      setShowHomeButton(window.scrollY > 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const fetchPlans = async () => {
@@ -237,8 +248,13 @@ const LandingPage = () => {
     navigate("/");
   };
 
-  const scrollToPlans = () => {
-    document.getElementById("planos")?.scrollIntoView({ behavior: "smooth" });
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    } else if (sectionId === "inicio") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const getWhatsappUrl = () => {
@@ -258,26 +274,48 @@ const LandingPage = () => {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <img src={logoHeader} alt="APP Renda recorrente" className="h-10" />
-            <span className="font-bold text-lg">APP Renda recorrente</span>
+            <span className="font-bold text-lg hidden sm:inline">APP Renda recorrente</span>
           </div>
+          
+          <nav className="hidden md:flex items-center gap-1">
+            {showHomeButton && (
+              <Button onClick={() => scrollToSection("inicio")} variant="ghost" size="sm">
+                Início
+              </Button>
+            )}
+            <Button onClick={() => scrollToSection("como-funciona")} variant="ghost" size="sm">
+              Como funciona
+            </Button>
+            <Button onClick={() => scrollToSection("vantagens")} variant="ghost" size="sm">
+              Vantagens
+            </Button>
+            {products.length > 0 && (
+              <Button onClick={() => scrollToSection("produtos")} variant="ghost" size="sm">
+                Produtos
+              </Button>
+            )}
+            <Button onClick={() => scrollToSection("planos")} variant="ghost" size="sm">
+              Quero contratar
+            </Button>
+          </nav>
           
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {user ? (
               <>
-                <Button onClick={() => navigate("/dashboard")} variant="outline">
-                  Acessar Painel
+                <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
+                  Painel
                 </Button>
-                <Button onClick={handleLogout} variant="ghost">
+                <Button onClick={handleLogout} variant="ghost" size="sm">
                   Sair
                 </Button>
               </>
             ) : (
               <>
-                <Button onClick={() => navigate("/auth")} variant="outline">
+                <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
                   Entrar
                 </Button>
-                <Button onClick={scrollToPlans}>
+                <Button onClick={() => scrollToSection("planos")} size="sm" className="hidden sm:flex">
                   Quero Contratar
                 </Button>
               </>
@@ -298,7 +336,7 @@ const LandingPage = () => {
               <p className="text-xl text-muted-foreground mb-8">
                 Temos vários produtos para você indicar e criar uma renda recorrente.
               </p>
-              <Button size="lg" onClick={scrollToPlans} className="text-lg px-8 mb-8">
+              <Button size="lg" onClick={() => scrollToSection("planos")} className="text-lg px-8 mb-8">
                 Começar Agora
                 <Target className="ml-2 w-5 h-5" />
               </Button>
@@ -525,7 +563,7 @@ const LandingPage = () => {
       </section>
 
       {/* Vantagens */}
-      <section className="py-16 px-4 bg-muted/50">
+      <section id="vantagens" className="py-16 px-4 bg-muted/50">
         <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Vantagens de trabalhar com nosso sistema
@@ -623,7 +661,7 @@ const LandingPage = () => {
 
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
-        <section className="py-16 px-4 bg-muted/50">
+        <section id="produtos" className="py-16 px-4 bg-muted/50">
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
               Produtos Disponíveis para Afiliação
@@ -757,7 +795,7 @@ const LandingPage = () => {
                   <Button 
                     className="w-full" 
                     variant={index === 1 ? "default" : "outline"}
-                    onClick={() => user ? scrollToPlans() : navigate("/auth")}
+                    onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
                   >
                     {user ? "Assinar Agora" : "Começar Agora"}
                   </Button>
