@@ -288,6 +288,10 @@ const AdminLandingPage = () => {
   const [iconSearch, setIconSearch] = useState("");
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [uploadingHeroImage, setUploadingHeroImage] = useState<string | null>(null);
+  const [uploadingFunctionalitiesImage, setUploadingFunctionalitiesImage] = useState(false);
+  const [uploadingResponsivoImage, setUploadingResponsivoImage] = useState(false);
+  const [functionalitiesImageUrl, setFunctionalitiesImageUrl] = useState<string>("");
+  const [responsivoImageUrl, setResponsivoImageUrl] = useState<string>("");
 
   const [testimonialForm, setTestimonialForm] = useState({
     name: "",
@@ -333,6 +337,7 @@ const AdminLandingPage = () => {
     fetchFaqs();
     fetchFeatures();
     fetchHeroImages();
+    loadLandingImages();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -473,6 +478,108 @@ const AdminLandingPage = () => {
       });
     } finally {
       setUploadingHeroImage(null);
+    }
+  };
+
+  const loadLandingImages = () => {
+    // Carrega as URLs atuais das imagens
+    setFunctionalitiesImageUrl("/src/assets/laptop-dashboard.png");
+    setResponsivoImageUrl("/src/assets/dispositivos.png");
+  };
+
+  const handleFunctionalitiesImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingFunctionalitiesImage(true);
+
+    try {
+      const compressedBlob = await compressImage(file, 2000);
+      
+      const fileExt = 'webp';
+      const fileName = `laptop-dashboard-${Date.now()}.${fileExt}`;
+      const filePath = `landing/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, compressedBlob);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setFunctionalitiesImageUrl(publicUrl);
+
+      toast({
+        title: "Sucesso",
+        description: "Imagem da seção funcionalidades atualizada! Atualize o código para usar a nova URL.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingFunctionalitiesImage(false);
+    }
+  };
+
+  const handleResponsivoImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingResponsivoImage(true);
+
+    try {
+      const compressedBlob = await compressImage(file, 2000);
+      
+      const fileExt = 'webp';
+      const fileName = `dispositivos-${Date.now()}.${fileExt}`;
+      const filePath = `landing/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, compressedBlob);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setResponsivoImageUrl(publicUrl);
+
+      toast({
+        title: "Sucesso",
+        description: "Imagem da seção responsivo atualizada! Atualize o código para usar a nova URL.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingResponsivoImage(false);
     }
   };
 
@@ -955,6 +1062,7 @@ const AdminLandingPage = () => {
           <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
           <TabsTrigger value="faqs">FAQs</TabsTrigger>
           <TabsTrigger value="features">Funcionalidades</TabsTrigger>
+          <TabsTrigger value="responsivo">Responsivo</TabsTrigger>
         </TabsList>
 
         <TabsContent value="hero" className="space-y-4">
@@ -1279,6 +1387,43 @@ const AdminLandingPage = () => {
         <TabsContent value="features" className="space-y-4">
           <Card>
             <CardHeader>
+              <CardTitle>Imagem da Seção Funcionalidades</CardTitle>
+              <CardDescription>
+                Gerencie a imagem exibida na seção de funcionalidades. A imagem será comprimida automaticamente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {functionalitiesImageUrl && (
+                <div className="border rounded-lg p-4 bg-muted">
+                  <img
+                    src={functionalitiesImageUrl}
+                    alt="Preview funcionalidades"
+                    className="max-h-60 mx-auto object-contain"
+                  />
+                </div>
+              )}
+              <div>
+                <Label htmlFor="functionalities-image">Atualizar Imagem</Label>
+                <Input
+                  id="functionalities-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFunctionalitiesImageUpload(file);
+                  }}
+                  disabled={uploadingFunctionalitiesImage}
+                />
+                {uploadingFunctionalitiesImage && (
+                  <p className="text-sm text-muted-foreground mt-2">Comprimindo e enviando...</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          
+
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Funcionalidades</CardTitle>
@@ -1446,6 +1591,44 @@ const AdminLandingPage = () => {
                   </TableBody>
                 </Table>
               </DndContext>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="responsivo" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Imagem da Seção Layout Responsivo</CardTitle>
+              <CardDescription>
+                Gerencie a imagem exibida na seção de layout responsivo. A imagem será comprimida automaticamente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {responsivoImageUrl && (
+                <div className="border rounded-lg p-4 bg-muted">
+                  <img
+                    src={responsivoImageUrl}
+                    alt="Preview responsivo"
+                    className="max-h-60 mx-auto object-contain"
+                  />
+                </div>
+              )}
+              <div>
+                <Label htmlFor="responsivo-image">Atualizar Imagem</Label>
+                <Input
+                  id="responsivo-image"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleResponsivoImageUpload(file);
+                  }}
+                  disabled={uploadingResponsivoImage}
+                />
+                {uploadingResponsivoImage && (
+                  <p className="text-sm text-muted-foreground mt-2">Comprimindo e enviando...</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
