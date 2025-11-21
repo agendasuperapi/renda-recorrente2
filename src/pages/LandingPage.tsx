@@ -277,30 +277,29 @@ const LandingPage = () => {
             <span className="font-bold text-lg hidden sm:inline">APP Renda recorrente</span>
           </div>
           
-          <nav className="hidden md:flex items-center gap-1">
-            {showHomeButton && (
-              <Button onClick={() => scrollToSection("inicio")} variant="ghost" size="sm">
-                Início
+          <div className="flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1">
+              {showHomeButton && (
+                <Button onClick={() => scrollToSection("inicio")} variant="ghost" size="sm">
+                  Início
+                </Button>
+              )}
+              <Button onClick={() => scrollToSection("como-funciona")} variant="ghost" size="sm">
+                Como funciona
               </Button>
-            )}
-            <Button onClick={() => scrollToSection("como-funciona")} variant="ghost" size="sm">
-              Como funciona
-            </Button>
-            <Button onClick={() => scrollToSection("vantagens")} variant="ghost" size="sm">
-              Vantagens
-            </Button>
-            {products.length > 0 && (
-              <Button onClick={() => scrollToSection("produtos")} variant="ghost" size="sm">
-                Produtos
+              <Button onClick={() => scrollToSection("vantagens")} variant="ghost" size="sm">
+                Vantagens
               </Button>
-            )}
-            <Button onClick={() => scrollToSection("planos")} variant="ghost" size="sm">
-              Quero contratar
-            </Button>
-          </nav>
-          
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
+              {products.length > 0 && (
+                <Button onClick={() => scrollToSection("produtos")} variant="ghost" size="sm">
+                  Produtos
+                </Button>
+              )}
+              <Button onClick={() => scrollToSection("planos")} variant="ghost" size="sm">
+                Quero contratar
+              </Button>
+            </nav>
+            
             {user ? (
               <>
                 <Button onClick={() => navigate("/dashboard")} variant="outline" size="sm">
@@ -320,6 +319,8 @@ const LandingPage = () => {
                 </Button>
               </>
             )}
+            
+            <ThemeToggle />
           </div>
         </div>
       </header>
