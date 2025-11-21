@@ -330,6 +330,42 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_block_gradients: {
+        Row: {
+          block_name: string
+          color_end: string
+          color_start: string
+          created_at: string | null
+          gradient_start_position: number
+          id: string
+          intensity_end: number
+          intensity_start: number
+          updated_at: string | null
+        }
+        Insert: {
+          block_name: string
+          color_end?: string
+          color_start?: string
+          created_at?: string | null
+          gradient_start_position?: number
+          id?: string
+          intensity_end?: number
+          intensity_start?: number
+          updated_at?: string | null
+        }
+        Update: {
+          block_name?: string
+          color_end?: string
+          color_start?: string
+          created_at?: string | null
+          gradient_start_position?: number
+          id?: string
+          intensity_end?: number
+          intensity_start?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_faqs: {
         Row: {
           answer: string
