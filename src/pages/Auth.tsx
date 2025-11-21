@@ -153,7 +153,7 @@ const Auth = () => {
     const endAlpha = config.intensity_end / 100;
     
     return {
-      background: `linear-gradient(to bottom, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
+      background: `linear-gradient(to right, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
     };
   };
 
