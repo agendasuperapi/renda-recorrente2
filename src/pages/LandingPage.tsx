@@ -788,18 +788,76 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-16 px-4 relative" style={getGradientStyle('painel-afiliado')}>
-        {isAdmin && (
-          <Button
-            onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')}
-            className="absolute top-4 right-4 z-40"
-            size="sm"
-            variant="outline"
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-        )}
-...
+      <section id="painel-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/15 to-brand-green/30">
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+            Painel de Afiliado
+          </h2>
+          <p className="text-xl text-center text-muted-foreground mb-12">
+            Acompanhe suas indicações e seus ganhos de forma prática e rápida.
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className={`transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              <CardHeader>
+                <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
+                <CardTitle>Painel Exclusivo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Dashboard completo com todas as informações importantes.</p>
+              </CardContent>
+            </Card>
+
+            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              <CardHeader>
+                <Target className="w-10 h-10 text-primary mb-2" />
+                <CardTitle>Metas de Ganhos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Acompanhe suas metas e conquistas em tempo real.</p>
+              </CardContent>
+            </Card>
+
+            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              <CardHeader>
+                <Share2 className="w-10 h-10 text-primary mb-2" />
+                <CardTitle>Link de Compartilhamento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Seu link exclusivo pronto para compartilhar.</p>
+              </CardContent>
+            </Card>
+
+            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              <CardHeader>
+                <Award className="w-10 h-10 text-primary mb-2" />
+                <CardTitle>Cupons de Descontos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Crie cupons e ofereça dias grátis para seus indicados.</p>
+              </CardContent>
+            </Card>
+
+            <Card className={`transition-all duration-700 delay-[400ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              <CardHeader>
+                <Shield className="w-10 h-10 text-primary mb-2" />
+                <CardTitle>Sistema Seguro</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">100% seguro e inteligente para sua proteção.</p>
+              </CardContent>
+            </Card>
+
+            <Card className={`transition-all duration-700 delay-[500ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              <CardHeader>
+                <FileText className="w-10 h-10 text-primary mb-2" />
+                <CardTitle>Relatórios Completos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Relatórios detalhados de indicações e comissões.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </section>
 
       {/* Vantagens */}
