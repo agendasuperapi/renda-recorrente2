@@ -630,7 +630,7 @@ const LandingPage = () => {
             Como funciona o programa de afiliados?
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <Card>
+            <Card className={`${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0'}`}>
               <CardHeader>
                 <UserPlus className="w-12 h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -648,7 +648,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('como-funciona') ? 'animate-fade-in [animation-delay:200ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Megaphone className="w-12 h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -666,7 +666,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('como-funciona') ? 'animate-fade-in [animation-delay:400ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <DollarSign className="w-12 h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
