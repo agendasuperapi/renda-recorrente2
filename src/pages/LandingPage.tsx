@@ -1062,7 +1062,7 @@ const LandingPage = () => {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-16 px-4 relative" style={getGradientStyle('planos')}>
+      <section id="planos" className="py-16 px-4 relative">
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')}
@@ -1073,7 +1073,59 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-...
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+            Escolha seu Plano
+          </h2>
+          <p className="text-xl text-center text-muted-foreground mb-12">
+            Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {plans.map((plan, index) => (
+              <Card key={plan.id} className={`transition-all duration-700 ${index === 1 ? "border-primary shadow-lg delay-100" : index === 2 ? "delay-200" : ""} ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+                {index === 1 && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    Mais Popular
+                  </Badge>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    {plan.original_price && plan.original_price > plan.price && (
+                      <span className="text-muted-foreground line-through text-sm mr-2">
+                        R$ {plan.original_price.toFixed(2)}
+                      </span>
+                    )}
+                    <span className="text-4xl font-bold">
+                      R$ {plan.price.toFixed(2)}
+                    </span>
+                    <span className="text-muted-foreground">/{plan.billing_period}</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className="w-full" 
+                    variant={index === 1 ? "default" : "outline"}
+                    onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
+                  >
+                    {user ? "Assinar Agora" : "Começar Agora"}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* FAQs */}
