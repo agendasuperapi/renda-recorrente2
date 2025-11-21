@@ -1431,25 +1431,25 @@ const LandingPage = () => {
             <div>
               <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Produto</h3>
               <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
-                <li>Funcionalidades</li>
-                <li>Preços</li>
-                <li>Treinamento</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => scrollToSection("funcionalidades")}>Funcionalidades</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => scrollToSection("planos")}>Preços</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/training")}>Treinamento</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Suporte</h3>
               <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
-                <li>Central de Ajuda</li>
-                <li>WhatsApp</li>
-                <li>FAQ</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => scrollToSection("faq")}>Central de Ajuda</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => window.open(getWhatsappUrl(), '_blank')}>WhatsApp</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => scrollToSection("faq")}>FAQ</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Legal</h3>
               <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
-                <li>Termos de Uso</li>
-                <li>Privacidade</li>
-                <li>Cookies</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/terms-of-service")}>Termos de Uso</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/privacy-policy")}>Privacidade</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/privacy-policy")}>Cookies</li>
               </ul>
             </div>
           </div>
