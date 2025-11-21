@@ -16,6 +16,7 @@ import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
+import laptopDashboard from "@/assets/laptop-dashboard.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -645,72 +646,70 @@ const LandingPage = () => {
       {/* Painel de Afiliado */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Painel de Afiliado
-          </h2>
-          <p className="text-xl text-center text-muted-foreground mb-12">
-            Acompanhe suas indicações e seus ganhos de forma prática e rápida.
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Painel Exclusivo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Dashboard completo com todas as informações importantes.</p>
-              </CardContent>
-            </Card>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Laptop Image */}
+            <div className="flex justify-center md:justify-start">
+              <img 
+                src={laptopDashboard} 
+                alt="Dashboard do Painel de Afiliado" 
+                className="w-full max-w-lg"
+              />
+            </div>
 
-            <Card>
-              <CardHeader>
-                <Target className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Metas de Ganhos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Acompanhe suas metas e conquistas em tempo real.</p>
-              </CardContent>
-            </Card>
+            {/* Features List */}
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Painel de Afiliado
+              </h2>
+              <p className="text-xl text-muted-foreground mb-8">
+                Acompanhe suas indicações e seus ganhos de forma prática e rápida.
+              </p>
 
-            <Card>
-              <CardHeader>
-                <Share2 className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Link de Compartilhamento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Seu link exclusivo pronto para compartilhar.</p>
-              </CardContent>
-            </Card>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <LayoutDashboard className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Painel exclusivo</h3>
+                    <p className="text-muted-foreground">Dashboard completo</p>
+                  </div>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <Award className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Cupons de Descontos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Crie cupons e ofereça dias grátis para seus indicados.</p>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-4">
+                  <TrendingUp className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Dashboard completo</h3>
+                  </div>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <Shield className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Sistema Seguro</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">100% seguro e inteligente para sua proteção.</p>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-4">
+                  <Target className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Metas de ganhos</h3>
+                  </div>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <FileText className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Relatórios Completos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Relatórios detalhados de indicações e comissões.</p>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-4">
+                  <Share2 className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Link de compartilhamento</h3>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <Award className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Cupons de descontos ou dias grátis</h3>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <Shield className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">100% Seguro e inteligente</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
