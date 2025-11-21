@@ -14,10 +14,9 @@ import {
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import { useQuery } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
 import logo from "@/assets/logo.png";
-import heroPerson from "@/assets/hero-person.png";
-import trustBadges from "@/assets/trust-badges.png";
-import logoAlt from "@/assets/logo-alt.png";
 import logoHeader from "@/assets/logo-header.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
@@ -61,6 +60,14 @@ interface Feature {
   name: string;
   icon: string;
   is_active: boolean;
+}
+
+interface HeroImage {
+  id: string;
+  name: string;
+  light_image_url: string | null;
+  dark_image_url: string | null;
+  alt_text: string;
 }
 
 const defaultTestimonials: Testimonial[] = [
@@ -120,6 +127,7 @@ const defaultFaqs: FAQ[] = [
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
@@ -131,6 +139,31 @@ const LandingPage = () => {
   const [showHomeButton, setShowHomeButton] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("inicio");
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Busca imagens do hero com cache
+  const { data: heroImages = [] } = useQuery({
+    queryKey: ['heroImages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('landing_hero_images')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      return data as HeroImage[];
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutos
+    gcTime: 1000 * 60 * 60, // 1 hora
+  });
+
+  // Helper para pegar imagem por nome
+  const getHeroImage = (imageName: string) => {
+    const image = heroImages.find(img => img.name === imageName);
+    if (!image) return '';
+    
+    const isDark = theme === 'dark';
+    return isDark ? (image.dark_image_url || image.light_image_url || '') : (image.light_image_url || '');
+  };
 
   useEffect(() => {
     // Check auth state
@@ -423,7 +456,14 @@ const LandingPage = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="text-center md:text-left">
-              <img src={logoAlt} alt="Renda Recorrente" className="h-16 mb-4" />
+              {getHeroImage('Logo Alternativo') && (
+                <img 
+                  src={getHeroImage('Logo Alternativo')} 
+                  alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Renda Recorrente'} 
+                  className="h-16 mb-4"
+                  loading="eager"
+                />
+              )}
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 Participe e ganhe dinheiro recomendando nossos aplicativos
               </h1>
@@ -435,11 +475,25 @@ const LandingPage = () => {
                 <Target className="ml-2 w-5 h-5" />
               </Button>
               <div className="flex justify-center md:justify-start">
-                <img src={trustBadges} alt="Compra Segura, Satisfação Garantida, Privacidade Protegida" className="h-12" />
+                {getHeroImage('Trust Badges') && (
+                  <img 
+                    src={getHeroImage('Trust Badges')} 
+                    alt={heroImages.find(img => img.name === 'Trust Badges')?.alt_text || 'Selos de segurança'}
+                    className="h-12"
+                    loading="eager"
+                  />
+                )}
               </div>
             </div>
             <div className="flex justify-center">
-              <img src={heroPerson} alt="Afiliado" className="w-full max-w-md" />
+              {getHeroImage('Hero Person') && (
+                <img 
+                  src={getHeroImage('Hero Person')} 
+                  alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
+                  className="w-full max-w-md"
+                  loading="eager"
+                />
+              )}
             </div>
           </div>
         </div>

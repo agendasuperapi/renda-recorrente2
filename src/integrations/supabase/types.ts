@@ -390,6 +390,36 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_hero_images: {
+        Row: {
+          alt_text: string
+          created_at: string | null
+          dark_image_url: string | null
+          id: string
+          light_image_url: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          alt_text: string
+          created_at?: string | null
+          dark_image_url?: string | null
+          id?: string
+          light_image_url?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string | null
+          dark_image_url?: string | null
+          id?: string
+          light_image_url?: string | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_testimonials: {
         Row: {
           avatar_url: string | null
