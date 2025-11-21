@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -139,6 +139,8 @@ const LandingPage = () => {
   const [activeSection, setActiveSection] = useState<string>("inicio");
   const [isAdmin, setIsAdmin] = useState(false);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const [parallaxOffset, setParallaxOffset] = useState(0);
+  const heroImageRef = useRef<HTMLDivElement>(null);
 
   // Busca imagens do hero com cache
   const { data: heroImages = [] } = useQuery({
@@ -196,9 +198,17 @@ const LandingPage = () => {
     // Fetch product info
     fetchProductInfo();
 
-    // Scroll listener para mostrar botão Início
+    // Scroll listener para mostrar botão Início e parallax
     const handleScroll = () => {
       setShowHomeButton(window.scrollY > 100);
+      
+      // Parallax effect para a imagem do hero
+      if (heroImageRef.current) {
+        const rect = heroImageRef.current.getBoundingClientRect();
+        const scrolled = window.scrollY;
+        const rate = scrolled * 0.3; // Ajuste a velocidade do parallax
+        setParallaxOffset(rate);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -511,7 +521,14 @@ const LandingPage = () => {
                 )}
               </div>
             </div>
-            <div className={`flex justify-center transition-all duration-700 delay-200 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+            <div 
+              ref={heroImageRef}
+              className={`flex justify-center transition-all duration-700 delay-200 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}
+              style={{
+                transform: `translateY(${parallaxOffset}px)`,
+                transition: 'transform 0.1s ease-out'
+              }}
+            >
               {getHeroImage('Hero Person') && (
                 <img 
                   src={getHeroImage('Hero Person')} 
