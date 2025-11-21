@@ -867,7 +867,7 @@ const LandingPage = () => {
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
         <section id="produtos" className="py-16 px-4 bg-muted/50">
-          <div className={`container mx-auto max-w-6xl transition-all duration-700 ${visibleSections.has('produtos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <div className="container mx-auto max-w-6xl transition-all duration-700 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
               Produtos Disponíveis para Afiliação
             </h2>
