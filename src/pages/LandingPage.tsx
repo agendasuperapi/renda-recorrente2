@@ -1081,7 +1081,7 @@ const LandingPage = () => {
             <p className="text-xl text-center mb-12" style={{ color: getTextColor('produtos') }}>
               Escolha entre nossos produtos e comece a ganhar comissões recorrentes
             </p>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 max-w-3xl mx-auto">
               {products.map((product, index) => {
                 const isDark = theme === 'dark';
                 const iconUrl = isDark ? (product.icone_dark || product.icone_light) : (product.icone_light || product.icone_dark);
@@ -1101,7 +1101,7 @@ const LandingPage = () => {
                         />
                       )}
                       <CardTitle>{product.nome}</CardTitle>
-                      <CardDescription>{product.descricao}</CardDescription>
+                      <CardDescription className="whitespace-pre-line">{product.descricao}</CardDescription>
                     </CardHeader>
                     <CardFooter>
                       <Button 
