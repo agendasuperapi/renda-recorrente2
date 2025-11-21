@@ -962,24 +962,41 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+        <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
             Funcionalidades
           </h2>
-          <p className="text-xl text-muted-foreground mb-12">
-            Tudo que você precisa para gerenciar sua renda recorrente em um só lugar
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div 
-                key={feature.id} 
-                className="p-6 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300 animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{feature.name}</h3>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Imagem do Notebook */}
+            <div className="flex justify-center">
+              {getHeroImage('Funcionalidades') && (
+                <img 
+                  src={getHeroImage('Funcionalidades')} 
+                  alt={heroImages.find(img => img.name === 'Funcionalidades')?.alt_text || 'Dashboard do sistema'} 
+                  className="w-full max-w-xl object-contain animate-fade-in"
+                  style={{ animationDelay: '200ms' }}
+                />
+              )}
+            </div>
+            
+            {/* Lista de Funcionalidades */}
+            <div className="space-y-6">
+              {features.map((feature, index) => (
+                <div 
+                  key={feature.id} 
+                  className="flex items-start gap-4 animate-fade-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="text-3xl text-primary flex-shrink-0">{feature.icon}</div>
+                  <div>
+                    <h3 className="text-lg font-semibold">{feature.name}</h3>
+                  </div>
+                </div>
+              ))}
+              <p className="text-muted-foreground italic mt-8">
+                O sistema está em constante atualização, então em breve teremos novas funcionalidades.
+              </p>
+            </div>
           </div>
         </div>
       </section>
