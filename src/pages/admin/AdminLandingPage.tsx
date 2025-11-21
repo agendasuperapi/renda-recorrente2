@@ -61,6 +61,14 @@ interface Feature {
   order_position: number;
 }
 
+interface HeroImage {
+  id: string;
+  name: string;
+  light_image_url: string | null;
+  dark_image_url: string | null;
+  alt_text: string;
+}
+
 // Componente para renderizar ícone dinamicamente
 const DynamicIcon = ({ name, ...props }: { name: keyof typeof dynamicIconImports } & Omit<LucideProps, 'ref'>) => {
   const Icon = lazy(dynamicIconImports[name]);
@@ -270,6 +278,7 @@ const AdminLandingPage = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [features, setFeatures] = useState<Feature[]>([]);
+  const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
   const [showFeatureForm, setShowFeatureForm] = useState(false);
@@ -278,6 +287,7 @@ const AdminLandingPage = () => {
   const [editingFeature, setEditingFeature] = useState<Feature | null>(null);
   const [iconSearch, setIconSearch] = useState("");
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
+  const [uploadingHeroImage, setUploadingHeroImage] = useState<string | null>(null);
 
   const [testimonialForm, setTestimonialForm] = useState({
     name: "",
@@ -322,6 +332,7 @@ const AdminLandingPage = () => {
     fetchTestimonials();
     fetchFaqs();
     fetchFeatures();
+    fetchHeroImages();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -346,6 +357,123 @@ const AdminLandingPage = () => {
       .select("*")
       .order("order_position");
     if (data) setFeatures(data as Feature[]);
+  };
+
+  const fetchHeroImages = async () => {
+    const { data } = await (supabase as any)
+      .from("landing_hero_images")
+      .select("*")
+      .order("name");
+    if (data) setHeroImages(data as HeroImage[]);
+  };
+
+  const compressImage = async (file: File, maxWidth: number = 1200): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Resize if needed
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Failed to compress image'));
+              }
+            },
+            'image/webp',
+            0.85
+          );
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
+  const handleHeroImageUpload = async (
+    heroImageId: string,
+    file: File,
+    theme: 'light' | 'dark'
+  ) => {
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingHeroImage(`${heroImageId}-${theme}`);
+
+    try {
+      // Compress image
+      const compressedBlob = await compressImage(file);
+      
+      const fileExt = 'webp';
+      const fileName = `${heroImageId}-${theme}-${Date.now()}.${fileExt}`;
+      const filePath = `hero/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, compressedBlob);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      // Update database
+      const updateData = theme === 'light' 
+        ? { light_image_url: publicUrl }
+        : { dark_image_url: publicUrl };
+
+      const { error: updateError } = await (supabase as any)
+        .from("landing_hero_images")
+        .update(updateData)
+        .eq("id", heroImageId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: `Imagem ${theme === 'light' ? 'clara' : 'escura'} atualizada!`
+      });
+
+      fetchHeroImages();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingHeroImage(null);
+    }
   };
 
   const resetTestimonialForm = () => {
@@ -823,10 +951,87 @@ const AdminLandingPage = () => {
 
       <Tabs defaultValue="testimonials" className="w-full">
         <TabsList>
+          <TabsTrigger value="hero">Bloco Início</TabsTrigger>
           <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
           <TabsTrigger value="faqs">FAQs</TabsTrigger>
           <TabsTrigger value="features">Funcionalidades</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="hero" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Imagens do Bloco Início</CardTitle>
+              <CardDescription>
+                Gerencie as imagens do Hero Section. As imagens serão comprimidas automaticamente para melhor performance.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {heroImages.map((heroImage) => (
+                <Card key={heroImage.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{heroImage.name}</CardTitle>
+                    <CardDescription>{heroImage.alt_text}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Light Theme */}
+                      <div className="space-y-2">
+                        <Label>Imagem Tema Claro</Label>
+                        {heroImage.light_image_url && (
+                          <div className="border rounded-lg p-4 bg-white">
+                            <img
+                              src={heroImage.light_image_url}
+                              alt={`${heroImage.alt_text} - Claro`}
+                              className="max-h-40 mx-auto object-contain"
+                            />
+                          </div>
+                        )}
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleHeroImageUpload(heroImage.id, file, 'light');
+                          }}
+                          disabled={uploadingHeroImage === `${heroImage.id}-light`}
+                        />
+                        {uploadingHeroImage === `${heroImage.id}-light` && (
+                          <p className="text-sm text-muted-foreground">Comprimindo e enviando...</p>
+                        )}
+                      </div>
+
+                      {/* Dark Theme */}
+                      <div className="space-y-2">
+                        <Label>Imagem Tema Escuro</Label>
+                        {heroImage.dark_image_url && (
+                          <div className="border rounded-lg p-4 bg-gray-900">
+                            <img
+                              src={heroImage.dark_image_url}
+                              alt={`${heroImage.alt_text} - Escuro`}
+                              className="max-h-40 mx-auto object-contain"
+                            />
+                          </div>
+                        )}
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleHeroImageUpload(heroImage.id, file, 'dark');
+                          }}
+                          disabled={uploadingHeroImage === `${heroImage.id}-dark`}
+                        />
+                        {uploadingHeroImage === `${heroImage.id}-dark` && (
+                          <p className="text-sm text-muted-foreground">Comprimindo e enviando...</p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="testimonials" className="space-y-4">
           <Card>
