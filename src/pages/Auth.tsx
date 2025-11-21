@@ -203,7 +203,7 @@ const Auth = () => {
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => isLogin ? navigate("/") : setIsLogin(!isLogin)}
             className="text-primary hover:text-primary/80 transition-colors"
           >
             {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
