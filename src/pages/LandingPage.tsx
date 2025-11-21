@@ -891,7 +891,7 @@ const LandingPage = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12" style={{ color: getHeadingColor('como-funciona') }}>
             Como funciona o programa de afiliados?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <Card className={`transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
               <CardHeader>
                 <UserPlus className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
