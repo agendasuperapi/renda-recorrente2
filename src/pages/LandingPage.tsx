@@ -488,7 +488,7 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="py-20 px-4 bg-gradient-to-b from-background via-background/95 to-brand-green/95">
+      <section id="hero" className="py-20 px-4 bg-gradient-to-b from-background via-background to-brand-green/70">
         <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
@@ -544,7 +544,7 @@ const LandingPage = () => {
       </section>
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/95 to-brand-green">
+      <section id="seja-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/70 to-brand-green/85">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Seja um Afiliado
