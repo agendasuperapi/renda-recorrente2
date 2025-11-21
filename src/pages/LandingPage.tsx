@@ -1415,7 +1415,7 @@ const LandingPage = () => {
                         <span className="text-[#22c55e] text-4xl md:text-5xl font-bold">
                           R${plan.price.toFixed(2)}
                         </span>
-                        <span className="text-white text-lg">/{plan.billing_period}</span>
+                        <span className="text-white text-lg">/{plan.billing_period === 'monthly' ? 'mensal' : plan.billing_period === 'yearly' ? 'anual' : plan.billing_period}</span>
                       </div>
                       {isPro && plan.original_price && plan.original_price > plan.price ? (
                         <p className="text-white text-center text-sm mt-2">
