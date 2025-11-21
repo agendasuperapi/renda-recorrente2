@@ -624,7 +624,7 @@ const LandingPage = () => {
       </section>
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-16 px-4 bg-muted/50">
+      <section id="como-funciona" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Como funciona o programa de afiliados?
@@ -761,7 +761,7 @@ const LandingPage = () => {
       </section>
 
       {/* Vantagens */}
-      <section id="vantagens" className="py-16 px-4 bg-muted/50">
+      <section id="vantagens" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Vantagens de trabalhar com nosso sistema
@@ -876,7 +876,7 @@ const LandingPage = () => {
       </section>
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-16 px-4 bg-muted/50">
+      <section id="layout-responsivo" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
         <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Layout Responsivo
@@ -899,7 +899,7 @@ const LandingPage = () => {
 
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
-        <section id="produtos" className="py-16 px-4 bg-muted/50">
+        <section id="produtos" className="py-16 px-4 bg-gradient-to-b from-[#00bf63]/3 to-[#00bf63]/8">
           <div className="container mx-auto max-w-7xl transition-all duration-700 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
               Produtos Disponíveis para Afiliação
