@@ -1218,18 +1218,18 @@ const LandingPage = () => {
                   </Badge>
                 )}
                 <CardHeader>
-                  <CardTitle className="text-2xl" style={{ color: getHeadingColor('planos') }}>{plan.name}</CardTitle>
-                  <CardDescription style={{ color: getTextColor('planos') }}>{plan.description}</CardDescription>
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
                     {plan.original_price && plan.original_price > plan.price && (
-                      <span className="line-through text-sm mr-2" style={{ color: getTextColor('planos'), opacity: 0.7 }}>
+                      <span className="text-muted-foreground line-through text-sm mr-2">
                         R$ {plan.original_price.toFixed(2)}
                       </span>
                     )}
-                    <span className="text-4xl font-bold" style={{ color: getHeadingColor('planos') }}>
+                    <span className="text-4xl font-bold">
                       R$ {plan.price.toFixed(2)}
                     </span>
-                    <span style={{ color: getTextColor('planos'), opacity: 0.7 }}>/{plan.billing_period}</span>
+                    <span className="text-muted-foreground">/{plan.billing_period}</span>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -1237,7 +1237,7 @@ const LandingPage = () => {
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm" style={{ color: getTextColor('planos') }}>{feature}</span>
+                        <span className="text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
