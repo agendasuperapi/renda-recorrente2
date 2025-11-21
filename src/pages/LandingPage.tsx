@@ -602,7 +602,7 @@ const LandingPage = () => {
       </section>
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-16 px-4 bg-gradient-to-b from-brand-green/15 to-brand-green/30">
+      <section id="comissao-recorrente" className="py-16 px-4 bg-gradient-to-b from-background to-background/80">
         <div className={`container mx-auto max-w-4xl text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             O que é Comissão Recorrente?
