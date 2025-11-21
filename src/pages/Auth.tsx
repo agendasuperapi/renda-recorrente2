@@ -10,6 +10,7 @@ import { Eye, EyeOff } from "lucide-react";
 import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
 
 const authSchema = z.object({
   email: z
@@ -141,20 +142,22 @@ const Auth = () => {
             background: `linear-gradient(135deg, #00bf63 0%, #00bf6300 100%)`
           }}
         />
-        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-center">
-          <div className="max-w-lg">
-            <div className="inline-flex items-center justify-center w-32 h-32 mb-8">
-              <img src={logoAuth} alt="Logo" className="w-32 h-32 rounded-full" />
-            </div>
-            <h2 className="text-4xl font-bold mb-6 text-foreground">
-              APP Renda Recorrente
-            </h2>
-            {product?.descricao && (
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                {product.descricao}
-              </p>
-            )}
-          </div>
+        <div className="relative z-10 flex flex-col items-center justify-center p-12">
+          <Card className="max-w-lg bg-card/80 backdrop-blur-sm border-primary/20 shadow-2xl">
+            <CardContent className="pt-12 pb-12 px-8 text-center">
+              <div className="inline-flex items-center justify-center w-32 h-32 mb-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 p-2">
+                <img src={logoAuth} alt="Logo APP Renda Recorrente" className="w-full h-full rounded-full object-cover" />
+              </div>
+              <h2 className="text-4xl font-bold mb-6 text-foreground">
+                APP Renda Recorrente
+              </h2>
+              {product?.descricao && (
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  {product.descricao}
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
