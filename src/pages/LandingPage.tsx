@@ -788,7 +788,7 @@ const LandingPage = () => {
       </section>
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-16 px-4 relative bg-gradient-to-b from-brand-green/15 to-brand-green/30">
+      <section id="painel-afiliado" className="py-16 px-4 relative" style={getGradientStyle('painel-afiliado')}>
         {isAdmin && (
           <Button
             onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')}
