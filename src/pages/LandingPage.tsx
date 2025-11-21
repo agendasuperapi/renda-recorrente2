@@ -16,6 +16,7 @@ import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
+import laptopImage from "@/assets/laptop-dashboard.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -787,28 +788,40 @@ const LandingPage = () => {
 
       {/* Funcionalidades */}
       <section className="py-16 px-4">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Funcionalidades
           </h2>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                {features.map((feature) => {
-                  const IconComponent = getIconComponent(feature.icon);
-                  return (
-                    <div key={feature.id} className="flex items-center gap-3">
-                      <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
-                      <span>{feature.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-center text-muted-foreground mt-6 italic">
-                O sistema está em constante atualização, então em breve teremos novas funcionalidades.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Imagem do laptop à esquerda */}
+            <div className="flex justify-center lg:justify-start">
+              <img 
+                src={laptopImage} 
+                alt="Dashboard do sistema em laptop" 
+                className="w-full max-w-lg object-contain"
+              />
+            </div>
+            
+            {/* Funcionalidades à direita em coluna única */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col gap-4">
+                  {features.map((feature) => {
+                    const IconComponent = getIconComponent(feature.icon);
+                    return (
+                      <div key={feature.id} className="flex items-center gap-3">
+                        <IconComponent className="w-5 h-5 text-primary flex-shrink-0" />
+                        <span>{feature.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-center text-muted-foreground mt-6 italic">
+                  O sistema está em constante atualização, então em breve teremos novas funcionalidades.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
