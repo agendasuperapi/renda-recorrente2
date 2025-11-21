@@ -15,6 +15,8 @@ interface GradientConfig {
   intensity_start: number;
   intensity_end: number;
   gradient_start_position: number;
+  text_color?: string;
+  heading_color?: string;
 }
 
 interface GradientEditorProps {
@@ -31,6 +33,8 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
   const [intensityStart, setIntensityStart] = useState(config.intensity_start);
   const [intensityEnd, setIntensityEnd] = useState(config.intensity_end);
   const [gradientStartPos, setGradientStartPos] = useState(config.gradient_start_position);
+  const [textColor, setTextColor] = useState(config.text_color || '#ffffff');
+  const [headingColor, setHeadingColor] = useState(config.heading_color || '#ffffff');
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
@@ -45,6 +49,8 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
           intensity_start: intensityStart,
           intensity_end: intensityEnd,
           gradient_start_position: gradientStartPos,
+          text_color: textColor,
+          heading_color: headingColor,
         }, {
           onConflict: 'block_name'
         });
@@ -59,6 +65,8 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
         intensity_start: intensityStart,
         intensity_end: intensityEnd,
         gradient_start_position: gradientStartPos,
+        text_color: textColor,
+        heading_color: headingColor,
       });
     } catch (error) {
       console.error('Error saving gradient:', error);
@@ -166,6 +174,44 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
             step={10}
             className="w-full"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="text-color" className="text-xs">Cor do Texto</Label>
+          <div className="flex gap-2">
+            <Input
+              id="text-color"
+              type="color"
+              value={textColor}
+              onChange={(e) => setTextColor(e.target.value)}
+              className="w-16 h-8"
+            />
+            <Input
+              type="text"
+              value={textColor}
+              onChange={(e) => setTextColor(e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="heading-color" className="text-xs">Cor dos Títulos</Label>
+          <div className="flex gap-2">
+            <Input
+              id="heading-color"
+              type="color"
+              value={headingColor}
+              onChange={(e) => setHeadingColor(e.target.value)}
+              className="w-16 h-8"
+            />
+            <Input
+              type="text"
+              value={headingColor}
+              onChange={(e) => setHeadingColor(e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
         </div>
 
         <div 
