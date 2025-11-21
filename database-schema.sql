@@ -592,7 +592,7 @@ values
     0.00,
     0.00,
     25,
-    'monthly',
+    'mensal',
     '["Treinamento", "Comissão Reduzida (25%)", "Suporte", "Ferramentas de divulgação"]'::jsonb
   ),
   (
@@ -601,7 +601,7 @@ values
     49.90,
     59.90,
     40,
-    'monthly',
+    'mensal',
     '["Treinamento", "Comissão 40%", "Suporte", "Ferramentas de divulgação"]'::jsonb
   );
 
