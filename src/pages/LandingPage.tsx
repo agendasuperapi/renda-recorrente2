@@ -624,7 +624,7 @@ const LandingPage = () => {
       </section>
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-16 px-4 bg-gradient-to-b from-brand-green/3 to-brand-green/8">
+      <section id="como-funciona" className="py-16 px-4 bg-gradient-to-b from-brand-green/70 to-brand-green/90">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Como funciona o programa de afiliados?
