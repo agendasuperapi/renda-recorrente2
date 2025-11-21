@@ -46,7 +46,7 @@ const Plan = () => {
           {plans.map((plan, index) => (
             <Card
               key={index}
-              className={`relative ${
+              className={`relative transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
                 plan.popular
                   ? "border-primary shadow-lg scale-105"
                   : plan.current
