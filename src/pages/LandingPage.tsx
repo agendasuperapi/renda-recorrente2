@@ -721,9 +721,9 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className="container mx-auto max-w-6xl px-0">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center">
+            <div className={`w-full px-3 md:px-0 text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
               {getHeroImage('Logo Alternativo') && (
                 <img 
                   src={getHeroImage('Logo Alternativo')} 
@@ -741,7 +741,7 @@ const LandingPage = () => {
               <Button 
                 size="lg" 
                 onClick={() => scrollToSection("planos")} 
-                className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 mb-6 md:mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse"
+                className="w-full md:w-auto text-base md:text-lg px-6 md:px-8 mb-6 md:mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse"
               >
                 Começar Agora
                 <Target className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform duration-300" />
