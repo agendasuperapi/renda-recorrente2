@@ -420,36 +420,6 @@ export type Database = {
         }
         Relationships: []
       }
-      landing_section_images: {
-        Row: {
-          alt_text: string
-          created_at: string | null
-          id: string
-          image_url: string | null
-          is_active: boolean | null
-          section_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          alt_text: string
-          created_at?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          section_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          alt_text?: string
-          created_at?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          section_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       landing_testimonials: {
         Row: {
           avatar_url: string | null
