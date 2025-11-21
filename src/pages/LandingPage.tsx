@@ -79,6 +79,10 @@ interface GradientConfig {
   gradient_start_position: number;
   text_color?: string;
   heading_color?: string;
+  text_color_light?: string;
+  text_color_dark?: string;
+  heading_color_light?: string;
+  heading_color_dark?: string;
 }
 
 const defaultTestimonials: Testimonial[] = [
@@ -241,12 +245,24 @@ const LandingPage = () => {
 
   const getTextColor = (blockName: string) => {
     const config = gradientConfigs[blockName];
-    return config?.text_color || undefined;
+    if (!config) return undefined;
+    
+    if (theme === 'dark') {
+      return config.text_color_dark || config.text_color || undefined;
+    } else {
+      return config.text_color_light || config.text_color || undefined;
+    }
   };
 
   const getHeadingColor = (blockName: string) => {
     const config = gradientConfigs[blockName];
-    return config?.heading_color || undefined;
+    if (!config) return undefined;
+    
+    if (theme === 'dark') {
+      return config.heading_color_dark || config.heading_color || undefined;
+    } else {
+      return config.heading_color_light || config.heading_color || undefined;
+    }
   };
 
   useEffect(() => {

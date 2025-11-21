@@ -338,10 +338,14 @@ export type Database = {
           created_at: string | null
           gradient_start_position: number
           heading_color: string | null
+          heading_color_dark: string | null
+          heading_color_light: string | null
           id: string
           intensity_end: number
           intensity_start: number
           text_color: string | null
+          text_color_dark: string | null
+          text_color_light: string | null
           updated_at: string | null
         }
         Insert: {
@@ -351,10 +355,14 @@ export type Database = {
           created_at?: string | null
           gradient_start_position?: number
           heading_color?: string | null
+          heading_color_dark?: string | null
+          heading_color_light?: string | null
           id?: string
           intensity_end?: number
           intensity_start?: number
           text_color?: string | null
+          text_color_dark?: string | null
+          text_color_light?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -364,10 +372,14 @@ export type Database = {
           created_at?: string | null
           gradient_start_position?: number
           heading_color?: string | null
+          heading_color_dark?: string | null
+          heading_color_light?: string | null
           id?: string
           intensity_end?: number
           intensity_start?: number
           text_color?: string | null
+          text_color_dark?: string | null
+          text_color_light?: string | null
           updated_at?: string | null
         }
         Relationships: []
