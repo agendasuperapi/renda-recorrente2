@@ -632,11 +632,13 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
-                <UserPlus className="w-12 h-12 text-primary mb-2" />
-                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
-                  1
-                </div>
-                <CardTitle>Inscrição e Treinamento</CardTitle>
+                <UserPlus className="w-12 h-12 text-primary mb-4" />
+                <CardTitle className="flex items-center gap-2">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
+                    1
+                  </span>
+                  Inscrição e Treinamento
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
@@ -648,11 +650,13 @@ const LandingPage = () => {
 
             <Card>
               <CardHeader>
-                <Megaphone className="w-12 h-12 text-primary mb-2" />
-                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
-                  2
-                </div>
-                <CardTitle>Divulgação dos Produtos</CardTitle>
+                <Megaphone className="w-12 h-12 text-primary mb-4" />
+                <CardTitle className="flex items-center gap-2">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
+                    2
+                  </span>
+                  Divulgação dos Produtos
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
@@ -664,11 +668,13 @@ const LandingPage = () => {
 
             <Card>
               <CardHeader>
-                <DollarSign className="w-12 h-12 text-primary mb-2" />
-                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">
-                  3
-                </div>
-                <CardTitle>Comissionamento por Vendas</CardTitle>
+                <DollarSign className="w-12 h-12 text-primary mb-4" />
+                <CardTitle className="flex items-center gap-2">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
+                    3
+                  </span>
+                  Comissionamento por Vendas
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
