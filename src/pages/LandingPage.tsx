@@ -1060,10 +1060,19 @@ const LandingPage = () => {
       </footer>
 
       {/* Gradient Editor */}
-      {isAdmin && editingBlock && gradientConfigs[editingBlock] && (
+      {isAdmin && editingBlock && (
         <GradientEditor
           blockName={editingBlock}
-          config={gradientConfigs[editingBlock]}
+          config={
+            gradientConfigs[editingBlock] || {
+              block_name: editingBlock,
+              color_start: '#00bf63',
+              color_end: '#00bf63',
+              intensity_start: 50,
+              intensity_end: 80,
+              gradient_start_position: 0,
+            }
+          }
           onSave={(config) => {
             setGradientConfigs(prev => ({ ...prev, [config.block_name]: config }));
             setEditingBlock(null);
