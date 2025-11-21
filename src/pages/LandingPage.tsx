@@ -77,6 +77,8 @@ interface GradientConfig {
   intensity_start: number;
   intensity_end: number;
   gradient_start_position: number;
+  text_color?: string;
+  heading_color?: string;
 }
 
 const defaultTestimonials: Testimonial[] = [
@@ -235,6 +237,16 @@ const LandingPage = () => {
     return {
       background: `linear-gradient(to bottom, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
     };
+  };
+
+  const getTextColor = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    return config?.text_color || undefined;
+  };
+
+  const getHeadingColor = (blockName: string) => {
+    const config = gradientConfigs[blockName];
+    return config?.heading_color || undefined;
   };
 
   useEffect(() => {
@@ -726,7 +738,7 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('como-funciona') }}>
             Como funciona o programa de afiliados?
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
@@ -741,7 +753,7 @@ const LandingPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground" style={{ color: getTextColor('como-funciona') }}>
                   Faça sua inscrição para tornar-se um Afiliado, complete o curso para 
                   conhecer o processo e as ferramentas disponíveis.
                 </p>
@@ -759,7 +771,7 @@ const LandingPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground" style={{ color: getTextColor('como-funciona') }}>
                   Divulgue os produtos através do seu link de afiliado com amigos, familiares 
                   e nas redes sociais como WhatsApp, Instagram, Facebook, TikTok, YouTube, etc.
                 </p>
@@ -777,7 +789,7 @@ const LandingPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground" style={{ color: getTextColor('como-funciona') }}>
                   Ganhe comissões de todas as assinaturas que foram feitas através do 
                   seu link de afiliado. Pagamento garantido e transparente.
                 </p>
@@ -800,10 +812,10 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('painel-afiliado') }}>
             Painel de Afiliado
           </h2>
-          <p className="text-xl text-center text-muted-foreground mb-12">
+          <p className="text-xl text-center text-muted-foreground mb-12" style={{ color: getTextColor('painel-afiliado') }}>
             Acompanhe suas indicações e seus ganhos de forma prática e rápida.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -883,7 +895,7 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: getHeadingColor('vantagens') }}>
             Vantagens de trabalhar com nosso sistema
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -977,7 +989,7 @@ const LandingPage = () => {
 
             {/* Lista de Funcionalidades */}
             <div className="order-1 md:order-2 space-y-8">
-              <h2 className="text-3xl md:text-4xl font-bold mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: getHeadingColor('funcionalidades') }}>
                 Funcionalidades
               </h2>
               
@@ -993,13 +1005,13 @@ const LandingPage = () => {
                       <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         <IconComponent className="w-6 h-6 text-primary" />
                       </div>
-                      <p className="text-lg font-medium">{feature.name}</p>
+                      <p className="text-lg font-medium" style={{ color: getTextColor('funcionalidades') }}>{feature.name}</p>
                     </div>
                   );
                 })}
               </div>
 
-              <p className="text-sm text-muted-foreground mt-8">
+              <p className="text-sm text-muted-foreground mt-8" style={{ color: getTextColor('funcionalidades') }}>
                 O sistema está em constante atualização, então em breve teremos novas funcionalidades.
               </p>
             </div>

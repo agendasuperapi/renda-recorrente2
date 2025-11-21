@@ -337,9 +337,11 @@ export type Database = {
           color_start: string
           created_at: string | null
           gradient_start_position: number
+          heading_color: string | null
           id: string
           intensity_end: number
           intensity_start: number
+          text_color: string | null
           updated_at: string | null
         }
         Insert: {
@@ -348,9 +350,11 @@ export type Database = {
           color_start?: string
           created_at?: string | null
           gradient_start_position?: number
+          heading_color?: string | null
           id?: string
           intensity_end?: number
           intensity_start?: number
+          text_color?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -359,9 +363,11 @@ export type Database = {
           color_start?: string
           created_at?: string | null
           gradient_start_position?: number
+          heading_color?: string | null
           id?: string
           intensity_end?: number
           intensity_start?: number
+          text_color?: string | null
           updated_at?: string | null
         }
         Relationships: []
