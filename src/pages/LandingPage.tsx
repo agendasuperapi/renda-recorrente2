@@ -962,7 +962,26 @@ const LandingPage = () => {
             <Edit className="w-4 h-4" />
           </Button>
         )}
-...
+        <div className={`container mx-auto max-w-7xl text-center transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Funcionalidades
+          </h2>
+          <p className="text-xl text-muted-foreground mb-12">
+            Tudo que você precisa para gerenciar sua renda recorrente em um só lugar
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={feature.id} 
+                className="p-6 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{feature.name}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Layout Responsivo */}
