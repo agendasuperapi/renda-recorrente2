@@ -1361,7 +1361,7 @@ const LandingPage = () => {
               return (
                 <div 
                   key={plan.id} 
-                  className={`relative bg-[#2a2a2a] rounded-2xl p-6 md:p-8 shadow-xl transition-all duration-700 hover:scale-105 ${
+                  className={`relative bg-[#2a2a2a] rounded-2xl p-6 md:p-8 shadow-xl transition-all duration-700 hover:scale-105 flex flex-col ${
                     index === 0 ? '' : 'delay-100'
                   } ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}
                 >
@@ -1386,8 +1386,8 @@ const LandingPage = () => {
                     {plan.name}
                   </h3>
 
-                  {/* Features */}
-                  <ul className="space-y-3 mb-8">
+                  {/* Features - flex-grow para ocupar espaço disponível */}
+                  <ul className="space-y-3 mb-8 flex-grow">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
@@ -1396,61 +1396,64 @@ const LandingPage = () => {
                     ))}
                   </ul>
 
-                  {/* Preço */}
-                  <div className="mb-6">
-                    {isPro && plan.original_price && plan.original_price > plan.price && (
-                      <div className="text-center mb-2">
-                        <span className="text-white text-sm">de </span>
-                        <span className="text-white line-through text-sm">
-                          R${plan.original_price.toFixed(2)}
+                  {/* Container para elementos alinhados - mt-auto garante que fique no final */}
+                  <div className="mt-auto">
+                    {/* Preço */}
+                    <div className="mb-6">
+                      {isPro && plan.original_price && plan.original_price > plan.price && (
+                        <div className="text-center mb-2">
+                          <span className="text-white text-sm">de </span>
+                          <span className="text-white line-through text-sm">
+                            R${plan.original_price.toFixed(2)}
+                          </span>
+                          <span className="text-white text-sm"> por:</span>
+                        </div>
+                      )}
+                      <div className="text-center">
+                        <span className="text-[#22c55e] text-4xl md:text-5xl font-bold">
+                          R${plan.price.toFixed(2)}
                         </span>
-                        <span className="text-white text-sm"> por:</span>
+                        <span className="text-white text-lg">/{plan.billing_period}</span>
                       </div>
-                    )}
-                    <div className="text-center">
-                      <span className="text-[#22c55e] text-4xl md:text-5xl font-bold">
-                        R${plan.price.toFixed(2)}
-                      </span>
-                      <span className="text-white text-lg">/{plan.billing_period}</span>
+                      {isPro && plan.original_price && plan.original_price > plan.price && (
+                        <p className="text-white text-center text-sm mt-2">
+                          {(plan.original_price - plan.price).toFixed(2)} de desconto
+                        </p>
+                      )}
                     </div>
-                    {isPro && plan.original_price && plan.original_price > plan.price && (
-                      <p className="text-white text-center text-sm mt-2">
-                        {(plan.original_price - plan.price).toFixed(2)} de desconto
+
+                    {/* Botão */}
+                    <Button
+                      className="w-full bg-[#86efac] hover:bg-[#4ade80] text-gray-900 font-semibold py-6 rounded-lg transition-all duration-300"
+                      onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
+                    >
+                      <MousePointer2 className="w-5 h-5 mr-2" />
+                      Selecionar Plano {plan.name}
+                    </Button>
+
+                    {/* Trust Badges */}
+                    <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-700">
+                      <div className="flex flex-col items-center gap-1">
+                        <Shield className="w-5 h-5 text-white" />
+                        <span className="text-white text-xs">Compra Segura</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <Trophy className="w-5 h-5 text-white" />
+                        <span className="text-white text-xs">Satisfação Garantida</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <Lock className="w-5 h-5 text-white" />
+                        <span className="text-white text-xs">Privacidade Protegida</span>
+                      </div>
+                    </div>
+
+                    {/* Teste Grátis */}
+                    {isPro && (
+                      <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
+                        Teste Grátis por 7 dias
                       </p>
                     )}
                   </div>
-
-                  {/* Botão */}
-                  <Button
-                    className="w-full bg-[#86efac] hover:bg-[#4ade80] text-gray-900 font-semibold py-6 rounded-lg transition-all duration-300"
-                    onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
-                  >
-                    <MousePointer2 className="w-5 h-5 mr-2" />
-                    Selecionar Plano {plan.name}
-                  </Button>
-
-                  {/* Trust Badges */}
-                  <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-700">
-                    <div className="flex flex-col items-center gap-1">
-                      <Shield className="w-5 h-5 text-white" />
-                      <span className="text-white text-xs">Compra Segura</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                      <Trophy className="w-5 h-5 text-white" />
-                      <span className="text-white text-xs">Satisfação Garantida</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                      <Lock className="w-5 h-5 text-white" />
-                      <span className="text-white text-xs">Privacidade Protegida</span>
-                    </div>
-                  </div>
-
-                  {/* Teste Grátis */}
-                  {isPro && (
-                    <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
-                      Teste Grátis por 7 dias
-                    </p>
-                  )}
                 </div>
               );
             })}
