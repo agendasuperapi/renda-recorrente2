@@ -92,11 +92,11 @@ const CookiesPolicy = () => {
             </div>
             <div className="mt-8 pt-6 border-t border-border">
               <Button
-                variant="link"
+                variant="outline"
                 onClick={() => setShowPreferences(true)}
-                className="text-foreground hover:text-foreground/80 p-0 h-auto font-normal"
+                className="w-full sm:w-auto"
               >
-                Consulte as Preferências de cookies
+                Gerenciar Preferências de Cookies
               </Button>
             </div>
           </div>
