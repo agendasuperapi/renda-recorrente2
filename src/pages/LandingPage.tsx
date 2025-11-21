@@ -527,15 +527,16 @@ const LandingPage = () => {
             </div>
             <div 
               className="flex justify-center animate-fade-in"
-              style={{ animationDelay: '200ms' }}
+              style={{ animationDelay: '300ms' }}
+              ref={heroImageRef}
             >
               {getHeroImage('Hero Person') && (
                 <img 
                   src={getHeroImage('Hero Person')} 
                   alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
-                  className="w-full max-w-md animate-fade-in"
-                  style={{ animationDelay: '400ms' }}
+                  className="w-full max-w-md hover-scale"
                   loading="eager"
+                  style={{ transform: `translateY(${parallaxOffset}px)` }}
                 />
               )}
             </div>
@@ -864,39 +865,41 @@ const LandingPage = () => {
       {/* Produtos Disponíveis */}
       {products.length > 0 && (
         <section id="produtos" className="py-16 px-4 bg-muted/50">
-          <div className="container mx-auto max-w-6xl transition-all duration-700 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+          <div className="container mx-auto max-w-6xl">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 animate-fade-in">
               Produtos Disponíveis para Afiliação
             </h2>
-            <p className="text-xl text-center text-muted-foreground mb-12">
+            <p className="text-xl text-center text-muted-foreground mb-12 animate-fade-in" style={{ animationDelay: '100ms' }}>
               Escolha os produtos que deseja divulgar e comece a ganhar comissões
             </p>
             <div className="space-y-6">
               {products.map((product, index) => (
                 <Card 
                   key={product.id} 
-                  className="hover:shadow-lg transition-all duration-300 animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-fade-in"
+                  style={{ animationDelay: `${200 + index * 150}ms` }}
                 >
                   <CardHeader>
-                    <div className="flex items-center gap-4 mb-4">
+                    <div className="flex items-center gap-4 mb-4 animate-fade-in" style={{ animationDelay: `${250 + index * 150}ms` }}>
                       {product.icone_light && (
                         <img 
                           src={product.icone_light} 
                           alt={product.nome}
-                          className="w-16 h-16 object-contain dark:hidden"
+                          className="w-16 h-16 object-contain dark:hidden hover-scale"
                         />
                       )}
                       {product.icone_dark && (
                         <img 
                           src={product.icone_dark} 
                           alt={product.nome}
-                          className="w-16 h-16 object-contain hidden dark:block"
+                          className="w-16 h-16 object-contain hidden dark:block hover-scale"
                         />
                       )}
-                      <CardTitle className="text-xl">{product.nome}</CardTitle>
+                      <CardTitle className="text-xl animate-fade-in" style={{ animationDelay: `${300 + index * 150}ms` }}>
+                        {product.nome}
+                      </CardTitle>
                     </div>
-                    <CardDescription className="text-base whitespace-pre-line">
+                    <CardDescription className="text-base whitespace-pre-line animate-fade-in" style={{ animationDelay: `${350 + index * 150}ms` }}>
                       {product.descricao || "Produto disponível para afiliação"}
                     </CardDescription>
                   </CardHeader>
@@ -977,20 +980,22 @@ const LandingPage = () => {
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
                     {plan.original_price && plan.original_price > plan.price && (
-                      <span className="text-muted-foreground line-through text-sm mr-2">
-                        R$ {plan.original_price.toFixed(2)}
-                      </span>
+                      <p className="text-sm text-muted-foreground line-through">
+                        De R$ {plan.original_price.toFixed(2)}/{plan.billing_period}
+                      </p>
                     )}
-                    <span className="text-4xl font-bold">
+                    <p className="text-4xl font-bold">
                       R$ {plan.price.toFixed(2)}
-                    </span>
-                    <span className="text-muted-foreground">/{plan.billing_period}</span>
+                      <span className="text-base font-normal text-muted-foreground">
+                        /{plan.billing_period}
+                      </span>
+                    </p>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-sm">{feature}</span>
                       </li>
@@ -1001,9 +1006,9 @@ const LandingPage = () => {
                   <Button 
                     className="w-full" 
                     variant={index === 1 ? "default" : "outline"}
-                    onClick={() => user ? scrollToSection("planos") : navigate("/auth")}
+                    onClick={() => navigate("/auth")}
                   >
-                    {user ? "Assinar Agora" : "Começar Agora"}
+                    Começar Agora
                   </Button>
                 </CardFooter>
               </Card>
@@ -1016,32 +1021,29 @@ const LandingPage = () => {
       {whatsappPhone && whatsappText && (
         <section className="py-16 px-4 bg-muted/50">
           <div className="container mx-auto max-w-4xl text-center">
-            <MessageSquare className="w-16 h-16 text-primary mx-auto mb-6" />
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Precisa de um atendimento humanizado?
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ficou com alguma dúvida?
             </h2>
-            <p className="text-lg text-muted-foreground mb-6">
-              Fale conosco no WhatsApp
+            <p className="text-xl text-muted-foreground mb-8">
+              Fale conosco pelo WhatsApp e tire todas as suas dúvidas sobre o programa de afiliados.
             </p>
-            <Button
+            <Button 
               size="lg"
-              className="bg-[#25D366] hover:bg-[#20BA5A] text-white"
               onClick={() => window.open(getWhatsappUrl(), "_blank")}
+              className="text-lg px-8 bg-green-600 hover:bg-green-700"
             >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-              </svg>
+              <MessageSquare className="mr-2 w-5 h-5" />
               Falar no WhatsApp
             </Button>
           </div>
         </section>
       )}
 
-      {/* FAQs */}
+      {/* FAQ */}
       <section id="faq" className="py-16 px-4">
         <div className={`container mx-auto max-w-4xl transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Perguntas Frequentes
+            Perguntas Frequentes (FAQ)
           </h2>
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
@@ -1049,7 +1051,7 @@ const LandingPage = () => {
                 <AccordionTrigger className="text-left">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent>
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -1059,48 +1061,70 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12 px-4">
+      <footer className="py-12 px-4 border-t border-border">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-8">
             <div>
-              {getHeroImage('Logo Alternativo') && (
-                <img 
-                  src={getHeroImage('Logo Alternativo')} 
-                  alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Logo'} 
-                  className="h-8 mb-4"
-                />
-              )}
-              <p className="text-sm text-muted-foreground">
-                Sistema completo para gerenciar seu programa de afiliados.
+              <h3 className="font-bold text-lg mb-4">APP Renda Recorrente</h3>
+              <p className="text-muted-foreground text-sm">
+                Plataforma completa de programa de afiliados com comissões recorrentes.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Produto</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Funcionalidades</li>
-                <li>Preços</li>
-                <li>Treinamento</li>
-              </ul>
+              <h3 className="font-bold text-lg mb-4">Links Rápidos</h3>
+              <nav className="flex flex-col gap-2">
+                <Button 
+                  onClick={() => scrollToSection("como-funciona")} 
+                  variant="link" 
+                  className="justify-start p-0 h-auto"
+                >
+                  Como funciona
+                </Button>
+                <Button 
+                  onClick={() => scrollToSection("vantagens")} 
+                  variant="link" 
+                  className="justify-start p-0 h-auto"
+                >
+                  Vantagens
+                </Button>
+                <Button 
+                  onClick={() => scrollToSection("planos")} 
+                  variant="link" 
+                  className="justify-start p-0 h-auto"
+                >
+                  Planos
+                </Button>
+                <Button 
+                  onClick={() => scrollToSection("faq")} 
+                  variant="link" 
+                  className="justify-start p-0 h-auto"
+                >
+                  FAQ
+                </Button>
+              </nav>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Suporte</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Central de Ajuda</li>
-                <li>WhatsApp</li>
-                <li>FAQ</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Termos de Uso</li>
-                <li>Privacidade</li>
-                <li>Cookies</li>
-              </ul>
+              <h3 className="font-bold text-lg mb-4">Legal</h3>
+              <nav className="flex flex-col gap-2">
+                <Button 
+                  onClick={() => navigate("/terms")} 
+                  variant="link" 
+                  className="justify-start p-0 h-auto"
+                >
+                  Termos de Uso
+                </Button>
+                <Button 
+                  onClick={() => navigate("/privacy")} 
+                  variant="link" 
+                  className="justify-start p-0 h-auto"
+                >
+                  Política de Privacidade
+                </Button>
+              </nav>
             </div>
           </div>
-          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 APP Renda Recorrente. Todos os direitos reservados.</p>
+          <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} APP Renda Recorrente. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
