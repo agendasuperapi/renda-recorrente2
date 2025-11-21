@@ -10,15 +10,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
-  CheckCircle2, Star, MessageSquare, LucideIcon, ArrowRight
+  CheckCircle2, Star, MessageSquare, LucideIcon
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import laptopImage from "@/assets/laptop-dashboard.png";
-import trustBadges from "@/assets/trust-badges.png";
-import heroPersonImage from "@/assets/hero-person.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -142,7 +140,6 @@ const LandingPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [parallaxOffset, setParallaxOffset] = useState(0);
-  const [parallaxY, setParallaxY] = useState(0);
   const heroImageRef = useRef<HTMLDivElement>(null);
 
   // Busca imagens do hero com cache
@@ -212,9 +209,6 @@ const LandingPage = () => {
         const rate = scrolled * 0.3; // Ajuste a velocidade do parallax
         setParallaxOffset(rate);
       }
-      
-      // Parallax Y for hero image
-      setParallaxY(window.scrollY);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -494,59 +488,63 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="hero" className="relative py-20 px-4 bg-background">
-        {/* Gradiente que começa abaixo do botão */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-brand-green/40 pointer-events-none" style={{ top: '60%' }}></div>
-        
-        <div className="container mx-auto max-w-7xl relative z-10">
+      <section id="hero" className="py-20 px-4 bg-gradient-to-b from-background via-background to-brand-green">
+        <div className="container mx-auto max-w-7xl">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className={`text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                Ganhe Comissões Recorrentes Divulgando Nossos Produtos
+              {getHeroImage('Logo Alternativo') && (
+                <img 
+                  src={getHeroImage('Logo Alternativo')} 
+                  alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Renda Recorrente'} 
+                  className="h-16 mb-4"
+                  loading="eager"
+                />
+              )}
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                Participe e ganhe dinheiro recomendando nossos aplicativos
               </h1>
-              <p className="text-lg md:text-xl mb-8 text-muted-foreground">
-                Torne-se um afiliado e ganhe até 40% de comissão recorrente em cada venda. Simples, transparente e lucrativo.
+              <p className="text-xl text-muted-foreground mb-8">
+                Temos vários produtos para você indicar e criar uma renda recorrente.
               </p>
               <Button 
                 size="lg" 
-                className="text-lg px-8 py-6 bg-brand-green hover:bg-brand-green/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => {
-                  if (user) {
-                    navigate('/dashboard');
-                  } else {
-                    navigate('/auth');
-                  }
-                }}
+                onClick={() => scrollToSection("planos")} 
+                className="text-lg px-8 mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:bg-primary/20 before:blur-xl before:animate-pulse"
               >
-                {user ? 'Ir para o Painel' : 'Começar Agora'}
-                <ArrowRight className="ml-2 h-5 w-5" />
+                Começar Agora
+                <Target className="ml-2 w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
               </Button>
-              <div className="mt-8 flex justify-center md:justify-start">
-                <img 
-                  src={trustBadges} 
-                  alt="Compra 100% Segura" 
-                  className="h-12 md:h-16"
-                />
+              <div className="flex justify-center md:justify-start">
+                {getHeroImage('Trust Badges') && (
+                  <img 
+                    src={getHeroImage('Trust Badges')} 
+                    alt={heroImages.find(img => img.name === 'Trust Badges')?.alt_text || 'Selos de segurança'}
+                    className="h-12"
+                    loading="eager"
+                  />
+                )}
               </div>
             </div>
-            <div className={`relative transition-all duration-700 delay-200 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`} ref={heroImageRef}>
-              <div className="relative">
+            <div 
+              className="flex justify-center animate-fade-in"
+              style={{ animationDelay: '200ms' }}
+            >
+              {getHeroImage('Hero Person') && (
                 <img 
-                  src={theme === 'dark' ? (heroImages[0]?.dark_image_url || heroPersonImage) : (heroImages[0]?.light_image_url || heroPersonImage)} 
-                  alt={heroImages[0]?.alt_text || "Dashboard de Afiliado"} 
-                  className="w-full h-auto rounded-lg"
-                  style={{
-                    transform: `translateY(${parallaxY * 0.5}px)`,
-                  }}
+                  src={getHeroImage('Hero Person')} 
+                  alt={heroImages.find(img => img.name === 'Hero Person')?.alt_text || 'Afiliado'}
+                  className="w-full max-w-md animate-fade-in"
+                  style={{ animationDelay: '400ms' }}
+                  loading="eager"
                 />
-              </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green/40 via-brand-green/70 to-brand-green">
+      <section id="seja-afiliado" className="py-16 px-4 bg-gradient-to-b from-brand-green via-brand-green/80 to-brand-green/60">
         <div className={`container mx-auto max-w-7xl transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Seja um Afiliado
