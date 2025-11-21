@@ -277,7 +277,7 @@ const Auth = () => {
             <AuthGradientEditor blockName="auth_left_panel" initialConfig={gradientConfigs['auth_left_panel']} />
           </div>
         )}
-        <Card className="max-w-md w-full bg-transparent border-none shadow-none">
+        <Card className="max-w-2xl w-full bg-transparent border-none shadow-none">
           <CardContent className="pt-6 text-center space-y-6">
             <div className="inline-flex items-center justify-center w-32 h-32 mb-2">
               <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-32 h-32 rounded-full" />
@@ -302,7 +302,7 @@ const Auth = () => {
             <AuthGradientEditor blockName="auth_right_panel" initialConfig={gradientConfigs['auth_right_panel']} />
           </div>
         )}
-        <div className="w-full max-w-md bg-background/80 backdrop-blur-sm rounded-lg p-6">
+        <div className="w-full max-w-2xl bg-background/80 backdrop-blur-sm rounded-lg p-6">
           <div className="text-center mb-8 lg:hidden">
             <div className="inline-flex items-center justify-center w-32 h-32 mb-4">
               <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-32 h-32 rounded-full" />
