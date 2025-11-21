@@ -17,6 +17,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import laptopImage from "@/assets/laptop-dashboard.png";
+import dispositivosImage from "@/assets/dispositivos.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -249,7 +250,7 @@ const LandingPage = () => {
 
     // Observar todas as seções - usa setTimeout para garantir que elementos condicionais sejam renderizados
     const observeSections = () => {
-      const sections = ['hero', 'seja-afiliado', 'comissao-recorrente', 'como-funciona', 'painel-afiliado', 'vantagens', 'funcionalidades', 'produtos', 'depoimentos', 'planos', 'faq'];
+      const sections = ['hero', 'seja-afiliado', 'comissao-recorrente', 'como-funciona', 'painel-afiliado', 'vantagens', 'funcionalidades', 'layout-responsivo', 'produtos', 'depoimentos', 'planos', 'faq'];
       sections.forEach((sectionId) => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -857,6 +858,26 @@ const LandingPage = () => {
                 O sistema está em constante atualização, então em breve teremos novas funcionalidades.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Layout Responsivo */}
+      <section id="layout-responsivo" className="py-16 px-4 bg-muted/50">
+        <div className={`container mx-auto max-w-6xl text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Layout Responsivo
+          </h2>
+          <p className="text-xl text-muted-foreground mb-12">
+            Acesse o APP Renda recorrente em todos os dispositivos, Notebooks, PCs, celulares e tablets
+          </p>
+          <div className="flex justify-center">
+            <img 
+              src={dispositivosImage} 
+              alt="APP Renda recorrente em diversos dispositivos - notebook, tablet e celular" 
+              className="w-full max-w-4xl object-contain animate-fade-in"
+              style={{ animationDelay: '200ms' }}
+            />
           </div>
         </div>
       </section>
