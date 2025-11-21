@@ -212,21 +212,19 @@ const Auth = () => {
 
         <div className="mt-4 text-center text-xs text-muted-foreground">
           Ao continuar, estou de acordo com os{" "}
-          <a
-            href="/terms"
-            target="_blank"
-            className="text-primary hover:text-primary/80 underline"
+          <span
+            onClick={() => navigate("/terms")}
+            className="text-primary hover:text-primary/80 underline cursor-pointer"
           >
             Termos de Uso
-          </a>{" "}
+          </span>{" "}
           e{" "}
-          <a
-            href="/privacy"
-            target="_blank"
-            className="text-primary hover:text-primary/80 underline"
+          <span
+            onClick={() => navigate("/privacy")}
+            className="text-primary hover:text-primary/80 underline cursor-pointer"
           >
             Aviso de Privacidade
-          </a>
+          </span>
           .
         </div>
       </div>
