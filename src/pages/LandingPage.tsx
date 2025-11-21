@@ -697,7 +697,7 @@ const LandingPage = () => {
             Acompanhe suas indicações e seus ganhos de forma prática e rápida.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
+            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0'}`}>
               <CardHeader>
                 <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Painel Exclusivo</CardTitle>
@@ -707,7 +707,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:100ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Target className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Metas de Ganhos</CardTitle>
@@ -717,7 +717,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:200ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Share2 className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Link de Compartilhamento</CardTitle>
@@ -727,7 +727,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:300ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Award className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Cupons de Descontos</CardTitle>
@@ -737,7 +737,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:400ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Shield className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Sistema Seguro</CardTitle>
@@ -747,7 +747,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('painel-afiliado') ? 'animate-fade-in [animation-delay:500ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <FileText className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Relatórios Completos</CardTitle>
@@ -767,7 +767,7 @@ const LandingPage = () => {
             Vantagens de trabalhar com nosso sistema
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
+            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0'}`}>
               <CardHeader>
                 <TrendingUp className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Comissão Recorrente</CardTitle>
@@ -777,7 +777,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:100ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <GraduationCap className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Treinamento Completo</CardTitle>
@@ -787,7 +787,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:200ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <DollarSign className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Baixo Custo</CardTitle>
@@ -797,7 +797,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:300ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Zap className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Comece GRÁTIS</CardTitle>
@@ -807,7 +807,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:400ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <Clock className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Autonomia de Trabalho</CardTitle>
@@ -817,7 +817,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`${visibleSections.has('vantagens') ? 'animate-fade-in [animation-delay:500ms]' : 'opacity-0'}`}>
               <CardHeader>
                 <CheckCircle2 className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Fácil de Usar</CardTitle>
@@ -961,8 +961,8 @@ const LandingPage = () => {
             O que dizem nossos afiliados
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.slice(0, 3).map((testimonial) => (
-              <Card key={testimonial.id}>
+            {testimonials.slice(0, 3).map((testimonial, index) => (
+              <Card key={testimonial.id} className={`${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: `${index * 150}ms` }}>
                 <CardHeader>
                   <div className="flex items-center gap-4 mb-4">
                     <Avatar className="w-20 h-20">
@@ -1002,7 +1002,7 @@ const LandingPage = () => {
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan, index) => (
-              <Card key={plan.id} className={index === 1 ? "border-primary shadow-lg" : ""}>
+              <Card key={plan.id} className={`${index === 1 ? "border-primary shadow-lg" : ""} ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: `${index * 150}ms` }}>
                 {index === 1 && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
                     Mais Popular
