@@ -18,6 +18,10 @@ interface GradientConfig {
   gradient_start_position: number;
   text_color?: string;
   heading_color?: string;
+  text_color_light?: string;
+  text_color_dark?: string;
+  heading_color_light?: string;
+  heading_color_dark?: string;
 }
 
 interface GradientEditorProps {
@@ -37,6 +41,10 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
   const [gradientStartPos, setGradientStartPos] = useState(config.gradient_start_position);
   const [textColor, setTextColor] = useState(config.text_color || '#ffffff');
   const [headingColor, setHeadingColor] = useState(config.heading_color || '#ffffff');
+  const [textColorLight, setTextColorLight] = useState(config.text_color_light || '#000000');
+  const [textColorDark, setTextColorDark] = useState(config.text_color_dark || '#ffffff');
+  const [headingColorLight, setHeadingColorLight] = useState(config.heading_color_light || '#000000');
+  const [headingColorDark, setHeadingColorDark] = useState(config.heading_color_dark || '#ffffff');
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
@@ -53,6 +61,10 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
           gradient_start_position: gradientStartPos,
           text_color: textColor,
           heading_color: headingColor,
+          text_color_light: textColorLight,
+          text_color_dark: textColorDark,
+          heading_color_light: headingColorLight,
+          heading_color_dark: headingColorDark,
         }, {
           onConflict: 'block_name'
         });
@@ -70,6 +82,10 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
         gradient_start_position: gradientStartPos,
         text_color: textColor,
         heading_color: headingColor,
+        text_color_light: textColorLight,
+        text_color_dark: textColorDark,
+        heading_color_light: headingColorLight,
+        heading_color_dark: headingColorDark,
       });
     } catch (error) {
       console.error('Error saving gradient:', error);
@@ -180,38 +196,72 @@ export const GradientEditor = ({ blockName, config, onSave, onClose }: GradientE
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="text-color" className="text-xs">Cor do Texto</Label>
+          <Label className="text-xs font-semibold">Cor do Texto - Modo Claro</Label>
           <div className="flex gap-2">
             <Input
-              id="text-color"
               type="color"
-              value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
+              value={textColorLight}
+              onChange={(e) => setTextColorLight(e.target.value)}
               className="w-16 h-8"
             />
             <Input
               type="text"
-              value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
+              value={textColorLight}
+              onChange={(e) => setTextColorLight(e.target.value)}
               className="flex-1 text-xs"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="heading-color" className="text-xs">Cor dos Títulos</Label>
+          <Label className="text-xs font-semibold">Cor do Texto - Modo Escuro</Label>
           <div className="flex gap-2">
             <Input
-              id="heading-color"
               type="color"
-              value={headingColor}
-              onChange={(e) => setHeadingColor(e.target.value)}
+              value={textColorDark}
+              onChange={(e) => setTextColorDark(e.target.value)}
               className="w-16 h-8"
             />
             <Input
               type="text"
-              value={headingColor}
-              onChange={(e) => setHeadingColor(e.target.value)}
+              value={textColorDark}
+              onChange={(e) => setTextColorDark(e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold">Cor dos Títulos - Modo Claro</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              value={headingColorLight}
+              onChange={(e) => setHeadingColorLight(e.target.value)}
+              className="w-16 h-8"
+            />
+            <Input
+              type="text"
+              value={headingColorLight}
+              onChange={(e) => setHeadingColorLight(e.target.value)}
+              className="flex-1 text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold">Cor dos Títulos - Modo Escuro</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              value={headingColorDark}
+              onChange={(e) => setHeadingColorDark(e.target.value)}
+              className="w-16 h-8"
+            />
+            <Input
+              type="text"
+              value={headingColorDark}
+              onChange={(e) => setHeadingColorDark(e.target.value)}
               className="flex-1 text-xs"
             />
           </div>
