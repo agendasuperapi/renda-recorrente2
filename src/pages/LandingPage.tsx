@@ -17,7 +17,6 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import laptopImage from "@/assets/laptop-dashboard.png";
-import dispositivosImage from "@/assets/dispositivos.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -831,11 +830,19 @@ const LandingPage = () => {
           <div className={`grid lg:grid-cols-2 gap-12 items-start transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
             {/* Imagem do laptop à esquerda */}
             <div className="flex justify-center lg:justify-start">
-              <img 
-                src={laptopImage} 
-                alt="Dashboard do sistema em laptop" 
-                className="w-full max-w-2xl object-contain"
-              />
+              {getHeroImage('Funcionalidades') ? (
+                <img 
+                  src={getHeroImage('Funcionalidades')} 
+                  alt={heroImages.find(img => img.name === 'Funcionalidades')?.alt_text || 'Dashboard do sistema'} 
+                  className="w-full max-w-2xl object-contain"
+                />
+              ) : (
+                <img 
+                  src={laptopImage} 
+                  alt="Dashboard do sistema em laptop" 
+                  className="w-full max-w-2xl object-contain"
+                />
+              )}
             </div>
             
             {/* Funcionalidades à direita em coluna única */}
@@ -872,12 +879,14 @@ const LandingPage = () => {
             Acesse o APP Renda recorrente em todos os dispositivos, Notebooks, PCs, celulares e tablets
           </p>
           <div className="flex justify-center">
-            <img 
-              src={dispositivosImage} 
-              alt="APP Renda recorrente em diversos dispositivos - notebook, tablet e celular" 
-              className="w-full max-w-4xl object-contain animate-fade-in"
-              style={{ animationDelay: '200ms' }}
-            />
+            {getHeroImage('Responsivo') && (
+              <img 
+                src={getHeroImage('Responsivo')} 
+                alt={heroImages.find(img => img.name === 'Responsivo')?.alt_text || 'APP em diversos dispositivos'} 
+                className="w-full max-w-4xl object-contain animate-fade-in"
+                style={{ animationDelay: '200ms' }}
+              />
+            )}
           </div>
         </div>
       </section>
