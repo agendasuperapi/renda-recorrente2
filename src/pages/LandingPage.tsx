@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -266,6 +266,17 @@ const LandingPage = () => {
       return config.heading_color_light || config.heading_color || undefined;
     }
   };
+
+  // Restore scroll position when coming back from legal pages
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem('landingScrollPosition');
+    if (savedScrollPosition) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollPosition));
+        sessionStorage.removeItem('landingScrollPosition');
+      }, 100);
+    }
+  }, []);
 
   useEffect(() => {
     // Check auth state
@@ -1447,9 +1458,18 @@ const LandingPage = () => {
             <div>
               <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">Legal</h3>
               <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/terms")}>Termos de Uso</li>
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/privacy")}>Privacidade</li>
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/cookies")}>Cookies</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => {
+                  sessionStorage.setItem('landingScrollPosition', window.scrollY.toString());
+                  navigate("/terms");
+                }}>Termos de Uso</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => {
+                  sessionStorage.setItem('landingScrollPosition', window.scrollY.toString());
+                  navigate("/privacy");
+                }}>Privacidade</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => {
+                  sessionStorage.setItem('landingScrollPosition', window.scrollY.toString());
+                  navigate("/cookies");
+                }}>Cookies</li>
               </ul>
             </div>
           </div>
