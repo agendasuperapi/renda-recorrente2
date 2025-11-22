@@ -1,1 +1,10 @@
 project_id = "adpnzkvzvjbervzrqhhx"
+
+[functions.check-email-exists]
+verify_jwt = false
+
+[functions.create-stripe-checkout]
+verify_jwt = false
+
+[functions.consultar-cpf]
+verify_jwt = true
