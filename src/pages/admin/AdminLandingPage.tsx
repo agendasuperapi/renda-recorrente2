@@ -69,6 +69,16 @@ interface HeroImage {
   alt_text: string;
 }
 
+interface AnnouncementBanner {
+  id: string;
+  text: string;
+  is_active: boolean;
+  background_color: string;
+  text_color: string;
+  button_text: string | null;
+  button_url: string | null;
+}
+
 // Componente para renderizar ícone dinamicamente
 const DynamicIcon = ({ name, ...props }: { name: keyof typeof dynamicIconImports } & Omit<LucideProps, 'ref'>) => {
   const Icon = lazy(dynamicIconImports[name]);
@@ -279,6 +289,7 @@ const AdminLandingPage = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [features, setFeatures] = useState<Feature[]>([]);
   const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
+  const [announcementBanner, setAnnouncementBanner] = useState<AnnouncementBanner | null>(null);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
   const [showFeatureForm, setShowFeatureForm] = useState(false);
@@ -288,6 +299,15 @@ const AdminLandingPage = () => {
   const [iconSearch, setIconSearch] = useState("");
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [uploadingHeroImage, setUploadingHeroImage] = useState<string | null>(null);
+  
+  const [bannerForm, setBannerForm] = useState({
+    text: "",
+    is_active: true,
+    background_color: "#10b981",
+    text_color: "#ffffff",
+    button_text: "",
+    button_url: "",
+  });
 
   const [testimonialForm, setTestimonialForm] = useState({
     name: "",
@@ -333,6 +353,7 @@ const AdminLandingPage = () => {
     fetchFaqs();
     fetchFeatures();
     fetchHeroImages();
+    fetchAnnouncementBanner();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -365,6 +386,59 @@ const AdminLandingPage = () => {
       .select("*")
       .order("name");
     if (data) setHeroImages(data as HeroImage[]);
+  };
+
+  const fetchAnnouncementBanner = async () => {
+    const { data } = await (supabase as any)
+      .from("landing_announcement_banner")
+      .select("*")
+      .maybeSingle();
+    
+    if (data) {
+      setAnnouncementBanner(data as AnnouncementBanner);
+      setBannerForm({
+        text: data.text || "",
+        is_active: data.is_active ?? true,
+        background_color: data.background_color || "#10b981",
+        text_color: data.text_color || "#ffffff",
+        button_text: data.button_text || "",
+        button_url: data.button_url || "",
+      });
+    }
+  };
+
+  const handleSaveBanner = async () => {
+    try {
+      if (announcementBanner?.id) {
+        // Update existing
+        const { error } = await (supabase as any)
+          .from("landing_announcement_banner")
+          .update(bannerForm)
+          .eq("id", announcementBanner.id);
+
+        if (error) throw error;
+      } else {
+        // Create new
+        const { error } = await (supabase as any)
+          .from("landing_announcement_banner")
+          .insert([bannerForm]);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Banner salvo com sucesso!"
+      });
+      
+      fetchAnnouncementBanner();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const compressImage = async (file: File, maxWidth: number = 1200): Promise<Blob> => {
@@ -949,13 +1023,135 @@ const AdminLandingPage = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="testimonials" className="w-full">
+      <Tabs defaultValue="banner" className="w-full">
         <TabsList>
+          <TabsTrigger value="banner">Banner de Anúncio</TabsTrigger>
           <TabsTrigger value="hero">Imagens</TabsTrigger>
           <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
           <TabsTrigger value="faqs">FAQs</TabsTrigger>
           <TabsTrigger value="features">Funcionalidades</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="banner" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Banner de Anúncio</CardTitle>
+              <CardDescription>
+                Configure o banner de destaque que aparece no topo da página para promoções, lançamentos e anúncios especiais.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="banner-text">Texto do Banner</Label>
+                <Textarea
+                  id="banner-text"
+                  placeholder="⚡ BLACK ZEN ⚡  Plano Anual com 50% Desconto  APROVEITAR AGORA! 🔥"
+                  value={bannerForm.text}
+                  onChange={(e) => setBannerForm({ ...bannerForm, text: e.target.value })}
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bg-color">Cor de Fundo</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="bg-color"
+                      type="color"
+                      value={bannerForm.background_color}
+                      onChange={(e) => setBannerForm({ ...bannerForm, background_color: e.target.value })}
+                      className="w-20 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={bannerForm.background_color}
+                      onChange={(e) => setBannerForm({ ...bannerForm, background_color: e.target.value })}
+                      placeholder="#10b981"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="text-color">Cor do Texto</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="text-color"
+                      type="color"
+                      value={bannerForm.text_color}
+                      onChange={(e) => setBannerForm({ ...bannerForm, text_color: e.target.value })}
+                      className="w-20 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={bannerForm.text_color}
+                      onChange={(e) => setBannerForm({ ...bannerForm, text_color: e.target.value })}
+                      placeholder="#ffffff"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="button-text">Texto do Botão (opcional)</Label>
+                  <Input
+                    id="button-text"
+                    placeholder="APROVEITAR AGORA!"
+                    value={bannerForm.button_text}
+                    onChange={(e) => setBannerForm({ ...bannerForm, button_text: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="button-url">Link do Botão (opcional)</Label>
+                  <Input
+                    id="button-url"
+                    placeholder="#planos ou https://..."
+                    value={bannerForm.button_url}
+                    onChange={(e) => setBannerForm({ ...bannerForm, button_url: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="banner-active"
+                  checked={bannerForm.is_active}
+                  onCheckedChange={(checked) => setBannerForm({ ...bannerForm, is_active: checked })}
+                />
+                <Label htmlFor="banner-active">Banner ativo (visível na página)</Label>
+              </div>
+
+              {/* Preview */}
+              <div className="space-y-2">
+                <Label>Preview</Label>
+                <div 
+                  className="w-full py-3 px-6 text-center rounded-md"
+                  style={{ 
+                    backgroundColor: bannerForm.background_color,
+                    color: bannerForm.text_color
+                  }}
+                >
+                  <div className="flex flex-col md:flex-row items-center justify-center gap-3">
+                    <p className="text-sm font-semibold">
+                      {bannerForm.text || "Digite o texto do banner acima"}
+                    </p>
+                    {bannerForm.button_text && (
+                      <Button size="sm" className="shrink-0">
+                        {bannerForm.button_text}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveBanner} className="w-full">
+                Salvar Banner
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="hero" className="space-y-4">
           <Card>

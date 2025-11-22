@@ -24,6 +24,16 @@ import laptopImage from "@/assets/laptop-dashboard.png";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
+interface AnnouncementBanner {
+  id: string;
+  text: string;
+  is_active: boolean;
+  background_color: string;
+  text_color: string;
+  button_text: string | null;
+  button_url: string | null;
+}
+
 interface Plan {
   id: string;
   name: string;
@@ -166,12 +176,35 @@ const LandingPage = () => {
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [announcementBanner, setAnnouncementBanner] = useState<AnnouncementBanner | null>(null);
+
+  // Busca banner de anúncio
+  const { data: bannerData } = useQuery({
+    queryKey: ['announcementBanner'],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from('landing_announcement_banner')
+        .select('*')
+        .eq('is_active', true)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      return data as AnnouncementBanner | null;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (bannerData) {
+      setAnnouncementBanner(bannerData);
+    }
+  }, [bannerData]);
 
   // Busca imagens do hero com cache
   const { data: heroImages = [] } = useQuery({
     queryKey: ['heroImages'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('landing_hero_images')
         .select('*')
         .order('name');
@@ -187,7 +220,7 @@ const LandingPage = () => {
   const { data: gradientConfigsData = [] } = useQuery({
     queryKey: ['gradientConfigs'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('landing_block_gradients' as any)
         .select('*');
       
@@ -749,6 +782,38 @@ const LandingPage = () => {
           </div>
         </div>
       </header>
+
+      {/* Announcement Banner */}
+      {announcementBanner && (
+        <div 
+          className="w-full py-3 px-3 md:px-6 text-center relative overflow-hidden"
+          style={{ backgroundColor: announcementBanner.background_color }}
+        >
+          <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">
+            <p 
+              className="text-sm md:text-base font-semibold"
+              style={{ color: announcementBanner.text_color }}
+            >
+              {announcementBanner.text}
+            </p>
+            {announcementBanner.button_text && announcementBanner.button_url && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  if (announcementBanner.button_url?.startsWith('#')) {
+                    scrollToSection(announcementBanner.button_url.substring(1));
+                  } else {
+                    window.location.href = announcementBanner.button_url || '';
+                  }
+                }}
+                className="shrink-0"
+              >
+                {announcementBanner.button_text}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section id="hero" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('hero')}>
