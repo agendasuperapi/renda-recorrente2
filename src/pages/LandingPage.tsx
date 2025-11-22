@@ -1413,12 +1413,15 @@ const LandingPage = () => {
 
                   {/* Features - flex-grow para ocupar espaço disponível */}
                   <ul className="space-y-3 mb-8 flex-grow">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                        <span className="text-white text-sm md:text-base">{feature}</span>
-                      </li>
-                    ))}
+                    {features.map((feature, i) => {
+                      const IconComponent = getIconComponent(feature.icon);
+                      return (
+                        <li key={feature.id} className="flex items-start gap-3">
+                          <IconComponent className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
+                          <span className="text-white text-sm md:text-base">{feature.name}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
 
                   {/* Container para elementos alinhados - mt-auto garante que fique no final */}
