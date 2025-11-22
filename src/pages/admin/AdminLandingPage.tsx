@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import {
   DndContext,
   closestCenter,
@@ -72,6 +74,7 @@ interface HeroImage {
 interface AnnouncementBanner {
   id: string;
   text: string;
+  subtitle: string;
   is_active: boolean;
   background_color: string;
   text_color: string;
@@ -302,6 +305,7 @@ const AdminLandingPage = () => {
   
   const [bannerForm, setBannerForm] = useState({
     text: "",
+    subtitle: "",
     is_active: true,
     background_color: "#10b981",
     text_color: "#ffffff",
@@ -398,6 +402,7 @@ const AdminLandingPage = () => {
       setAnnouncementBanner(data as AnnouncementBanner);
       setBannerForm({
         text: data.text || "",
+        subtitle: data.subtitle || "",
         is_active: data.is_active ?? true,
         background_color: data.background_color || "#10b981",
         text_color: data.text_color || "#ffffff",
@@ -1042,14 +1047,43 @@ const AdminLandingPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="banner-text">Texto do Banner</Label>
-                <Textarea
-                  id="banner-text"
-                  placeholder="⚡ BLACK ZEN ⚡  Plano Anual com 50% Desconto  APROVEITAR AGORA! 🔥"
-                  value={bannerForm.text}
-                  onChange={(e) => setBannerForm({ ...bannerForm, text: e.target.value })}
-                  rows={3}
-                />
+                <Label htmlFor="banner-text">Texto Principal do Banner</Label>
+                <div className="border rounded-md">
+                  <ReactQuill
+                    theme="snow"
+                    value={bannerForm.text}
+                    onChange={(value) => setBannerForm({ ...bannerForm, text: value })}
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'color': [] }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        ['clean']
+                      ]
+                    }}
+                    placeholder="⚡ BLACK ZEN ⚡  Plano Anual com 50% Desconto"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="banner-subtitle">Subtítulo (opcional)</Label>
+                <div className="border rounded-md">
+                  <ReactQuill
+                    theme="snow"
+                    value={bannerForm.subtitle}
+                    onChange={(value) => setBannerForm({ ...bannerForm, subtitle: value })}
+                    modules={{
+                      toolbar: [
+                        ['bold', 'italic', 'underline'],
+                        [{ 'color': [] }],
+                        [{ 'size': ['small', false, 'large'] }],
+                        ['clean']
+                      ]
+                    }}
+                    placeholder="🔥 Oferta por tempo limitado!"
+                  />
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -1130,13 +1164,29 @@ const AdminLandingPage = () => {
                   className="w-full py-3 px-6 text-center rounded-md"
                   style={{ 
                     backgroundColor: bannerForm.background_color,
-                    color: bannerForm.text_color
                   }}
                 >
                   <div className="flex flex-col md:flex-row items-center justify-center gap-3">
-                    <p className="text-sm font-semibold">
-                      {bannerForm.text || "Digite o texto do banner acima"}
-                    </p>
+                    <div className="flex-1 text-center">
+                      {bannerForm.text ? (
+                        <div 
+                          className="text-sm font-semibold rich-text-preview"
+                          dangerouslySetInnerHTML={{ __html: bannerForm.text }}
+                          style={{ color: bannerForm.text_color }}
+                        />
+                      ) : (
+                        <p className="text-sm font-semibold" style={{ color: bannerForm.text_color }}>
+                          Digite o texto principal acima
+                        </p>
+                      )}
+                      {bannerForm.subtitle && (
+                        <div 
+                          className="text-xs mt-1 rich-text-preview"
+                          dangerouslySetInnerHTML={{ __html: bannerForm.subtitle }}
+                          style={{ color: bannerForm.text_color }}
+                        />
+                      )}
+                    </div>
                     {bannerForm.button_text && (
                       <Button size="sm" className="shrink-0">
                         {bannerForm.button_text}

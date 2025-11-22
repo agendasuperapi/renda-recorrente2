@@ -330,6 +330,42 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_announcement_banner: {
+        Row: {
+          background_color: string | null
+          button_text: string | null
+          button_url: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          text: string
+          text_color: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          text: string
+          text_color?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          text?: string
+          text_color?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_block_gradients: {
         Row: {
           block_name: string

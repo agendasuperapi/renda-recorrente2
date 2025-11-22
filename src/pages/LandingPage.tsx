@@ -27,6 +27,7 @@ const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 interface AnnouncementBanner {
   id: string;
   text: string;
+  subtitle: string;
   is_active: boolean;
   background_color: string;
   text_color: string;
@@ -790,12 +791,22 @@ const LandingPage = () => {
           style={{ backgroundColor: announcementBanner.background_color }}
         >
           <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">
-            <p 
-              className="text-sm md:text-base font-semibold"
-              style={{ color: announcementBanner.text_color }}
-            >
-              {announcementBanner.text}
-            </p>
+            <div className="flex-1">
+              {announcementBanner.text && (
+                <div 
+                  className="text-sm md:text-base font-semibold rich-text-banner"
+                  dangerouslySetInnerHTML={{ __html: announcementBanner.text }}
+                  style={{ color: announcementBanner.text_color }}
+                />
+              )}
+              {announcementBanner.subtitle && (
+                <div 
+                  className="text-xs md:text-sm mt-1 rich-text-banner"
+                  dangerouslySetInnerHTML={{ __html: announcementBanner.subtitle }}
+                  style={{ color: announcementBanner.text_color }}
+                />
+              )}
+            </div>
             {announcementBanner.button_text && announcementBanner.button_url && (
               <Button
                 size="sm"

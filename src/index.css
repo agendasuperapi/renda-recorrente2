@@ -117,3 +117,44 @@ All colors MUST be HSL.
     background-color: hsl(var(--background));
   }
 }
+
+/* Rich text editor and banner styles */
+.ql-toolbar {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  background: hsl(var(--background));
+}
+
+.ql-container {
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  font-family: inherit;
+  background: hsl(var(--background));
+}
+
+.ql-editor {
+  min-height: 100px;
+  color: hsl(var(--foreground));
+}
+
+.rich-text-preview p,
+.rich-text-banner p {
+  margin: 0;
+  display: inline;
+}
+
+.rich-text-preview strong,
+.rich-text-banner strong {
+  font-weight: 700;
+}
+
+.rich-text-preview em,
+.rich-text-banner em {
+  font-style: italic;
+}
+
+.rich-text-preview u,
+.rich-text-banner u {
+  text-decoration: underline;
+}
+
