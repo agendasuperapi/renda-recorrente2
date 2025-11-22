@@ -32,6 +32,7 @@ interface Plan {
   billing_period: string;
   description: string | null;
   features: string[];
+  planFeatures?: Feature[];
 }
 
 interface Testimonial {
@@ -397,12 +398,37 @@ const LandingPage = () => {
       .order("price");
 
     if (data) {
-      setPlans(data.map((plan: any) => ({
-        ...plan,
-        features: plan.description 
-          ? plan.description.split('\n').filter((line: string) => line.trim()) 
-          : []
-      })));
+      // Buscar features de cada plano
+      const plansWithFeatures = await Promise.all(
+        data.map(async (plan: any) => {
+          const { data: planFeatures } = await supabase
+            .from("plan_features")
+            .select(`
+              feature_id,
+              landing_features (
+                id,
+                name,
+                icon,
+                is_active
+              )
+            `)
+            .eq("plan_id", plan.id);
+
+          const featuresArray = planFeatures
+            ?.map((pf: any) => pf.landing_features)
+            .filter(Boolean) || [];
+
+          return {
+            ...plan,
+            features: plan.description 
+              ? plan.description.split('\n').filter((line: string) => line.trim()) 
+              : [],
+            planFeatures: featuresArray
+          };
+        })
+      );
+
+      setPlans(plansWithFeatures);
     }
   };
 
@@ -1413,12 +1439,22 @@ const LandingPage = () => {
 
                   {/* Features - flex-grow para ocupar espaço disponível */}
                   <ul className="space-y-3 mb-8 flex-grow">
-                    {features.map((feature, i) => {
+                    {features.map((feature) => {
                       const IconComponent = getIconComponent(feature.icon);
+                      const hasFeature = plan.planFeatures?.some(pf => pf.id === feature.id);
+                      
                       return (
-                        <li key={feature.id} className="flex items-start gap-3">
-                          <IconComponent className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
-                          <span className="text-white text-sm md:text-base">{feature.name}</span>
+                        <li key={feature.id} className={`flex items-start gap-3 transition-opacity ${!hasFeature ? 'opacity-30' : ''}`}>
+                          <div className="flex-shrink-0 mt-0.5">
+                            {hasFeature ? (
+                              <Check className="w-5 h-5 text-[#22c55e]" />
+                            ) : (
+                              <div className="w-5 h-5 rounded-full border-2 border-gray-600" />
+                            )}
+                          </div>
+                          <span className={`text-sm md:text-base ${hasFeature ? 'text-white' : 'text-gray-500 line-through'}`}>
+                            {feature.name}
+                          </span>
                         </li>
                       );
                     })}
