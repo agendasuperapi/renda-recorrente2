@@ -103,39 +103,36 @@ export default function SignupFunnel() {
 
   const fetchDebugInfo = async (planId: string) => {
     try {
-      // Fetch environment mode
+      // 1. Buscar modo do ambiente
       const { data: settingData } = await supabase
         .from("app_settings")
         .select("value")
         .eq("key", "environment_mode")
-        .single();
+        .maybeSingle();
 
       const environmentMode = settingData?.value || "test";
 
-      // Fetch plan integration
+      // 2. Buscar integração do plano filtrando por environment_type
       const { data: integrationData } = await supabase
         .from("plan_integrations")
-        .select(`
-          id,
-          stripe_product_id,
-          stripe_price_id,
-          environment_type,
-          is_active,
-          account_id,
-          accounts (
-            id,
-            name,
-            key_authorization,
-            success_url,
-            cancel_url,
-            return_url,
-            is_production
-          )
-        `)
+        .select("*")
         .eq("plan_id", planId)
         .eq("environment_type", environmentMode)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
+
+      let accountData = null;
+
+      // 3. Se encontrou integração, buscar dados da conta usando o account_id
+      if (integrationData?.account_id) {
+        const { data: accountResult } = await supabase
+          .from("accounts")
+          .select("*")
+          .eq("id", integrationData.account_id)
+          .maybeSingle();
+
+        accountData = accountResult;
+      }
 
       setDebugInfo({
         environmentMode,
@@ -143,12 +140,12 @@ export default function SignupFunnel() {
         planName: plan?.name || "",
         integrationId: integrationData?.id || null,
         integrationData: integrationData || null,
-        accountId: integrationData?.accounts?.id || null,
-        accountName: integrationData?.accounts?.name || null,
-        keyAuthorization: integrationData?.accounts?.key_authorization || null,
-        successUrl: integrationData?.accounts?.success_url || null,
-        cancelUrl: integrationData?.accounts?.cancel_url || null,
-        returnUrl: integrationData?.accounts?.return_url || null,
+        accountId: accountData?.id || null,
+        accountName: accountData?.name || null,
+        keyAuthorization: accountData?.key_authorization || null,
+        successUrl: accountData?.success_url || null,
+        cancelUrl: accountData?.cancel_url || null,
+        returnUrl: accountData?.return_url || null,
         stripeProductId: integrationData?.stripe_product_id || null,
         stripePriceId: integrationData?.stripe_price_id || null,
       });
