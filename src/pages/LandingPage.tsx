@@ -435,14 +435,18 @@ const LandingPage = () => {
       .eq("is_active", true)
       .order("price");
 
+    console.log('[LandingPage] Planos retornados:', data);
+    
     if (data) {
-      setPlans(data.map((plan: any) => ({
+      const mappedPlans = data.map((plan: any) => ({
         ...plan,
         features: plan.description 
           ? plan.description.split('\n').filter((line: string) => line.trim()) 
           : [],
         plan_features: plan.plan_features || []
-      })));
+      }));
+      console.log('[LandingPage] Planos mapeados:', mappedPlans);
+      setPlans(mappedPlans);
     }
   };
 
