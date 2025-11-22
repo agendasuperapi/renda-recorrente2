@@ -1433,7 +1433,7 @@ const LandingPage = () => {
                   
                   <div className="mb-8 p-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg border border-primary/30">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground">Comissão recorrente</p>
+                      <p className="text-2xl font-bold text-foreground">Comissão recorrente</p>
                       <p className="text-2xl font-bold text-primary">{plan.commission_percentage}%</p>
                     </div>
                   </div>
