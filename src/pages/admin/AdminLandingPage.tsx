@@ -409,6 +409,17 @@ const AdminLandingPage = () => {
         button_text: data.button_text || "",
         button_url: data.button_url || "",
       });
+    } else {
+      // Reset form if no banner exists
+      setBannerForm({
+        text: "",
+        subtitle: "",
+        is_active: true,
+        background_color: "#10b981",
+        text_color: "#ffffff",
+        button_text: "",
+        button_url: "",
+      });
     }
   };
 

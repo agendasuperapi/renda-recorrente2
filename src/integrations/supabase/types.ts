@@ -338,6 +338,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_active: boolean | null
+          subtitle: string | null
           text: string
           text_color: string | null
           updated_at: string | null
@@ -349,6 +350,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          subtitle?: string | null
           text: string
           text_color?: string | null
           updated_at?: string | null
@@ -360,6 +362,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          subtitle?: string | null
           text?: string
           text_color?: string | null
           updated_at?: string | null
