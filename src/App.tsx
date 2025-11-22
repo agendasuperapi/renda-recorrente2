@@ -30,6 +30,7 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import AdminCpfApis from "./pages/admin/AdminCpfApis";
 import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
+import AdminSettings from "./pages/admin/AdminSettings";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
               <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
               <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
