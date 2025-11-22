@@ -391,7 +391,7 @@ const Auth = () => {
             <button
               type="button"
               onClick={() => isLogin ? navigate("/") : setIsLogin(!isLogin)}
-              className="text-primary hover:text-primary/80 transition-colors"
+              className="text-foreground hover:text-foreground/80 transition-colors"
             >
               {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
             </button>
@@ -401,14 +401,14 @@ const Auth = () => {
             Ao continuar, estou de acordo com os{" "}
             <span
               onClick={() => navigate("/terms")}
-              className="text-primary hover:text-primary/80 underline cursor-pointer"
+              className="text-foreground hover:text-foreground/80 underline cursor-pointer"
             >
               Termos de Uso
             </span>{" "}
             e{" "}
             <span
               onClick={() => navigate("/privacy")}
-              className="text-primary hover:text-primary/80 underline cursor-pointer"
+              className="text-foreground hover:text-foreground/80 underline cursor-pointer"
             >
               Aviso de Privacidade
             </span>
