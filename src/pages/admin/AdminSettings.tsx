@@ -3,23 +3,66 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function AdminSettings() {
-  const [isProduction, setIsProduction] = useState(() => {
-    const saved = localStorage.getItem("app_environment");
-    return saved === "production";
-  });
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleToggle = (checked: boolean) => {
-    setIsProduction(checked);
+  // Buscar configuração do banco de dados
+  const { data: settingData, isLoading } = useQuery({
+    queryKey: ['app-settings', 'environment_mode'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('*')
+        .eq('key', 'environment_mode')
+        .single();
+
+      if (error) {
+        console.error('Error fetching settings:', error);
+        return null;
+      }
+
+      return data;
+    },
+  });
+
+  const isProduction = settingData?.value === 'production';
+
+  // Mutation para atualizar a configuração
+  const updateSettingMutation = useMutation({
+    mutationFn: async (newValue: string) => {
+      const { error } = await supabase
+        .from('app_settings')
+        .update({ value: newValue })
+        .eq('key', 'environment_mode');
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+    },
+  });
+
+  const handleToggle = async (checked: boolean) => {
     const environment = checked ? "production" : "test";
-    localStorage.setItem("app_environment", environment);
     
-    toast({
-      title: "Configuração atualizada",
-      description: `Modo ${checked ? "Produção" : "Teste"} ativado`,
-    });
+    try {
+      await updateSettingMutation.mutateAsync(environment);
+      
+      toast({
+        title: "Configuração atualizada",
+        description: `Modo ${checked ? "Produção" : "Teste"} ativado`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível salvar a configuração",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -54,6 +97,7 @@ export default function AdminSettings() {
               id="environment-mode"
               checked={isProduction}
               onCheckedChange={handleToggle}
+              disabled={isLoading || updateSettingMutation.isPending}
             />
           </div>
         </CardContent>
