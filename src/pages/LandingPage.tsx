@@ -1507,6 +1507,11 @@ const LandingPage = () => {
               <span className="text-foreground text-sm text-center">Privacidade Protegida</span>
             </div>
           </div>
+          
+          {/* Stripe Security Info */}
+          <p className="text-center text-sm text-muted-foreground mt-6 px-3 md:px-0 max-w-3xl mx-auto">
+            Seu pagamento será processado pela Stripe, empresa líder mundial em pagamentos online, usada por grandes empresas e oferece máxima segurança e confiabilidade em todas as transações.
+          </p>
         </div>
       </section>
 
