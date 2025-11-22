@@ -38,6 +38,7 @@ interface DebugInfo {
   planName: string;
   integrationId: string | null;
   integrationData: any;
+  integrationAccountId: string | null;
   accountId: string | null;
   accountName: string | null;
   keyAuthorization: string | null;
@@ -140,6 +141,7 @@ export default function SignupFunnel() {
         planName: plan?.name || "",
         integrationId: integrationData?.id || null,
         integrationData: integrationData || null,
+        integrationAccountId: integrationData?.account_id || null,
         accountId: accountData?.id || null,
         accountName: accountData?.name || null,
         keyAuthorization: accountData?.key_authorization || null,
@@ -510,11 +512,11 @@ export default function SignupFunnel() {
                         <span className="ml-2">{debugInfo.planName}</span>
                       </div>
                       <div className="bg-white dark:bg-gray-900 p-2 rounded">
-                        <span className="font-semibold">Integração ID:</span> 
-                        <span className="ml-2 font-mono text-[10px]">{debugInfo.integrationId || "❌ NÃO ENCONTRADA"}</span>
+                        <span className="font-semibold">Conta ID (da integração):</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.integrationAccountId || "❌ NÃO INFORMADO"}</span>
                       </div>
                       <div className="bg-white dark:bg-gray-900 p-2 rounded">
-                        <span className="font-semibold">Conta ID:</span> 
+                        <span className="font-semibold">Conta ID (tabela accounts):</span> 
                         <span className="ml-2 font-mono text-[10px]">{debugInfo.accountId || "❌ NÃO ENCONTRADA"}</span>
                       </div>
                       <div className="bg-white dark:bg-gray-900 p-2 rounded">
