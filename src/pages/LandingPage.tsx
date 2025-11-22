@@ -1373,17 +1373,28 @@ const LandingPage = () => {
                   {/* Ícone Circular */}
                   <div className="flex justify-center mb-6">
                     <div className="w-20 h-20 md:w-24 md:h-24 bg-[#22c55e] rounded-full flex items-center justify-center p-4">
-                      {products.length > 0 && products[0] ? (
-                        <img 
-                          src={theme === 'dark' ? products[0].icone_dark || products[0].icone_light : products[0].icone_light || products[0].icone_dark} 
-                          alt={products[0].nome}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : isFree ? (
-                        <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
-                      ) : (
-                        <Link className="w-10 h-10 md:w-12 md:h-12 text-white" />
-                      )}
+                      {(() => {
+                        const currentProduct = products.find(p => p.id === PRODUCT_ID);
+                        if (currentProduct) {
+                          const iconUrl = theme === 'dark' 
+                            ? (currentProduct.icone_dark || currentProduct.icone_light) 
+                            : (currentProduct.icone_light || currentProduct.icone_dark);
+                          
+                          return iconUrl ? (
+                            <img 
+                              src={iconUrl} 
+                              alt={currentProduct.nome}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : null;
+                        }
+                        
+                        return isFree ? (
+                          <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                        ) : (
+                          <Link className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                        );
+                      })()}
                     </div>
                   </div>
 
