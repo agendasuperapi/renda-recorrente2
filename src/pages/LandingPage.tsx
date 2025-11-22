@@ -1352,22 +1352,6 @@ const LandingPage = () => {
               </Card>
             ))}
           </div>
-          
-          {/* Trust Badges - Centralized */}
-          <div className="flex items-center justify-center gap-8 mt-12 px-3 md:px-0">
-            <div className="flex flex-col items-center gap-2">
-              <Shield className="w-6 h-6 text-primary" />
-              <span className="text-foreground text-sm text-center">Compra Segura</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Trophy className="w-6 h-6 text-primary" />
-              <span className="text-foreground text-sm text-center">Satisfação Garantida</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <Lock className="w-6 h-6 text-primary" />
-              <span className="text-foreground text-sm text-center">Privacidade Protegida</span>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1506,6 +1490,22 @@ const LandingPage = () => {
                 </div>
               );
             })}
+          </div>
+          
+          {/* Trust Badges */}
+          <div className="flex items-center justify-center gap-8 mt-12 px-3 md:px-0">
+            <div className="flex flex-col items-center gap-2">
+              <Shield className="w-6 h-6 text-primary" />
+              <span className="text-foreground text-sm text-center">Compra Segura</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <Trophy className="w-6 h-6 text-primary" />
+              <span className="text-foreground text-sm text-center">Satisfação Garantida</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <Lock className="w-6 h-6 text-primary" />
+              <span className="text-foreground text-sm text-center">Privacidade Protegida</span>
+            </div>
           </div>
         </div>
       </section>
