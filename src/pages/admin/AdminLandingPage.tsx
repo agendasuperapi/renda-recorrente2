@@ -315,6 +315,7 @@ const AdminLandingPage = () => {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
   const [editingFeature, setEditingFeature] = useState<Feature | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<BannerTemplate | null>(null);
   const [iconSearch, setIconSearch] = useState("");
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
   const [uploadingHeroImage, setUploadingHeroImage] = useState<string | null>(null);
@@ -494,62 +495,89 @@ const AdminLandingPage = () => {
       return;
     }
 
-    const templateName = prompt("Digite um nome para o template:");
-    if (!templateName) return;
+    if (editingTemplate) {
+      // Atualizando template existente
+      try {
+        const { error } = await (supabase as any)
+          .from("banner_templates")
+          .update({
+            text: bannerForm.text,
+            subtitle: bannerForm.subtitle,
+            background_color: bannerForm.background_color,
+            text_color: bannerForm.text_color,
+            button_text: bannerForm.button_text,
+            button_url: bannerForm.button_url,
+          })
+          .eq("id", editingTemplate.id);
 
-    try {
-      const { error } = await (supabase as any)
-        .from("banner_templates")
-        .insert([{
-          name: templateName,
-          text: bannerForm.text,
-          subtitle: bannerForm.subtitle,
-          background_color: bannerForm.background_color,
-          text_color: bannerForm.text_color,
-          button_text: bannerForm.button_text,
-          button_url: bannerForm.button_url,
-        }]);
+        if (error) throw error;
 
-      if (error) throw error;
+        toast({
+          title: "Sucesso",
+          description: `Template "${editingTemplate.name}" atualizado com sucesso!`
+        });
+        
+        setEditingTemplate(null);
+        fetchBannerTemplates();
+      } catch (error: any) {
+        toast({
+          title: "Erro ao atualizar template",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Criando novo template
+      const templateName = prompt("Digite um nome para o template:");
+      if (!templateName) return;
 
-      toast({
-        title: "Sucesso",
-        description: "Template salvo com sucesso!"
-      });
-      
-      fetchBannerTemplates();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao salvar template",
-        description: error.message,
-        variant: "destructive"
-      });
+      try {
+        const { error } = await (supabase as any)
+          .from("banner_templates")
+          .insert([{
+            name: templateName,
+            text: bannerForm.text,
+            subtitle: bannerForm.subtitle,
+            background_color: bannerForm.background_color,
+            text_color: bannerForm.text_color,
+            button_text: bannerForm.button_text,
+            button_url: bannerForm.button_url,
+          }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Sucesso",
+          description: "Template salvo com sucesso!"
+        });
+        
+        fetchBannerTemplates();
+      } catch (error: any) {
+        toast({
+          title: "Erro ao salvar template",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
     }
   };
 
   const handleEditTemplate = (template: BannerTemplate) => {
-    const newName = prompt("Digite o novo nome para o template:", template.name);
-    if (!newName) return;
-
-    (supabase as any)
-      .from("banner_templates")
-      .update({ name: newName })
-      .eq("id", template.id)
-      .then(({ error }: any) => {
-        if (error) {
-          toast({
-            title: "Erro ao editar template",
-            description: error.message,
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Sucesso",
-            description: "Template editado com sucesso!"
-          });
-          fetchBannerTemplates();
-        }
-      });
+    setEditingTemplate(template);
+    setBannerForm({
+      text: template.text,
+      subtitle: template.subtitle,
+      background_color: template.background_color,
+      text_color: template.text_color,
+      button_text: template.button_text || "",
+      button_url: template.button_url || "",
+      is_active: bannerForm.is_active,
+    });
+    setShowTemplateDialog(false);
+    toast({
+      title: "Template carregado",
+      description: `Template "${template.name}" carregado para edição. Clique em "Salvar Template" para atualizar.`,
+    });
   };
 
   const handleDeleteTemplate = async (templateId: string, templateName: string) => {
@@ -1503,8 +1531,22 @@ const AdminLandingPage = () => {
                   Salvar Banner
                 </Button>
                 <Button onClick={handleSaveAsTemplate} variant="secondary" className="flex-1">
-                  Salvar Template
+                  {editingTemplate ? `Atualizar Template "${editingTemplate.name}"` : "Salvar Template"}
                 </Button>
+                {editingTemplate && (
+                  <Button 
+                    onClick={() => {
+                      setEditingTemplate(null);
+                      toast({
+                        title: "Edição cancelada",
+                        description: "Voltando ao modo de criação de template"
+                      });
+                    }} 
+                    variant="outline"
+                  >
+                    Cancelar Edição
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
