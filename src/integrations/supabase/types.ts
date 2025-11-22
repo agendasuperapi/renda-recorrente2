@@ -537,6 +537,42 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_features: {
+        Row: {
+          created_at: string | null
+          feature_id: string
+          id: string
+          plan_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feature_id: string
+          id?: string
+          plan_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feature_id?: string
+          id?: string
+          plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_features_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "landing_features"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_integrations: {
         Row: {
           account_id: string
