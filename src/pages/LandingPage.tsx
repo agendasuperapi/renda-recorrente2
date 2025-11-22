@@ -1527,12 +1527,16 @@ const LandingPage = () => {
                   
                   <div className={`mb-8 p-4 rounded-lg border transition-all ${
                     !plan.is_free 
-                      ? 'bg-gradient-to-r from-primary/30 to-primary/20 border-primary shadow-lg shadow-primary/20' 
+                      ? 'bg-gradient-to-r from-primary/40 to-primary/25 border-primary/80 border-2 shadow-2xl shadow-primary/40 ring-2 ring-primary/30 animate-pulse' 
                       : 'bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30'
                   }`}>
                     <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm text-white whitespace-nowrap">Comissão recorrente</p>
-                      <p className="text-2xl font-bold text-primary">{plan.commission_percentage}%</p>
+                      <p className={`text-sm whitespace-nowrap ${!plan.is_free ? 'text-primary-foreground font-semibold' : 'text-white'}`}>
+                        Comissão recorrente
+                      </p>
+                      <p className={`text-2xl font-bold ${!plan.is_free ? 'text-primary-foreground drop-shadow-lg' : 'text-primary'}`}>
+                        {plan.commission_percentage}%
+                      </p>
                     </div>
                   </div>
 

@@ -720,6 +720,7 @@ export type Database = {
           features: Json | null
           id: string
           is_active: boolean | null
+          is_free: boolean
           name: string
           original_price: number | null
           price: number
@@ -737,6 +738,7 @@ export type Database = {
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          is_free?: boolean
           name: string
           original_price?: number | null
           price: number
@@ -754,6 +756,7 @@ export type Database = {
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          is_free?: boolean
           name?: string
           original_price?: number | null
           price?: number
