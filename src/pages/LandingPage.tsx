@@ -1500,7 +1500,7 @@ const LandingPage = () => {
                       const hasPlanFeatures = Array.isArray(plan.plan_features) && plan.plan_features.length > 0;
                       const isIncluded = hasPlanFeatures
                         ? plan.plan_features!.some((pf) => pf.feature_id === feature.id)
-                        : true; // se não vier relação, considera tudo incluso para não ficar tudo vermelho
+                        : false;
                       return (
                         <li
                           key={feature.id}
