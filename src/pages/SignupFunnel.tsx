@@ -32,6 +32,22 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+interface DebugInfo {
+  environmentMode: string;
+  planId: string;
+  planName: string;
+  integrationId: string | null;
+  integrationData: any;
+  accountId: string | null;
+  accountName: string | null;
+  keyAuthorization: string | null;
+  successUrl: string | null;
+  cancelUrl: string | null;
+  returnUrl: string | null;
+  stripeProductId: string | null;
+  stripePriceId: string | null;
+}
+
 export default function SignupFunnel() {
   const { planId } = useParams();
   const navigate = useNavigate();
@@ -41,6 +57,7 @@ export default function SignupFunnel() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
   const [checkingEmail, setCheckingEmail] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   
   const [formData, setFormData] = useState<SignupFormData>({
     name: "",
@@ -77,6 +94,67 @@ export default function SignupFunnel() {
     }
 
     setPlan(data);
+
+    // Fetch debug info in development mode
+    if (import.meta.env.DEV) {
+      await fetchDebugInfo(planId!);
+    }
+  };
+
+  const fetchDebugInfo = async (planId: string) => {
+    try {
+      // Fetch environment mode
+      const { data: settingData } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "environment_mode")
+        .single();
+
+      const environmentMode = settingData?.value || "test";
+
+      // Fetch plan integration
+      const { data: integrationData } = await supabase
+        .from("plan_integrations")
+        .select(`
+          id,
+          stripe_product_id,
+          stripe_price_id,
+          environment_type,
+          is_active,
+          account_id,
+          accounts (
+            id,
+            name,
+            key_authorization,
+            success_url,
+            cancel_url,
+            return_url,
+            is_production
+          )
+        `)
+        .eq("plan_id", planId)
+        .eq("environment_type", environmentMode)
+        .eq("is_active", true)
+        .single();
+
+      setDebugInfo({
+        environmentMode,
+        planId,
+        planName: plan?.name || "",
+        integrationId: integrationData?.id || null,
+        integrationData: integrationData || null,
+        accountId: integrationData?.accounts?.id || null,
+        accountName: integrationData?.accounts?.name || null,
+        keyAuthorization: integrationData?.accounts?.key_authorization || null,
+        successUrl: integrationData?.accounts?.success_url || null,
+        cancelUrl: integrationData?.accounts?.cancel_url || null,
+        returnUrl: integrationData?.accounts?.return_url || null,
+        stripeProductId: integrationData?.stripe_product_id || null,
+        stripePriceId: integrationData?.stripe_price_id || null,
+      });
+    } catch (error) {
+      console.error("Error fetching debug info:", error);
+    }
   };
 
   const formatPhone = (value: string) => {
@@ -414,6 +492,73 @@ export default function SignupFunnel() {
                     </p>
                   </div>
                 </div>
+
+                {/* Debug Info - Only in Development */}
+                {import.meta.env.DEV && debugInfo && (
+                  <div className="bg-yellow-50 dark:bg-yellow-950 border-2 border-yellow-500 p-4 rounded-lg space-y-2">
+                    <h3 className="font-bold text-yellow-900 dark:text-yellow-100 text-sm mb-3">
+                      🔧 DEBUG - Informações do Checkout Stripe
+                    </h3>
+                    <div className="grid grid-cols-1 gap-2 text-xs">
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Modo:</span> 
+                        <span className="ml-2 font-mono">{debugInfo.environmentMode}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Plano ID:</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.planId}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Plano Nome:</span> 
+                        <span className="ml-2">{debugInfo.planName}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Integração ID:</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.integrationId || "❌ NÃO ENCONTRADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Conta ID:</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.accountId || "❌ NÃO ENCONTRADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Conta Nome:</span> 
+                        <span className="ml-2">{debugInfo.accountName || "❌ NÃO ENCONTRADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Key Authorization:</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.keyAuthorization ? `${debugInfo.keyAuthorization.substring(0, 20)}...` : "❌ NÃO ENCONTRADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Success URL:</span> 
+                        <span className="ml-2 text-[10px]">{debugInfo.successUrl || "❌ NÃO CONFIGURADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Cancel URL:</span> 
+                        <span className="ml-2 text-[10px]">{debugInfo.cancelUrl || "❌ NÃO CONFIGURADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Return URL:</span> 
+                        <span className="ml-2 text-[10px]">{debugInfo.returnUrl || "❌ NÃO CONFIGURADA"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Stripe Product ID:</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.stripeProductId || "❌ NÃO CONFIGURADO"}</span>
+                      </div>
+                      <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                        <span className="font-semibold">Stripe Price ID:</span> 
+                        <span className="ml-2 font-mono text-[10px]">{debugInfo.stripePriceId || "❌ NÃO CONFIGURADO"}</span>
+                      </div>
+                      {debugInfo.integrationData && (
+                        <details className="bg-white dark:bg-gray-900 p-2 rounded">
+                          <summary className="font-semibold cursor-pointer">Dados Completos (JSON)</summary>
+                          <pre className="text-[9px] mt-2 overflow-auto max-h-40 bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                            {JSON.stringify(debugInfo.integrationData, null, 2)}
+                          </pre>
+                        </details>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
