@@ -1056,7 +1056,7 @@ const AdminLandingPage = () => {
                     modules={{
                       toolbar: [
                         ['bold', 'italic', 'underline'],
-                        [{ 'color': [] }],
+                        [{ 'color': [] }, { 'background': [] }],
                         [{ 'size': ['small', false, 'large', 'huge'] }],
                         ['clean']
                       ]
@@ -1076,7 +1076,7 @@ const AdminLandingPage = () => {
                     modules={{
                       toolbar: [
                         ['bold', 'italic', 'underline'],
-                        [{ 'color': [] }],
+                        [{ 'color': [] }, { 'background': [] }],
                         [{ 'size': ['small', false, 'large'] }],
                         ['clean']
                       ]
