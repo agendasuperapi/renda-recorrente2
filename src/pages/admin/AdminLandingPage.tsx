@@ -82,6 +82,20 @@ interface AnnouncementBanner {
   button_url: string | null;
 }
 
+interface BannerTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  text: string;
+  subtitle: string;
+  background_color: string;
+  text_color: string;
+  button_text: string | null;
+  button_url: string | null;
+  preview_image_url: string | null;
+  is_active: boolean;
+}
+
 // Componente para renderizar ícone dinamicamente
 const DynamicIcon = ({ name, ...props }: { name: keyof typeof dynamicIconImports } & Omit<LucideProps, 'ref'>) => {
   const Icon = lazy(dynamicIconImports[name]);
@@ -293,6 +307,8 @@ const AdminLandingPage = () => {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
   const [announcementBanner, setAnnouncementBanner] = useState<AnnouncementBanner | null>(null);
+  const [bannerTemplates, setBannerTemplates] = useState<BannerTemplate[]>([]);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [showFaqForm, setShowFaqForm] = useState(false);
   const [showFeatureForm, setShowFeatureForm] = useState(false);
@@ -358,6 +374,7 @@ const AdminLandingPage = () => {
     fetchFeatures();
     fetchHeroImages();
     fetchAnnouncementBanner();
+    fetchBannerTemplates();
   }, []);
 
   const fetchTestimonials = async () => {
@@ -421,6 +438,35 @@ const AdminLandingPage = () => {
         button_url: "",
       });
     }
+  };
+
+  const fetchBannerTemplates = async () => {
+    const { data } = await (supabase as any)
+      .from("banner_templates")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at");
+    
+    if (data) {
+      setBannerTemplates(data as BannerTemplate[]);
+    }
+  };
+
+  const applyTemplate = (template: BannerTemplate) => {
+    setBannerForm({
+      text: template.text,
+      subtitle: template.subtitle,
+      background_color: template.background_color,
+      text_color: template.text_color,
+      button_text: template.button_text || "",
+      button_url: template.button_url || "",
+      is_active: bannerForm.is_active,
+    });
+    setShowTemplateDialog(false);
+    toast({
+      title: "Template aplicado!",
+      description: `Template "${template.name}" foi aplicado ao banner.`,
+    });
   };
 
   const handleSaveBanner = async () => {
@@ -1057,6 +1103,62 @@ const AdminLandingPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-sm text-muted-foreground">
+                  Use templates prontos ou personalize seu banner
+                </div>
+                <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      📋 Escolher Template
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh]">
+                    <DialogHeader>
+                      <DialogTitle>Templates de Banners</DialogTitle>
+                      <DialogDescription>
+                        Escolha um template pré-definido para facilitar a criação do seu banner
+                      </DialogDescription>
+                    </DialogHeader>
+                    <ScrollArea className="h-[500px] pr-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {bannerTemplates.map((template) => (
+                          <Card key={template.id} className="cursor-pointer hover:border-primary transition-all" onClick={() => applyTemplate(template)}>
+                            <CardHeader>
+                              <CardTitle className="text-lg">{template.name}</CardTitle>
+                              <CardDescription>{template.description}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div 
+                                className="p-4 rounded-md mb-2"
+                                style={{ 
+                                  backgroundColor: template.background_color,
+                                  color: template.text_color 
+                                }}
+                              >
+                                <div 
+                                  className="rich-text-preview text-sm"
+                                  dangerouslySetInnerHTML={{ __html: template.text }}
+                                />
+                                {template.subtitle && (
+                                  <div 
+                                    className="rich-text-preview text-xs mt-1 opacity-90"
+                                    dangerouslySetInnerHTML={{ __html: template.subtitle }}
+                                  />
+                                )}
+                              </div>
+                              <Button size="sm" className="w-full">
+                                Aplicar Template
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="banner-text">Texto Principal do Banner</Label>
                 <div className="border rounded-md">
