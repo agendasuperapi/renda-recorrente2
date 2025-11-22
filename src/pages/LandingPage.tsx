@@ -1352,6 +1352,22 @@ const LandingPage = () => {
               </Card>
             ))}
           </div>
+          
+          {/* Trust Badges - Centralized */}
+          <div className="flex items-center justify-center gap-8 mt-12 px-3 md:px-0">
+            <div className="flex flex-col items-center gap-2">
+              <Shield className="w-6 h-6 text-primary" />
+              <span className="text-foreground text-sm text-center">Compra Segura</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <Trophy className="w-6 h-6 text-primary" />
+              <span className="text-foreground text-sm text-center">Satisfação Garantida</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <Lock className="w-6 h-6 text-primary" />
+              <span className="text-foreground text-sm text-center">Privacidade Protegida</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1477,21 +1493,6 @@ const LandingPage = () => {
                       Selecionar Plano {plan.name}
                     </Button>
 
-                    {/* Trust Badges */}
-                    <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-700">
-                      <div className="flex flex-col items-center gap-1">
-                        <Shield className="w-5 h-5 text-white" />
-                        <span className="text-white text-xs text-center">Compra Segura</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        <Trophy className="w-5 h-5 text-white" />
-                        <span className="text-white text-xs">Satisfação Garantida</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        <Lock className="w-5 h-5 text-white" />
-                        <span className="text-white text-xs">Privacidade Protegida</span>
-                      </div>
-                    </div>
 
                     {/* Teste Grátis */}
                     {isPro ? (
