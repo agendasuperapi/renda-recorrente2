@@ -33,6 +33,7 @@ interface Plan {
   description: string | null;
   features: string[];
   plan_features?: { feature_id: string }[];
+  commission_percentage: number;
 }
 
 interface Testimonial {
@@ -1417,7 +1418,7 @@ const LandingPage = () => {
                   </h3>
 
                   {/* Features - flex-grow para ocupar espaço disponível */}
-                  <ul className="space-y-3 mb-8 flex-grow">
+                  <ul className="space-y-3 mb-6 flex-grow">
                     {features.map((feature, i) => {
                       const IconComponent = getIconComponent(feature.icon);
                       const isIncluded = plan.plan_features?.some(pf => pf.feature_id === feature.id) || false;
@@ -1429,6 +1430,13 @@ const LandingPage = () => {
                       );
                     })}
                   </ul>
+                  
+                  <div className="mb-8 p-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg border border-primary/30">
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mb-1">Comissão de Afiliado</p>
+                      <p className="text-3xl font-bold text-primary">{plan.commission_percentage}%</p>
+                    </div>
+                  </div>
 
                   {/* Container para elementos alinhados - mt-auto garante que fique no final */}
                   <div className="mt-auto">
