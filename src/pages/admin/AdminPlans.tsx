@@ -32,6 +32,7 @@ const planFormSchema = z.object({
   trial_days: z.coerce.number().min(0).default(0),
   commission_percentage: z.coerce.number().min(0).max(100).default(25),
   is_active: z.boolean().default(true),
+  is_free: z.boolean().default(false),
   product_id: z.string().optional(),
 });
 
@@ -84,6 +85,7 @@ const AdminPlans = () => {
       trial_days: 0,
       commission_percentage: 25,
       is_active: true,
+      is_free: false,
       product_id: "",
     },
   });
@@ -211,6 +213,7 @@ const AdminPlans = () => {
         billing_period: data.billing_period,
         commission_percentage: data.commission_percentage,
         is_active: data.is_active,
+        is_free: data.is_free,
         features,
         product_id: data.product_id || null,
       }).select().single();
@@ -262,6 +265,7 @@ const AdminPlans = () => {
           billing_period: data.billing_period,
           commission_percentage: data.commission_percentage,
           is_active: data.is_active,
+          is_free: data.is_free,
           features,
           product_id: data.product_id || null,
         })
@@ -347,6 +351,7 @@ const AdminPlans = () => {
       trial_days: parseInt(features.find((f: string) => f.startsWith("trial_days:"))?.replace("trial_days:", "") || "0"),
       commission_percentage: plan.commission_percentage,
       is_active: plan.is_active,
+      is_free: plan.is_free ?? false,
       product_id: plan.product_id || "",
     });
 
@@ -386,6 +391,7 @@ const AdminPlans = () => {
       trial_days: 0,
       commission_percentage: 25,
       is_active: true,
+      is_free: false,
       product_id: "",
     });
     
@@ -1231,6 +1237,27 @@ const AdminPlans = () => {
                                 <FormLabel>Ativo</FormLabel>
                                 <FormDescription className="text-xs">
                                   Plano disponível para assinatura
+                                </FormDescription>
+                              </div>
+                              <FormControl>
+                                <Switch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="is_free"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                              <div className="space-y-0.5">
+                                <FormLabel>Plano Gratuito</FormLabel>
+                                <FormDescription className="text-xs">
+                                  Marque se este plano é FREE (não pago)
                                 </FormDescription>
                               </div>
                               <FormControl>
