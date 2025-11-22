@@ -377,6 +377,21 @@ const AdminLandingPage = () => {
     fetchBannerTemplates();
   }, []);
 
+  // Força a atualização do form quando o banner é carregado
+  useEffect(() => {
+    if (announcementBanner) {
+      setBannerForm({
+        text: announcementBanner.text || "",
+        subtitle: announcementBanner.subtitle || "",
+        is_active: announcementBanner.is_active ?? true,
+        background_color: announcementBanner.background_color || "#10b981",
+        text_color: announcementBanner.text_color || "#ffffff",
+        button_text: announcementBanner.button_text || "",
+        button_url: announcementBanner.button_url || "",
+      });
+    }
+  }, [announcementBanner]);
+
   const fetchTestimonials = async () => {
     const { data } = await (supabase as any)
       .from("landing_testimonials")

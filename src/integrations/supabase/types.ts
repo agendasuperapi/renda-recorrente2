@@ -175,6 +175,54 @@ export type Database = {
         }
         Relationships: []
       }
+      banner_templates: {
+        Row: {
+          background_color: string | null
+          button_text: string | null
+          button_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          preview_image_url: string | null
+          subtitle: string | null
+          text: string
+          text_color: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          preview_image_url?: string | null
+          subtitle?: string | null
+          text: string
+          text_color?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          preview_image_url?: string | null
+          subtitle?: string | null
+          text?: string
+          text_color?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       commissions: {
         Row: {
           affiliate_id: string
