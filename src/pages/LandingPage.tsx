@@ -1422,9 +1422,9 @@ const LandingPage = () => {
                       const IconComponent = getIconComponent(feature.icon);
                       const isIncluded = plan.plan_features?.some(pf => pf.feature_id === feature.id) || false;
                       return (
-                        <li key={feature.id} className="flex items-start gap-3">
-                          <IconComponent className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isIncluded ? 'text-[#22c55e]' : 'text-red-500'}`} />
-                          <span className={`text-sm md:text-base ${isIncluded ? 'text-white' : 'text-red-500 line-through'}`}>{feature.name}</span>
+                        <li key={feature.id} className="flex items-start gap-3 transition-all duration-300 hover:translate-x-2 hover:scale-105 cursor-default">
+                          <IconComponent className={`w-5 h-5 flex-shrink-0 mt-0.5 transition-transform duration-300 ${isIncluded ? 'text-[#22c55e]' : 'text-red-500'}`} />
+                          <span className={`text-sm md:text-base transition-colors duration-300 ${isIncluded ? 'text-white' : 'text-red-500 line-through'}`}>{feature.name}</span>
                         </li>
                       );
                     })}
