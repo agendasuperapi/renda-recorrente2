@@ -1546,6 +1546,51 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Call to Action Final */}
+      <section id="cta-final" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('cta-final')}>
+        {isAdmin && (
+          <Button
+            onClick={() => setEditingBlock(editingBlock === 'cta-final' ? null : 'cta-final')}
+            className="absolute top-4 right-4 z-40"
+            size="sm"
+            variant="outline"
+          >
+            <Edit className="w-4 h-4" />
+          </Button>
+        )}
+        <div className="container mx-auto max-w-4xl text-center px-0">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 px-3 md:px-0" style={{ color: getHeadingColor('cta-final') }}>
+            Transforme suas Indicações em Renda Recorrente!
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-10 px-3 md:px-0" style={{ color: getTextColor('cta-final') }}>
+            Não perca mais tempo sem ganhar! Junte-se ao APP Renda Recorrente e tenha controle total dos seus ganhos mensais.
+          </p>
+          
+          <Button 
+            size="lg" 
+            onClick={() => scrollToSection("planos")} 
+            className="w-full md:w-auto text-base md:text-lg px-8 md:px-12 py-6 md:py-7 mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300"
+          >
+            Experimente Gratuitamente! →
+          </Button>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 px-3 md:px-0">
+            <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full">
+              <CheckCircle2 className="w-5 h-5" style={{ color: getTextColor('cta-final') }} />
+              <span className="text-sm md:text-base font-medium" style={{ color: getTextColor('cta-final') }}>
+                Plano FREE disponível
+              </span>
+            </div>
+            <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full">
+              <CheckCircle2 className="w-5 h-5" style={{ color: getTextColor('cta-final') }} />
+              <span className="text-sm md:text-base font-medium" style={{ color: getTextColor('cta-final') }}>
+                Cancele quando quiser
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border py-8 md:py-12 px-3 md:px-6">
         <div className="container mx-auto max-w-6xl">
