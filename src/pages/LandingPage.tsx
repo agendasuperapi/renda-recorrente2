@@ -1497,14 +1497,27 @@ const LandingPage = () => {
                   <ul className="space-y-3 mb-6 flex-grow">
                     {features.map((feature, i) => {
                       const IconComponent = getIconComponent(feature.icon);
-                      const isIncluded = plan.plan_features?.some(pf => pf.feature_id === feature.id) || false;
+                      const hasPlanFeatures = Array.isArray(plan.plan_features) && plan.plan_features.length > 0;
+                      const isIncluded = hasPlanFeatures
+                        ? plan.plan_features!.some((pf) => pf.feature_id === feature.id)
+                        : true; // se não vier relação, considera tudo incluso para não ficar tudo vermelho
                       return (
-                        <li key={feature.id} className="flex items-start gap-3 transition-all duration-300 hover:translate-x-2 hover:scale-105 cursor-default">
-                          <IconComponent className={`w-5 h-5 flex-shrink-0 mt-0.5 transition-transform duration-300 ${isIncluded ? 'text-[#22c55e]' : 'text-red-500'}`} />
-                          <span className={`text-sm md:text-base transition-colors duration-300 ${isIncluded ? 'text-white' : 'text-red-500 line-through'}`}>{feature.name}</span>
+                        <li
+                          key={feature.id}
+                          className="flex items-start gap-3 transition-all duration-300 hover:translate-x-2 hover:scale-105 cursor-default"
+                        >
+                          <IconComponent
+                            className={`w-5 h-5 flex-shrink-0 mt-0.5 transition-transform duration-300 ${isIncluded ? "text-[#22c55e]" : "text-red-500"}`}
+                          />
+                          <span
+                            className={`text-sm md:text-base transition-colors duration-300 ${isIncluded ? "text-white" : "text-red-500 line-through"}`}
+                          >
+                            {feature.name}
+                          </span>
                         </li>
                       );
                     })}
+
                   </ul>
                   
                   <div className="mb-8 p-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg border border-primary/30">
