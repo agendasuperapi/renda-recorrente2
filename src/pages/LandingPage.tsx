@@ -1432,8 +1432,8 @@ const LandingPage = () => {
                   </ul>
                   
                   <div className="mb-8 p-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg border border-primary/30">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-white">Comissão recorrente</p>
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-sm text-white whitespace-nowrap">Comissão recorrente</p>
                       <p className="text-2xl font-bold text-primary">{plan.commission_percentage}%</p>
                     </div>
                   </div>
