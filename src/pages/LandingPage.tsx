@@ -152,6 +152,7 @@ const LandingPage = () => {
   const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs);
   const [features, setFeatures] = useState<Feature[]>([]);
   const [products, setProducts] = useState<AffiliateProduct[]>([]);
+  const [currentProduct, setCurrentProduct] = useState<AffiliateProduct | null>(null);
   const [whatsappPhone, setWhatsappPhone] = useState("");
   const [whatsappText, setWhatsappText] = useState("");
   const [showHomeButton, setShowHomeButton] = useState(false);
@@ -308,6 +309,8 @@ const LandingPage = () => {
     fetchFeatures();
     // Fetch products
     fetchProducts();
+    // Fetch current product
+    fetchCurrentProduct();
     // Fetch product info
     fetchProductInfo();
 
@@ -470,6 +473,18 @@ const LandingPage = () => {
 
     if (data) {
       setProducts(data as AffiliateProduct[]);
+    }
+  };
+
+  const fetchCurrentProduct = async () => {
+    const { data } = await supabase
+      .from("products")
+      .select("id, nome, descricao, icone_light, icone_dark")
+      .eq("id", PRODUCT_ID)
+      .maybeSingle();
+
+    if (data) {
+      setCurrentProduct(data as AffiliateProduct);
     }
   };
 
@@ -1373,28 +1388,19 @@ const LandingPage = () => {
                   {/* Ícone Circular */}
                   <div className="flex justify-center mb-6">
                     <div className="w-20 h-20 md:w-24 md:h-24 bg-[#22c55e] rounded-full flex items-center justify-center p-4">
-                      {(() => {
-                        const currentProduct = products.find(p => p.id === PRODUCT_ID);
-                        if (currentProduct) {
-                          const iconUrl = theme === 'dark' 
+                      {currentProduct ? (
+                        <img 
+                          src={theme === 'dark' 
                             ? (currentProduct.icone_dark || currentProduct.icone_light) 
-                            : (currentProduct.icone_light || currentProduct.icone_dark);
-                          
-                          return iconUrl ? (
-                            <img 
-                              src={iconUrl} 
-                              alt={currentProduct.nome}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : null;
-                        }
-                        
-                        return isFree ? (
-                          <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
-                        ) : (
-                          <Link className="w-10 h-10 md:w-12 md:h-12 text-white" />
-                        );
-                      })()}
+                            : (currentProduct.icone_light || currentProduct.icone_dark)} 
+                          alt={currentProduct.nome}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : isFree ? (
+                        <Users className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                      ) : (
+                        <Link className="w-10 h-10 md:w-12 md:h-12 text-white" />
+                      )}
                     </div>
                   </div>
 
