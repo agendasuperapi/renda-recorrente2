@@ -1481,7 +1481,7 @@ const LandingPage = () => {
                     <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-700">
                       <div className="flex flex-col items-center gap-1">
                         <Shield className="w-5 h-5 text-white" />
-                        <span className="text-white text-xs">Compra Segura</span>
+                        <span className="text-white text-xs text-center">Compra Segura</span>
                       </div>
                       <div className="flex flex-col items-center gap-1">
                         <Trophy className="w-5 h-5 text-white" />
