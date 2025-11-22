@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, LucideProps } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, Copy, LucideProps } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -574,6 +574,42 @@ const AdminLandingPage = () => {
     } catch (error: any) {
       toast({
         title: "Erro ao excluir template",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDuplicateTemplate = async (template: BannerTemplate) => {
+    const newName = prompt("Digite um nome para o novo template:", `${template.name} (cópia)`);
+    if (!newName) return;
+
+    try {
+      const { error } = await (supabase as any)
+        .from("banner_templates")
+        .insert([{
+          name: newName,
+          description: template.description,
+          text: template.text,
+          subtitle: template.subtitle,
+          background_color: template.background_color,
+          text_color: template.text_color,
+          button_text: template.button_text,
+          button_url: template.button_url,
+          is_active: template.is_active,
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Template duplicado com sucesso!"
+      });
+      
+      fetchBannerTemplates();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao duplicar template",
         description: error.message,
         variant: "destructive"
       });
@@ -1248,8 +1284,21 @@ const AdminLandingPage = () => {
                                     className="h-8 w-8"
                                     onClick={(e) => {
                                       e.stopPropagation();
+                                      handleDuplicateTemplate(template);
+                                    }}
+                                    title="Duplicar template"
+                                  >
+                                    <Copy className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       handleEditTemplate(template);
                                     }}
+                                    title="Editar nome"
                                   >
                                     <Edit2 className="h-4 w-4" />
                                   </Button>
@@ -1261,6 +1310,7 @@ const AdminLandingPage = () => {
                                       e.stopPropagation();
                                       handleDeleteTemplate(template.id, template.name);
                                     }}
+                                    title="Excluir template"
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
