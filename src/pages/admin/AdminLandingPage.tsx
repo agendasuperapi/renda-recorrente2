@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, LucideProps } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, LucideProps } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -521,6 +521,59 @@ const AdminLandingPage = () => {
     } catch (error: any) {
       toast({
         title: "Erro ao salvar template",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditTemplate = (template: BannerTemplate) => {
+    const newName = prompt("Digite o novo nome para o template:", template.name);
+    if (!newName) return;
+
+    (supabase as any)
+      .from("banner_templates")
+      .update({ name: newName })
+      .eq("id", template.id)
+      .then(({ error }: any) => {
+        if (error) {
+          toast({
+            title: "Erro ao editar template",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Sucesso",
+            description: "Template editado com sucesso!"
+          });
+          fetchBannerTemplates();
+        }
+      });
+  };
+
+  const handleDeleteTemplate = async (templateId: string, templateName: string) => {
+    if (!confirm(`Deseja realmente excluir o template "${templateName}"?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await (supabase as any)
+        .from("banner_templates")
+        .delete()
+        .eq("id", templateId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Template excluído com sucesso!"
+      });
+      
+      fetchBannerTemplates();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao excluir template",
         description: error.message,
         variant: "destructive"
       });
@@ -1181,10 +1234,38 @@ const AdminLandingPage = () => {
                     <ScrollArea className="h-[500px] pr-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {bannerTemplates.map((template) => (
-                          <Card key={template.id} className="cursor-pointer hover:border-primary transition-all" onClick={() => applyTemplate(template)}>
+                          <Card key={template.id} className="hover:border-primary transition-all">
                             <CardHeader>
-                              <CardTitle className="text-lg">{template.name}</CardTitle>
-                              <CardDescription>{template.description}</CardDescription>
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <CardTitle className="text-lg">{template.name}</CardTitle>
+                                  <CardDescription>{template.description}</CardDescription>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditTemplate(template);
+                                    }}
+                                  >
+                                    <Edit2 className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-destructive hover:text-destructive"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteTemplate(template.id, template.name);
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
                             </CardHeader>
                             <CardContent>
                               <div 
@@ -1205,7 +1286,7 @@ const AdminLandingPage = () => {
                                   />
                                 )}
                               </div>
-                              <Button size="sm" className="w-full">
+                              <Button size="sm" className="w-full" onClick={() => applyTemplate(template)}>
                                 Aplicar Template
                               </Button>
                             </CardContent>
