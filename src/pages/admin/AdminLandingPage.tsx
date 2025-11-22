@@ -484,6 +484,49 @@ const AdminLandingPage = () => {
     });
   };
 
+  const handleSaveAsTemplate = async () => {
+    if (!bannerForm.text) {
+      toast({
+        title: "Erro",
+        description: "O texto principal é obrigatório para salvar como template",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const templateName = prompt("Digite um nome para o template:");
+    if (!templateName) return;
+
+    try {
+      const { error } = await (supabase as any)
+        .from("banner_templates")
+        .insert([{
+          name: templateName,
+          text: bannerForm.text,
+          subtitle: bannerForm.subtitle,
+          background_color: bannerForm.background_color,
+          text_color: bannerForm.text_color,
+          button_text: bannerForm.button_text,
+          button_url: bannerForm.button_url,
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Template salvo com sucesso!"
+      });
+      
+      fetchBannerTemplates();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao salvar template",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSaveBanner = async () => {
     try {
       if (announcementBanner?.id) {
@@ -1324,9 +1367,14 @@ const AdminLandingPage = () => {
                 </div>
               </div>
 
-              <Button onClick={handleSaveBanner} className="w-full">
-                Salvar Banner
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleSaveBanner} className="flex-1">
+                  Salvar Banner
+                </Button>
+                <Button onClick={handleSaveAsTemplate} variant="secondary" className="flex-1">
+                  Salvar Template
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
