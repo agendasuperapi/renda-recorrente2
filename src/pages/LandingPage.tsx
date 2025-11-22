@@ -1353,7 +1353,7 @@ const LandingPage = () => {
           <p className="text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 px-3 md:px-0" style={{ color: getTextColor('planos') }}>
             Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 px-3 md:px-0 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0 max-w-7xl mx-auto">
             {plans.map((plan, index) => {
               const isFree = plan.price === 0;
               const isPro = !isFree;
