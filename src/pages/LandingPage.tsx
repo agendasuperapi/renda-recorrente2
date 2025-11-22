@@ -1527,7 +1527,7 @@ const LandingPage = () => {
                   
                   <div className={`mb-8 p-4 rounded-lg border transition-all ${
                     !plan.is_free 
-                      ? 'bg-gradient-to-r from-primary/40 to-primary/25 border-primary/80 border-2 shadow-2xl shadow-primary/40 ring-2 ring-primary/30 animate-pulse' 
+                      ? 'bg-gradient-to-r from-primary/40 to-primary/25 border-primary/80 border-2 shadow-2xl shadow-primary/40 ring-2 ring-primary/30' 
                       : 'bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30'
                   }`}>
                     <div className="flex items-center justify-between gap-4">
