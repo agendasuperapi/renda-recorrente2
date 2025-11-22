@@ -32,6 +32,7 @@ interface Plan {
   billing_period: string;
   description: string | null;
   features: string[];
+  plan_features?: { feature_id: string }[];
 }
 
 interface Testimonial {
@@ -391,7 +392,10 @@ const LandingPage = () => {
   const fetchPlans = async () => {
     const { data } = await supabase
       .from("plans")
-      .select("*")
+      .select(`
+        *,
+        plan_features(feature_id)
+      `)
       .eq("product_id", PRODUCT_ID)
       .eq("is_active", true)
       .order("price");
@@ -401,7 +405,8 @@ const LandingPage = () => {
         ...plan,
         features: plan.description 
           ? plan.description.split('\n').filter((line: string) => line.trim()) 
-          : []
+          : [],
+        plan_features: plan.plan_features || []
       })));
     }
   };
@@ -1415,10 +1420,11 @@ const LandingPage = () => {
                   <ul className="space-y-3 mb-8 flex-grow">
                     {features.map((feature, i) => {
                       const IconComponent = getIconComponent(feature.icon);
+                      const isIncluded = plan.plan_features?.some(pf => pf.feature_id === feature.id) || false;
                       return (
                         <li key={feature.id} className="flex items-start gap-3">
-                          <IconComponent className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
-                          <span className="text-white text-sm md:text-base">{feature.name}</span>
+                          <IconComponent className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isIncluded ? 'text-[#22c55e]' : 'text-red-500'}`} />
+                          <span className={`text-sm md:text-base ${isIncluded ? 'text-white' : 'text-red-500 line-through'}`}>{feature.name}</span>
                         </li>
                       );
                     })}
