@@ -45,6 +45,7 @@ interface Plan {
   features: string[];
   plan_features?: { feature_id: string }[];
   commission_percentage: number;
+  is_free?: boolean;
 }
 
 interface Testimonial {
@@ -1524,7 +1525,11 @@ const LandingPage = () => {
 
                   </ul>
                   
-                  <div className="mb-8 p-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg border border-primary/30">
+                  <div className={`mb-8 p-4 rounded-lg border transition-all ${
+                    !plan.is_free 
+                      ? 'bg-gradient-to-r from-primary/30 to-primary/20 border-primary shadow-lg shadow-primary/20' 
+                      : 'bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30'
+                  }`}>
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-sm text-white whitespace-nowrap">Comissão recorrente</p>
                       <p className="text-2xl font-bold text-primary">{plan.commission_percentage}%</p>
