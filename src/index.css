@@ -158,3 +158,19 @@ All colors MUST be HSL.
   text-decoration: underline;
 }
 
+/* Quill font sizes */
+.rich-text-preview .ql-size-small,
+.rich-text-banner .ql-size-small {
+  font-size: 0.75em;
+}
+
+.rich-text-preview .ql-size-large,
+.rich-text-banner .ql-size-large {
+  font-size: 1.5em;
+}
+
+.rich-text-preview .ql-size-huge,
+.rich-text-banner .ql-size-huge {
+  font-size: 2.5em;
+}
+
