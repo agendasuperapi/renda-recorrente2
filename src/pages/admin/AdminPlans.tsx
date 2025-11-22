@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Check, X, Edit, Trash2, Tag, Plus, Minus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -55,6 +56,7 @@ const AdminPlans = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProductFilter, setSelectedProductFilter] = useState<string>("all");
   const [isStripeDialogOpen, setIsStripeDialogOpen] = useState(false);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   
   const [stripeFormData, setStripeFormData] = useState({
     banco: "STRIPE",
@@ -177,6 +179,20 @@ const AdminPlans = () => {
     },
   });
 
+  const { data: landingFeatures } = useQuery({
+    queryKey: ["landing-features"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("landing_features")
+        .select("*")
+        .eq("is_active", true)
+        .order("order_position", { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const createPlanMutation = useMutation({
     mutationFn: async (data: PlanFormData) => {
       const features = [
@@ -187,7 +203,7 @@ const AdminPlans = () => {
         `trial_days:${data.trial_days}`,
       ];
 
-      const { error } = await supabase.from("plans").insert({
+      const { data: newPlan, error } = await supabase.from("plans").insert({
         name: data.name,
         description: data.description,
         price: data.price,
@@ -197,9 +213,23 @@ const AdminPlans = () => {
         is_active: data.is_active,
         features,
         product_id: data.product_id || null,
-      });
+      }).select().single();
       
       if (error) throw error;
+
+      // Insert selected features
+      if (newPlan && selectedFeatures.length > 0) {
+        const planFeaturesData = selectedFeatures.map(featureId => ({
+          plan_id: newPlan.id,
+          feature_id: featureId,
+        }));
+
+        const { error: featuresError } = await supabase
+          .from("plan_features")
+          .insert(planFeaturesData);
+
+        if (featuresError) throw featuresError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
@@ -238,6 +268,28 @@ const AdminPlans = () => {
         .eq("id", id);
       
       if (error) throw error;
+
+      // Delete existing plan features
+      const { error: deleteError } = await supabase
+        .from("plan_features")
+        .delete()
+        .eq("plan_id", id);
+
+      if (deleteError) throw deleteError;
+
+      // Insert new selected features
+      if (selectedFeatures.length > 0) {
+        const planFeaturesData = selectedFeatures.map(featureId => ({
+          plan_id: id,
+          feature_id: featureId,
+        }));
+
+        const { error: featuresError } = await supabase
+          .from("plan_features")
+          .insert(planFeaturesData);
+
+        if (featuresError) throw featuresError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
@@ -277,7 +329,7 @@ const AdminPlans = () => {
     }
   };
 
-  const handleEditPlan = (plan: any) => {
+  const handleEditPlan = async (plan: any) => {
     setEditingPlan(plan);
     setIsDialogOpen(true);
     const features = Array.isArray(plan.features) ? plan.features : [];
@@ -297,6 +349,14 @@ const AdminPlans = () => {
       is_active: plan.is_active,
       product_id: plan.product_id || "",
     });
+
+    // Load selected features for this plan
+    const { data: planFeatures } = await supabase
+      .from("plan_features")
+      .select("feature_id")
+      .eq("plan_id", plan.id);
+
+    setSelectedFeatures(planFeatures?.map(pf => pf.feature_id) || []);
     
     // Limpar dados do Stripe
     setStripeFormData({
@@ -312,6 +372,7 @@ const AdminPlans = () => {
   const handleNewPlan = () => {
     setEditingPlan(null);
     setIsDialogOpen(true);
+    setSelectedFeatures([]);
     form.reset({
       name: "",
       billing_period: "monthly",
@@ -348,6 +409,7 @@ const AdminPlans = () => {
   const handleCancelEdit = () => {
     setEditingPlan(null);
     setIsDialogOpen(false);
+    setSelectedFeatures([]);
     form.reset();
   };
 
@@ -994,6 +1056,34 @@ const AdminPlans = () => {
                             </FormItem>
                           )}
                         />
+
+                        {/* Funcionalidades */}
+                        <div className="md:col-span-2 space-y-3">
+                          <FormLabel>Funcionalidades do Plano</FormLabel>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border rounded-md">
+                            {landingFeatures?.map((feature) => (
+                              <div key={feature.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`feature-${feature.id}`}
+                                  checked={selectedFeatures.includes(feature.id)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedFeatures([...selectedFeatures, feature.id]);
+                                    } else {
+                                      setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
+                                    }
+                                  }}
+                                />
+                                <label
+                                  htmlFor={`feature-${feature.id}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                >
+                                  {feature.name}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
 
                         <FormField
                           control={form.control}
