@@ -298,6 +298,9 @@ export default function SignupFunnel() {
       if (checkoutData?.checkout_url) {
         console.log('[SignupFunnel] Redirecting to Stripe:', checkoutData.checkout_url);
         
+        // Fazer logout antes de redirecionar para evitar conflitos de sessão
+        await supabase.auth.signOut();
+        
         // Redirecionar na mesma aba
         window.location.href = checkoutData.checkout_url;
       } else {
