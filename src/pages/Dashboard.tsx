@@ -14,52 +14,58 @@ const Dashboard = () => {
 
   useEffect(() => {
     const checkFirstAccess = async () => {
-      const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
-      const isSuccess = searchParams.get("success") === "true";
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // Buscar perfil do usuário
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("name, has_seen_welcome_dashboard")
+          .eq("id", session.user.id)
+          .single();
 
-      // Se ainda não viu o modal de boas-vindas
-      if (!hasSeenWelcome) {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (session) {
-          // Verificar se tem assinatura recente (últimas 24 horas)
-          const { data: recentSub } = await supabase
-            .from("subscriptions")
-            .select("created_at")
-            .eq("user_id", session.user.id)
-            .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-            .single();
+        if (profile) {
+          setUserName(profile.name);
+          
+          // Se ainda não viu o modal de boas-vindas
+          if (!profile.has_seen_welcome_dashboard) {
+            // Verificar se tem assinatura ativa
+            const { data: subscription } = await supabase
+              .from("subscriptions")
+              .select("created_at, status")
+              .eq("user_id", session.user.id)
+              .in("status", ["active", "trialing"])
+              .maybeSingle();
 
-          // Mostrar modal se veio do checkout OU se tem assinatura recente
-          if (isSuccess || recentSub) {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("name")
-              .eq("id", session.user.id)
-              .single();
-
-            if (profile) {
-              setUserName(profile.name);
-            }
-
-            setShowWelcome(true);
-            
-            // Remover parâmetro da URL se existir
-            if (isSuccess) {
-              searchParams.delete("success");
-              setSearchParams(searchParams, { replace: true });
+            // Mostrar modal se tiver assinatura ativa
+            if (subscription) {
+              setShowWelcome(true);
             }
           }
         }
+      }
+      
+      // Remover parâmetro success da URL se existir
+      if (searchParams.get("success") === "true") {
+        searchParams.delete("success");
+        setSearchParams(searchParams, { replace: true });
       }
     };
 
     checkFirstAccess();
   }, [searchParams, setSearchParams]);
 
-  const handleCloseWelcome = () => {
+  const handleCloseWelcome = async () => {
     setShowWelcome(false);
-    localStorage.setItem("hasSeenWelcome", "true");
+    
+    // Atualizar no banco de dados que o usuário já viu o modal
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await supabase
+        .from("profiles")
+        .update({ has_seen_welcome_dashboard: true })
+        .eq("id", session.user.id);
+    }
   };
 
   return (
