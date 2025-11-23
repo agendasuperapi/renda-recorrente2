@@ -634,9 +634,9 @@ const LandingPage = () => {
               )}
               <Button 
                 onClick={() => scrollToSection("planos")} 
-                variant={activeSection === "planos" ? "secondary" : "ghost"} 
+                variant={activeSection === "planos" ? "secondary" : "default"} 
                 size="sm"
-                className="transition-all duration-300"
+                className="transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 Quero contratar
               </Button>
