@@ -80,22 +80,26 @@ serve(async (req) => {
           }
 
           // Criar registro de assinatura
+          const subscriptionData: any = {
+            user_id: userId,
+            plan_id: planId,
+            stripe_subscription_id: subscription.id,
+            status: subscription.status,
+            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          };
+
+          // Adicionar campos opcionais apenas se tiverem valores válidos
+          if (subscription.trial_end && subscription.trial_end > 0) {
+            subscriptionData.trial_end = new Date(subscription.trial_end * 1000).toISOString();
+          }
+          if (subscription.cancel_at && subscription.cancel_at > 0) {
+            subscriptionData.cancel_at = new Date(subscription.cancel_at * 1000).toISOString();
+          }
+
           const { error: subscriptionError } = await supabase
             .from("subscriptions")
-            .insert({
-              user_id: userId,
-              plan_id: planId,
-              stripe_subscription_id: subscription.id,
-              status: subscription.status,
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              trial_end: subscription.trial_end 
-                ? new Date(subscription.trial_end * 1000).toISOString() 
-                : null,
-              cancel_at: subscription.cancel_at 
-                ? new Date(subscription.cancel_at * 1000).toISOString() 
-                : null,
-            });
+            .insert(subscriptionData);
 
           if (subscriptionError) {
             console.error("Error creating subscription:", subscriptionError);
@@ -110,22 +114,26 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         console.log(`[Stripe Webhook] Subscription updated:`, subscription.id);
 
+        const updateData: any = {
+          status: subscription.status,
+          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        };
+
+        // Adicionar campos opcionais apenas se tiverem valores válidos
+        if (subscription.trial_end && subscription.trial_end > 0) {
+          updateData.trial_end = new Date(subscription.trial_end * 1000).toISOString();
+        }
+        if (subscription.cancel_at && subscription.cancel_at > 0) {
+          updateData.cancel_at = new Date(subscription.cancel_at * 1000).toISOString();
+        }
+        if (subscription.canceled_at && subscription.canceled_at > 0) {
+          updateData.cancelled_at = new Date(subscription.canceled_at * 1000).toISOString();
+        }
+
         const { error: updateError } = await supabase
           .from("subscriptions")
-          .update({
-            status: subscription.status,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            trial_end: subscription.trial_end 
-              ? new Date(subscription.trial_end * 1000).toISOString() 
-              : null,
-            cancel_at: subscription.cancel_at 
-              ? new Date(subscription.cancel_at * 1000).toISOString() 
-              : null,
-            cancelled_at: subscription.canceled_at 
-              ? new Date(subscription.canceled_at * 1000).toISOString() 
-              : null,
-          })
+          .update(updateData)
           .eq("stripe_subscription_id", subscription.id);
 
         if (updateError) {
