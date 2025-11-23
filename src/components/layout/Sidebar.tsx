@@ -86,16 +86,40 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [showAdminMenu, setShowAdminMenu] = useState(true);
 
   const handleLogout = async () => {
-    // Limpar cache de role ao fazer logout
-    if (user?.id) {
-      localStorage.removeItem(`user_role_${user.id}`);
+    try {
+      // Limpar cache de role ao fazer logout
+      if (user?.id) {
+        localStorage.removeItem(`user_role_${user.id}`);
+      }
+      
+      // Aguardar logout completar
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Erro ao fazer logout:', error);
+        toast({
+          title: "Erro ao sair",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      toast({
+        title: "Logout realizado",
+        description: "Até logo!",
+      });
+      
+      // Redirecionar apenas após logout bem-sucedido
+      navigate('/');
+    } catch (error) {
+      console.error('Erro inesperado ao fazer logout:', error);
+      toast({
+        title: "Erro ao sair",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive",
+      });
     }
-    await supabase.auth.signOut();
-    toast({
-      title: "Logout realizado",
-      description: "Até logo!",
-    });
-    navigate('/');
   };
 
   const getInitials = () => {
