@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
 
     const account = integration.accounts as any;
     const stripeApiKey = account.key_authorization;
-    const successUrl = account.success_url || `${req.headers.get('origin')}/checkout-success`;
+    const successUrl = account.success_url || `${req.headers.get('origin')}/dashboard?success=true`;
     const cancelUrl = account.cancel_url || `${req.headers.get('origin')}/`;
 
     if (!stripeApiKey) {
