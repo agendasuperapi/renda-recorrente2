@@ -297,10 +297,9 @@ export default function SignupFunnel() {
 
       if (checkoutData?.checkout_url) {
         console.log('[SignupFunnel] Redirecting to Stripe:', checkoutData.checkout_url);
+        console.log('[SignupFunnel] User authenticated:', authData.user.id);
         
-        // Fazer logout antes de redirecionar para evitar conflitos de sessão
-        await supabase.auth.signOut();
-        
+        // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
         // Em desenvolvimento, abrir em nova aba. Em produção, redirecionar na mesma aba
         if (import.meta.env.DEV) {
           window.open(checkoutData.checkout_url, '_blank');
