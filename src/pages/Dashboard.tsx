@@ -22,7 +22,7 @@ const Dashboard = () => {
           .from("profiles")
           .select("name, has_seen_welcome_dashboard")
           .eq("id", session.user.id)
-          .single();
+          .single() as any;
 
         if (profile) {
           setUserName(profile.name);
@@ -63,7 +63,7 @@ const Dashboard = () => {
     if (session) {
       await supabase
         .from("profiles")
-        .update({ has_seen_welcome_dashboard: true })
+        .update({ has_seen_welcome_dashboard: true } as any)
         .eq("id", session.user.id);
     }
   };
