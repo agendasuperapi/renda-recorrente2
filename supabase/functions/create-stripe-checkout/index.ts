@@ -18,9 +18,9 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { plan_id, user_email, user_name } = await req.json();
+    const { plan_id, user_email, user_name, user_id } = await req.json();
 
-    if (!plan_id || !user_email || !user_name) {
+    if (!plan_id || !user_email || !user_name || !user_id) {
       return new Response(
         JSON.stringify({ error: 'Dados incompletos' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -135,12 +135,14 @@ Deno.serve(async (req) => {
       metadata: {
         plan_id: plan_id,
         user_email: user_email,
+        user_id: user_id,
         environment: environmentMode
       },
       subscription_data: {
         metadata: {
           plan_id: plan_id,
           user_email: user_email,
+          user_id: user_id,
           environment: environmentMode
         }
       }

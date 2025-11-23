@@ -289,7 +289,8 @@ export default function SignupFunnel() {
         body: {
           plan_id: planId,
           user_email: formData.email,
-          user_name: formData.name
+          user_name: formData.name,
+          user_id: authData.user.id
         }
       });
 
