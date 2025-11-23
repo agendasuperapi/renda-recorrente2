@@ -1576,7 +1576,10 @@ const LandingPage = () => {
                     {/* Botão */}
                     <Button
                       className="w-full bg-[#86efac] hover:bg-[#4ade80] text-gray-900 font-semibold py-6 rounded-lg transition-all duration-300"
-                      onClick={() => navigate(`/signup/${plan.id}`)}
+                      onClick={() => {
+                        console.log('Redirecting to signup funnel for plan:', plan.id);
+                        window.location.href = `/signup/${plan.id}`;
+                      }}
                     >
                       <MousePointer2 className="w-5 h-5 mr-2" />
                       Selecionar Plano {plan.name}
