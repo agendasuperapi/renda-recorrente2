@@ -302,14 +302,7 @@ export default function SignupFunnel() {
         await supabase.auth.signOut();
         
         // Redirecionar na mesma aba
-        // Detectar se está em iframe (ambiente debug) e redirecionar adequadamente
-        if (window.top !== window.self) {
-          // Está em iframe - usar window.top para sair do iframe
-          window.top!.location.href = checkoutData.checkout_url;
-        } else {
-          // Não está em iframe - redirecionamento normal
-          window.location.href = checkoutData.checkout_url;
-        }
+        window.location.href = checkoutData.checkout_url;
       } else {
         throw new Error("URL de checkout não retornada");
       }
