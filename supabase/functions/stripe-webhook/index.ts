@@ -2,16 +2,29 @@ import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2023-10-16",
-  httpClient: Stripe.createFetchHttpClient(),
-});
-
-const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
-
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+const getStripeClient = async () => {
+  const { data: settings } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "environment_mode")
+    .single();
+
+  const isProduction = settings?.value === "production";
+  const secretKey = isProduction 
+    ? Deno.env.get("STRIPE_SECRET_KEY_PROD")
+    : Deno.env.get("STRIPE_SECRET_KEY_TEST");
+
+  return new Stripe(secretKey || "", {
+    apiVersion: "2023-10-16",
+    httpClient: Stripe.createFetchHttpClient(),
+  });
+};
+
+const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 
 const toIsoFromUnix = (value: number | null | undefined) =>
   typeof value === "number" && value > 0 ? new Date(value * 1000).toISOString() : null;
@@ -35,6 +48,7 @@ serve(async (req) => {
 
     const body = await req.text();
     let event: Stripe.Event;
+    const stripe = await getStripeClient();
 
     try {
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
