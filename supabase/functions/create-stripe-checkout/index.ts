@@ -47,18 +47,23 @@ Deno.serve(async (req) => {
     const environmentMode = envSettings.value; // 'test' ou 'production'
     console.log('[create-stripe-checkout] Modo de ambiente:', environmentMode);
 
-    // 2. Buscar integração Stripe do plano com dados da conta
+    // Usar a chave Stripe correta baseada no ambiente
+    const stripeSecretKey = environmentMode === 'production'
+      ? Deno.env.get('STRIPE_SECRET_KEY_PROD')
+      : Deno.env.get('STRIPE_SECRET_KEY_TEST');
+
+    if (!stripeSecretKey) {
+      console.error('[create-stripe-checkout] Chave Stripe não configurada para ambiente:', environmentMode);
+      return new Response(
+        JSON.stringify({ error: 'Chave Stripe não configurada para o ambiente atual' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 2. Buscar integração Stripe do plano
     const { data: integration, error: integrationError } = await supabase
       .from('plan_integrations')
-      .select(`
-        *,
-        accounts:account_id (
-          key_authorization,
-          success_url,
-          cancel_url,
-          return_url
-        )
-      `)
+      .select('*')
       .eq('plan_id', plan_id)
       .eq('environment_type', environmentMode)
       .eq('is_active', true)
@@ -74,26 +79,22 @@ Deno.serve(async (req) => {
 
     console.log('[create-stripe-checkout] Integração encontrada:', integration.id);
 
-    const account = integration.accounts as any;
-    const stripeApiKey = account.key_authorization;
+    // Buscar URLs da conta
+    const { data: account } = await supabase
+      .from('accounts')
+      .select('success_url, cancel_url')
+      .eq('id', integration.account_id)
+      .single();
     
     // Sempre adicionar o parâmetro success=true para disparar o modal de boas-vindas
-    const baseSuccessUrl = account.success_url || `${req.headers.get('origin')}/dashboard`;
+    const baseSuccessUrl = account?.success_url || `${req.headers.get('origin')}/dashboard`;
     const successUrl = baseSuccessUrl.includes('?') 
       ? `${baseSuccessUrl}&success=true` 
       : `${baseSuccessUrl}?success=true`;
-    const cancelUrl = account.cancel_url || `${req.headers.get('origin')}/`;
+    const cancelUrl = account?.cancel_url || `${req.headers.get('origin')}/`;
 
-    if (!stripeApiKey) {
-      console.error('[create-stripe-checkout] Chave Stripe não encontrada');
-      return new Response(
-        JSON.stringify({ error: 'Configuração Stripe incompleta' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // 3. Inicializar Stripe
-    const stripe = new Stripe(stripeApiKey, {
+    // 3. Inicializar Stripe com a chave correta
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     });
 
