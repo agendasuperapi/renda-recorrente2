@@ -13,6 +13,9 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+const toIsoFromUnix = (value: number | null | undefined) =>
+  typeof value === "number" && value > 0 ? new Date(value * 1000).toISOString() : null;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
@@ -85,17 +88,17 @@ serve(async (req) => {
             plan_id: planId,
             stripe_subscription_id: subscription.id,
             status: subscription.status,
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
           };
 
-          // Adicionar campos opcionais apenas se tiverem valores válidos
-          if (subscription.trial_end && subscription.trial_end > 0) {
-            subscriptionData.trial_end = new Date(subscription.trial_end * 1000).toISOString();
-          }
-          if (subscription.cancel_at && subscription.cancel_at > 0) {
-            subscriptionData.cancel_at = new Date(subscription.cancel_at * 1000).toISOString();
-          }
+          const currentStart = toIsoFromUnix(subscription.current_period_start as number | null | undefined);
+          const currentEnd = toIsoFromUnix(subscription.current_period_end as number | null | undefined);
+          const trialEnd = toIsoFromUnix(subscription.trial_end as number | null | undefined);
+          const cancelAt = toIsoFromUnix(subscription.cancel_at as number | null | undefined);
+
+          if (currentStart) subscriptionData.current_period_start = currentStart;
+          if (currentEnd) subscriptionData.current_period_end = currentEnd;
+          if (trialEnd) subscriptionData.trial_end = trialEnd;
+          if (cancelAt) subscriptionData.cancel_at = cancelAt;
 
           const { error: subscriptionError } = await supabase
             .from("subscriptions")
@@ -116,20 +119,19 @@ serve(async (req) => {
 
         const updateData: any = {
           status: subscription.status,
-          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
         };
 
-        // Adicionar campos opcionais apenas se tiverem valores válidos
-        if (subscription.trial_end && subscription.trial_end > 0) {
-          updateData.trial_end = new Date(subscription.trial_end * 1000).toISOString();
-        }
-        if (subscription.cancel_at && subscription.cancel_at > 0) {
-          updateData.cancel_at = new Date(subscription.cancel_at * 1000).toISOString();
-        }
-        if (subscription.canceled_at && subscription.canceled_at > 0) {
-          updateData.cancelled_at = new Date(subscription.canceled_at * 1000).toISOString();
-        }
+        const currentStart = toIsoFromUnix(subscription.current_period_start as number | null | undefined);
+        const currentEnd = toIsoFromUnix(subscription.current_period_end as number | null | undefined);
+        const trialEnd = toIsoFromUnix(subscription.trial_end as number | null | undefined);
+        const cancelAt = toIsoFromUnix(subscription.cancel_at as number | null | undefined);
+        const canceledAt = toIsoFromUnix(subscription.canceled_at as number | null | undefined);
+
+        if (currentStart) updateData.current_period_start = currentStart;
+        if (currentEnd) updateData.current_period_end = currentEnd;
+        if (trialEnd) updateData.trial_end = trialEnd;
+        if (cancelAt) updateData.cancel_at = cancelAt;
+        if (canceledAt) updateData.cancelled_at = canceledAt;
 
         const { error: updateError } = await supabase
           .from("subscriptions")
