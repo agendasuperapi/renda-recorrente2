@@ -354,6 +354,15 @@ export default function SignupFunnel() {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="container max-w-2xl mx-auto">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate("/")} 
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Voltar para página inicial
+        </Button>
+        
         {renderProgressBar()}
 
         <Card>
