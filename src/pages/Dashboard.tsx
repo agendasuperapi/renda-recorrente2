@@ -15,40 +15,58 @@ const Dashboard = () => {
   useEffect(() => {
     const checkFirstAccess = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("[Dashboard] Sessão atual:", session);
       
       if (session) {
         // Buscar perfil do usuário
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("name, has_seen_welcome_dashboard")
           .eq("id", session.user.id)
           .single() as any;
 
+        console.log("[Dashboard] Resultado perfil:", { profile, profileError });
+
         if (profile) {
           setUserName(profile.name);
           
           // Se ainda não viu o modal de boas-vindas
+          console.log("[Dashboard] has_seen_welcome_dashboard:", profile.has_seen_welcome_dashboard);
           if (!profile.has_seen_welcome_dashboard) {
             // Verificar se tem assinatura ativa
-            const { data: subscription } = await supabase
+            const { data: subscription, error: subscriptionError } = await supabase
               .from("subscriptions")
               .select("created_at, status")
               .eq("user_id", session.user.id)
               .in("status", ["active", "trialing"])
               .maybeSingle();
 
+            console.log("[Dashboard] Assinatura encontrada:", { subscription, subscriptionError });
+
             // Mostrar modal se tiver assinatura ativa
             if (subscription) {
+              console.log("[Dashboard] Exibindo modal de boas-vindas");
               setShowWelcome(true);
+            } else {
+              console.log("[Dashboard] Nenhuma assinatura ativa/trialing encontrada");
             }
+          } else {
+            console.log("[Dashboard] Usuário já viu o modal anteriormente");
           }
+        } else {
+          console.log("[Dashboard] Nenhum perfil encontrado para o usuário logado");
         }
+      } else {
+        console.log("[Dashboard] Nenhuma sessão encontrada");
       }
       
       // Remover parâmetro success da URL se existir
-      if (searchParams.get("success") === "true") {
+      const successParam = searchParams.get("success");
+      console.log("[Dashboard] success param na URL:", successParam);
+      if (successParam === "true") {
         searchParams.delete("success");
         setSearchParams(searchParams, { replace: true });
+        console.log("[Dashboard] Parâmetro success removido da URL");
       }
     };
 
@@ -56,15 +74,18 @@ const Dashboard = () => {
   }, [searchParams, setSearchParams]);
 
   const handleCloseWelcome = async () => {
+    console.log("[Dashboard] Fechando modal de boas-vindas");
     setShowWelcome(false);
     
     // Atualizar no banco de dados que o usuário já viu o modal
     const { data: { session } } = await supabase.auth.getSession();
+    console.log("[Dashboard] Sessão ao fechar modal:", session);
     if (session) {
-      await supabase
+      const { error } = await supabase
         .from("profiles")
         .update({ has_seen_welcome_dashboard: true } as any)
         .eq("id", session.user.id);
+      console.log("[Dashboard] Resultado update has_seen_welcome_dashboard:", error);
     }
   };
 
