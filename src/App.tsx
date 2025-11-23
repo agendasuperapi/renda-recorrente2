@@ -35,6 +35,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/landing" element={<LandingTestimonials />} />
             <Route path="/signup/:planId" element={<SignupFunnel />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/checkout-success" element={<CheckoutSuccess />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/cookies" element={<CookiesPolicy />} />
