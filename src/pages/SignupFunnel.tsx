@@ -301,8 +301,12 @@ export default function SignupFunnel() {
         // Fazer logout antes de redirecionar para evitar conflitos de sessão
         await supabase.auth.signOut();
         
-        // Redirecionar na mesma aba
-        window.location.href = checkoutData.checkout_url;
+        // Em desenvolvimento, abrir em nova aba. Em produção, redirecionar na mesma aba
+        if (import.meta.env.DEV) {
+          window.open(checkoutData.checkout_url, '_blank');
+        } else {
+          window.location.href = checkoutData.checkout_url;
+        }
       } else {
         throw new Error("URL de checkout não retornada");
       }
