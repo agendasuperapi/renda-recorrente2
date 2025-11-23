@@ -478,7 +478,13 @@ const LandingPage = () => {
         return;
       }
       
-      setIsAdmin(!!data);
+      const userIsAdmin = !!data;
+      setIsAdmin(userIsAdmin);
+      
+      // Redirecionar usuário logado (não admin) para dashboard
+      if (!userIsAdmin) {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Error checking admin role:', error);
       setIsAdmin(false);
