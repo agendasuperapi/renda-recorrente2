@@ -665,9 +665,6 @@ const LandingPage = () => {
                   <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
                     Entrar
                   </Button>
-                  <Button onClick={() => scrollToSection("planos")} size="sm">
-                    Quero Contratar
-                  </Button>
                 </>
               )}
             </div>
