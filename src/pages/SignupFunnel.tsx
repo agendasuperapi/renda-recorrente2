@@ -298,13 +298,8 @@ export default function SignupFunnel() {
       if (checkoutData?.checkout_url) {
         console.log('[SignupFunnel] Redirecting to Stripe:', checkoutData.checkout_url);
         
-        // Tentar abrir em nova aba (mais confiável em alguns contextos)
-        window.open(checkoutData.checkout_url, '_blank');
-        
-        // Também fazer redirect na aba atual como fallback
-        setTimeout(() => {
-          window.location.href = checkoutData.checkout_url;
-        }, 1000);
+        // Redirecionar na mesma aba
+        window.location.href = checkoutData.checkout_url;
       } else {
         throw new Error("URL de checkout não retornada");
       }
