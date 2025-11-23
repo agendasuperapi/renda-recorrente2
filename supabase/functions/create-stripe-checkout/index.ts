@@ -76,7 +76,12 @@ Deno.serve(async (req) => {
 
     const account = integration.accounts as any;
     const stripeApiKey = account.key_authorization;
-    const successUrl = account.success_url || `${req.headers.get('origin')}/dashboard?success=true`;
+    
+    // Sempre adicionar o parâmetro success=true para disparar o modal de boas-vindas
+    const baseSuccessUrl = account.success_url || `${req.headers.get('origin')}/dashboard`;
+    const successUrl = baseSuccessUrl.includes('?') 
+      ? `${baseSuccessUrl}&success=true` 
+      : `${baseSuccessUrl}?success=true`;
     const cancelUrl = account.cancel_url || `${req.headers.get('origin')}/`;
 
     if (!stripeApiKey) {

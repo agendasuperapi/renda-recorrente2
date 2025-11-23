@@ -14,28 +14,43 @@ const Dashboard = () => {
 
   useEffect(() => {
     const checkFirstAccess = async () => {
-      const isSuccess = searchParams.get("success") === "true";
       const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
+      const isSuccess = searchParams.get("success") === "true";
 
-      if (isSuccess && !hasSeenWelcome) {
-        // Buscar nome do usuário
+      // Se ainda não viu o modal de boas-vindas
+      if (!hasSeenWelcome) {
         const { data: { session } } = await supabase.auth.getSession();
+        
         if (session) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("name")
-            .eq("id", session.user.id)
+          // Verificar se tem assinatura recente (últimas 24 horas)
+          const { data: recentSub } = await supabase
+            .from("subscriptions")
+            .select("created_at")
+            .eq("user_id", session.user.id)
+            .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
             .single();
 
-          if (profile) {
-            setUserName(profile.name);
+          // Mostrar modal se veio do checkout OU se tem assinatura recente
+          if (isSuccess || recentSub) {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("name")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profile) {
+              setUserName(profile.name);
+            }
+
+            setShowWelcome(true);
+            
+            // Remover parâmetro da URL se existir
+            if (isSuccess) {
+              searchParams.delete("success");
+              setSearchParams(searchParams, { replace: true });
+            }
           }
         }
-
-        setShowWelcome(true);
-        // Remover parâmetro da URL
-        searchParams.delete("success");
-        setSearchParams(searchParams, { replace: true });
       }
     };
 
