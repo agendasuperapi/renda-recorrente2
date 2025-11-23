@@ -879,6 +879,7 @@ export type Database = {
           created_at: string | null
           facebook: string | null
           gender: string | null
+          has_seen_welcome_dashboard: boolean | null
           id: string
           instagram: string | null
           name: string
@@ -905,6 +906,7 @@ export type Database = {
           created_at?: string | null
           facebook?: string | null
           gender?: string | null
+          has_seen_welcome_dashboard?: boolean | null
           id: string
           instagram?: string | null
           name: string
@@ -931,6 +933,7 @@ export type Database = {
           created_at?: string | null
           facebook?: string | null
           gender?: string | null
+          has_seen_welcome_dashboard?: boolean | null
           id?: string
           instagram?: string | null
           name?: string
