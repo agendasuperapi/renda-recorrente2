@@ -33,6 +33,14 @@ const Dashboard = () => {
           // Se ainda não viu o modal de boas-vindas
           console.log("[Dashboard] has_seen_welcome_dashboard:", profile.has_seen_welcome_dashboard);
           if (!profile.has_seen_welcome_dashboard) {
+            // PRIMEIRO: Verificar se existe QUALQUER assinatura (para debug)
+            const { data: allSubscriptions } = await supabase
+              .from("subscriptions")
+              .select("*")
+              .eq("user_id", session.user.id);
+            
+            console.log("[Dashboard] TODAS assinaturas do usuário:", allSubscriptions);
+
             // Verificar se tem assinatura ativa
             const { data: subscription, error: subscriptionError } = await supabase
               .from("subscriptions")
