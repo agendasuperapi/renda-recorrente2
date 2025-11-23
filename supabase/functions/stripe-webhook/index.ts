@@ -70,12 +70,12 @@ serve(async (req) => {
           // Buscar detalhes completos da assinatura
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           
-          // Extrair user_id e plan_id dos metadados
-          const userId = session.metadata?.user_id;
-          const planId = session.metadata?.plan_id;
+          // Extrair user_id e plan_id dos metadados da subscription
+          const userId = subscription.metadata?.user_id || session.metadata?.user_id;
+          const planId = subscription.metadata?.plan_id || session.metadata?.plan_id;
 
           if (!userId || !planId) {
-            console.error("Missing user_id or plan_id in checkout session metadata");
+            console.error("Missing user_id or plan_id in subscription/session metadata");
             break;
           }
 
