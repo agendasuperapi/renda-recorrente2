@@ -39,6 +39,7 @@ interface Subscription {
   current_period_start: string;
   current_period_end: string;
   trial_end: string | null;
+  stripe_subscription_id: string | null;
   plan: Plan;
 }
 
@@ -135,7 +136,7 @@ const Plan = () => {
     return IconComponent || LucideIcons.CheckCircle2;
   };
 
-  const handleManageSubscription = async () => {
+  const handleManageSubscription = async (flowPath?: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -144,8 +145,18 @@ const Plan = () => {
         return;
       }
 
+      const body: any = { return_url: window.location.href };
+      if (flowPath) {
+        body.flow_data = {
+          type: "subscription_update",
+          subscription_update: {
+            subscription: subscription?.stripe_subscription_id
+          }
+        };
+      }
+
       const response = await supabase.functions.invoke("create-customer-portal-session", {
-        body: { return_url: window.location.href },
+        body,
       });
 
       if (response.error) throw response.error;
@@ -360,7 +371,11 @@ const Plan = () => {
                     disabled={isCurrent}
                     onClick={() => {
                       if (!isCurrent) {
-                        window.location.href = `/signup/${plan.id}`;
+                        if (subscription) {
+                          handleManageSubscription("/subscriptions/update");
+                        } else {
+                          window.location.href = `/signup/${plan.id}`;
+                        }
                       }
                     }}
                   >
@@ -409,7 +424,7 @@ const Plan = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleManageSubscription} className="w-full md:w-auto">
+            <Button onClick={() => handleManageSubscription()} className="w-full md:w-auto">
               <ExternalLink className="mr-2 h-4 w-4" />
               Gerenciar Assinatura
             </Button>
