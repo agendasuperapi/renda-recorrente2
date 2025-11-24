@@ -29,10 +29,10 @@ Deno.serve(async (req) => {
 
     console.log('[create-stripe-checkout] Iniciando processo para plano:', plan_id);
 
-    // 1. Buscar plano para obter product_id
+    // 1. Buscar plano para obter product_id e features (para trial_days)
     const { data: plan, error: planError } = await supabase
       .from('plans')
-      .select('product_id')
+      .select('product_id, features')
       .eq('id', plan_id)
       .single();
 
@@ -45,6 +45,21 @@ Deno.serve(async (req) => {
     }
 
     const product_id = plan.product_id;
+
+    // Extrair trial_days das features do plano
+    let trialDays = 0;
+    const features = plan.features || [];
+    
+    for (const feature of features) {
+      if (typeof feature === 'string' && feature.startsWith('trial_days:')) {
+        const days = parseInt(feature.split(':')[1]);
+        if (!isNaN(days) && days > 0) {
+          trialDays = days;
+          console.log('[create-stripe-checkout] Trial days encontrado:', trialDays);
+          break;
+        }
+      }
+    }
 
     // 2. Buscar ambiente ativo (test ou production)
     const { data: envSettings, error: envError } = await supabase
@@ -139,7 +154,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Criar sessão de checkout
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: any = {
       customer: customerId,
       line_items: [
         {
@@ -166,7 +181,15 @@ Deno.serve(async (req) => {
           environment: environmentMode
         }
       }
-    });
+    };
+
+    // Adicionar trial period se configurado no plano
+    if (trialDays > 0) {
+      sessionConfig.subscription_data.trial_period_days = trialDays;
+      console.log('[create-stripe-checkout] Adicionando trial period de', trialDays, 'dias');
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log('[create-stripe-checkout] Sessão de checkout criada:', session.id);
 

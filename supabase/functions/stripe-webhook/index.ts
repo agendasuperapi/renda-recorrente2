@@ -64,11 +64,25 @@ serve(async (req) => {
 
     console.log(`[Stripe Webhook] Event type: ${event.type}`);
 
-    // Extrair metadata do evento
+    // Extrair metadata e email do evento
     const eventObject = event.data.object as any;
     const metadata = eventObject.metadata || {};
     
-    // Registrar evento na tabela stripe_events com metadata
+    // Tentar extrair email de múltiplas fontes
+    let eventEmail = metadata.user_email || 
+                     eventObject.email || 
+                     eventObject.billing_details?.email ||
+                     eventObject.customer_details?.email ||
+                     null;
+    
+    console.log(`[Stripe Webhook] Metadata:`, {
+      user_id: metadata.user_id,
+      plan_id: metadata.plan_id,
+      product_id: metadata.product_id,
+      email: eventEmail
+    });
+    
+    // Registrar evento na tabela stripe_events com metadata completo
     const { error: eventInsertError } = await supabase
       .from("stripe_events")
       .insert({
@@ -78,6 +92,7 @@ serve(async (req) => {
         user_id: metadata.user_id || null,
         plan_id: metadata.plan_id || null,
         product_id: metadata.product_id || null,
+        email: eventEmail,
         processed: false,
       });
 
@@ -189,6 +204,105 @@ serve(async (req) => {
         } else {
           console.log(`[Stripe Webhook] Subscription ${subscription.id} marked as canceled`);
         }
+        break;
+      }
+
+      case "payment_method.attached": {
+        const paymentMethod = event.data.object as Stripe.PaymentMethod;
+        console.log(`[Stripe Webhook] Payment method attached:`, paymentMethod.id);
+
+        // Extrair dados do payment method
+        const paymentData = {
+          brand: paymentMethod.card?.brand || null,
+          last4: paymentMethod.card?.last4 || null,
+          country: paymentMethod.card?.country || null,
+          funding: paymentMethod.card?.funding || null,
+          exp_year: paymentMethod.card?.exp_year || null,
+          display_brand: paymentMethod.card?.display_brand || null,
+          name: paymentMethod.billing_details?.name || null,
+          email: paymentMethod.billing_details?.email || null,
+        };
+
+        console.log(`[Stripe Webhook] Payment method data:`, paymentData);
+
+        // Buscar subscription do customer para atualizar
+        if (paymentMethod.customer) {
+          const customerId = typeof paymentMethod.customer === 'string' 
+            ? paymentMethod.customer 
+            : paymentMethod.customer.id;
+
+          const { data: subscription, error: subError } = await supabase
+            .from("subscriptions")
+            .select("id, stripe_subscription_id")
+            .eq("stripe_subscription_id", customerId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+
+          if (!subError && subscription) {
+            const { error: updateError } = await supabase
+              .from("subscriptions")
+              .update({ payment_method_data: paymentData })
+              .eq("id", subscription.id);
+
+            if (updateError) {
+              console.error("Error updating payment method data:", updateError);
+            } else {
+              console.log(`[Stripe Webhook] Payment method data updated for subscription ${subscription.id}`);
+            }
+          } else {
+            console.log(`[Stripe Webhook] No subscription found for customer ${customerId}`);
+          }
+        }
+        break;
+      }
+
+      case "checkout.session.async_payment_succeeded": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        console.log(`[Stripe Webhook] Async payment succeeded for session:`, session.id);
+        // Evento já registrado, pode ser usado para notificações futuras
+        break;
+      }
+
+      case "checkout.session.async_payment_failed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        console.log(`[Stripe Webhook] Async payment failed for session:`, session.id);
+        // Registrar falha de pagamento
+        break;
+      }
+
+      case "checkout.session.expired": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        console.log(`[Stripe Webhook] Checkout session expired:`, session.id);
+        // Registrar sessão expirada
+        break;
+      }
+
+      case "customer.created": {
+        const customer = event.data.object as Stripe.Customer;
+        console.log(`[Stripe Webhook] Customer created:`, customer.id, customer.email);
+        // Apenas logging, pode ser expandido no futuro
+        break;
+      }
+
+      case "customer.subscription.trial_will_end": {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log(`[Stripe Webhook] Trial will end for subscription:`, subscription.id);
+        // Pode ser usado para enviar notificações antes do fim do trial
+        break;
+      }
+
+      case "invoice.paid": {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log(`[Stripe Webhook] Invoice paid:`, invoice.id, `Amount: ${invoice.amount_paid}`);
+        // Registrar pagamento de invoice
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log(`[Stripe Webhook] Invoice payment failed:`, invoice.id);
+        // Registrar falha de pagamento de invoice
         break;
       }
 

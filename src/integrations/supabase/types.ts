@@ -999,6 +999,7 @@ export type Database = {
       stripe_events: {
         Row: {
           created_at: string | null
+          email: string | null
           event_data: Json
           event_id: string
           event_type: string
@@ -1010,6 +1011,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
           event_data: Json
           event_id: string
           event_type: string
@@ -1021,6 +1023,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          email?: string | null
           event_data?: Json
           event_id?: string
           event_type?: string
@@ -1101,6 +1104,7 @@ export type Database = {
           current_period_end: string | null
           current_period_start: string | null
           id: string
+          payment_method_data: Json | null
           plan_id: string
           status: string
           stripe_subscription_id: string | null
@@ -1115,6 +1119,7 @@ export type Database = {
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
+          payment_method_data?: Json | null
           plan_id: string
           status: string
           stripe_subscription_id?: string | null
@@ -1129,6 +1134,7 @@ export type Database = {
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
+          payment_method_data?: Json | null
           plan_id?: string
           status?: string
           stripe_subscription_id?: string | null
@@ -1152,6 +1158,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      test_users_counter: {
+        Row: {
+          id: string
+          last_number: number
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          last_number?: number
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          last_number?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -1253,6 +1277,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_next_test_number: { Args: never; Returns: number }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
