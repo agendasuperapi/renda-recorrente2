@@ -66,14 +66,27 @@ serve(async (req) => {
 
     // Extrair metadata e email do evento
     const eventObject = event.data.object as any;
-    const metadata = eventObject.metadata || {};
-    
-    // Tentar extrair email de múltiplas fontes
-    let eventEmail = metadata.user_email || 
-                     eventObject.email || 
-                     eventObject.billing_details?.email ||
-                     eventObject.customer_details?.email ||
-                     null;
+    let metadata: any = {};
+    let eventEmail = null;
+
+    // Lógica específica por tipo de evento
+    if (event.type.startsWith('invoice.')) {
+      // Para eventos de invoice, o metadata está em subscription_details
+      metadata = eventObject.subscription_details?.metadata || 
+                 eventObject.parent?.subscription_details?.metadata || 
+                 {};
+      eventEmail = metadata.user_email || 
+                   eventObject.customer_email || 
+                   null;
+    } else {
+      // Para outros eventos, metadata está no objeto raiz
+      metadata = eventObject.metadata || {};
+      eventEmail = metadata.user_email || 
+                   eventObject.email || 
+                   eventObject.billing_details?.email ||
+                   eventObject.customer_details?.email ||
+                   null;
+    }
     
     console.log(`[Stripe Webhook] Metadata:`, {
       user_id: metadata.user_id,
