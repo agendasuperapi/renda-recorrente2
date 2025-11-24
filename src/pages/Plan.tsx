@@ -238,7 +238,7 @@ const Plan = () => {
               >
                 {/* Badge */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className={isCurrent ? "bg-primary" : "bg-muted"}>
+                  <Badge className={isCurrent ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}>
                     {isCurrent ? "Plano Atual" : isFree ? "Para conhecer" : "Mais lucrativo"}
                   </Badge>
                 </div>
