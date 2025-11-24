@@ -29,7 +29,24 @@ Deno.serve(async (req) => {
 
     console.log('[create-stripe-checkout] Iniciando processo para plano:', plan_id);
 
-    // 1. Buscar ambiente ativo (test ou production)
+    // 1. Buscar plano para obter product_id
+    const { data: plan, error: planError } = await supabase
+      .from('plans')
+      .select('product_id')
+      .eq('id', plan_id)
+      .single();
+
+    if (planError || !plan) {
+      console.error('[create-stripe-checkout] Erro ao buscar plano:', planError);
+      return new Response(
+        JSON.stringify({ error: 'Plano não encontrado' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const product_id = plan.product_id;
+
+    // 2. Buscar ambiente ativo (test ou production)
     const { data: envSettings, error: envError } = await supabase
       .from('app_settings')
       .select('value')
@@ -60,7 +77,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 2. Buscar integração Stripe do plano
+    // 3. Buscar integração Stripe do plano
     const { data: integration, error: integrationError } = await supabase
       .from('plan_integrations')
       .select('*')
@@ -93,12 +110,12 @@ Deno.serve(async (req) => {
       : `${baseSuccessUrl}?success=true`;
     const cancelUrl = account?.cancel_url || `${req.headers.get('origin')}/`;
 
-    // 3. Inicializar Stripe com a chave correta
+    // 4. Inicializar Stripe com a chave correta
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     });
 
-    // 4. Criar ou buscar customer
+    // 5. Criar ou buscar customer
     let customerId: string;
     
     const existingCustomers = await stripe.customers.list({
@@ -121,7 +138,7 @@ Deno.serve(async (req) => {
       console.log('[create-stripe-checkout] Novo customer criado:', customerId);
     }
 
-    // 5. Criar sessão de checkout
+    // 6. Criar sessão de checkout
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -134,16 +151,18 @@ Deno.serve(async (req) => {
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
-        plan_id: plan_id,
-        user_email: user_email,
         user_id: user_id,
+        plan_id: plan_id,
+        product_id: product_id || '',
+        user_email: user_email,
         environment: environmentMode
       },
       subscription_data: {
         metadata: {
-          plan_id: plan_id,
-          user_email: user_email,
           user_id: user_id,
+          plan_id: plan_id,
+          product_id: product_id || '',
+          user_email: user_email,
           environment: environmentMode
         }
       }
