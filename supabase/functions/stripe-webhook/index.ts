@@ -231,24 +231,25 @@ serve(async (req) => {
             ? paymentMethod.customer 
             : paymentMethod.customer.id;
 
-          const { data: subscription, error: subError } = await supabase
-            .from("subscriptions")
-            .select("id, stripe_subscription_id")
-            .eq("stripe_subscription_id", customerId)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .single();
+          // Buscar subscriptions ativas do customer na Stripe
+          const subscriptions = await stripe.subscriptions.list({
+            customer: customerId,
+            limit: 1,
+            status: 'all',
+          });
 
-          if (!subError && subscription) {
+          if (subscriptions.data.length > 0) {
+            const stripeSubscriptionId = subscriptions.data[0].id;
+            
             const { error: updateError } = await supabase
               .from("subscriptions")
               .update({ payment_method_data: paymentData })
-              .eq("id", subscription.id);
+              .eq("stripe_subscription_id", stripeSubscriptionId);
 
             if (updateError) {
               console.error("Error updating payment method data:", updateError);
             } else {
-              console.log(`[Stripe Webhook] Payment method data updated for subscription ${subscription.id}`);
+              console.log(`[Stripe Webhook] Payment method data updated for subscription ${stripeSubscriptionId}`);
             }
           } else {
             console.log(`[Stripe Webhook] No subscription found for customer ${customerId}`);
@@ -259,50 +260,107 @@ serve(async (req) => {
 
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
+        const sessionMetadata = session.metadata || {};
+        
         console.log(`[Stripe Webhook] Async payment succeeded for session:`, session.id);
-        // Evento já registrado, pode ser usado para notificações futuras
+        console.log(`[Stripe Webhook] Session metadata:`, {
+          user_id: sessionMetadata.user_id,
+          plan_id: sessionMetadata.plan_id,
+          product_id: sessionMetadata.product_id,
+        });
         break;
       }
 
       case "checkout.session.async_payment_failed": {
         const session = event.data.object as Stripe.Checkout.Session;
+        const sessionMetadata = session.metadata || {};
+        
         console.log(`[Stripe Webhook] Async payment failed for session:`, session.id);
-        // Registrar falha de pagamento
+        console.log(`[Stripe Webhook] Failed payment metadata:`, {
+          user_id: sessionMetadata.user_id,
+          plan_id: sessionMetadata.plan_id,
+          product_id: sessionMetadata.product_id,
+        });
+        // TODO: Enviar notificação ao usuário sobre falha
         break;
       }
 
       case "checkout.session.expired": {
         const session = event.data.object as Stripe.Checkout.Session;
+        const sessionMetadata = session.metadata || {};
+        
         console.log(`[Stripe Webhook] Checkout session expired:`, session.id);
-        // Registrar sessão expirada
+        console.log(`[Stripe Webhook] Expired session metadata:`, {
+          user_id: sessionMetadata.user_id,
+          plan_id: sessionMetadata.plan_id,
+          product_id: sessionMetadata.product_id,
+        });
         break;
       }
 
       case "customer.created": {
         const customer = event.data.object as Stripe.Customer;
+        const customerMetadata = customer.metadata || {};
+        
         console.log(`[Stripe Webhook] Customer created:`, customer.id, customer.email);
-        // Apenas logging, pode ser expandido no futuro
+        console.log(`[Stripe Webhook] Customer metadata:`, {
+          user_id: customerMetadata.user_id,
+          product_id: customerMetadata.product_id,
+        });
         break;
       }
 
       case "customer.subscription.trial_will_end": {
         const subscription = event.data.object as Stripe.Subscription;
+        const subscriptionMetadata = subscription.metadata || {};
+        
         console.log(`[Stripe Webhook] Trial will end for subscription:`, subscription.id);
-        // Pode ser usado para enviar notificações antes do fim do trial
+        console.log(`[Stripe Webhook] Trial ending metadata:`, {
+          user_id: subscriptionMetadata.user_id,
+          plan_id: subscriptionMetadata.plan_id,
+          product_id: subscriptionMetadata.product_id,
+        });
+        // TODO: Enviar email/notificação sobre fim do trial
         break;
       }
 
       case "invoice.paid": {
         const invoice = event.data.object as Stripe.Invoice;
+        
+        // Metadata vem direto no evento!
+        const invoiceMetadata = (invoice as any).subscription_details?.metadata || 
+                                (invoice as any).parent?.subscription_details?.metadata ||
+                                {};
+        
         console.log(`[Stripe Webhook] Invoice paid:`, invoice.id, `Amount: ${invoice.amount_paid}`);
-        // Registrar pagamento de invoice
+        console.log(`[Stripe Webhook] Invoice metadata:`, {
+          user_id: invoiceMetadata.user_id,
+          plan_id: invoiceMetadata.plan_id,
+          product_id: invoiceMetadata.product_id,
+          user_email: invoiceMetadata.user_email,
+          customer: invoice.customer,
+        });
+        // TODO: Registrar pagamento bem-sucedido, enviar recibo
         break;
       }
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
+        
+        // Metadata vem direto no evento!
+        const invoiceMetadata = (invoice as any).subscription_details?.metadata || 
+                                (invoice as any).parent?.subscription_details?.metadata ||
+                                {};
+        
         console.log(`[Stripe Webhook] Invoice payment failed:`, invoice.id);
-        // Registrar falha de pagamento de invoice
+        console.log(`[Stripe Webhook] Failed invoice metadata:`, {
+          user_id: invoiceMetadata.user_id,
+          plan_id: invoiceMetadata.plan_id,
+          product_id: invoiceMetadata.product_id,
+          user_email: invoiceMetadata.user_email,
+          customer: invoice.customer,
+        });
+        // TODO: Enviar notificação de falha de pagamento, pausar acesso
         break;
       }
 
