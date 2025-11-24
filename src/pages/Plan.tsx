@@ -249,7 +249,7 @@ const Plan = () => {
             return (
               <div
                 key={plan.id}
-                className={`relative bg-card rounded-2xl p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                className={`relative bg-card rounded-2xl p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl flex flex-col ${
                   isCurrent ? "border-primary shadow-lg" : "border-border"
                 }`}
               >
@@ -283,7 +283,7 @@ const Plan = () => {
                 </h3>
 
                 {/* Features */}
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-3 mb-8 flex-grow">
                   {features.map((feature) => {
                     const IconComponent = getIconComponent(feature.icon);
                     const hasPlanFeatures = Array.isArray(plan.plan_features) && plan.plan_features.length > 0;
@@ -306,53 +306,57 @@ const Plan = () => {
                   })}
                 </ul>
 
-                {/* Commission Badge */}
-                <div className={`mb-6 p-4 rounded-lg border-2 ${
-                  !plan.is_free 
-                    ? 'bg-primary/10 border-primary' 
-                    : 'bg-muted border-border'
-                }`}>
-                  <div className="flex items-center justify-between gap-4">
-                    <p className="text-sm font-medium">Comissão recorrente</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {plan.commission_percentage}%
-                    </p>
+                {/* Bottom Section - Always aligned */}
+                <div className="mt-auto">
+                  {/* Commission Badge */}
+                  <div className={`mb-6 p-4 rounded-lg border-2 ${
+                    !plan.is_free 
+                      ? 'bg-primary/10 border-primary' 
+                      : 'bg-muted border-border'
+                  }`}>
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-sm font-medium">Comissão recorrente</p>
+                      <p className="text-2xl font-bold text-primary">
+                        {plan.commission_percentage}%
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Pricing */}
-                {isPro && plan.original_price && plan.original_price > plan.price && (
+                  {/* Pricing */}
+                  {isPro && plan.original_price && plan.original_price > plan.price ? (
+                    <div className="text-center mb-2">
+                      <span className="text-muted-foreground text-sm">de </span>
+                      <span className="text-muted-foreground line-through text-sm">
+                        R${plan.original_price.toFixed(2)}
+                      </span>
+                      <span className="text-muted-foreground text-sm"> por:</span>
+                    </div>
+                  ) : (
+                    <div className="h-6 mb-2"></div>
+                  )}
+                  
                   <div className="text-center mb-2">
-                    <span className="text-muted-foreground text-sm">de </span>
-                    <span className="text-muted-foreground line-through text-sm">
-                      R${plan.original_price.toFixed(2)}
+                    <span className="text-primary text-4xl font-bold">
+                      R${plan.price.toFixed(2)}
                     </span>
-                    <span className="text-muted-foreground text-sm"> por:</span>
-                  </div>
-                )}
-                
-                <div className="text-center mb-2">
-                  <span className="text-primary text-4xl font-bold">
-                    R${plan.price.toFixed(2)}
-                  </span>
-                  <span className="text-muted-foreground text-lg">
-                    /{plan.billing_period === 'monthly' ? 'mês' : plan.billing_period === 'yearly' ? 'ano' : plan.billing_period}
-                  </span>
-                </div>
-
-                {isPro && plan.original_price && plan.original_price > plan.price && (
-                  <div className="text-center mb-6">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      R$ {(plan.original_price - plan.price).toFixed(2)} de desconto
+                    <span className="text-muted-foreground text-lg">
+                      /{plan.billing_period === 'monthly' ? 'mês' : plan.billing_period === 'yearly' ? 'ano' : plan.billing_period}
                     </span>
                   </div>
-                )}
 
+                  {isPro && plan.original_price && plan.original_price > plan.price ? (
+                    <div className="text-center mb-6">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        R$ {(plan.original_price - plan.price).toFixed(2)} de desconto
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="h-5 mt-2 mb-6"></div>
+                  )}
 
-                {/* Button */}
-                <div className="mb-4">
+                  {/* Button */}
                   <Button
-                    className="w-full font-medium py-6 rounded-xl"
+                    className="w-full font-medium py-6 rounded-xl mb-4"
                     disabled={isCurrent}
                     onClick={() => {
                       if (!isCurrent) {
@@ -363,28 +367,30 @@ const Plan = () => {
                     <Users className="mr-2 h-5 w-5" />
                     {isCurrent ? "Plano Atual" : `Selecionar ${plan.name}`}
                   </Button>
-                </div>
 
-                {/* Trial Text */}
-                {isPro && !isCurrent && (
-                  <p className="text-primary text-center text-sm font-medium mb-6">
-                    Teste Grátis por 7 dias
-                  </p>
-                )}
+                  {/* Trial Text */}
+                  {isPro && !isCurrent ? (
+                    <p className="text-primary text-center text-sm font-medium mb-6">
+                      Teste Grátis por 7 dias
+                    </p>
+                  ) : (
+                    <div className="h-5 mb-6"></div>
+                  )}
 
-                {/* Trust Badges */}
-                <div className="flex justify-center gap-6">
-                  <div className="flex flex-col items-center">
-                    <Shield className="h-6 w-6 text-foreground mb-1" />
-                    <span className="text-xs text-foreground text-center">Compra<br/>Segura</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <Trophy className="h-6 w-6 text-foreground mb-1" />
-                    <span className="text-xs text-foreground text-center">Satisfação<br/>Garantida</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <Lock className="h-6 w-6 text-foreground mb-1" />
-                    <span className="text-xs text-foreground text-center">Privacidade<br/>Protegida</span>
+                  {/* Trust Badges */}
+                  <div className="flex justify-center gap-6">
+                    <div className="flex flex-col items-center">
+                      <Shield className="h-6 w-6 text-foreground mb-1" />
+                      <span className="text-xs text-foreground text-center">Compra<br/>Segura</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <Trophy className="h-6 w-6 text-foreground mb-1" />
+                      <span className="text-xs text-foreground text-center">Satisfação<br/>Garantida</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <Lock className="h-6 w-6 text-foreground mb-1" />
+                      <span className="text-xs text-foreground text-center">Privacidade<br/>Protegida</span>
+                    </div>
                   </div>
                 </div>
               </div>
