@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 
 interface Plan {
@@ -70,6 +70,8 @@ export default function SignupFunnel() {
   });
   
   const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (planId) {
@@ -397,6 +399,7 @@ export default function SignupFunnel() {
                   placeholder="Digite seu nome completo"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
                   className={errors.name ? "border-destructive" : ""}
                   autoFocus
                 />
@@ -413,6 +416,7 @@ export default function SignupFunnel() {
                   placeholder="(00) 00000-0000"
                   value={formData.phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
                   className={errors.phone ? "border-destructive" : ""}
                   autoFocus
                 />
@@ -429,6 +433,7 @@ export default function SignupFunnel() {
                   placeholder="seu@email.com"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
                   className={errors.email ? "border-destructive" : ""}
                   autoFocus
                   disabled={checkingEmail}
@@ -441,28 +446,48 @@ export default function SignupFunnel() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="password">Senha</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={formData.password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                    className={errors.password ? "border-destructive" : ""}
-                    autoFocus
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Mínimo 6 caracteres"
+                      value={formData.password}
+                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                      onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
+                      className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Digite a senha novamente"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                    className={errors.confirmPassword ? "border-destructive" : ""}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Digite a senha novamente"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
+                      className={errors.confirmPassword ? "border-destructive pr-10" : "pr-10"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                   {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
                 </div>
 
