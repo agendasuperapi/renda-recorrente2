@@ -77,15 +77,23 @@ serve(async (req) => {
       throw new Error('No Stripe customer found for this user');
     }
 
-    // Get return URL from request or use default
-    const { return_url } = await req.json();
+    // Get return URL and flow data from request
+    const { return_url, flow_data } = await req.json();
     const returnUrl = return_url || `${req.headers.get('origin') || 'http://localhost:8080'}/plan`;
 
-    // Create customer portal session
-    const session = await stripe.billingPortal.sessions.create({
+    // Create customer portal session configuration
+    const sessionConfig: any = {
       customer: customerId,
       return_url: returnUrl,
-    });
+    };
+
+    // Add flow_data if provided to go directly to subscription update
+    if (flow_data) {
+      sessionConfig.flow_data = flow_data;
+      console.log(`[Customer Portal] Creating session with flow_data:`, flow_data);
+    }
+
+    const session = await stripe.billingPortal.sessions.create(sessionConfig);
 
     console.log(`[Customer Portal] Session created: ${session.id}`);
 
