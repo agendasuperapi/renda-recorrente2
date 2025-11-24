@@ -352,12 +352,20 @@ const Plan = () => {
                   )}
                   
                   <div className="text-center mb-2">
-                    <span className="text-primary text-4xl font-bold">
-                      R${plan.price.toFixed(2)}
-                    </span>
-                    <span className="text-muted-foreground text-lg">
-                      /{plan.billing_period === 'monthly' ? 'mês' : plan.billing_period === 'yearly' ? 'ano' : plan.billing_period}
-                    </span>
+                    {plan.is_free ? (
+                      <span className="text-primary text-5xl md:text-6xl font-bold">
+                        FREE
+                      </span>
+                    ) : (
+                      <>
+                        <span className="text-primary text-4xl font-bold">
+                          R${plan.price.toFixed(2)}
+                        </span>
+                        <span className="text-muted-foreground text-lg">
+                          /{plan.billing_period === 'monthly' ? 'mês' : plan.billing_period === 'yearly' ? 'ano' : plan.billing_period}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   {isPro && plan.original_price && plan.original_price > plan.price ? (
