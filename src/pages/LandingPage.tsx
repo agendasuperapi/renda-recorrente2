@@ -441,9 +441,12 @@ const LandingPage = () => {
     if (data) {
       const mappedPlans = data.map((plan: any) => ({
         ...plan,
-        features: plan.description 
-          ? plan.description.split('\n').filter((line: string) => line.trim()) 
-          : [],
+        // Usar o campo features do JSONB do banco, não o description
+        features: Array.isArray(plan.features) ? plan.features : (
+          plan.description 
+            ? plan.description.split('\n').filter((line: string) => line.trim()) 
+            : []
+        ),
         plan_features: plan.plan_features || []
       }));
       console.log('[LandingPage] Planos mapeados:', mappedPlans);
