@@ -348,29 +348,32 @@ const Plan = () => {
                   </div>
                 )}
 
+
                 {/* Button */}
-                <Button
-                  className="w-full font-medium py-6 rounded-xl"
-                  disabled={isCurrent}
-                  onClick={() => {
-                    if (!isCurrent) {
-                      window.location.href = `/signup/${plan.id}`;
-                    }
-                  }}
-                >
-                  <Users className="mr-2 h-5 w-5" />
-                  {isCurrent ? "Plano Atual" : `Selecionar ${plan.name}`}
-                </Button>
+                <div className="mb-4">
+                  <Button
+                    className="w-full font-medium py-6 rounded-xl"
+                    disabled={isCurrent}
+                    onClick={() => {
+                      if (!isCurrent) {
+                        window.location.href = `/signup/${plan.id}`;
+                      }
+                    }}
+                  >
+                    <Users className="mr-2 h-5 w-5" />
+                    {isCurrent ? "Plano Atual" : `Selecionar ${plan.name}`}
+                  </Button>
+                </div>
 
                 {/* Trial Text */}
                 {isPro && !isCurrent && (
-                  <p className="text-primary text-center text-sm font-medium mt-4">
+                  <p className="text-primary text-center text-sm font-medium mb-6">
                     Teste Grátis por 7 dias
                   </p>
                 )}
 
                 {/* Trust Badges */}
-                <div className="flex justify-center gap-6 mt-6">
+                <div className="flex justify-center gap-6">
                   <div className="flex flex-col items-center">
                     <Shield className="h-6 w-6 text-foreground mb-1" />
                     <span className="text-xs text-foreground text-center">Compra<br/>Segura</span>
