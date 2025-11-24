@@ -55,7 +55,7 @@ const AdminPlans = () => {
   const queryClient = useQueryClient();
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedProductFilter, setSelectedProductFilter] = useState<string>("all");
+  const [selectedProductFilter, setSelectedProductFilter] = useState<string>("bb582482-b006-47b8-b6ea-a6944d8cfdfd");
   const [isStripeDialogOpen, setIsStripeDialogOpen] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   
