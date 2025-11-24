@@ -1587,13 +1587,20 @@ const LandingPage = () => {
 
 
                     {/* Teste Grátis */}
-                    {isPro ? (
-                      <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
-                        Teste Grátis por 7 dias
-                      </p>
-                    ) : (
-                      <div className="h-5 mt-4"></div>
-                    )}
+                    {(() => {
+                      const trialDays = plan.features && Array.isArray(plan.features) 
+                        ? plan.features.find((f: string) => f.startsWith('trial_days:'))?.split(':')[1] 
+                        : null;
+                      const days = trialDays ? parseInt(trialDays, 10) : 0;
+                      
+                      return days > 0 ? (
+                        <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
+                          Teste Grátis por {days} {days === 1 ? 'dia' : 'dias'}
+                        </p>
+                      ) : (
+                        <div className="h-5 mt-4"></div>
+                      );
+                    })()}
                   </div>
                 </div>
               );
