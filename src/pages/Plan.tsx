@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import * as LucideIcons from "lucide-react";
+import { useTheme } from "next-themes";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -43,6 +44,7 @@ interface Subscription {
 
 const Plan = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   // Fetch current user
   const { data: user } = useQuery({
@@ -95,6 +97,21 @@ const Plan = () => {
 
       if (error) throw error;
       return data as Plan[];
+    },
+  });
+
+  // Fetch product icons
+  const { data: product } = useQuery({
+    queryKey: ["product", PRODUCT_ID],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("icone_dark, icone_light")
+        .eq("id", PRODUCT_ID)
+        .single();
+
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -249,8 +266,16 @@ const Plan = () => {
 
                 {/* Icon */}
                 <div className="flex justify-center mt-4 mb-6">
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="w-10 h-10 text-primary" />
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                    {product ? (
+                      <img 
+                        src={theme === 'dark' ? product.icone_dark : product.icone_light} 
+                        alt="Plan icon"
+                        className="w-12 h-12 object-contain"
+                      />
+                    ) : (
+                      <Users className="w-10 h-10 text-primary" />
+                    )}
                   </div>
                 </div>
 
