@@ -64,13 +64,20 @@ serve(async (req) => {
 
     console.log(`[Stripe Webhook] Event type: ${event.type}`);
 
-    // Registrar evento na tabela stripe_events
+    // Extrair metadata do evento
+    const eventObject = event.data.object as any;
+    const metadata = eventObject.metadata || {};
+    
+    // Registrar evento na tabela stripe_events com metadata
     const { error: eventInsertError } = await supabase
       .from("stripe_events")
       .insert({
         event_id: event.id,
         event_type: event.type,
         event_data: event.data.object,
+        user_id: metadata.user_id || null,
+        plan_id: metadata.plan_id || null,
+        product_id: metadata.product_id || null,
         processed: false,
       });
 
