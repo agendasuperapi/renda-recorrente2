@@ -72,12 +72,42 @@ export default function SignupFunnel() {
   const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [testNumber, setTestNumber] = useState<number | null>(null);
 
   useEffect(() => {
     if (planId) {
       fetchPlan();
+      if (import.meta.env.DEV) {
+        fetchTestNumber();
+      }
     }
   }, [planId]);
+
+  const fetchTestNumber = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('test_users_counter')
+        .select('last_number')
+        .single();
+
+      if (error) throw error;
+
+      const nextNumber = (data?.last_number || 26) + 1;
+      setTestNumber(nextNumber);
+
+      // Preencher campos automaticamente em modo debug
+      setFormData({
+        name: `Heron teste ${nextNumber}`,
+        phone: '(38) 99826-9069',
+        email: `heronteste${nextNumber}@testex.com`,
+        password: '123456',
+        confirmPassword: '123456',
+        acceptTerms: true
+      });
+    } catch (error) {
+      console.error('Erro ao buscar número de teste:', error);
+    }
+  };
 
   const fetchPlan = async () => {
     const { data, error } = await supabase
@@ -267,6 +297,11 @@ export default function SignupFunnel() {
     setLoading(true);
     
     try {
+      // Incrementar contador de teste em modo debug
+      if (import.meta.env.DEV && testNumber) {
+        await supabase.rpc('get_next_test_number');
+      }
+      
       // Criar usuário no Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
