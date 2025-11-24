@@ -266,17 +266,15 @@ const Plan = () => {
 
                 {/* Icon */}
                 <div className="flex justify-center mt-4 mb-6">
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                    {product ? (
-                      <img 
-                        src={theme === 'dark' ? product.icone_dark : product.icone_light} 
-                        alt="Plan icon"
-                        className="w-12 h-12 object-contain"
-                      />
-                    ) : (
-                      <Users className="w-10 h-10 text-primary" />
-                    )}
-                  </div>
+                  {product ? (
+                    <img 
+                      src={theme === 'dark' ? product.icone_dark : product.icone_light} 
+                      alt="Plan icon"
+                      className="w-20 h-20 object-contain rounded-full"
+                    />
+                  ) : (
+                    <Users className="w-10 h-10 text-primary" />
+                  )}
                 </div>
 
                 {/* Plan Name */}
