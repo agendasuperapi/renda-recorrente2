@@ -1588,10 +1588,19 @@ const LandingPage = () => {
 
                     {/* Teste Grátis */}
                     {(() => {
+                      // Debug: verificar conteúdo de features
+                      console.log(`[Plan ${plan.name}] Features:`, plan.features);
+                      
                       const trialDays = plan.features && Array.isArray(plan.features) 
-                        ? plan.features.find((f: string) => f.startsWith('trial_days:'))?.split(':')[1] 
+                        ? plan.features.find((f: string) => {
+                            const isTrial = typeof f === 'string' && f.startsWith('trial_days:');
+                            if (isTrial) console.log(`[Plan ${plan.name}] Found trial_days:`, f);
+                            return isTrial;
+                          })?.split(':')[1] 
                         : null;
+                      
                       const days = trialDays ? parseInt(trialDays, 10) : 0;
+                      console.log(`[Plan ${plan.name}] Trial days parsed:`, days);
                       
                       return days > 0 ? (
                         <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
