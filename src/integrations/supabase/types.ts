@@ -1003,7 +1003,10 @@ export type Database = {
           event_id: string
           event_type: string
           id: string
+          plan_id: string | null
           processed: boolean | null
+          product_id: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -1011,7 +1014,10 @@ export type Database = {
           event_id: string
           event_type: string
           id?: string
+          plan_id?: string | null
           processed?: boolean | null
+          product_id?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -1019,9 +1025,34 @@ export type Database = {
           event_id?: string
           event_type?: string
           id?: string
+          plan_id?: string | null
           processed?: boolean | null
+          product_id?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_stripe_events_plan_id"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_stripe_events_product_id"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_stripe_events_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sub_affiliates: {
         Row: {
