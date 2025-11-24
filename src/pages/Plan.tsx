@@ -237,8 +237,12 @@ const Plan = () => {
                 }`}
               >
                 {/* Badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className={isCurrent ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}>
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+                  <Badge className={
+                    isCurrent 
+                      ? "bg-primary text-primary-foreground px-6 py-3 text-lg font-bold shadow-lg border-2 border-primary" 
+                      : "bg-secondary text-secondary-foreground px-6 py-3 text-lg font-semibold"
+                  }>
                     {isCurrent ? "Plano Atual" : isFree ? "Para conhecer" : "Mais lucrativo"}
                   </Badge>
                 </div>
