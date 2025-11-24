@@ -162,7 +162,12 @@ const Plan = () => {
       if (response.error) throw response.error;
 
       if (response.data?.url) {
-        window.location.href = response.data.url;
+        // Em desenvolvimento, abre em nova aba. Em produção, na mesma aba
+        if (import.meta.env.DEV) {
+          window.open(response.data.url, '_blank');
+        } else {
+          window.location.href = response.data.url;
+        }
       }
     } catch (error) {
       console.error("Error creating portal session:", error);
