@@ -93,6 +93,7 @@ const AdminPlans = () => {
   const { data: plans, isLoading, isFetching, error } = useQuery({
     queryKey: ["admin-plans"],
     queryFn: async () => {
+      console.log("[AdminPlans] Iniciando busca de planos...");
       const { data, error } = await supabase
         .from("plans")
         .select(`
@@ -110,14 +111,17 @@ const AdminPlans = () => {
         `)
         .order("created_at", { ascending: false });
       
-      if (error) throw error;
-      console.log("[AdminPlans] Planos carregados:", data?.length ?? 0);
+      if (error) {
+        console.error("[AdminPlans] Erro ao carregar:", error);
+        throw error;
+      }
+      console.log("[AdminPlans] Planos carregados:", data?.length ?? 0, data);
       return data;
     },
-    staleTime: 1000 * 60 * 5, // 5 minutos - dados ficam fresh
-    gcTime: 1000 * 60 * 10, // 10 minutos - cache time
-    refetchOnMount: false, // Não refetch automaticamente ao montar
+    staleTime: 1000 * 60 * 2, // 2 minutos - dados ficam fresh
+    gcTime: 1000 * 60 * 5, // 5 minutos - cache time
     refetchOnWindowFocus: false,
+    retry: 1,
   });
 
   const { data: coupons } = useQuery({
