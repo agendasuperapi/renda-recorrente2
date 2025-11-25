@@ -900,9 +900,6 @@ const AdminPlans = () => {
                                 R$ {parseFloat(plan.price).toFixed(2)}
                               </span>
                             </div>
-                            {plan.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">{plan.description}</p>
-                            )}
                             {coupon && (
                               <Badge variant="outline" className="gap-1">
                                 <Tag className="h-3 w-3" />
