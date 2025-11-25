@@ -90,7 +90,7 @@ const AdminPlans = () => {
     },
   });
 
-  const { data: plans, isLoading, error } = useQuery({
+  const { data: plans, isLoading, isFetching, error } = useQuery({
     queryKey: ["admin-plans"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -114,7 +114,9 @@ const AdminPlans = () => {
       console.log("[AdminPlans] Planos carregados:", data?.length ?? 0);
       return data;
     },
-    refetchOnMount: "always",
+    staleTime: 1000 * 60 * 5, // 5 minutos - dados ficam fresh
+    gcTime: 1000 * 60 * 10, // 10 minutos - cache time
+    refetchOnMount: false, // Não refetch automaticamente ao montar
     refetchOnWindowFocus: false,
   });
 
@@ -614,8 +616,13 @@ const AdminPlans = () => {
             </div>
 
             <div className="space-y-8">
-              {isLoading ? (
-                <div className="text-center py-12 text-muted-foreground">Carregando planos...</div>
+              {(isLoading || isFetching) ? (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center gap-2 text-muted-foreground">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                    <span>Carregando planos...</span>
+                  </div>
+                </div>
               ) : error ? (
                 <div className="text-center py-12">
                   <p className="text-destructive mb-4">Erro ao carregar planos</p>
@@ -816,12 +823,24 @@ const AdminPlans = () => {
                 ) : (
                   // Show plans for specific product filter
                   (() => {
-                    const filteredPlans = plans?.filter((p: any) => {
+                    // Verifica se ainda está carregando/buscando antes de aplicar filtro
+                    if (isLoading || isFetching || !plans) {
+                      return (
+                        <div className="text-center py-12">
+                          <div className="inline-flex items-center gap-2 text-muted-foreground">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                            <span>Carregando planos...</span>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    const filteredPlans = plans.filter((p: any) => {
                       if (selectedProductFilter === "no-product") return !p.product_id;
                       return p.product_id === selectedProductFilter;
-                    }) || [];
+                    });
 
-                    console.log("[AdminPlans] Planos após filtro:", filteredPlans.length, "de", plans?.length ?? 0);
+                    console.log("[AdminPlans] Planos após filtro:", filteredPlans.length, "de", plans.length);
 
                     if (filteredPlans.length === 0) {
                       return (
