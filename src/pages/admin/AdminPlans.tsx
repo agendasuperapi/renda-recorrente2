@@ -1065,23 +1065,6 @@ const AdminPlans = () => {
                           )}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name="description"
-                          render={({ field }) => (
-                            <FormItem className="md:col-span-2">
-                              <FormLabel>Detalhes</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  {...field} 
-                                  placeholder="Será usada na Landing Page"
-                                  rows={3}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
 
                         {/* Funcionalidades */}
                         <div className="md:col-span-2 space-y-3">
