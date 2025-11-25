@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Search, Eye, CheckCircle, XCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -15,11 +15,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AdminStripeEvents = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const { data: events, isLoading } = useQuery({
-    queryKey: ["stripe-events", searchTerm],
+    queryKey: ["stripe-events", debouncedSearch],
     queryFn: async () => {
       let query = supabase
         .from("stripe_events")
@@ -27,9 +37,9 @@ const AdminStripeEvents = () => {
         .order("created_at", { ascending: false })
         .limit(100);
 
-      if (searchTerm) {
+      if (debouncedSearch) {
         query = query.or(
-          `event_id.ilike.%${searchTerm}%,event_type.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`
+          `event_id.ilike.%${debouncedSearch}%,event_type.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`
         );
       }
 
@@ -37,6 +47,8 @@ const AdminStripeEvents = () => {
       if (error) throw error;
       return data;
     },
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const handleViewDetails = (event: any) => {
