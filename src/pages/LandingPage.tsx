@@ -1478,26 +1478,6 @@ const LandingPage = () => {
                     {isFree ? 'Para conhecer' : 'Mais lucrativo'}
                   </div>
 
-                  {/* Ícone Circular */}
-                  <div className="flex justify-center mb-6">
-                    {currentProduct ? (
-                      <img 
-                        src={theme === 'dark' 
-                          ? (currentProduct.icone_dark || currentProduct.icone_light) 
-                          : (currentProduct.icone_light || currentProduct.icone_dark)} 
-                        alt={currentProduct.nome}
-                        className="w-20 h-20 md:w-24 md:h-24 rounded-full object-contain"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center">
-                        {isFree ? (
-                          <Users className="w-10 h-10 md:w-12 md:h-12 text-foreground" />
-                        ) : (
-                          <Link className="w-10 h-10 md:w-12 md:h-12 text-foreground" />
-                        )}
-                      </div>
-                    )}
-                  </div>
 
                   {/* Título */}
                   <h3 className="text-[#22c55e] text-2xl md:text-3xl font-bold text-center mb-6">
