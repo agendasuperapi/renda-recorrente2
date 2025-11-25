@@ -20,7 +20,6 @@ interface Plan {
   price: number;
   original_price: number | null;
   billing_period: string;
-  description: string | null;
   commission_percentage: number;
   is_free: boolean;
   plan_features?: { feature_id: string }[];

@@ -743,7 +743,6 @@ export type Database = {
           billing_period: string
           commission_percentage: number
           created_at: string | null
-          description: string | null
           features: Json | null
           id: string
           is_active: boolean | null
@@ -761,7 +760,6 @@ export type Database = {
           billing_period: string
           commission_percentage?: number
           created_at?: string | null
-          description?: string | null
           features?: Json | null
           id?: string
           is_active?: boolean | null
@@ -779,7 +777,6 @@ export type Database = {
           billing_period?: string
           commission_percentage?: number
           created_at?: string | null
-          description?: string | null
           features?: Json | null
           id?: string
           is_active?: boolean | null
