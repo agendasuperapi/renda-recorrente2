@@ -1485,7 +1485,7 @@ const LandingPage = () => {
                   </h3>
 
                   {/* Features - flex-grow para ocupar espaço disponível */}
-                  <ul className="space-y-2 mb-6 flex-grow">
+                  <ul className="space-y-1 mb-6 flex-grow">
                     {features.map((feature, i) => {
                       const IconComponent = getIconComponent(feature.icon);
                       const hasPlanFeatures = Array.isArray(plan.plan_features) && plan.plan_features.length > 0;
