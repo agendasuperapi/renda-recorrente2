@@ -15,7 +15,6 @@ interface Plan {
   name: string;
   price: number;
   billing_period: string;
-  description: string | null;
 }
 
 const signupSchema = z.object({
@@ -112,7 +111,7 @@ export default function SignupFunnel() {
   const fetchPlan = async () => {
     const { data, error } = await supabase
       .from("plans")
-      .select("id, name, price, billing_period, description")
+      .select("id, name, price, billing_period")
       .eq("id", planId)
       .single();
 

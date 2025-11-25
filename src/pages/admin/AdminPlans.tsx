@@ -349,7 +349,6 @@ const AdminPlans = () => {
       billing_period: plan.billing_period,
       price: plan.price,
       original_price: plan.original_price || 0,
-      description: plan.description || "",
       obs_plan: features.find((f: string) => f.startsWith("obs_plan:"))?.replace("obs_plan:", "") || "",
       obs_discount: features.find((f: string) => f.startsWith("obs_discount:"))?.replace("obs_discount:", "") || "",
       obs_coupon: features.find((f: string) => f.startsWith("obs_coupon:"))?.replace("obs_coupon:", "") || "",
@@ -896,9 +895,11 @@ const AdminPlans = () => {
                                   R$ {parseFloat(plan.original_price).toFixed(2)}
                                 </span>
                               )}
-                              <span className="text-2xl font-bold text-foreground">
-                                R$ {parseFloat(plan.price).toFixed(2)}
-                              </span>
+                              {plan.price > 0 && (
+                                <span className="text-2xl font-bold text-foreground">
+                                  R$ {parseFloat(plan.price).toFixed(2)}
+                                </span>
+                              )}
                             </div>
                             {coupon && (
                               <Badge variant="outline" className="gap-1">
