@@ -118,8 +118,8 @@ const AdminPlans = () => {
       console.log("[AdminPlans] Planos carregados:", data?.length ?? 0, data);
       return data;
     },
-    staleTime: 1000 * 60 * 2, // 2 minutos - dados ficam fresh
-    gcTime: 1000 * 60 * 5, // 5 minutos - cache time
+    staleTime: 0, // Sempre considerar dados como stale para garantir refetch
+    refetchOnMount: true, // Sempre refetch ao montar o componente
     refetchOnWindowFocus: false,
     retry: 1,
   });
