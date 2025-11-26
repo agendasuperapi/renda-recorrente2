@@ -427,8 +427,61 @@ serve(async (req) => {
           product_id: invoiceMetadata.product_id,
           user_email: invoiceMetadata.user_email,
           customer: invoice.customer,
+          billing_reason: invoice.billing_reason,
         });
-        // TODO: Registrar pagamento bem-sucedido, enviar recibo
+        
+        // Registrar pagamento na tabela payments
+        if (invoiceMetadata.user_id && invoiceMetadata.plan_id) {
+          // Buscar subscription_id se tiver stripe_subscription_id
+          let subscriptionId = null;
+          if (invoice.subscription) {
+            const stripeSubId = typeof invoice.subscription === 'string' 
+              ? invoice.subscription 
+              : invoice.subscription.id;
+            
+            const { data: subscription } = await supabase
+              .from("subscriptions")
+              .select("id")
+              .eq("stripe_subscription_id", stripeSubId)
+              .single();
+            
+            subscriptionId = subscription?.id || null;
+          }
+          
+          const paymentData = {
+            user_id: invoiceMetadata.user_id,
+            subscription_id: subscriptionId,
+            stripe_invoice_id: invoice.id,
+            stripe_subscription_id: invoice.subscription ? 
+              (typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id) : null,
+            stripe_customer_id: typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id,
+            plan_id: invoiceMetadata.plan_id,
+            amount: invoice.amount_paid / 100, // Converter centavos para reais
+            currency: invoice.currency || 'brl',
+            billing_reason: invoice.billing_reason || null,
+            status: 'paid',
+            payment_date: new Date(invoice.created * 1000).toISOString(),
+            environment: environment,
+            metadata: {
+              product_id: invoiceMetadata.product_id,
+              invoice_pdf: invoice.invoice_pdf,
+              hosted_invoice_url: invoice.hosted_invoice_url,
+            },
+          };
+          
+          const { error: paymentError } = await supabase
+            .from("payments")
+            .insert(paymentData);
+          
+          if (paymentError) {
+            console.error("Error creating payment:", paymentError);
+          } else {
+            console.log(`[Stripe Webhook] Payment registered for user ${invoiceMetadata.user_id}`);
+            console.log(`[Stripe Webhook] Trigger will automatically create commission if user has referrer`);
+          }
+        } else {
+          console.warn(`[Stripe Webhook] Missing user_id or plan_id in invoice metadata`);
+        }
         break;
       }
 
