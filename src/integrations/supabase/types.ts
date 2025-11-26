@@ -123,6 +123,7 @@ export type Database = {
           custom_code: string | null
           id: string
           is_active: boolean | null
+          product_id: string | null
         }
         Insert: {
           affiliate_id: string
@@ -131,6 +132,7 @@ export type Database = {
           custom_code?: string | null
           id?: string
           is_active?: boolean | null
+          product_id?: string | null
         }
         Update: {
           affiliate_id?: string
@@ -139,6 +141,7 @@ export type Database = {
           custom_code?: string | null
           id?: string
           is_active?: boolean | null
+          product_id?: string | null
         }
         Relationships: [
           {
@@ -153,6 +156,13 @@ export type Database = {
             columns: ["coupon_id"]
             isOneToOne: false
             referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_coupons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]

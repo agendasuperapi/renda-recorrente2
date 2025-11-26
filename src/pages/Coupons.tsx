@@ -206,6 +206,18 @@ const Coupons = () => {
       return 0;
     }) || [];
 
+  // Group coupons by product when "all" is selected
+  const groupedByProduct = productFilter === "all" 
+    ? allCoupons.reduce((acc, coupon) => {
+        const productName = coupon.products?.nome || "Sem produto";
+        if (!acc[productName]) {
+          acc[productName] = [];
+        }
+        acc[productName].push(coupon);
+        return acc;
+      }, {} as Record<string, typeof allCoupons>)
+    : null;
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -267,6 +279,102 @@ const Coupons = () => {
             <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
               <p>Nenhum cupom disponível</p>
+            </div>
+          ) : productFilter === "all" && groupedByProduct ? (
+            <div className="space-y-8">
+              {Object.entries(groupedByProduct).map(([productName, coupons]) => (
+                <div key={productName}>
+                  <h3 className="text-lg font-semibold mb-4 text-foreground border-b pb-2">
+                    {productName}
+                  </h3>
+                  <div className="space-y-4">
+                    {coupons.map((coupon) => {
+                      const isActivated = !!coupon.activatedCoupon;
+                      const customCode = profile?.username 
+                        ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
+                        : "";
+
+                      return (
+                        <div
+                          key={coupon.id}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold">{coupon.name}</h3>
+                              {coupon.is_primary && (
+                                <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
+                                  Principal
+                                </Badge>
+                              )}
+                              <Badge variant="outline">
+                                {coupon.type === "percentage" && `${coupon.value}% OFF`}
+                                {coupon.type === "days" && `${coupon.value} dias`}
+                                {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
+                              </Badge>
+                              {isActivated && coupon.activatedCoupon?.is_active && (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
+                                  Ativo
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {coupon.description || "Sem descrição"}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              {isActivated ? (
+                                <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
+                                  {coupon.activatedCoupon?.custom_code}
+                                </code>
+                              ) : (
+                                <>
+                                  <span className="text-xs text-muted-foreground">
+                                    Seu cupom será:
+                                  </span>
+                                  <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                    {customCode}
+                                  </code>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {isActivated ? (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                                >
+                                  <Copy className="h-4 w-4 mr-2" />
+                                  Copiar
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                  disabled={deactivateCoupon.isPending}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Inativar
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false)}
+                                disabled={activateCoupon.isPending || !profile?.username}
+                              >
+                                <Check className="h-4 w-4 mr-2" />
+                                Liberar Cupom
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="space-y-4">
