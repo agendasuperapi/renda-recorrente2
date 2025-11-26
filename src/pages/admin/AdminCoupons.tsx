@@ -716,7 +716,7 @@ const AdminCoupons = () => {
               ) : (
                 filteredCoupons.map((coupon: any) => (
                   <>
-                    <TableRow key={coupon.id} className={coupon.description ? "border-b-0" : ""}>
+                    <TableRow key={coupon.id}>
                       <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                       <TableCell className="font-medium">{coupon.name}</TableCell>
                       <TableCell>
@@ -765,7 +765,7 @@ const AdminCoupons = () => {
                       </TableCell>
                     </TableRow>
                     {coupon.description && (
-                      <TableRow key={`${coupon.id}-description`} className="border-0 hover:bg-transparent">
+                      <TableRow key={`${coupon.id}-description`} className="border-t-0">
                         <TableCell colSpan={10} className="text-sm text-muted-foreground pt-0 pb-4">
                           {coupon.description}
                         </TableCell>
