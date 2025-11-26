@@ -38,7 +38,7 @@ const couponFormSchema = z.object({
   is_visible_to_affiliates: z.boolean().default(true),
   is_primary: z.boolean().default(false),
   max_uses: z.number().optional(),
-  product_id: z.string().optional(),
+  product_id: z.string().min(1, "Produto é obrigatório"),
 });
 
 type CouponFormValues = z.infer<typeof couponFormSchema>;
@@ -119,7 +119,7 @@ const AdminCoupons = () => {
           is_visible_to_affiliates: values.is_visible_to_affiliates,
           is_primary: values.is_primary,
           max_uses: values.max_uses,
-          product_id: values.product_id || null,
+          product_id: values.product_id,
         } as any)
         .select()
         .single();
@@ -175,7 +175,7 @@ const AdminCoupons = () => {
           is_visible_to_affiliates: values.is_visible_to_affiliates,
           is_primary: values.is_primary,
           max_uses: values.max_uses,
-          product_id: values.product_id || null,
+          product_id: values.product_id,
         } as any)
         .eq("id", values.id)
         .select()
@@ -254,7 +254,6 @@ const AdminCoupons = () => {
       
       const matchesProduct = 
         selectedProduct === "all" || 
-        (selectedProduct === "none" && !coupon.product_id) ||
         coupon.product_id === selectedProduct;
       
       return matchesSearch && matchesProduct;
@@ -333,18 +332,17 @@ const AdminCoupons = () => {
                   name="product_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Produto (opcional)</FormLabel>
+                      <FormLabel>Produto</FormLabel>
                       <Select 
-                        onValueChange={(value) => field.onChange(value === "all" ? undefined : value)} 
-                        value={field.value || "all"}
+                        onValueChange={field.onChange} 
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Todos os produtos" />
+                            <SelectValue placeholder="Selecione um produto" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="all">Todos os produtos</SelectItem>
                           {products.map((product) => (
                             <SelectItem key={product.id} value={product.id}>
                               {product.nome}
@@ -583,7 +581,6 @@ const AdminCoupons = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os produtos</SelectItem>
-                <SelectItem value="none">Sem produto específico</SelectItem>
                 {products.map((product) => (
                   <SelectItem key={product.id} value={product.id}>
                     {product.nome}
