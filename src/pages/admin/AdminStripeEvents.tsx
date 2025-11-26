@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -13,6 +13,10 @@ import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 const AdminStripeEvents = () => {
   const { toast } = useToast();
@@ -21,6 +25,11 @@ const AdminStripeEvents = () => {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showCancelAtPeriodEnd, setShowCancelAtPeriodEnd] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
 
   // Debounce search term
   useEffect(() => {
@@ -31,14 +40,17 @@ const AdminStripeEvents = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data: events, isLoading, isFetching } = useQuery({
-    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd],
+  const { data: eventsData, isLoading, isFetching } = useQuery({
+    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo],
     queryFn: async () => {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
       let query = supabase
         .from("stripe_events")
-        .select("*")
+        .select("*", { count: "exact" })
         .order("created_at", { ascending: false })
-        .limit(100);
+        .range(from, to);
 
       if (debouncedSearch) {
         query = query.or(
@@ -46,22 +58,41 @@ const AdminStripeEvents = () => {
         );
       }
 
-      const { data, error } = await query;
+      if (eventTypeFilter && eventTypeFilter !== "all") {
+        query = query.eq("event_type", eventTypeFilter);
+      }
+
+      if (dateFrom) {
+        query = query.gte("created_at", dateFrom.toISOString());
+      }
+
+      if (dateTo) {
+        const endOfDay = new Date(dateTo);
+        endOfDay.setHours(23, 59, 59, 999);
+        query = query.lte("created_at", endOfDay.toISOString());
+      }
+
+      const { data, error, count } = await query;
       if (error) throw error;
       
       // Filtrar client-side para cancel_at_period_end
+      let filteredData = data;
       if (showCancelAtPeriodEnd && data) {
-        return data.filter((event: any) => 
+        filteredData = data.filter((event: any) => 
           event.event_type === 'customer.subscription.updated' && 
           (event.event_data as any)?.cancel_at_period_end === true
         );
       }
       
-      return data;
+      return { events: filteredData, total: count || 0 };
     },
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
+
+  const events = eventsData?.events || [];
+  const totalCount = eventsData?.total || 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleViewDetails = (event: any) => {
     setSelectedEvent(event);
@@ -127,7 +158,7 @@ const AdminStripeEvents = () => {
 
       <Card>
         <CardHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <form onSubmit={(e) => e.preventDefault()} className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -139,7 +170,74 @@ const AdminStripeEvents = () => {
                 autoComplete="off"
               />
             </form>
-            <div className="flex items-center gap-2">
+            
+            <div className="flex flex-wrap items-center gap-3">
+              <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Filtrar por tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os tipos</SelectItem>
+                  <SelectItem value="checkout.session.completed">Checkout Completed</SelectItem>
+                  <SelectItem value="customer.subscription.created">Subscription Created</SelectItem>
+                  <SelectItem value="customer.subscription.updated">Subscription Updated</SelectItem>
+                  <SelectItem value="customer.subscription.deleted">Subscription Deleted</SelectItem>
+                  <SelectItem value="invoice.paid">Invoice Paid</SelectItem>
+                  <SelectItem value="invoice.payment_failed">Invoice Failed</SelectItem>
+                  <SelectItem value="payment_method.attached">Payment Method</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    {dateFrom ? format(dateFrom, "dd/MM/yyyy", { locale: ptBR }) : "Data inicial"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    {dateTo ? format(dateTo, "dd/MM/yyyy", { locale: ptBR }) : "Data final"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {(dateFrom || dateTo || eventTypeFilter !== "all") && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDateFrom(undefined);
+                    setDateTo(undefined);
+                    setEventTypeFilter("all");
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              )}
+
               <Button
                 variant={showCancelAtPeriodEnd ? "default" : "outline"}
                 size="sm"
@@ -148,17 +246,27 @@ const AdminStripeEvents = () => {
               >
                 <Filter className="w-4 h-4" />
                 Cancelamento Agendado
-                {showCancelAtPeriodEnd && (
-                  <Badge variant="secondary" className="ml-1">
-                    Ativo
-                  </Badge>
-                )}
               </Button>
-              {showCancelAtPeriodEnd && (
-                <p className="text-xs text-muted-foreground">
-                  Mostrando apenas assinaturas que serão canceladas no final do período
-                </p>
-              )}
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                Mostrando {events.length > 0 ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, totalCount)} de {totalCount} eventos
+              </span>
+              <div className="flex items-center gap-2">
+                <span>Itens por página:</span>
+                <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(Number(v)); setPage(1); }}>
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -239,6 +347,34 @@ const AdminStripeEvents = () => {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          <div className="flex items-center justify-between px-4 py-4 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1 || isFetching}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Anterior
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Página {page} de {totalPages || 1}
+              </span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages || isFetching}
+            >
+              Próxima
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
         </CardContent>
       </Card>
