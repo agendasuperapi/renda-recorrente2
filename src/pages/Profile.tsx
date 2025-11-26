@@ -4,9 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, KeyboardEvent } from "react";
-import { User, CheckCircle2, XCircle, Loader2, Edit2 } from "lucide-react";
+import { useState, useEffect, KeyboardEvent, useRef } from "react";
+import { User, CheckCircle2, XCircle, Loader2, Edit2, Camera } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -42,7 +43,10 @@ const Profile = () => {
     pix_type: "",
     pix_key: "",
     affiliate_code: "",
+    avatar_url: "",
   });
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadProfile();
@@ -86,6 +90,7 @@ const Profile = () => {
         pix_type: data.pix_type || "",
         pix_key: data.pix_key || "",
         affiliate_code: data.affiliate_code || "",
+        avatar_url: data.avatar_url || "",
       });
     }
   };
@@ -302,6 +307,86 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Arquivo inválido",
+        description: "Por favor, selecione uma imagem.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      // Delete old avatar if exists
+      if (profile.avatar_url) {
+        const oldPath = profile.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`profiles/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `profiles/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+
+      toast({
+        title: "Foto atualizada!",
+        description: "Sua foto de perfil foi atualizada com sucesso.",
+      });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: "Erro ao fazer upload",
+        description: "Não foi possível atualizar sua foto. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -352,11 +437,49 @@ const Profile = () => {
 
   return (
     <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Cadastro Afiliado</h1>
-          <p className="text-muted-foreground">
-            Gerencie suas informações pessoais e de pagamento
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Cadastro Afiliado</h1>
+            <p className="text-muted-foreground">
+              Gerencie suas informações pessoais e de pagamento
+            </p>
+          </div>
+          
+          {/* Avatar Section */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={profile.avatar_url} alt={profile.name} />
+                <AvatarFallback className="text-2xl">
+                  {profile.name?.charAt(0)?.toUpperCase() || <User className="h-8 w-8" />}
+                </AvatarFallback>
+              </Avatar>
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-lg"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+              >
+                {uploadingAvatar ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Camera className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+            <p className="text-xs text-muted-foreground text-center">
+              Clique para alterar<br />foto de perfil
+            </p>
+          </div>
         </div>
 
         <UsernameEditDialog
