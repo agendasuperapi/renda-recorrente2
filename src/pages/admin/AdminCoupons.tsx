@@ -54,6 +54,7 @@ const AdminCoupons = () => {
   const [editingCoupon, setEditingCoupon] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateInputValue, setDateInputValue] = useState("");
   const queryClient = useQueryClient();
 
@@ -280,7 +281,12 @@ const AdminCoupons = () => {
         selectedProduct === "all" || 
         coupon.product_id === selectedProduct;
       
-      return matchesSearch && matchesProduct;
+      const matchesStatus = 
+        statusFilter === "all" || 
+        (statusFilter === "active" && coupon.is_active) ||
+        (statusFilter === "inactive" && !coupon.is_active);
+      
+      return matchesSearch && matchesProduct && matchesStatus;
     }
   );
 
@@ -659,7 +665,7 @@ const AdminCoupons = () => {
 
       <Card>
         <CardHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -680,6 +686,16 @@ const AdminCoupons = () => {
                     {product.nome}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrar por status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="active">Ativo</SelectItem>
+                <SelectItem value="inactive">Inativo</SelectItem>
               </SelectContent>
             </Select>
           </div>
