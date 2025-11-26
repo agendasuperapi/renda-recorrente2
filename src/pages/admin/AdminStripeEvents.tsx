@@ -158,6 +158,7 @@ const AdminStripeEvents = () => {
       "invoice.paid": "bg-success text-success-foreground",
       "invoice.payment_failed": "bg-destructive text-destructive-foreground",
       "payment_method.attached": "bg-warning text-white",
+      "customer.created": "bg-secondary text-secondary-foreground",
     };
 
     return (
