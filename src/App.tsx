@@ -32,6 +32,8 @@ import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
 import AdminCpfApis from "./pages/admin/AdminCpfApis";
 import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminPayments from "./pages/admin/AdminPayments";
+import Payments from "./pages/Payments";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
@@ -67,6 +69,7 @@ const App = () => (
               <Route path="/activities" element={<Activities />} />
               <Route path="/coupons" element={<Coupons />} />
               <Route path="/withdrawals" element={<Withdrawals />} />
+              <Route path="/payments" element={<Payments />} />
               <Route path="/plan" element={<Plan />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -78,6 +81,7 @@ const App = () => (
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
               <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
