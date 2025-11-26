@@ -715,7 +715,7 @@ const AdminCoupons = () => {
                 </TableRow>
               ) : (
                 filteredCoupons.map((coupon: any) => (
-                  <TableRow key={coupon.id}>
+                  <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
                     <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                     <TableCell>
                       <div>
@@ -742,7 +742,10 @@ const AdminCoupons = () => {
                       {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={coupon.is_active ? "default" : "secondary"}>
+                      <Badge 
+                        variant={coupon.is_active ? "default" : "secondary"}
+                        className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900" : ""}
+                      >
                         {coupon.is_active ? "Ativo" : "Inativo"}
                       </Badge>
                     </TableCell>
