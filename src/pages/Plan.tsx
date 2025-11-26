@@ -302,21 +302,8 @@ const Plan = () => {
                   </Badge>
                 </div>
 
-                {/* Icon */}
-                <div className="flex justify-center mt-4 mb-6">
-                  {product ? (
-                    <img 
-                      src={theme === 'dark' ? product.icone_dark : product.icone_light} 
-                      alt="Plan icon"
-                      className="w-20 h-20 object-contain rounded-full"
-                    />
-                  ) : (
-                    <Users className="w-10 h-10 text-primary" />
-                  )}
-                </div>
-
                 {/* Plan Name */}
-                <h3 className="text-primary text-2xl font-bold text-center mb-6">
+                <h3 className="text-primary text-2xl font-bold text-center mb-6 mt-8">
                   {plan.name}
                 </h3>
 
