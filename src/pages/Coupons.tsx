@@ -164,6 +164,23 @@ const Coupons = () => {
     return couponCode ? cleanUsername + couponCode.toUpperCase().replace(/\s/g, "") : cleanUsername;
   };
 
+  const getAffiliateLink = (coupon: any) => {
+    if (!coupon.products?.site_landingpage) return null;
+    
+    // Se o cupom está ativado, usa o custom_code real
+    if (coupon.activatedCoupon?.custom_code) {
+      return `${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon.custom_code}`;
+    }
+    
+    // Se não está ativado mas tem username, mostra preview
+    if (profile?.username) {
+      const previewCode = generateCustomCode(profile.username, coupon.code, coupon.is_primary);
+      return `${coupon.products.site_landingpage}/cupom/${previewCode}`;
+    }
+    
+    return null;
+  };
+
   const handleActivateCoupon = (couponId: string, couponCode: string, isPrimary: boolean) => {
     if (!profile?.username) {
       toast({
@@ -198,7 +215,6 @@ const Coupons = () => {
     ?.filter(coupon => productFilter === "all" || coupon.product_id === productFilter)
     ?.map(coupon => {
       const activatedCoupon = activatedCouponsMap.get(coupon.id);
-      console.log('Debug Cupom:', coupon.name, 'site_landingpage:', coupon.products?.site_landingpage, 'custom_code:', activatedCoupon?.custom_code);
       return {
         ...coupon,
         activatedCoupon,
@@ -360,20 +376,22 @@ const Coupons = () => {
                           <div className="flex items-center gap-2">
                             {isActivated ? (
                               <>
+                              <div className="flex flex-wrap gap-2">
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                                  onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary))}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
                                   Copiar Código
                                 </Button>
-                                {coupon.products?.site_landingpage && coupon.activatedCoupon?.custom_code && (
+                                {getAffiliateLink(coupon) && (
                                   <>
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => handleCopy(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`)}
+                                      onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                                      disabled={!coupon.activatedCoupon}
                                     >
                                       <Copy className="h-4 w-4 mr-2" />
                                       Copiar Link
@@ -381,13 +399,20 @@ const Coupons = () => {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
+                                      onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')}
+                                      disabled={!coupon.activatedCoupon}
                                     >
                                       <ExternalLink className="h-4 w-4 mr-2" />
                                       Abrir Link
                                     </Button>
                                   </>
                                 )}
+                                {!coupon.activatedCoupon && getAffiliateLink(coupon) && (
+                                  <p className="text-xs text-muted-foreground w-full mt-1">
+                                    Link após liberação: {getAffiliateLink(coupon)}
+                                  </p>
+                                )}
+                              </div>
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -473,20 +498,22 @@ const Coupons = () => {
                     <div className="flex items-center gap-2">
                       {isActivated ? (
                         <>
+                        <div className="flex flex-wrap gap-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                            onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary))}
                           >
                             <Copy className="h-4 w-4 mr-2" />
                             Copiar Código
                           </Button>
-                          {coupon.products?.site_landingpage && coupon.activatedCoupon?.custom_code && (
+                          {getAffiliateLink(coupon) && (
                             <>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleCopy(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`)}
+                                onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                                disabled={!coupon.activatedCoupon}
                               >
                                 <Copy className="h-4 w-4 mr-2" />
                                 Copiar Link
@@ -494,13 +521,20 @@ const Coupons = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
+                                onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')}
+                                disabled={!coupon.activatedCoupon}
                               >
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Abrir Link
                               </Button>
                             </>
                           )}
+                          {!coupon.activatedCoupon && getAffiliateLink(coupon) && (
+                            <p className="text-xs text-muted-foreground w-full mt-1">
+                              Link após liberação: {getAffiliateLink(coupon)}
+                            </p>
+                          )}
+                        </div>
                           <Button
                             variant="outline"
                             size="sm"
