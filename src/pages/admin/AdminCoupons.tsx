@@ -765,7 +765,7 @@ const AdminCoupons = () => {
                       </TableCell>
                     </TableRow>
                     {coupon.description && (
-                      <TableRow key={`${coupon.id}-description`} className="border-t-0">
+                      <TableRow key={`${coupon.id}-description`} className="border-0 hover:bg-transparent">
                         <TableCell colSpan={10} className="text-sm text-muted-foreground pt-0 pb-4">
                           {coupon.description}
                         </TableCell>
