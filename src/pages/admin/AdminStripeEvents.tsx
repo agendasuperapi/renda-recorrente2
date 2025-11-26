@@ -876,11 +876,11 @@ const AdminStripeEvents = () => {
                       <p className="text-sm font-medium text-muted-foreground mb-2">
                         Detalhes do Cancelamento
                       </p>
-                      <ScrollArea className="max-h-[200px] rounded-md border bg-muted/50 p-4">
+                      <div className="max-h-[200px] overflow-auto rounded-md border bg-muted/50 p-4">
                         <pre className="text-xs whitespace-pre-wrap break-all">
                           {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
                         </pre>
-                      </ScrollArea>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -899,11 +899,11 @@ const AdminStripeEvents = () => {
                       Copiar
                     </Button>
                   </div>
-                  <ScrollArea className="max-h-[300px] rounded-md border bg-muted/50 p-4">
+                  <div className="max-h-[300px] overflow-auto rounded-md border bg-muted/50 p-4">
                     <pre className="text-xs whitespace-pre-wrap break-all">
                       {JSON.stringify(selectedEvent.event_data, null, 2)}
                     </pre>
-                  </ScrollArea>
+                  </div>
                 </div>
               </TabsContent>
               
@@ -1001,11 +1001,11 @@ const AdminStripeEvents = () => {
                       <p className="text-sm font-medium text-muted-foreground mb-2">
                         Detalhes do Cancelamento (JSON)
                       </p>
-                      <ScrollArea className="max-h-[200px] rounded-md border bg-muted/50 p-4">
+                      <div className="max-h-[200px] overflow-auto rounded-md border bg-muted/50 p-4">
                         <pre className="text-xs whitespace-pre-wrap break-all">
                           {JSON.stringify((subscriptionData as any).cancellation_details, null, 2)}
                         </pre>
-                      </ScrollArea>
+                      </div>
                     </div>
                   )}
                   <div>
@@ -1027,11 +1027,11 @@ const AdminStripeEvents = () => {
                     <p className="text-sm font-medium text-muted-foreground mb-2">
                       Dados do Método de Pagamento
                     </p>
-                    <ScrollArea className="max-h-[200px] rounded-md border bg-muted/50 p-4">
+                    <div className="max-h-[200px] overflow-auto rounded-md border bg-muted/50 p-4">
                       <pre className="text-xs whitespace-pre-wrap break-all">
                         {JSON.stringify(subscriptionData.payment_method_data, null, 2)}
                       </pre>
-                    </ScrollArea>
+                    </div>
                   </div>
                 )}
               </div>
