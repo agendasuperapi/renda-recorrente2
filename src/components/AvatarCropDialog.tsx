@@ -39,8 +39,8 @@ const getCroppedImg = async (
     throw new Error("No 2d context");
   }
 
-  // Set canvas size to desired output size (300x300 for avatar)
-  const maxSize = 300;
+  // Set canvas size to desired output size (500x500 for avatar)
+  const maxSize = 500;
   canvas.width = maxSize;
   canvas.height = maxSize;
 
@@ -68,7 +68,7 @@ const getCroppedImg = async (
         resolve(blob);
       },
       "image/jpeg",
-      0.85 // 85% quality for good balance between size and quality
+      0.95 // 95% quality for high quality images
     );
   });
 };
