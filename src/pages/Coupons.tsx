@@ -153,6 +153,32 @@ const Coupons = () => {
     },
   });
 
+  // Activate coupon mutation
+  const reactivateCoupon = useMutation({
+    mutationFn: async (affiliateCouponId: string) => {
+      const { error } = await supabase
+        .from("affiliate_coupons")
+        .update({ is_active: true })
+        .eq("id", affiliateCouponId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activated-coupons"] });
+      toast({
+        title: "Cupom ativado",
+        description: "O cupom foi ativado com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao ativar cupom",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
   const generateCustomCode = (username: string, couponCode?: string, isPrimary?: boolean) => {
     const cleanUsername = username.toUpperCase().replace(/\s/g, "");
     // Se for cupom principal, retorna apenas o username
@@ -324,6 +350,7 @@ const Coupons = () => {
                   <div className="space-y-4">
                     {productData.coupons.map((coupon) => {
                       const isActivated = !!coupon.activatedCoupon;
+                      const isActive = coupon.activatedCoupon?.is_active;
                       const customCode = profile?.username 
                         ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
                         : "";
@@ -331,7 +358,11 @@ const Coupons = () => {
                       return (
                         <div
                           key={coupon.id}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                          className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                            isActivated && !isActive 
+                              ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" 
+                              : "hover:bg-accent/50"
+                          }`}
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
@@ -342,15 +373,20 @@ const Coupons = () => {
                                 </Badge>
                               )}
                               <Badge variant="outline">
-                                {coupon.type === "percentage" && `${coupon.value}% OFF`}
-                                {coupon.type === "days" && `${coupon.value} dias`}
-                                {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
+                              {coupon.type === "percentage" && `${coupon.value}% OFF`}
+                              {coupon.type === "days" && `${coupon.value} dias`}
+                              {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
+                            </Badge>
+                            {isActivated && isActive && (
+                              <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
+                                Ativo
                               </Badge>
-                              {isActivated && coupon.activatedCoupon?.is_active && (
-                                <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
-                                  Ativo
-                                </Badge>
-                              )}
+                            )}
+                            {isActivated && !isActive && (
+                              <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">
+                                Inativo
+                              </Badge>
+                            )}
                             </div>
                             <p className="text-sm text-muted-foreground mb-2">
                               {coupon.description || "Sem descrição"}
@@ -417,15 +453,28 @@ const Coupons = () => {
                                   </>
                                 )}
                               </div>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
-                                  disabled={deactivateCoupon.isPending}
-                                >
-                                  <XCircle className="h-4 w-4 mr-2" />
-                                  Inativar
-                                </Button>
+                                {isActive ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                    disabled={deactivateCoupon.isPending}
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Inativar
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900"
+                                    onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                    disabled={reactivateCoupon.isPending}
+                                  >
+                                    <Check className="h-4 w-4 mr-2" />
+                                    Ativar
+                                  </Button>
+                                )}
                               </>
                             ) : (
                               <Button
@@ -448,6 +497,7 @@ const Coupons = () => {
             <div className="space-y-4">
               {allCoupons.map((coupon) => {
                 const isActivated = !!coupon.activatedCoupon;
+                const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username 
                   ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
                   : "";
@@ -455,7 +505,11 @@ const Coupons = () => {
                 return (
                   <div
                     key={coupon.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                    className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                      isActivated && !isActive 
+                        ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" 
+                        : "hover:bg-accent/50"
+                    }`}
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -473,9 +527,14 @@ const Coupons = () => {
                         {coupon.products && (
                           <Badge variant="secondary">{coupon.products.nome}</Badge>
                         )}
-                        {isActivated && coupon.activatedCoupon?.is_active && (
+                        {isActivated && isActive && (
                           <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
                             Ativo
+                          </Badge>
+                        )}
+                        {isActivated && !isActive && (
+                          <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">
+                            Inativo
                           </Badge>
                         )}
                       </div>
@@ -544,15 +603,28 @@ const Coupons = () => {
                              </>
                            )}
                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
-                            disabled={deactivateCoupon.isPending}
-                          >
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Inativar
-                          </Button>
+                          {isActive ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                              disabled={deactivateCoupon.isPending}
+                            >
+                              <XCircle className="h-4 w-4 mr-2" />
+                              Inativar
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900"
+                              onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                              disabled={reactivateCoupon.isPending}
+                            >
+                              <Check className="h-4 w-4 mr-2" />
+                              Ativar
+                            </Button>
+                          )}
                         </>
                       ) : (
                         <Button
