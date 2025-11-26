@@ -39,6 +39,7 @@ interface Subscription {
   current_period_end: string;
   trial_end: string | null;
   stripe_subscription_id: string | null;
+  cancel_at_period_end: boolean | null;
   plan: Plan;
 }
 
@@ -246,6 +247,28 @@ const Plan = () => {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Cancellation Notice */}
+      {subscription?.cancel_at_period_end && (
+        <Alert className="border-orange-500 bg-orange-50 dark:bg-orange-950/30">
+          <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-500" />
+          <AlertDescription className="text-orange-900 dark:text-orange-200">
+            <div className="space-y-2">
+              <p className="font-semibold">Cancelamento solicitado</p>
+              <p>
+                Você solicitou o cancelamento da sua assinatura. Ela permanecerá ativa até{" "}
+                <span className="font-semibold">
+                  {format(new Date(subscription.current_period_end), "dd/MM/yyyy", { locale: ptBR })}
+                </span>
+                {" "}e você poderá usar todos os benefícios do plano até esta data.
+              </p>
+              <p>
+                Caso deseje continuar com seu plano e desfazer o cancelamento, você pode reativá-lo a qualquer momento através do botão "Gerenciar Assinatura" abaixo.
+              </p>
+            </div>
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Plans Section */}
