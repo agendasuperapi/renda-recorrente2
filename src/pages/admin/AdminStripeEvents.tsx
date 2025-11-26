@@ -601,6 +601,18 @@ const AdminStripeEvents = () => {
                       <p className="text-sm">{subscriptionData.cancellation_comment}</p>
                     </div>
                   )}
+                  {(subscriptionData as any).cancellation_details && (
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                        Detalhes do Cancelamento (JSON)
+                      </p>
+                      <div className="rounded-md border bg-muted/50 p-4">
+                        <pre className="text-xs">
+                          {JSON.stringify((subscriptionData as any).cancellation_details, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Criado em</p>
                     <p className="text-sm">

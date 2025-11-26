@@ -1007,6 +1007,7 @@ export type Database = {
           plan_id: string | null
           processed: boolean | null
           product_id: string | null
+          stripe_subscription_id: string | null
           user_id: string | null
         }
         Insert: {
@@ -1022,6 +1023,7 @@ export type Database = {
           plan_id?: string | null
           processed?: boolean | null
           product_id?: string | null
+          stripe_subscription_id?: string | null
           user_id?: string | null
         }
         Update: {
@@ -1037,6 +1039,7 @@ export type Database = {
           plan_id?: string | null
           processed?: boolean | null
           product_id?: string | null
+          stripe_subscription_id?: string | null
           user_id?: string | null
         }
         Relationships: [
