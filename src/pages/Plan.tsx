@@ -308,7 +308,7 @@ const Plan = () => {
                 </h3>
 
                 {/* Features */}
-                <ul className="space-y-3 mb-8 flex-grow">
+                <ul className="space-y-2 mb-8 flex-grow">
                   {features.map((feature) => {
                     const IconComponent = getIconComponent(feature.icon);
                     const hasPlanFeatures = Array.isArray(plan.plan_features) && plan.plan_features.length > 0;
