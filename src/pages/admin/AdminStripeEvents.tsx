@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -20,6 +20,7 @@ const AdminStripeEvents = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showCancelAtPeriodEnd, setShowCancelAtPeriodEnd] = useState(false);
 
   // Debounce search term
   useEffect(() => {
@@ -31,7 +32,7 @@ const AdminStripeEvents = () => {
   }, [searchTerm]);
 
   const { data: events, isLoading } = useQuery({
-    queryKey: ["stripe-events", debouncedSearch],
+    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd],
     queryFn: async () => {
       let query = supabase
         .from("stripe_events")
@@ -47,6 +48,15 @@ const AdminStripeEvents = () => {
 
       const { data, error } = await query;
       if (error) throw error;
+      
+      // Filtrar client-side para cancel_at_period_end
+      if (showCancelAtPeriodEnd && data) {
+        return data.filter((event: any) => 
+          event.event_type === 'customer.subscription.updated' && 
+          event.event_data?.cancel_at_period_end === true
+        );
+      }
+      
       return data;
     },
     refetchOnMount: false,
@@ -117,14 +127,37 @@ const AdminStripeEvents = () => {
 
       <Card>
         <CardHeader>
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por ID do evento, tipo ou email..."
-              className="pl-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por ID do evento, tipo ou email..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant={showCancelAtPeriodEnd ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowCancelAtPeriodEnd(!showCancelAtPeriodEnd)}
+                className="gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                Cancelamento Agendado
+                {showCancelAtPeriodEnd && (
+                  <Badge variant="secondary" className="ml-1">
+                    Ativo
+                  </Badge>
+                )}
+              </Button>
+              {showCancelAtPeriodEnd && (
+                <p className="text-xs text-muted-foreground">
+                  Mostrando apenas assinaturas que serão canceladas no final do período
+                </p>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -248,6 +281,15 @@ const AdminStripeEvents = () => {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">User ID</p>
                     <p className="text-sm font-mono text-xs break-all">{selectedEvent.user_id}</p>
+                  </div>
+                )}
+                {selectedEvent.event_type === 'customer.subscription.updated' && 
+                 selectedEvent.event_data?.cancel_at_period_end && (
+                  <div className="col-span-2">
+                    <Badge variant="destructive" className="gap-1">
+                      <Clock className="w-3 h-3" />
+                      Cancelamento Agendado para o Final do Período
+                    </Badge>
                   </div>
                 )}
               </div>
