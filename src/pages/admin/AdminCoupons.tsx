@@ -452,17 +452,54 @@ const AdminCoupons = () => {
                               placeholder="DD/MM/AAAA"
                               value={field.value ? format(field.value, "dd/MM/yyyy") : ""}
                               onChange={(e) => {
-                                const value = e.target.value;
-                                // Parse DD/MM/YYYY format
-                                const parts = value.split('/');
-                                if (parts.length === 3) {
-                                  const [day, month, year] = parts;
-                                  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-                                  if (!isNaN(date.getTime())) {
+                                const value = e.target.value.replace(/\D/g, '');
+                                let formatted = value;
+                                
+                                if (value.length >= 2) {
+                                  formatted = value.slice(0, 2) + '/' + value.slice(2);
+                                }
+                                if (value.length >= 4) {
+                                  formatted = value.slice(0, 2) + '/' + value.slice(2, 4) + '/' + value.slice(4, 8);
+                                }
+                                
+                                // Try to parse complete date
+                                if (value.length === 8) {
+                                  const day = parseInt(value.slice(0, 2));
+                                  const month = parseInt(value.slice(2, 4));
+                                  const year = parseInt(value.slice(4, 8));
+                                  const date = new Date(year, month - 1, day);
+                                  
+                                  if (!isNaN(date.getTime()) && 
+                                      date.getDate() === day && 
+                                      date.getMonth() === month - 1 && 
+                                      date.getFullYear() === year) {
                                     field.onChange(date);
+                                    return;
                                   }
                                 }
+                                
+                                // If not complete or invalid, just update the display
+                                e.target.value = formatted;
                               }}
+                              onBlur={(e) => {
+                                const value = e.target.value.replace(/\D/g, '');
+                                if (value.length === 8) {
+                                  const day = parseInt(value.slice(0, 2));
+                                  const month = parseInt(value.slice(2, 4));
+                                  const year = parseInt(value.slice(4, 8));
+                                  const date = new Date(year, month - 1, day);
+                                  
+                                  if (!isNaN(date.getTime()) && 
+                                      date.getDate() === day && 
+                                      date.getMonth() === month - 1 && 
+                                      date.getFullYear() === year) {
+                                    field.onChange(date);
+                                  }
+                                } else if (value.length === 0) {
+                                  field.onChange(undefined);
+                                }
+                              }}
+                              maxLength={10}
                               className="flex-1"
                             />
                           </FormControl>
