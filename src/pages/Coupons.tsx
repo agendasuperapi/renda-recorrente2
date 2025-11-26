@@ -88,12 +88,22 @@ const Coupons = () => {
     mutationFn: async ({ couponId, customCode }: { couponId: string; customCode: string }) => {
       if (!profile?.id) throw new Error("Perfil não encontrado");
 
+      // Get the coupon's product_id
+      const { data: couponData, error: couponError } = await supabase
+        .from("coupons")
+        .select("product_id")
+        .eq("id", couponId)
+        .single();
+
+      if (couponError) throw couponError;
+
       const { data, error } = await supabase
         .from("affiliate_coupons")
         .insert({
           affiliate_id: profile.id,
           coupon_id: couponId,
           custom_code: customCode,
+          product_id: couponData.product_id,
           is_active: true,
         })
         .select()
