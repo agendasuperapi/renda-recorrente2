@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Ticket, Copy, ExternalLink, Check } from "lucide-react";
+import { Ticket, Copy, ExternalLink, Check, XCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,6 +118,32 @@ const Coupons = () => {
     },
   });
 
+  // Deactivate coupon mutation
+  const deactivateCoupon = useMutation({
+    mutationFn: async (affiliateCouponId: string) => {
+      const { error } = await supabase
+        .from("affiliate_coupons")
+        .update({ is_active: false })
+        .eq("id", affiliateCouponId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activated-coupons"] });
+      toast({
+        title: "Cupom inativado",
+        description: "O cupom foi inativado com sucesso",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao inativar cupom",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive",
+      });
+    },
+  });
+
   const generateCustomCode = (username: string, couponCode?: string, isPrimary?: boolean) => {
     const cleanUsername = username.toUpperCase().replace(/\s/g, "");
     // Se for cupom principal, retorna apenas o username
@@ -152,22 +178,21 @@ const Coupons = () => {
 
   const isLoading = profileLoading || couponsLoading || activatedLoading;
 
-  // Filter out coupons that are already activated
-  const activatedCouponIds = activatedCoupons?.map(ac => ac.coupon_id) || [];
-  const nonActivatedCoupons = availableCoupons
-    ?.filter(coupon => !activatedCouponIds.includes(coupon.id))
+  // Create a map of activated coupons by coupon_id for quick lookup
+  const activatedCouponsMap = new Map(
+    activatedCoupons?.map(ac => [ac.coupon_id, ac]) || []
+  );
+
+  // All coupons with activation status
+  const allCoupons = availableCoupons
     ?.filter(coupon => productFilter === "all" || coupon.product_id === productFilter)
+    ?.map(coupon => ({
+      ...coupon,
+      activatedCoupon: activatedCouponsMap.get(coupon.id),
+    }))
     ?.sort((a, b) => {
       if (a.is_primary && !b.is_primary) return -1;
       if (!a.is_primary && b.is_primary) return 1;
-      return 0;
-    }) || [];
-
-  const filteredActivatedCoupons = activatedCoupons
-    ?.filter(ac => productFilter === "all" || ac.coupons?.product_id === productFilter)
-    ?.sort((a, b) => {
-      if (a.coupons?.is_primary && !b.coupons?.is_primary) return -1;
-      if (!a.coupons?.is_primary && b.coupons?.is_primary) return 1;
       return 0;
     }) || [];
 
@@ -204,12 +229,12 @@ const Coupons = () => {
         </p>
       </div>
 
-      {/* Available Coupons to Activate */}
+      {/* All Coupons */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Ticket className="h-5 w-5" />
-            Cupons Disponíveis
+            Cupons e Links
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -228,14 +253,15 @@ const Coupons = () => {
               </SelectContent>
             </Select>
           </div>
-          {nonActivatedCoupons.length === 0 ? (
+          {allCoupons.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p>Todos os cupons disponíveis já foram liberados</p>
+              <p>Nenhum cupom disponível</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {nonActivatedCoupons.map((coupon) => {
+              {allCoupons.map((coupon) => {
+                const isActivated = !!coupon.activatedCoupon;
                 const customCode = profile?.username 
                   ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
                   : "";
@@ -261,79 +287,7 @@ const Coupons = () => {
                         {coupon.products && (
                           <Badge variant="secondary">{coupon.products.nome}</Badge>
                         )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {coupon.description || "Sem descrição"}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          Seu cupom será:
-                        </span>
-                        <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                          {customCode}
-                        </code>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false)}
-                      disabled={activateCoupon.isPending || !profile?.username}
-                    >
-                      <Check className="h-4 w-4 mr-2" />
-                      Liberar Cupom
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Activated Coupons */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Ticket className="h-5 w-5" />
-            Seus Cupons Liberados
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!filteredActivatedCoupons || filteredActivatedCoupons.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p>Você ainda não liberou nenhum cupom</p>
-              <p className="text-sm mt-2">
-                Libere cupons acima para começar a divulgar
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredActivatedCoupons.map((affiliateCoupon) => {
-                const coupon = affiliateCoupon.coupons;
-                if (!coupon) return null;
-
-                return (
-                  <div
-                    key={affiliateCoupon.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold">{coupon.name}</h3>
-                        {coupon.is_primary && (
-                          <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
-                            Principal
-                          </Badge>
-                        )}
-                        <Badge variant="outline">
-                          {coupon.type === "percentage" && `${coupon.value}% OFF`}
-                          {coupon.type === "days" && `${coupon.value} dias`}
-                          {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
-                        </Badge>
-                        {coupon.products && (
-                          <Badge variant="secondary">{coupon.products.nome}</Badge>
-                        )}
-                        {affiliateCoupon.is_active && (
+                        {isActivated && coupon.activatedCoupon?.is_active && (
                           <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
                             Ativo
                           </Badge>
@@ -343,19 +297,53 @@ const Coupons = () => {
                         {coupon.description || "Sem descrição"}
                       </p>
                       <div className="flex items-center gap-2">
-                        <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
-                          {affiliateCoupon.custom_code}
-                        </code>
+                        {isActivated ? (
+                          <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
+                            {coupon.activatedCoupon?.custom_code}
+                          </code>
+                        ) : (
+                          <>
+                            <span className="text-xs text-muted-foreground">
+                              Seu cupom será:
+                            </span>
+                            <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                              {customCode}
+                            </code>
+                          </>
+                        )}
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopy(affiliateCoupon.custom_code)}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copiar
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      {isActivated ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copiar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                            disabled={deactivateCoupon.isPending}
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Inativar
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false)}
+                          disabled={activateCoupon.isPending || !profile?.username}
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Liberar Cupom
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
