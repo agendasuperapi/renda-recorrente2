@@ -37,6 +37,7 @@ const couponFormSchema = z.object({
   is_active: z.boolean().default(true),
   is_visible_to_affiliates: z.boolean().default(true),
   max_uses: z.number().optional(),
+  product_id: z.string().optional(),
 });
 
 type CouponFormValues = z.infer<typeof couponFormSchema>;
@@ -45,6 +46,7 @@ const AdminCoupons = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<string>("all");
   const queryClient = useQueryClient();
 
   const form = useForm<CouponFormValues>({
@@ -60,16 +62,32 @@ const AdminCoupons = () => {
     },
   });
 
+  const { data: products = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, nome")
+        .order("nome");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: coupons = [], isLoading } = useQuery({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coupons")
-        .select("*")
+        .select(`
+          *,
+          products!coupons_product_id_fkey(nome)
+        `)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as any[];
     },
   });
 
@@ -87,6 +105,7 @@ const AdminCoupons = () => {
           is_active: values.is_active,
           is_visible_to_affiliates: values.is_visible_to_affiliates,
           max_uses: values.max_uses,
+          product_id: values.product_id || null,
         })
         .select()
         .single();
@@ -119,6 +138,7 @@ const AdminCoupons = () => {
           is_active: values.is_active,
           is_visible_to_affiliates: values.is_visible_to_affiliates,
           max_uses: values.max_uses,
+          product_id: values.product_id || null,
         })
         .eq("id", values.id)
         .select()
@@ -177,6 +197,7 @@ const AdminCoupons = () => {
       is_active: coupon.is_active,
       is_visible_to_affiliates: coupon.is_visible_to_affiliates ?? true,
       max_uses: coupon.max_uses,
+      product_id: coupon.product_id || undefined,
     });
     setIsDialogOpen(true);
   };
@@ -188,9 +209,18 @@ const AdminCoupons = () => {
   };
 
   const filteredCoupons = coupons.filter(
-    (coupon) =>
-      coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      coupon.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (coupon: any) => {
+      const matchesSearch = 
+        coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        coupon.name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesProduct = 
+        selectedProduct === "all" || 
+        (selectedProduct === "none" && !coupon.product_id) ||
+        coupon.product_id === selectedProduct;
+      
+      return matchesSearch && matchesProduct;
+    }
   );
 
   const totalCoupons = coupons.length;
@@ -259,6 +289,32 @@ const AdminCoupons = () => {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="product_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Produto</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um produto (opcional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">Todos os produtos</SelectItem>
+                          {products.map((product) => (
+                            <SelectItem key={product.id} value={product.id}>
+                              {product.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -449,14 +505,30 @@ const AdminCoupons = () => {
 
       <Card>
         <CardHeader>
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar cupom por código ou nome..."
-              className="pl-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar cupom por código ou nome..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrar por produto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os produtos</SelectItem>
+                <SelectItem value="none">Sem produto específico</SelectItem>
+                {products.map((product) => (
+                  <SelectItem key={product.id} value={product.id}>
+                    {product.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -465,6 +537,7 @@ const AdminCoupons = () => {
               <TableRow>
                 <TableHead>Código</TableHead>
                 <TableHead>Nome</TableHead>
+                <TableHead>Produto</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Valor</TableHead>
                 <TableHead>Usos</TableHead>
@@ -482,15 +555,20 @@ const AdminCoupons = () => {
                 </TableRow>
               ) : filteredCoupons.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                     Nenhum cupom cadastrado
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredCoupons.map((coupon) => (
+                filteredCoupons.map((coupon: any) => (
                   <TableRow key={coupon.id}>
                     <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                     <TableCell>{coupon.name}</TableCell>
+                    <TableCell>
+                      {coupon.products?.nome || (
+                        <span className="text-muted-foreground">Todos</span>
+                      )}
+                    </TableCell>
                     <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
                     <TableCell>{coupon.value}</TableCell>
                     <TableCell>
