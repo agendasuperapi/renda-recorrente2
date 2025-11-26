@@ -997,6 +997,7 @@ export type Database = {
         Row: {
           created_at: string | null
           email: string | null
+          environment: string | null
           event_data: Json
           event_id: string
           event_type: string
@@ -1009,6 +1010,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           email?: string | null
+          environment?: string | null
           event_data: Json
           event_id: string
           event_type: string
@@ -1021,6 +1023,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           email?: string | null
+          environment?: string | null
           event_data?: Json
           event_id?: string
           event_type?: string
@@ -1100,6 +1103,7 @@ export type Database = {
           created_at: string | null
           current_period_end: string | null
           current_period_start: string | null
+          environment: string | null
           id: string
           payment_method_data: Json | null
           plan_id: string
@@ -1115,6 +1119,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          environment?: string | null
           id?: string
           payment_method_data?: Json | null
           plan_id: string
@@ -1130,6 +1135,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          environment?: string | null
           id?: string
           payment_method_data?: Json | null
           plan_id?: string
