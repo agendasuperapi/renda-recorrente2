@@ -76,7 +76,9 @@ export default function SignupFunnel() {
   useEffect(() => {
     if (planId) {
       fetchPlan();
-      if (import.meta.env.DEV) {
+      // Preencher automaticamente em modo DEV ou se modo desenvolvedor estiver ativo
+      const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
+      if (isDevMode) {
         fetchTestNumber();
       }
     }
@@ -127,8 +129,9 @@ export default function SignupFunnel() {
 
     setPlan(data);
 
-    // Fetch debug info in development mode
-    if (import.meta.env.DEV) {
+    // Fetch debug info in development mode or if dev mode is active
+    const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
+    if (isDevMode) {
       await fetchDebugInfo(planId!);
     }
   };
@@ -296,8 +299,9 @@ export default function SignupFunnel() {
     setLoading(true);
     
     try {
-      // Incrementar contador de teste em modo debug
-      if (import.meta.env.DEV && testNumber) {
+      // Incrementar contador de teste em modo debug ou desenvolvedor
+      const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
+      if (isDevMode && testNumber) {
         await supabase.rpc('get_next_test_number');
       }
       
@@ -337,8 +341,9 @@ export default function SignupFunnel() {
         console.log('[SignupFunnel] User authenticated:', authData.user.id);
         
         // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
-        // Em desenvolvimento, abrir em nova aba. Em produção, redirecionar na mesma aba
-        if (import.meta.env.DEV) {
+        // Em desenvolvimento ou modo dev, abrir em nova aba. Em produção, redirecionar na mesma aba
+        const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
+        if (isDevMode) {
           window.open(checkoutData.checkout_url, '_blank');
         } else {
           window.location.href = checkoutData.checkout_url;
@@ -391,17 +396,41 @@ export default function SignupFunnel() {
     );
   }
 
+  const isDevModeActive = localStorage.getItem('devMode') === 'true';
+
+  const handleDisableDevMode = () => {
+    localStorage.removeItem('devMode');
+    toast({
+      title: "🔧 Modo Desenvolvedor Desativado",
+      description: "Voltando ao modo normal",
+      duration: 3000,
+    });
+    // Recarregar a página para limpar os dados preenchidos
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="container max-w-2xl mx-auto">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate("/")} 
-          className="mb-4"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar para página inicial
-        </Button>
+        <div className="flex justify-between items-center mb-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/")} 
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar para página inicial
+          </Button>
+          
+          {isDevModeActive && (
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={handleDisableDevMode}
+            >
+              🔧 Desativar Modo Dev
+            </Button>
+          )}
+        </div>
         
         {renderProgressBar()}
 
