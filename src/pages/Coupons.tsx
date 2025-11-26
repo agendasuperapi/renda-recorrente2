@@ -169,13 +169,13 @@ const Coupons = () => {
     
     // Se o cupom está ativado, usa o custom_code real
     if (coupon.activatedCoupon?.custom_code) {
-      return `${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon.custom_code}`;
+      return `${coupon.products.site_landingpage}/${coupon.activatedCoupon.custom_code}`;
     }
     
     // Se não está ativado mas tem username, mostra preview
     if (profile?.username) {
       const previewCode = generateCustomCode(profile.username, coupon.code, coupon.is_primary);
-      return `${coupon.products.site_landingpage}/cupom/${previewCode}`;
+      return `${coupon.products.site_landingpage}/${previewCode}`;
     }
     
     return null;
@@ -356,20 +356,30 @@ const Coupons = () => {
                             <p className="text-sm text-muted-foreground mb-2">
                               {coupon.description || "Sem descrição"}
                             </p>
-                            <div className="flex items-center gap-2">
-                              {isActivated ? (
-                                <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
-                                  {coupon.activatedCoupon?.custom_code}
-                                </code>
-                              ) : (
-                                <>
-                                  <span className="text-xs text-muted-foreground">
-                                    Seu cupom será:
-                                  </span>
-                                  <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                                    {customCode}
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                {isActivated ? (
+                                  <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
+                                    {coupon.activatedCoupon?.custom_code}
                                   </code>
-                                </>
+                                ) : (
+                                  <>
+                                    <span className="text-xs text-muted-foreground">
+                                      Seu cupom será:
+                                    </span>
+                                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                      {customCode}
+                                    </code>
+                                  </>
+                                )}
+                              </div>
+                              {getAffiliateLink(coupon) && (
+                                <div className="text-xs text-muted-foreground">
+                                  <span className="font-semibold">Link: </span>
+                                  <code className="bg-muted px-2 py-1 rounded">
+                                    {getAffiliateLink(coupon)}
+                                  </code>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -406,11 +416,6 @@ const Coupons = () => {
                                       Abrir Link
                                     </Button>
                                   </>
-                                )}
-                                {!coupon.activatedCoupon && getAffiliateLink(coupon) && (
-                                  <p className="text-xs text-muted-foreground w-full mt-1">
-                                    Link após liberação: {getAffiliateLink(coupon)}
-                                  </p>
                                 )}
                               </div>
                                 <Button
@@ -478,22 +483,32 @@ const Coupons = () => {
                       <p className="text-sm text-muted-foreground mb-2">
                         {coupon.description || "Sem descrição"}
                       </p>
-                      <div className="flex items-center gap-2">
-                        {isActivated ? (
-                          <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
-                            {coupon.activatedCoupon?.custom_code}
-                          </code>
-                        ) : (
-                          <>
-                            <span className="text-xs text-muted-foreground">
-                              Seu cupom será:
-                            </span>
-                            <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                              {customCode}
-                            </code>
-                          </>
-                        )}
-                      </div>
+                       <div className="space-y-2">
+                         <div className="flex items-center gap-2">
+                           {isActivated ? (
+                             <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
+                               {coupon.activatedCoupon?.custom_code}
+                             </code>
+                           ) : (
+                             <>
+                               <span className="text-xs text-muted-foreground">
+                                 Seu cupom será:
+                               </span>
+                               <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                 {customCode}
+                               </code>
+                             </>
+                           )}
+                         </div>
+                         {getAffiliateLink(coupon) && (
+                           <div className="text-xs text-muted-foreground">
+                             <span className="font-semibold">Link: </span>
+                             <code className="bg-muted px-2 py-1 rounded">
+                               {getAffiliateLink(coupon)}
+                             </code>
+                           </div>
+                         )}
+                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {isActivated ? (
@@ -527,14 +542,9 @@ const Coupons = () => {
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 Abrir Link
                               </Button>
-                            </>
-                          )}
-                          {!coupon.activatedCoupon && getAffiliateLink(coupon) && (
-                            <p className="text-xs text-muted-foreground w-full mt-1">
-                              Link após liberação: {getAffiliateLink(coupon)}
-                            </p>
-                          )}
-                        </div>
+                             </>
+                           )}
+                         </div>
                           <Button
                             variant="outline"
                             size="sm"
