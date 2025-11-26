@@ -876,10 +876,15 @@ const AdminStripeEvents = () => {
                       <p className="text-sm font-medium text-muted-foreground mb-2">
                         Detalhes do Cancelamento
                       </p>
-                      <div className="rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                      <div className="rounded-md border bg-muted/50 p-4 overflow-hidden w-full">
                         <pre 
-                          className="text-xs break-all whitespace-pre-wrap"
-                          style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                          className="text-xs whitespace-pre-wrap w-full"
+                          style={{ 
+                            wordWrap: 'break-word',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            maxWidth: '100%'
+                          }}
                         >
                           {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
                         </pre>
@@ -902,10 +907,15 @@ const AdminStripeEvents = () => {
                       Copiar
                     </Button>
                   </div>
-                  <ScrollArea className="h-[300px] rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                  <ScrollArea className="h-[300px] rounded-md border bg-muted/50 p-4 w-full">
                     <pre 
-                      className="text-xs break-all whitespace-pre-wrap"
-                      style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                      className="text-xs whitespace-pre-wrap w-full"
+                      style={{ 
+                        wordWrap: 'break-word',
+                        overflowWrap: 'break-word',
+                        wordBreak: 'break-word',
+                        maxWidth: '100%'
+                      }}
                     >
                       {JSON.stringify(selectedEvent.event_data, null, 2)}
                     </pre>
@@ -1007,10 +1017,15 @@ const AdminStripeEvents = () => {
                       <p className="text-sm font-medium text-muted-foreground mb-2">
                         Detalhes do Cancelamento (JSON)
                       </p>
-                      <div className="rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                      <div className="rounded-md border bg-muted/50 p-4 overflow-hidden w-full">
                         <pre 
-                          className="text-xs break-all whitespace-pre-wrap"
-                          style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                          className="text-xs whitespace-pre-wrap w-full"
+                          style={{ 
+                            wordWrap: 'break-word',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            maxWidth: '100%'
+                          }}
                         >
                           {JSON.stringify((subscriptionData as any).cancellation_details, null, 2)}
                         </pre>
@@ -1036,10 +1051,15 @@ const AdminStripeEvents = () => {
                     <p className="text-sm font-medium text-muted-foreground mb-2">
                       Dados do Método de Pagamento
                     </p>
-                    <div className="rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                    <div className="rounded-md border bg-muted/50 p-4 overflow-hidden w-full">
                       <pre 
-                        className="text-xs break-all whitespace-pre-wrap"
-                        style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                        className="text-xs whitespace-pre-wrap w-full"
+                        style={{ 
+                          wordWrap: 'break-word',
+                          overflowWrap: 'break-word',
+                          wordBreak: 'break-word',
+                          maxWidth: '100%'
+                        }}
                       >
                         {JSON.stringify(subscriptionData.payment_method_data, null, 2)}
                       </pre>
