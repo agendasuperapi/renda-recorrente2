@@ -186,6 +186,7 @@ serve(async (req) => {
 
         const updateData: any = {
           status: subscription.status,
+          cancel_at_period_end: subscription.cancel_at_period_end || false,
         };
 
         const currentStart = toIsoFromUnix(subscription.current_period_start as number | null | undefined);
