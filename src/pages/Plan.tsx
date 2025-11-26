@@ -193,7 +193,7 @@ const Plan = () => {
     <div className="space-y-8">
       {/* Current Plan Info */}
       {subscription && (
-        <Card>
+        <Card className={subscription.cancel_at_period_end ? "border-destructive" : ""}>
           <CardHeader>
             <CardTitle>Plano Atual</CardTitle>
             <CardDescription>Informações sobre sua assinatura</CardDescription>
@@ -219,11 +219,11 @@ const Plan = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-primary mt-0.5" />
+                <AlertCircle className={`w-5 h-5 mt-0.5 ${subscription.cancel_at_period_end ? "text-destructive" : "text-primary"}`} />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Situação</p>
-                  <Badge variant={subscription.status === "active" ? "default" : "secondary"}>
-                    {subscription.status === "active" ? "Ativo" : subscription.status}
+                  <Badge variant={subscription.cancel_at_period_end ? "destructive" : subscription.status === "active" ? "default" : "secondary"}>
+                    {subscription.cancel_at_period_end ? "Cancelamento solicitado" : subscription.status === "active" ? "Ativo" : subscription.status}
                   </Badge>
                 </div>
               </div>
