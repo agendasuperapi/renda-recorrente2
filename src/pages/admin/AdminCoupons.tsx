@@ -445,36 +445,49 @@ const AdminCoupons = () => {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Data de Validade</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "dd/MM/yyyy")
-                                ) : (
-                                  <span>Selecione uma data</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) => date < new Date()}
-                              initialFocus
-                              className="pointer-events-auto"
+                        <div className="flex gap-2">
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="DD/MM/AAAA"
+                              value={field.value ? format(field.value, "dd/MM/yyyy") : ""}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // Parse DD/MM/YYYY format
+                                const parts = value.split('/');
+                                if (parts.length === 3) {
+                                  const [day, month, year] = parts;
+                                  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                                  if (!isNaN(date.getTime())) {
+                                    field.onChange(date);
+                                  }
+                                }
+                              }}
+                              className="flex-1"
                             />
-                          </PopoverContent>
-                        </Popover>
+                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                              >
+                                <CalendarIcon className="h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
