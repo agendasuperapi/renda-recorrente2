@@ -70,6 +70,7 @@ serve(async (req) => {
     let metadata: any = {};
     let eventEmail = null;
     let cancellationDetails = null;
+    let eventReason = null;
 
     // Lógica específica por tipo de evento
     if (event.type.startsWith('invoice.')) {
@@ -80,6 +81,8 @@ serve(async (req) => {
       eventEmail = metadata.user_email || 
                    eventObject.customer_email || 
                    null;
+      // Extrair billing_reason para eventos de invoice
+      eventReason = eventObject.billing_reason || null;
     } else {
       // Para outros eventos, metadata está no objeto raiz
       metadata = eventObject.metadata || {};
@@ -88,6 +91,8 @@ serve(async (req) => {
                    eventObject.billing_details?.email ||
                    eventObject.customer_details?.email ||
                    null;
+      // Extrair reason para outros tipos de eventos
+      eventReason = eventObject.reason || null;
     }
 
     // Extrair dados de cancelamento se existirem
@@ -97,6 +102,10 @@ serve(async (req) => {
         comment: eventObject.cancellation_details.comment || null,
         feedback: eventObject.cancellation_details.feedback || null,
       };
+      // Se não encontramos reason antes, tentar pegar do cancellation_details
+      if (!eventReason && eventObject.cancellation_details.reason) {
+        eventReason = eventObject.cancellation_details.reason;
+      }
     }
     
     console.log(`[Stripe Webhook] Metadata:`, {
@@ -119,6 +128,7 @@ serve(async (req) => {
         email: eventEmail,
         environment: environment,
         cancellation_details: cancellationDetails,
+        reason: eventReason,
         processed: false,
       });
 
