@@ -196,10 +196,14 @@ const Coupons = () => {
   // All coupons with activation status
   const allCoupons = availableCoupons
     ?.filter(coupon => productFilter === "all" || coupon.product_id === productFilter)
-    ?.map(coupon => ({
-      ...coupon,
-      activatedCoupon: activatedCouponsMap.get(coupon.id),
-    }))
+    ?.map(coupon => {
+      const activatedCoupon = activatedCouponsMap.get(coupon.id);
+      console.log('Debug Cupom:', coupon.name, 'site_landingpage:', coupon.products?.site_landingpage, 'custom_code:', activatedCoupon?.custom_code);
+      return {
+        ...coupon,
+        activatedCoupon,
+      };
+    })
     ?.sort((a, b) => {
       if (a.is_primary && !b.is_primary) return -1;
       if (!a.is_primary && b.is_primary) return 1;
@@ -362,17 +366,27 @@ const Coupons = () => {
                                   onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
-                                  Copiar
+                                  Copiar Código
                                 </Button>
-                                {coupon.products?.site_landingpage && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
-                                  >
-                                    <ExternalLink className="h-4 w-4 mr-2" />
-                                    Abrir Link
-                                  </Button>
+                                {coupon.products?.site_landingpage && coupon.activatedCoupon?.custom_code && (
+                                  <>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleCopy(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`)}
+                                    >
+                                      <Copy className="h-4 w-4 mr-2" />
+                                      Copiar Link
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
+                                    >
+                                      <ExternalLink className="h-4 w-4 mr-2" />
+                                      Abrir Link
+                                    </Button>
+                                  </>
                                 )}
                                 <Button
                                   variant="outline"
@@ -465,17 +479,27 @@ const Coupons = () => {
                             onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
                           >
                             <Copy className="h-4 w-4 mr-2" />
-                            Copiar
+                            Copiar Código
                           </Button>
-                          {coupon.products?.site_landingpage && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
-                            >
-                              <ExternalLink className="h-4 w-4 mr-2" />
-                              Abrir Link
-                            </Button>
+                          {coupon.products?.site_landingpage && coupon.activatedCoupon?.custom_code && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleCopy(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`)}
+                              >
+                                <Copy className="h-4 w-4 mr-2" />
+                                Copiar Link
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
+                              >
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Abrir Link
+                              </Button>
+                            </>
                           )}
                           <Button
                             variant="outline"
