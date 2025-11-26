@@ -498,6 +498,23 @@ const AdminStripeEvents = () => {
                     </Badge>
                   </div>
                 )}
+                {selectedEvent.event_type === 'customer.subscription.updated' && 
+                 (selectedEvent.event_data as any)?.cancel_at_period_end && 
+                 (selectedEvent.event_data as any)?.cancellation_details && (
+                  <div className="col-span-2">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      Detalhes do Cancelamento
+                    </p>
+                    <div className="rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                      <pre 
+                        className="text-xs break-all whitespace-pre-wrap"
+                        style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                      >
+                        {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
