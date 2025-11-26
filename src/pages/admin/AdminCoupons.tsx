@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Search, Edit, Trash2, CalendarIcon, Minus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -51,6 +51,7 @@ const AdminCoupons = () => {
   const [editingCoupon, setEditingCoupon] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<string>("all");
+  const [dateInputValue, setDateInputValue] = useState("");
   const queryClient = useQueryClient();
 
   const form = useForm<CouponFormValues>({
@@ -66,6 +67,21 @@ const AdminCoupons = () => {
       is_primary: false,
     },
   });
+
+  // Sync dateInputValue with form field value
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'valid_until') {
+        const dateValue = value.valid_until;
+        if (dateValue instanceof Date && !isNaN(dateValue.getTime())) {
+          setDateInputValue(format(dateValue, "dd/MM/yyyy"));
+        } else if (dateValue === undefined || dateValue === null) {
+          setDateInputValue("");
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
@@ -450,23 +466,27 @@ const AdminCoupons = () => {
                             <Input
                               type="text"
                               placeholder="DD/MM/AAAA"
-                              value={field.value ? format(field.value, "dd/MM/yyyy") : ""}
+                              value={dateInputValue}
                               onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                let formatted = value;
+                                const rawValue = e.target.value.replace(/\D/g, '');
+                                let formatted = rawValue;
                                 
-                                if (value.length >= 2) {
-                                  formatted = value.slice(0, 2) + '/' + value.slice(2);
+                                // Format with slashes as user types
+                                if (rawValue.length >= 2) {
+                                  formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2);
                                 }
-                                if (value.length >= 4) {
-                                  formatted = value.slice(0, 2) + '/' + value.slice(2, 4) + '/' + value.slice(4, 8);
+                                if (rawValue.length >= 4) {
+                                  formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2, 4) + '/' + rawValue.slice(4, 8);
                                 }
                                 
-                                // Try to parse complete date
-                                if (value.length === 8) {
-                                  const day = parseInt(value.slice(0, 2));
-                                  const month = parseInt(value.slice(2, 4));
-                                  const year = parseInt(value.slice(4, 8));
+                                // Update local state immediately for free typing
+                                setDateInputValue(formatted);
+                                
+                                // Try to parse and update form only when complete
+                                if (rawValue.length === 8) {
+                                  const day = parseInt(rawValue.slice(0, 2));
+                                  const month = parseInt(rawValue.slice(2, 4));
+                                  const year = parseInt(rawValue.slice(4, 8));
                                   const date = new Date(year, month - 1, day);
                                   
                                   if (!isNaN(date.getTime()) && 
@@ -474,19 +494,15 @@ const AdminCoupons = () => {
                                       date.getMonth() === month - 1 && 
                                       date.getFullYear() === year) {
                                     field.onChange(date);
-                                    return;
                                   }
                                 }
-                                
-                                // If not complete or invalid, just update the display
-                                e.target.value = formatted;
                               }}
-                              onBlur={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                if (value.length === 8) {
-                                  const day = parseInt(value.slice(0, 2));
-                                  const month = parseInt(value.slice(2, 4));
-                                  const year = parseInt(value.slice(4, 8));
+                              onBlur={() => {
+                                const rawValue = dateInputValue.replace(/\D/g, '');
+                                if (rawValue.length === 8) {
+                                  const day = parseInt(rawValue.slice(0, 2));
+                                  const month = parseInt(rawValue.slice(2, 4));
+                                  const year = parseInt(rawValue.slice(4, 8));
                                   const date = new Date(year, month - 1, day);
                                   
                                   if (!isNaN(date.getTime()) && 
@@ -494,8 +510,12 @@ const AdminCoupons = () => {
                                       date.getMonth() === month - 1 && 
                                       date.getFullYear() === year) {
                                     field.onChange(date);
+                                  } else {
+                                    // Invalid date, clear it
+                                    setDateInputValue("");
+                                    field.onChange(undefined);
                                   }
-                                } else if (value.length === 0) {
+                                } else if (rawValue.length === 0) {
                                   field.onChange(undefined);
                                 }
                               }}
