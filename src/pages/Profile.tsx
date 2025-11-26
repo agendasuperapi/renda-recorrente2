@@ -8,6 +8,7 @@ import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { User, CheckCircle2, XCircle, Loader2, Edit2, Camera } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import {
   Select,
   SelectContent,
@@ -46,6 +47,8 @@ const Profile = () => {
     avatar_url: "",
   });
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -307,7 +310,7 @@ const Profile = () => {
     }
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -321,16 +324,28 @@ const Profile = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 10MB for original)
+    if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
-        description: "A imagem deve ter no máximo 5MB.",
+        description: "A imagem deve ter no máximo 10MB.",
         variant: "destructive",
       });
       return;
     }
 
+    // Create object URL for cropping
+    const imageUrl = URL.createObjectURL(file);
+    setImageToCrop(imageUrl);
+    setCropDialogOpen(true);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCroppedImage = async (croppedImageBlob: Blob) => {
     setUploadingAvatar(true);
 
     try {
@@ -339,20 +354,22 @@ const Profile = () => {
 
       // Delete old avatar if exists
       if (profile.avatar_url) {
-        const oldPath = profile.avatar_url.split('/').pop();
-        if (oldPath) {
-          await supabase.storage.from('avatars').remove([`profiles/${oldPath}`]);
+        const oldPath = profile.avatar_url.split('/').slice(-2).join('/');
+        if (oldPath && oldPath.startsWith('profiles/')) {
+          await supabase.storage.from('avatars').remove([oldPath]);
         }
       }
 
-      // Upload new avatar
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      // Upload compressed and cropped avatar
+      const fileName = `${user.id}-${Date.now()}.jpg`;
       const filePath = `profiles/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, croppedImageBlob, {
+          contentType: 'image/jpeg',
+          upsert: true
+        });
 
       if (uploadError) throw uploadError;
 
@@ -375,6 +392,10 @@ const Profile = () => {
         title: "Foto atualizada!",
         description: "Sua foto de perfil foi atualizada com sucesso.",
       });
+
+      // Cleanup
+      URL.revokeObjectURL(imageToCrop);
+      setImageToCrop("");
     } catch (error) {
       console.error('Error uploading avatar:', error);
       toast({
@@ -474,7 +495,7 @@ const Profile = () => {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleAvatarUpload}
+              onChange={handleAvatarSelect}
             />
             <p className="text-xs text-muted-foreground text-center">
               Clique para alterar<br />foto de perfil
@@ -488,6 +509,13 @@ const Profile = () => {
           currentUsername={profile.username}
           userId={currentUserId}
           onSuccess={loadProfile}
+        />
+
+        <AvatarCropDialog
+          open={cropDialogOpen}
+          onOpenChange={setCropDialogOpen}
+          imageSrc={imageToCrop}
+          onCropComplete={handleCroppedImage}
         />
 
         <form onSubmit={handleSubmit} className="space-y-6">
