@@ -97,7 +97,8 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       // Aguardar logout completar
       const { error } = await supabase.auth.signOut();
       
-      if (error) {
+      // Se o erro for "session not found", fazer logout local e continuar
+      if (error && error.message !== 'Auth session missing!') {
         console.error('Erro ao fazer logout:', error);
         toast({
           title: "Erro ao sair",
@@ -107,20 +108,25 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
         return;
       }
       
+      // Se a sessão não existe no servidor, fazer logout local
+      if (error?.message === 'Auth session missing!') {
+        localStorage.clear();
+        queryClient.clear();
+      }
+      
       toast({
         title: "Logout realizado",
         description: "Até logo!",
       });
       
-      // Redirecionar apenas após logout bem-sucedido
+      // Redirecionar sempre, mesmo se a sessão não existir
       navigate('/');
     } catch (error) {
       console.error('Erro inesperado ao fazer logout:', error);
-      toast({
-        title: "Erro ao sair",
-        description: "Ocorreu um erro inesperado",
-        variant: "destructive",
-      });
+      // Mesmo com erro, tentar limpar dados locais e redirecionar
+      localStorage.clear();
+      queryClient.clear();
+      navigate('/');
     }
   };
 
