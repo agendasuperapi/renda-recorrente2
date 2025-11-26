@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
 import { CookieConsent } from "@/components/CookieConsent";
@@ -183,6 +184,9 @@ const LandingPage = () => {
   const [announcementBanner, setAnnouncementBanner] = useState<AnnouncementBanner | null>(null);
   const [clickCount, setClickCount] = useState(0);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [validatedCoupon, setValidatedCoupon] = useState<any>(null);
+  const [loadingCoupon, setLoadingCoupon] = useState(false);
 
   // Busca banner de anúncio
   const { data: bannerData } = useQuery({
@@ -495,6 +499,92 @@ const LandingPage = () => {
     } catch (error) {
       console.error('Error checking admin role:', error);
       setIsAdmin(false);
+    }
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast({
+        title: "Erro",
+        description: "Digite um código de cupom",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoadingCoupon(true);
+    try {
+      // Buscar cupom pelo código ou custom_code
+      const { data: couponData, error: couponError } = await supabase
+        .from("coupons")
+        .select(`
+          *,
+          created_by
+        `)
+        .eq("code", couponCode.toUpperCase())
+        .eq("is_active", true)
+        .single();
+
+      if (couponError || !couponData) {
+        // Tentar buscar pelo custom_code na tabela affiliate_coupons
+        const { data: affiliateCouponData, error: affiliateError } = await supabase
+          .from("affiliate_coupons")
+          .select(`
+            *,
+            coupon:coupons(*),
+            affiliate:profiles(*)
+          `)
+          .eq("custom_code", couponCode.toUpperCase())
+          .eq("is_active", true)
+          .single();
+
+        if (affiliateError || !affiliateCouponData) {
+          toast({
+            title: "Cupom não encontrado",
+            description: "O código digitado não existe ou está inativo",
+            variant: "destructive",
+          });
+          setValidatedCoupon(null);
+          return;
+        }
+
+        // Cupom de afiliado encontrado
+        setValidatedCoupon({
+          ...affiliateCouponData.coupon,
+          affiliate: affiliateCouponData.affiliate,
+        });
+        toast({
+          title: "Cupom válido!",
+          description: "Cupom aplicado com sucesso",
+        });
+        return;
+      }
+
+      // Cupom principal encontrado, buscar dados do afiliado criador
+      const { data: affiliateData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", couponData.created_by)
+        .single();
+
+      setValidatedCoupon({
+        ...couponData,
+        affiliate: affiliateData,
+      });
+
+      toast({
+        title: "Cupom válido!",
+        description: "Cupom aplicado com sucesso",
+      });
+    } catch (error) {
+      console.error("Error validating coupon:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao validar cupom",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingCoupon(false);
     }
   };
 
@@ -1491,6 +1581,85 @@ const LandingPage = () => {
           <p className="text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 px-3 md:px-0" style={{ color: getTextColor('planos') }}>
             Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
           </p>
+          
+          {/* Card de Cupom */}
+          <div className="max-w-2xl mx-auto mb-8 px-3 md:px-0">
+            <Card className="border-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="text-center">Possui um cupom?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Digite o código do cupom"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleApplyCoupon();
+                      }
+                    }}
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={handleApplyCoupon}
+                    disabled={loadingCoupon || !couponCode.trim()}
+                  >
+                    {loadingCoupon ? "Validando..." : "Aplicar cupom"}
+                  </Button>
+                </div>
+
+                {validatedCoupon && (
+                  <div className="border rounded-lg p-4 bg-muted/50 space-y-4">
+                    {validatedCoupon.affiliate && (
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
+                          <AvatarFallback>
+                            {validatedCoupon.affiliate.name?.charAt(0) || "A"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold">{validatedCoupon.affiliate.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            @{validatedCoupon.affiliate.username}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">Cupom:</span>
+                        <Badge variant="secondary">
+                          {validatedCoupon.code}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">Tipo:</span>
+                        <Badge variant="outline">
+                          {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
+                          {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
+                          {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
+                        </Badge>
+                      </div>
+                      
+                      {validatedCoupon.description && (
+                        <div>
+                          <span className="font-semibold">Descrição:</span>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {validatedCoupon.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0 max-w-7xl mx-auto">
             {plans.map((plan, index) => {
               const isFree = plan.price === 0;
