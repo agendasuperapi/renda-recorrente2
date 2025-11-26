@@ -947,6 +947,7 @@ export type Database = {
           complement: string | null
           cpf: string | null
           created_at: string | null
+          email: string | null
           facebook: string | null
           gender: string | null
           has_seen_welcome_dashboard: boolean | null
@@ -974,6 +975,7 @@ export type Database = {
           complement?: string | null
           cpf?: string | null
           created_at?: string | null
+          email?: string | null
           facebook?: string | null
           gender?: string | null
           has_seen_welcome_dashboard?: boolean | null
@@ -1001,6 +1003,7 @@ export type Database = {
           complement?: string | null
           cpf?: string | null
           created_at?: string | null
+          email?: string | null
           facebook?: string | null
           gender?: string | null
           has_seen_welcome_dashboard?: boolean | null

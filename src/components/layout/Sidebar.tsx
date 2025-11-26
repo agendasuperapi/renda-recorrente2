@@ -57,7 +57,6 @@ const affiliateMenuItems = [
   { icon: Calendar, label: "Comissões Mensais", path: "/commissions-monthly" },
   { icon: Calendar, label: "Atividades", path: "/activities" },
   { icon: Ticket, label: "Cupons e Links", path: "/coupons" },
-  { icon: CreditCard, label: "Meus Pagamentos", path: "/payments" },
   { icon: Wallet, label: "Saques", path: "/withdrawals" },
   { icon: CreditCard, label: "Plano Afiliação", path: "/plan" },
   { icon: MapPin, label: "Empresas Google", path: "/google-business" },
