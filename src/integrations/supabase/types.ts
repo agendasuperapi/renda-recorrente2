@@ -325,6 +325,7 @@ export type Database = {
           is_active: boolean | null
           max_uses: number | null
           name: string
+          product_id: string | null
           type: Database["public"]["Enums"]["coupon_type"]
           updated_at: string | null
           valid_until: string | null
@@ -341,6 +342,7 @@ export type Database = {
           is_active?: boolean | null
           max_uses?: number | null
           name: string
+          product_id?: string | null
           type: Database["public"]["Enums"]["coupon_type"]
           updated_at?: string | null
           valid_until?: string | null
@@ -357,6 +359,7 @@ export type Database = {
           is_active?: boolean | null
           max_uses?: number | null
           name?: string
+          product_id?: string | null
           type?: Database["public"]["Enums"]["coupon_type"]
           updated_at?: string | null
           valid_until?: string | null
@@ -368,6 +371,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
