@@ -70,6 +70,12 @@ export function UsernameEditDialog({
       return;
     }
 
+    // Verifica se é o mesmo username atual
+    if (username === currentUsername) {
+      setUsernameAvailable(false);
+      return;
+    }
+
     setCheckingUsername(true);
 
     try {
@@ -216,7 +222,8 @@ export function UsernameEditDialog({
                 }`}
               >
                 {usernameAvailable === true && "✓ Nome de usuário disponível"}
-                {usernameAvailable === false && "✗ Nome de usuário já está em uso"}
+                {usernameAvailable === false && newUsername === currentUsername && "✗ Este é o seu nome de usuário atual"}
+                {usernameAvailable === false && newUsername !== currentUsername && "✗ Nome de usuário já está em uso"}
               </p>
             )}
             {newUsername.length > 0 && newUsername.length < 3 && (
