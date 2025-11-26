@@ -705,7 +705,6 @@ const AdminStripeEvents = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Event ID</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Data</TableHead>
@@ -718,9 +717,6 @@ const AdminStripeEvents = () => {
                   {events && events.length > 0 ? (
                     events.map((event) => (
                       <TableRow key={event.id}>
-                        <TableCell className="font-mono text-xs">
-                          {event.event_id.substring(0, 20)}...
-                        </TableCell>
                         <TableCell>
                           {getEventTypeBadge(event.event_type)}
                         </TableCell>
@@ -772,7 +768,7 @@ const AdminStripeEvents = () => {
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={7}
+                        colSpan={6}
                         className="text-center text-muted-foreground py-8"
                       >
                         Nenhum evento encontrado
