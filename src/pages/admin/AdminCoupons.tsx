@@ -77,7 +77,7 @@ const AdminCoupons = () => {
     },
   });
 
-  const { data: coupons = [], isLoading } = useQuery({
+  const { data: coupons, isLoading } = useQuery({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -92,6 +92,8 @@ const AdminCoupons = () => {
       return data as any[];
     },
   });
+
+  const couponsList = coupons || [];
 
   const createCouponMutation = useMutation({
     mutationFn: async (values: CouponFormValues) => {
@@ -246,7 +248,7 @@ const AdminCoupons = () => {
     }
   };
 
-  const filteredCoupons = coupons.filter(
+  const filteredCoupons = couponsList.filter(
     (coupon: any) => {
       const matchesSearch = 
         coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -260,9 +262,9 @@ const AdminCoupons = () => {
     }
   );
 
-  const totalCoupons = coupons.length;
-  const activeCoupons = coupons.filter((c) => c.is_active).length;
-  const totalUses = coupons.reduce((sum, c) => sum + (c.current_uses || 0), 0);
+  const totalCoupons = couponsList.length;
+  const activeCoupons = couponsList.filter((c) => c.is_active).length;
+  const totalUses = couponsList.reduce((sum, c) => sum + (c.current_uses || 0), 0);
 
   return (
     <div className="space-y-6">
