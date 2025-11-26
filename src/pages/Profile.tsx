@@ -9,6 +9,7 @@ import { User, CheckCircle2, XCircle, Loader2, Edit2, Camera } from "lucide-reac
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -49,6 +50,7 @@ const Profile = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string>("");
+  const [viewAvatarOpen, setViewAvatarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -469,7 +471,10 @@ const Profile = () => {
           {/* Avatar Section */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
-              <Avatar className="h-24 w-24">
+              <Avatar 
+                className="h-24 w-24 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => profile.avatar_url && setViewAvatarOpen(true)}
+              >
                 <AvatarImage src={profile.avatar_url} alt={profile.name} />
                 <AvatarFallback className="text-2xl">
                   {profile.name?.charAt(0)?.toUpperCase() || <User className="h-8 w-8" />}
@@ -498,7 +503,7 @@ const Profile = () => {
               onChange={handleAvatarSelect}
             />
             <p className="text-xs text-muted-foreground text-center">
-              Clique para alterar<br />foto de perfil
+              Clique para {profile.avatar_url ? 'visualizar ou ' : ''}alterar<br />foto de perfil
             </p>
           </div>
         </div>
@@ -517,6 +522,19 @@ const Profile = () => {
           imageSrc={imageToCrop}
           onCropComplete={handleCroppedImage}
         />
+
+        {/* Avatar Preview Dialog */}
+        <Dialog open={viewAvatarOpen} onOpenChange={setViewAvatarOpen}>
+          <DialogContent className="max-w-2xl p-0">
+            <div className="relative w-full aspect-square">
+              <img 
+                src={profile.avatar_url} 
+                alt={profile.name}
+                className="w-full h-full object-contain rounded-lg"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
