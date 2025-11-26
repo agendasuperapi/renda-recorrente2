@@ -52,7 +52,7 @@ const Coupons = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coupons")
-        .select("*, products(nome, icone_light, icone_dark)")
+        .select("*, products(nome, icone_light, icone_dark, site_landingpage)")
         .eq("is_visible_to_affiliates", true)
         .eq("is_active", true)
         .order("name");
@@ -364,6 +364,16 @@ const Coupons = () => {
                                   <Copy className="h-4 w-4 mr-2" />
                                   Copiar
                                 </Button>
+                                {coupon.products?.site_landingpage && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
+                                  >
+                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                    Abrir Link
+                                  </Button>
+                                )}
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -457,6 +467,16 @@ const Coupons = () => {
                             <Copy className="h-4 w-4 mr-2" />
                             Copiar
                           </Button>
+                          {coupon.products?.site_landingpage && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(`${coupon.products.site_landingpage}/cupom/${coupon.activatedCoupon?.custom_code}`, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Abrir Link
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
