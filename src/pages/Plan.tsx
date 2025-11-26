@@ -287,7 +287,7 @@ const Plan = () => {
             return (
               <div
                 key={plan.id}
-                className={`relative bg-card rounded-2xl p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl flex flex-col ${
+                className={`relative bg-card rounded-2xl p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl flex flex-col mt-8 ${
                   isCurrent ? "border-primary shadow-lg" : "border-border"
                 }`}
               >
