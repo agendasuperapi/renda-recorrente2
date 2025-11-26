@@ -69,8 +69,6 @@ serve(async (req) => {
     const eventObject = event.data.object as any;
     let metadata: any = {};
     let eventEmail = null;
-    let cancellationReason = null;
-    let cancellationComment = null;
     let cancellationDetails = null;
 
     // Lógica específica por tipo de evento
@@ -94,8 +92,6 @@ serve(async (req) => {
 
     // Extrair dados de cancelamento se existirem
     if (eventObject.cancellation_details) {
-      cancellationReason = eventObject.cancellation_details.reason || null;
-      cancellationComment = eventObject.cancellation_details.comment || null;
       cancellationDetails = {
         reason: eventObject.cancellation_details.reason || null,
         comment: eventObject.cancellation_details.comment || null,
@@ -122,8 +118,6 @@ serve(async (req) => {
         product_id: metadata.product_id || null,
         email: eventEmail,
         environment: environment,
-        cancellation_reason: cancellationReason,
-        cancellation_comment: cancellationComment,
         cancellation_details: cancellationDetails,
         processed: false,
       });
@@ -210,8 +204,6 @@ serve(async (req) => {
 
         // Capturar motivo de cancelamento se existir
         if (subscription.cancellation_details) {
-          updateData.cancellation_reason = subscription.cancellation_details.reason || null;
-          updateData.cancellation_comment = subscription.cancellation_details.comment || null;
           updateData.cancellation_details = {
             reason: subscription.cancellation_details.reason || null,
             comment: subscription.cancellation_details.comment || null,
@@ -268,8 +260,6 @@ serve(async (req) => {
 
         // Capturar motivo de cancelamento se existir
         if (subscription.cancellation_details) {
-          deleteData.cancellation_reason = subscription.cancellation_details.reason || null;
-          deleteData.cancellation_comment = subscription.cancellation_details.comment || null;
           deleteData.cancellation_details = {
             reason: subscription.cancellation_details.reason || null,
             comment: subscription.cancellation_details.comment || null,

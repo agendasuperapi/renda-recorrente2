@@ -1111,6 +1111,7 @@ export type Database = {
       subscriptions: {
         Row: {
           cancel_at: string | null
+          cancel_at_period_end: boolean | null
           cancellation_comment: string | null
           cancellation_details: Json | null
           cancellation_reason: string | null
@@ -1130,6 +1131,7 @@ export type Database = {
         }
         Insert: {
           cancel_at?: string | null
+          cancel_at_period_end?: boolean | null
           cancellation_comment?: string | null
           cancellation_details?: Json | null
           cancellation_reason?: string | null
@@ -1149,6 +1151,7 @@ export type Database = {
         }
         Update: {
           cancel_at?: string | null
+          cancel_at_period_end?: boolean | null
           cancellation_comment?: string | null
           cancellation_details?: Json | null
           cancellation_reason?: string | null

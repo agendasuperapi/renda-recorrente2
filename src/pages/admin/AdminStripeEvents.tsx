@@ -605,18 +605,6 @@ const AdminStripeEvents = () => {
                       </p>
                     </div>
                   )}
-                  {subscriptionData.cancellation_reason && (
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium text-muted-foreground">Motivo do Cancelamento</p>
-                      <p className="text-sm">{subscriptionData.cancellation_reason}</p>
-                    </div>
-                  )}
-                  {subscriptionData.cancellation_comment && (
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium text-muted-foreground">Comentário do Cancelamento</p>
-                      <p className="text-sm">{subscriptionData.cancellation_comment}</p>
-                    </div>
-                  )}
                   {(subscriptionData as any).cancellation_details && (
                     <div className="col-span-2">
                       <p className="text-sm font-medium text-muted-foreground mb-2">
