@@ -65,10 +65,12 @@ serve(async (req) => {
 
     console.log(`[Stripe Webhook] Event type: ${event.type}`);
 
-    // Extrair metadata e email do evento
+    // Extrair metadata, email e dados de cancelamento do evento
     const eventObject = event.data.object as any;
     let metadata: any = {};
     let eventEmail = null;
+    let cancellationReason = null;
+    let cancellationComment = null;
 
     // Lógica específica por tipo de evento
     if (event.type.startsWith('invoice.')) {
@@ -87,6 +89,12 @@ serve(async (req) => {
                    eventObject.billing_details?.email ||
                    eventObject.customer_details?.email ||
                    null;
+    }
+
+    // Extrair dados de cancelamento se existirem
+    if (eventObject.cancellation_details) {
+      cancellationReason = eventObject.cancellation_details.reason || null;
+      cancellationComment = eventObject.cancellation_details.comment || null;
     }
     
     console.log(`[Stripe Webhook] Metadata:`, {
@@ -108,6 +116,8 @@ serve(async (req) => {
         product_id: metadata.product_id || null,
         email: eventEmail,
         environment: environment,
+        cancellation_reason: cancellationReason,
+        cancellation_comment: cancellationComment,
         processed: false,
       });
 
@@ -190,6 +200,16 @@ serve(async (req) => {
         if (cancelAt) updateData.cancel_at = cancelAt;
         if (canceledAt) updateData.cancelled_at = canceledAt;
 
+        // Capturar motivo de cancelamento se existir
+        if (subscription.cancellation_details) {
+          updateData.cancellation_reason = subscription.cancellation_details.reason || null;
+          updateData.cancellation_comment = subscription.cancellation_details.comment || null;
+          console.log(`[Stripe Webhook] Cancellation details:`, {
+            reason: subscription.cancellation_details.reason,
+            comment: subscription.cancellation_details.comment,
+          });
+        }
+
         // Verificar se o plano mudou
         if (subscription.items?.data?.[0]?.price?.id) {
           const stripePriceId = subscription.items.data[0].price.id;
@@ -227,12 +247,24 @@ serve(async (req) => {
         const subscription = event.data.object as Stripe.Subscription;
         console.log(`[Stripe Webhook] Subscription deleted:`, subscription.id);
 
+        const deleteData: any = {
+          status: "canceled",
+          cancelled_at: new Date().toISOString(),
+        };
+
+        // Capturar motivo de cancelamento se existir
+        if (subscription.cancellation_details) {
+          deleteData.cancellation_reason = subscription.cancellation_details.reason || null;
+          deleteData.cancellation_comment = subscription.cancellation_details.comment || null;
+          console.log(`[Stripe Webhook] Cancellation details:`, {
+            reason: subscription.cancellation_details.reason,
+            comment: subscription.cancellation_details.comment,
+          });
+        }
+
         const { error: deleteError } = await supabase
           .from("subscriptions")
-          .update({
-            status: "canceled",
-            cancelled_at: new Date().toISOString(),
-          })
+          .update(deleteData)
           .eq("stripe_subscription_id", subscription.id);
 
         if (deleteError) {
