@@ -295,15 +295,18 @@ const AdminCoupons = () => {
                   name="product_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Produto</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <FormLabel>Produto (opcional)</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(value === "all" ? undefined : value)} 
+                        value={field.value || "all"}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecione um produto (opcional)" />
+                            <SelectValue placeholder="Todos os produtos" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Todos os produtos</SelectItem>
+                          <SelectItem value="all">Todos os produtos</SelectItem>
                           {products.map((product) => (
                             <SelectItem key={product.id} value={product.id}>
                               {product.nome}
