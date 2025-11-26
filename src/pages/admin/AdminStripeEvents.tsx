@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -53,7 +53,7 @@ const AdminStripeEvents = () => {
       if (showCancelAtPeriodEnd && data) {
         return data.filter((event: any) => 
           event.event_type === 'customer.subscription.updated' && 
-          event.event_data?.cancel_at_period_end === true
+          (event.event_data as any)?.cancel_at_period_end === true
         );
       }
       
@@ -170,6 +170,7 @@ const AdminStripeEvents = () => {
                   <TableHead>Email</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-center">Cancelamento</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -194,6 +195,17 @@ const AdminStripeEvents = () => {
                       <TableCell>
                         {getStatusBadge(event.processed)}
                       </TableCell>
+                      <TableCell className="text-center">
+                        {event.event_type === 'customer.subscription.updated' && 
+                         (event.event_data as any)?.cancel_at_period_end === true && (
+                          <div className="flex justify-center">
+                            <Badge variant="destructive" className="gap-1 text-xs">
+                              <AlertCircle className="w-3 h-3" />
+                              Agendado
+                            </Badge>
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
@@ -208,7 +220,7 @@ const AdminStripeEvents = () => {
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="text-center text-muted-foreground py-8"
                     >
                       Nenhum evento encontrado
@@ -284,7 +296,7 @@ const AdminStripeEvents = () => {
                   </div>
                 )}
                 {selectedEvent.event_type === 'customer.subscription.updated' && 
-                 selectedEvent.event_data?.cancel_at_period_end && (
+                 (selectedEvent.event_data as any)?.cancel_at_period_end && (
                   <div className="col-span-2">
                     <Badge variant="destructive" className="gap-1">
                       <Clock className="w-3 h-3" />
