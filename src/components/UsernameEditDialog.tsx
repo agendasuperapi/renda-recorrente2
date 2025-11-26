@@ -7,6 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -36,6 +46,7 @@ export function UsernameEditDialog({
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [hasCoupons, setHasCoupons] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -65,7 +76,7 @@ export function UsernameEditDialog({
   };
 
   const checkUsernameAvailability = async (username: string) => {
-    if (!username || username.length < 3) {
+    if (!username || username.length < 6) {
       setUsernameAvailable(null);
       return;
     }
@@ -100,7 +111,7 @@ export function UsernameEditDialog({
     const normalized = normalizeUsername(value);
     setNewUsername(normalized);
 
-    if (normalized.length >= 3) {
+    if (normalized.length >= 6) {
       const timeoutId = setTimeout(() => {
         checkUsernameAvailability(normalized);
       }, 500);
@@ -111,11 +122,11 @@ export function UsernameEditDialog({
     }
   };
 
-  const handleSave = async () => {
-    if (!newUsername || newUsername.length < 3) {
+  const handleSaveClick = () => {
+    if (!newUsername || newUsername.length < 6) {
       toast({
         title: "Username inválido",
-        description: "O username deve ter pelo menos 3 caracteres",
+        description: "O username deve ter pelo menos 6 caracteres",
         variant: "destructive",
       });
       return;
@@ -130,6 +141,11 @@ export function UsernameEditDialog({
       return;
     }
 
+    setShowConfirmDialog(true);
+  };
+
+  const handleSave = async () => {
+    setShowConfirmDialog(false);
     setLoading(true);
 
     try {
@@ -211,7 +227,7 @@ export function UsernameEditDialog({
                 )}
               </div>
             </div>
-            {newUsername.length >= 3 && !checkingUsername && (
+            {newUsername.length >= 6 && !checkingUsername && (
               <p
                 className={`text-xs mt-1 ${
                   usernameAvailable === true
@@ -226,8 +242,8 @@ export function UsernameEditDialog({
                 {usernameAvailable === false && newUsername !== currentUsername && "✗ Nome de usuário já está em uso"}
               </p>
             )}
-            {newUsername.length > 0 && newUsername.length < 3 && (
-              <p className="text-xs mt-1 text-muted-foreground">Mínimo 3 caracteres</p>
+            {newUsername.length > 0 && newUsername.length < 6 && (
+              <p className="text-xs mt-1 text-muted-foreground">Mínimo 6 caracteres</p>
             )}
           </div>
 
@@ -246,18 +262,43 @@ export function UsernameEditDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={loading || usernameAvailable !== true}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              "Salvar"
-            )}
+          <Button onClick={handleSaveClick} disabled={loading || usernameAvailable !== true}>
+            Salvar
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar alteração de username</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja alterar seu nome de usuário de <strong>{currentUsername}</strong> para <strong>{newUsername}</strong>?
+              {hasCoupons && (
+                <>
+                  <br /><br />
+                  <span className="text-destructive font-semibold">
+                    Todos os seus cupons serão excluídos e você precisará ativá-los novamente.
+                  </span>
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSave}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
