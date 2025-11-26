@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Ticket, Copy, ExternalLink, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Coupons = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [productFilter, setProductFilter] = useState<string>("all");
 
   // Fetch current user profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -24,6 +27,20 @@ const Coupons = () => {
         .eq("id", user.id)
         .single();
 
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch products for filter
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, nome")
+        .eq("show_on_landing", true)
+        .order("nome");
       if (error) throw error;
       return data;
     },
@@ -131,9 +148,22 @@ const Coupons = () => {
 
   // Filter out coupons that are already activated
   const activatedCouponIds = activatedCoupons?.map(ac => ac.coupon_id) || [];
-  const nonActivatedCoupons = availableCoupons?.filter(
-    coupon => !activatedCouponIds.includes(coupon.id)
-  ) || [];
+  const nonActivatedCoupons = availableCoupons
+    ?.filter(coupon => !activatedCouponIds.includes(coupon.id))
+    ?.filter(coupon => productFilter === "all" || coupon.product_id === productFilter)
+    ?.sort((a, b) => {
+      if (a.is_primary && !b.is_primary) return -1;
+      if (!a.is_primary && b.is_primary) return 1;
+      return 0;
+    }) || [];
+
+  const filteredActivatedCoupons = activatedCoupons
+    ?.filter(ac => productFilter === "all" || ac.coupons?.product_id === productFilter)
+    ?.sort((a, b) => {
+      if (a.coupons?.is_primary && !b.coupons?.is_primary) return -1;
+      if (!a.coupons?.is_primary && b.coupons?.is_primary) return 1;
+      return 0;
+    }) || [];
 
   if (isLoading) {
     return (
@@ -177,6 +207,21 @@ const Coupons = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <Select value={productFilter} onValueChange={setProductFilter}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Filtrar por produto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os produtos</SelectItem>
+                {products?.map(product => (
+                  <SelectItem key={product.id} value={product.id}>
+                    {product.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {nonActivatedCoupons.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
@@ -197,6 +242,11 @@ const Coupons = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold">{coupon.name}</h3>
+                        {coupon.is_primary && (
+                          <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
+                            Principal
+                          </Badge>
+                        )}
                         <Badge variant="outline">
                           {coupon.type === "percentage" && `${coupon.value}% OFF`}
                           {coupon.type === "days" && `${coupon.value} dias`}
@@ -242,7 +292,7 @@ const Coupons = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {!activatedCoupons || activatedCoupons.length === 0 ? (
+          {!filteredActivatedCoupons || filteredActivatedCoupons.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
               <p>Você ainda não liberou nenhum cupom</p>
@@ -252,7 +302,7 @@ const Coupons = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {activatedCoupons.map((affiliateCoupon) => {
+              {filteredActivatedCoupons.map((affiliateCoupon) => {
                 const coupon = affiliateCoupon.coupons;
                 if (!coupon) return null;
 
@@ -264,6 +314,11 @@ const Coupons = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold">{coupon.name}</h3>
+                        {coupon.is_primary && (
+                          <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
+                            Principal
+                          </Badge>
+                        )}
                         <Badge variant="outline">
                           {coupon.type === "percentage" && `${coupon.value}% OFF`}
                           {coupon.type === "days" && `${coupon.value} dias`}
