@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -156,6 +156,217 @@ const ClientProfile = ({ userId }: { userId: string | null }) => {
               ? format(new Date(profile.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
               : "-"}
           </p>
+        </div>
+      </div>
+    </ScrollArea>
+  );
+};
+
+const PlanInfo = ({ userId }: { userId: string | null }) => {
+  const { data: subscription, isLoading: loadingSubscription } = useQuery({
+    queryKey: ["user-subscription", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select(`
+          *,
+          plans (
+            name,
+            price,
+            billing_period,
+            commission_percentage
+          )
+        `)
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  const { data: commission } = useQuery({
+    queryKey: ["user-commission", subscription?.id],
+    queryFn: async () => {
+      if (!subscription?.id) return null;
+      const { data, error } = await supabase
+        .from("commissions")
+        .select("amount, percentage, status, created_at")
+        .eq("subscription_id", subscription.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!subscription?.id,
+  });
+
+  if (loadingSubscription) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          Carregando dados do plano...
+        </div>
+      </div>
+    );
+  }
+
+  if (!subscription) {
+    return (
+      <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+        Nenhum plano encontrado para este cliente.
+      </div>
+    );
+  }
+
+  const plan = subscription.plans as any;
+  const hasCancellation = subscription.cancel_at || subscription.cancelled_at || subscription.cancel_at_period_end;
+
+  return (
+    <ScrollArea className="max-h-[50vh]">
+      <div className="space-y-6">
+        {hasCancellation && (
+          <Card className="border-destructive bg-destructive/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-destructive mb-2">Cancelamento Solicitado</h4>
+                  {subscription.cancel_at_period_end && (
+                    <p className="text-sm text-muted-foreground mb-2">
+                      A assinatura será cancelada ao final do período atual
+                    </p>
+                  )}
+                  {subscription.cancel_at && (
+                    <div className="text-sm">
+                      <span className="font-medium">Cancelamento agendado para: </span>
+                      <span className="text-destructive">
+                        {format(new Date(subscription.cancel_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </span>
+                    </div>
+                  )}
+                  {subscription.cancelled_at && (
+                    <div className="text-sm">
+                      <span className="font-medium">Cancelado em: </span>
+                      <span className="text-destructive">
+                        {format(new Date(subscription.cancelled_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </span>
+                    </div>
+                  )}
+                  {subscription.cancellation_details && (
+                    <div className="mt-3 space-y-1 text-sm">
+                      {(subscription.cancellation_details as any).reason && (
+                        <div>
+                          <span className="font-medium">Motivo: </span>
+                          <span>{(subscription.cancellation_details as any).reason}</span>
+                        </div>
+                      )}
+                      {(subscription.cancellation_details as any).comment && (
+                        <div>
+                          <span className="font-medium">Comentário: </span>
+                          <span>{(subscription.cancellation_details as any).comment}</span>
+                        </div>
+                      )}
+                      {(subscription.cancellation_details as any).feedback && (
+                        <div>
+                          <span className="font-medium">Feedback: </span>
+                          <span>{(subscription.cancellation_details as any).feedback}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Plano</p>
+            <p className="text-lg font-semibold">{plan?.name || "-"}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Status</p>
+            <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'} className="mt-1">
+              {subscription.status}
+            </Badge>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Valor do Plano</p>
+            <p className="text-lg font-semibold">
+              {plan?.price ? `R$ ${Number(plan.price).toFixed(2)}` : "-"}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Período</p>
+            <p className="text-sm">{plan?.billing_period || "-"}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Início do Período</p>
+            <p className="text-sm">
+              {subscription.current_period_start 
+                ? format(new Date(subscription.current_period_start), "dd/MM/yyyy", { locale: ptBR })
+                : "-"}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Fim do Período</p>
+            <p className="text-sm">
+              {subscription.current_period_end 
+                ? format(new Date(subscription.current_period_end), "dd/MM/yyyy", { locale: ptBR })
+                : "-"}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Comissão (%)</p>
+            <p className="text-sm font-semibold text-primary">
+              {plan?.commission_percentage ? `${plan.commission_percentage}%` : "-"}
+            </p>
+          </div>
+          {commission && (
+            <>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Valor Comissão</p>
+                <p className="text-sm font-semibold text-primary">
+                  R$ {Number(commission.amount).toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Status Comissão</p>
+                <Badge variant="outline" className="mt-1">
+                  {commission.status}
+                </Badge>
+              </div>
+            </>
+          )}
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Ambiente</p>
+            <Badge variant={subscription.environment === 'production' ? 'default' : 'secondary'} className="mt-1">
+              {subscription.environment || 'test'}
+            </Badge>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Criado em</p>
+            <p className="text-sm">
+              {subscription.created_at 
+                ? format(new Date(subscription.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                : "-"}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Atualizado em</p>
+            <p className="text-sm">
+              {subscription.updated_at 
+                ? format(new Date(subscription.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                : "-"}
+            </p>
+          </div>
         </div>
       </div>
     </ScrollArea>
@@ -602,7 +813,7 @@ const AdminStripeEvents = () => {
           </DialogHeader>
           {selectedEvent && (
             <Tabs defaultValue="event" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="event">
                   <Database className="w-4 h-4 mr-2" />
                   Detalhes do Evento
@@ -610,6 +821,10 @@ const AdminStripeEvents = () => {
                 <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
                   <User className="w-4 h-4 mr-2" />
                   Cliente
+                </TabsTrigger>
+                <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Plano
                 </TabsTrigger>
               </TabsList>
               
@@ -700,6 +915,10 @@ const AdminStripeEvents = () => {
               
               <TabsContent value="client" className="space-y-4 mt-4">
                 <ClientProfile userId={selectedEvent.user_id} />
+              </TabsContent>
+              
+              <TabsContent value="plan" className="space-y-4 mt-4">
+                <PlanInfo userId={selectedEvent.user_id} />
               </TabsContent>
             </Tabs>
           )}
