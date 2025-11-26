@@ -71,6 +71,7 @@ serve(async (req) => {
     let eventEmail = null;
     let cancellationReason = null;
     let cancellationComment = null;
+    let cancellationDetails = null;
 
     // Lógica específica por tipo de evento
     if (event.type.startsWith('invoice.')) {
@@ -95,6 +96,11 @@ serve(async (req) => {
     if (eventObject.cancellation_details) {
       cancellationReason = eventObject.cancellation_details.reason || null;
       cancellationComment = eventObject.cancellation_details.comment || null;
+      cancellationDetails = {
+        reason: eventObject.cancellation_details.reason || null,
+        comment: eventObject.cancellation_details.comment || null,
+        feedback: eventObject.cancellation_details.feedback || null,
+      };
     }
     
     console.log(`[Stripe Webhook] Metadata:`, {
@@ -118,6 +124,7 @@ serve(async (req) => {
         environment: environment,
         cancellation_reason: cancellationReason,
         cancellation_comment: cancellationComment,
+        cancellation_details: cancellationDetails,
         processed: false,
       });
 
@@ -205,9 +212,15 @@ serve(async (req) => {
         if (subscription.cancellation_details) {
           updateData.cancellation_reason = subscription.cancellation_details.reason || null;
           updateData.cancellation_comment = subscription.cancellation_details.comment || null;
+          updateData.cancellation_details = {
+            reason: subscription.cancellation_details.reason || null,
+            comment: subscription.cancellation_details.comment || null,
+            feedback: subscription.cancellation_details.feedback || null,
+          };
           console.log(`[Stripe Webhook] Cancellation details:`, {
             reason: subscription.cancellation_details.reason,
             comment: subscription.cancellation_details.comment,
+            feedback: subscription.cancellation_details.feedback,
           });
         }
 
@@ -257,9 +270,15 @@ serve(async (req) => {
         if (subscription.cancellation_details) {
           deleteData.cancellation_reason = subscription.cancellation_details.reason || null;
           deleteData.cancellation_comment = subscription.cancellation_details.comment || null;
+          deleteData.cancellation_details = {
+            reason: subscription.cancellation_details.reason || null,
+            comment: subscription.cancellation_details.comment || null,
+            feedback: subscription.cancellation_details.feedback || null,
+          };
           console.log(`[Stripe Webhook] Cancellation details:`, {
             reason: subscription.cancellation_details.reason,
             comment: subscription.cancellation_details.comment,
+            feedback: subscription.cancellation_details.feedback,
           });
         }
 
