@@ -648,21 +648,6 @@ const Coupons = () => {
         </CardContent>
       </Card>
 
-      {/* Affiliate Links Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ExternalLink className="h-5 w-5" />
-            Links de Afiliado
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-12 text-muted-foreground">
-            <ExternalLink className="h-12 w-12 mx-auto mb-4 opacity-20" />
-            <p>Seus links de afiliado aparecerão aqui</p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
