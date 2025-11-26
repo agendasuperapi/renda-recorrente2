@@ -1006,6 +1006,7 @@ export type Database = {
           plan_id: string | null
           processed: boolean | null
           product_id: string | null
+          reason: string | null
           stripe_subscription_id: string | null
           user_id: string | null
         }
@@ -1021,6 +1022,7 @@ export type Database = {
           plan_id?: string | null
           processed?: boolean | null
           product_id?: string | null
+          reason?: string | null
           stripe_subscription_id?: string | null
           user_id?: string | null
         }
@@ -1036,6 +1038,7 @@ export type Database = {
           plan_id?: string | null
           processed?: boolean | null
           product_id?: string | null
+          reason?: string | null
           stripe_subscription_id?: string | null
           user_id?: string | null
         }

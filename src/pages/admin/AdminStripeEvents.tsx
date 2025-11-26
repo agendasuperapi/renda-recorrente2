@@ -691,7 +691,7 @@ const AdminStripeEvents = () => {
         </CardHeader>
         <CardContent>
           {isLoading && !eventsData ? (
-            <TableSkeleton title="Eventos Stripe" columns={6} rows={10} showSearch />
+            <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
             <div className="rounded-md border relative">
               {isFetching && !isLoading && (
@@ -707,6 +707,7 @@ const AdminStripeEvents = () => {
                   <TableRow>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Reason</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-center">Cancelamento</TableHead>
@@ -722,6 +723,9 @@ const AdminStripeEvents = () => {
                         </TableCell>
                         <TableCell className="text-sm">
                           {event.email || "-"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {(event as any).reason || "-"}
                         </TableCell>
                         <TableCell className="text-sm">
                           {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
