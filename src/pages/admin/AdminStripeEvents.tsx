@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -42,7 +42,7 @@ const AdminStripeEvents = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data: eventsData, isLoading, isFetching } = useQuery({
+  const { data: eventsData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo],
     queryFn: async () => {
       const from = (page - 1) * pageSize;
@@ -265,6 +265,17 @@ const AdminStripeEvents = () => {
               >
                 <Filter className="w-4 h-4" />
                 Cancelamento Agendado
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="gap-2"
+                disabled={isFetching}
+              >
+                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                Atualizar
               </Button>
             </div>
 
