@@ -36,6 +36,7 @@ const couponFormSchema = z.object({
   valid_until: z.date().optional(),
   is_active: z.boolean().default(true),
   is_visible_to_affiliates: z.boolean().default(true),
+  is_primary: z.boolean().default(false),
   max_uses: z.number().optional(),
   product_id: z.string().optional(),
 });
@@ -59,6 +60,7 @@ const AdminCoupons = () => {
       value: 10,
       is_active: true,
       is_visible_to_affiliates: true,
+      is_primary: false,
     },
   });
 
@@ -93,6 +95,17 @@ const AdminCoupons = () => {
 
   const createCouponMutation = useMutation({
     mutationFn: async (values: CouponFormValues) => {
+      // If setting as primary, first remove primary from other coupons with same product
+      if (values.is_primary) {
+        const productId = values.product_id || null;
+        const { error: updateError } = await supabase
+          .from("coupons")
+          .update({ is_primary: false } as any)
+          .match({ product_id: productId, is_primary: true });
+        
+        if (updateError) console.error("Error updating previous primary:", updateError);
+      }
+
       const { data, error } = await supabase
         .from("coupons")
         .insert({
@@ -104,9 +117,10 @@ const AdminCoupons = () => {
           valid_until: values.valid_until?.toISOString(),
           is_active: values.is_active,
           is_visible_to_affiliates: values.is_visible_to_affiliates,
+          is_primary: values.is_primary,
           max_uses: values.max_uses,
           product_id: values.product_id || null,
-        })
+        } as any)
         .select()
         .single();
 
@@ -126,6 +140,28 @@ const AdminCoupons = () => {
 
   const updateCouponMutation = useMutation({
     mutationFn: async (values: CouponFormValues & { id: string }) => {
+      // If setting as primary, first remove primary from other coupons with same product
+      if (values.is_primary) {
+        const productId = values.product_id || null;
+        
+        // First get current primary coupons for this product
+        const { data: primaryCoupons } = await supabase
+          .from("coupons")
+          .select("id")
+          .match({ product_id: productId, is_primary: true })
+          .neq("id", values.id);
+        
+        // Update them to not be primary
+        if (primaryCoupons && primaryCoupons.length > 0) {
+          const { error: updateError } = await supabase
+            .from("coupons")
+            .update({ is_primary: false } as any)
+            .in("id", primaryCoupons.map(c => c.id));
+          
+          if (updateError) console.error("Error updating previous primary:", updateError);
+        }
+      }
+
       const { data, error } = await supabase
         .from("coupons")
         .update({
@@ -137,9 +173,10 @@ const AdminCoupons = () => {
           valid_until: values.valid_until?.toISOString(),
           is_active: values.is_active,
           is_visible_to_affiliates: values.is_visible_to_affiliates,
+          is_primary: values.is_primary,
           max_uses: values.max_uses,
           product_id: values.product_id || null,
-        })
+        } as any)
         .eq("id", values.id)
         .select()
         .single();
@@ -196,6 +233,7 @@ const AdminCoupons = () => {
       valid_until: coupon.valid_until ? new Date(coupon.valid_until) : undefined,
       is_active: coupon.is_active,
       is_visible_to_affiliates: coupon.is_visible_to_affiliates ?? true,
+      is_primary: coupon.is_primary ?? false,
       max_uses: coupon.max_uses,
       product_id: coupon.product_id || undefined,
     });
@@ -495,6 +533,27 @@ const AdminCoupons = () => {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="is_primary"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Cupom principal</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Apenas um cupom pode ser principal por produto
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
                 <div className="flex justify-end">
                   <Button type="submit" disabled={createCouponMutation.isPending || updateCouponMutation.isPending}>
                     {editingCoupon ? "Atualizar" : "Salvar"}
@@ -546,6 +605,7 @@ const AdminCoupons = () => {
                 <TableHead>Usos</TableHead>
                 <TableHead>Validade</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Principal</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -558,7 +618,7 @@ const AdminCoupons = () => {
                 </TableRow>
               ) : filteredCoupons.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                     Nenhum cupom cadastrado
                   </TableCell>
                 </TableRow>
@@ -585,6 +645,13 @@ const AdminCoupons = () => {
                       <Badge variant={coupon.is_active ? "default" : "secondary"}>
                         {coupon.is_active ? "Ativo" : "Inativo"}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {coupon.is_primary && (
+                        <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                          Principal
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
