@@ -454,7 +454,6 @@ serve(async (req) => {
             stripe_invoice_id: invoice.id,
             stripe_subscription_id: invoice.subscription ? 
               (typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id) : null,
-            stripe_customer_id: typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id,
             plan_id: invoiceMetadata.plan_id,
             amount: invoice.amount_paid / 100, // Converter centavos para reais
             currency: invoice.currency || 'brl',
