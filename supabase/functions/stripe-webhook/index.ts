@@ -14,6 +14,7 @@ const getStripeConfig = async () => {
     .single();
 
   const isProduction = settings?.value === "production";
+  const environment = isProduction ? "production" : "test";
   
   const secretKey = isProduction 
     ? Deno.env.get("STRIPE_SECRET_KEY_PROD")
@@ -28,7 +29,7 @@ const getStripeConfig = async () => {
     httpClient: Stripe.createFetchHttpClient(),
   });
 
-  return { stripe, webhookSecret: webhookSecret || "" };
+  return { stripe, webhookSecret: webhookSecret || "", environment };
 };
 
 const toIsoFromUnix = (value: number | null | undefined) =>
@@ -53,7 +54,7 @@ serve(async (req) => {
 
     const body = await req.text();
     let event: Stripe.Event;
-    const { stripe, webhookSecret } = await getStripeConfig();
+    const { stripe, webhookSecret, environment } = await getStripeConfig();
 
     try {
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
@@ -106,6 +107,7 @@ serve(async (req) => {
         plan_id: metadata.plan_id || null,
         product_id: metadata.product_id || null,
         email: eventEmail,
+        environment: environment,
         processed: false,
       });
 
@@ -142,6 +144,7 @@ serve(async (req) => {
             plan_id: planId,
             stripe_subscription_id: subscription.id,
             status: subscription.status,
+            environment: environment,
           };
 
           const currentStart = toIsoFromUnix(subscription.current_period_start as number | null | undefined);
