@@ -88,6 +88,7 @@ const AdminStripeEvents = () => {
     },
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev ?? { events: [], total: 0 },
   });
 
   const events = eventsData?.events || [];
@@ -142,10 +143,6 @@ const AdminStripeEvents = () => {
       </Badge>
     );
   };
-
-  if (isLoading) {
-    return <TableSkeleton title="Eventos Stripe" columns={6} rows={10} showSearch />;
-  }
 
   return (
     <div className="space-y-6">
@@ -271,83 +268,87 @@ const AdminStripeEvents = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border relative">
-            {isFetching && !isLoading && (
-              <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                  Buscando...
+          {isLoading && !eventsData ? (
+            <TableSkeleton title="Eventos Stripe" columns={6} rows={10} showSearch />
+          ) : (
+            <div className="rounded-md border relative">
+              {isFetching && !isLoading && (
+                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Buscando...
+                  </div>
                 </div>
-              </div>
-            )}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Event ID</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Cancelamento</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {events && events.length > 0 ? (
-                  events.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell className="font-mono text-xs">
-                        {event.event_id.substring(0, 20)}...
-                      </TableCell>
-                      <TableCell>
-                        {getEventTypeBadge(event.event_type)}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {event.email || "-"}
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
-                          locale: ptBR,
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(event.processed)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {event.event_type === 'customer.subscription.updated' && 
-                         (event.event_data as any)?.cancel_at_period_end === true && (
-                          <div className="flex justify-center">
-                            <Badge variant="destructive" className="gap-1 text-xs">
-                              <AlertCircle className="w-3 h-3" />
-                              Agendado
-                            </Badge>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(event)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
+              )}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Event ID</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-center">Cancelamento</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {events && events.length > 0 ? (
+                    events.map((event) => (
+                      <TableRow key={event.id}>
+                        <TableCell className="font-mono text-xs">
+                          {event.event_id.substring(0, 20)}...
+                        </TableCell>
+                        <TableCell>
+                          {getEventTypeBadge(event.event_type)}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {event.email || "-"}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
+                            locale: ptBR,
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(event.processed)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {event.event_type === 'customer.subscription.updated' && 
+                          (event.event_data as any)?.cancel_at_period_end === true && (
+                            <div className="flex justify-center">
+                              <Badge variant="destructive" className="gap-1 text-xs">
+                                <AlertCircle className="w-3 h-3" />
+                                Agendado
+                              </Badge>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetails(event)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center text-muted-foreground py-8"
+                      >
+                        Nenhum evento encontrado
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center text-muted-foreground py-8"
-                    >
-                      Nenhum evento encontrado
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
 
           <div className="flex items-center justify-between px-4 py-4 border-t">
             <Button
