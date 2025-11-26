@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -30,6 +30,8 @@ const AdminStripeEvents = () => {
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
 
   // Debounce search term
   useEffect(() => {
@@ -95,9 +97,29 @@ const AdminStripeEvents = () => {
   const totalCount = eventsData?.total || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  const { data: subscriptionData } = useQuery({
+    queryKey: ["subscription", selectedSubscriptionId],
+    queryFn: async () => {
+      if (!selectedSubscriptionId) return null;
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("stripe_subscription_id", selectedSubscriptionId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedSubscriptionId && subscriptionDialogOpen,
+  });
+
   const handleViewDetails = (event: any) => {
     setSelectedEvent(event);
     setDialogOpen(true);
+  };
+
+  const handleViewSubscription = (stripeSubscriptionId: string) => {
+    setSelectedSubscriptionId(stripeSubscriptionId);
+    setSubscriptionDialogOpen(true);
   };
 
   const handleCopyJson = () => {
@@ -325,13 +347,25 @@ const AdminStripeEvents = () => {
                           )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(event)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            {(event as any).stripe_subscription_id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                                title="Ver dados da subscription"
+                              >
+                                <Database className="w-4 h-4 text-primary" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewDetails(event)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -472,6 +506,134 @@ const AdminStripeEvents = () => {
                     {JSON.stringify(selectedEvent.event_data, null, 2)}
                   </pre>
                 </ScrollArea>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Subscription</DialogTitle>
+          </DialogHeader>
+          {subscriptionData ? (
+            <ScrollArea className="max-h-[60vh]">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Subscription ID</p>
+                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
+                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.stripe_subscription_id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.user_id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Plan ID</p>
+                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.plan_id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Status</p>
+                    <Badge variant={subscriptionData.status === 'active' ? 'default' : 'secondary'}>
+                      {subscriptionData.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Ambiente</p>
+                    <Badge variant={subscriptionData.environment === 'production' ? 'default' : 'secondary'}>
+                      {subscriptionData.environment || 'test'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Início do Período</p>
+                    <p className="text-sm">
+                      {subscriptionData.current_period_start 
+                        ? format(new Date(subscriptionData.current_period_start), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Fim do Período</p>
+                    <p className="text-sm">
+                      {subscriptionData.current_period_end 
+                        ? format(new Date(subscriptionData.current_period_end), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                        : "-"}
+                    </p>
+                  </div>
+                  {subscriptionData.trial_end && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Fim do Trial</p>
+                      <p className="text-sm">
+                        {format(new Date(subscriptionData.trial_end), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                  )}
+                  {subscriptionData.cancel_at && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Cancelamento Agendado</p>
+                      <p className="text-sm text-destructive">
+                        {format(new Date(subscriptionData.cancel_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                  )}
+                  {subscriptionData.cancelled_at && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Cancelado em</p>
+                      <p className="text-sm">
+                        {format(new Date(subscriptionData.cancelled_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                  )}
+                  {subscriptionData.cancellation_reason && (
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground">Motivo do Cancelamento</p>
+                      <p className="text-sm">{subscriptionData.cancellation_reason}</p>
+                    </div>
+                  )}
+                  {subscriptionData.cancellation_comment && (
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground">Comentário do Cancelamento</p>
+                      <p className="text-sm">{subscriptionData.cancellation_comment}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Criado em</p>
+                    <p className="text-sm">
+                      {format(new Date(subscriptionData.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Atualizado em</p>
+                    <p className="text-sm">
+                      {format(new Date(subscriptionData.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                    </p>
+                  </div>
+                </div>
+
+                {subscriptionData.payment_method_data && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">
+                      Dados do Método de Pagamento
+                    </p>
+                    <div className="rounded-md border bg-muted/50 p-4">
+                      <pre className="text-xs">
+                        {JSON.stringify(subscriptionData.payment_method_data, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          ) : (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                Carregando dados da subscription...
               </div>
             </div>
           )}
