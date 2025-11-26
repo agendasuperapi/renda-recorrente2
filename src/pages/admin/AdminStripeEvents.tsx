@@ -934,7 +934,7 @@ const AdminStripeEvents = () => {
                     </Button>
                   </div>
                   <div className="max-h-[500px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
-                    <pre className="text-xs whitespace-pre-wrap break-words w-full">
+                    <pre className="text-xs whitespace-pre-wrap break-all w-full overflow-wrap-anywhere">
                       {JSON.stringify(selectedEvent.event_data, null, 2)}
                     </pre>
                   </div>
