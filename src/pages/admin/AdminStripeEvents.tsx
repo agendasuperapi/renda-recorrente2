@@ -31,7 +31,7 @@ const AdminStripeEvents = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data: events, isLoading } = useQuery({
+  const { data: events, isLoading, isFetching } = useQuery({
     queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd],
     queryFn: async () => {
       let query = supabase
@@ -128,15 +128,17 @@ const AdminStripeEvents = () => {
       <Card>
         <CardHeader>
           <div className="space-y-3">
-            <div className="relative">
+            <form onSubmit={(e) => e.preventDefault()} className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por ID do evento, tipo ou email..."
                 className="pl-9"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                type="text"
+                autoComplete="off"
               />
-            </div>
+            </form>
             <div className="flex items-center gap-2">
               <Button
                 variant={showCancelAtPeriodEnd ? "default" : "outline"}
@@ -161,7 +163,15 @@ const AdminStripeEvents = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border relative">
+            {isFetching && !isLoading && (
+              <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Buscando...
+                </div>
+              </div>
+            )}
             <Table>
               <TableHeader>
                 <TableRow>
