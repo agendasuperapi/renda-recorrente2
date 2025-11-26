@@ -39,7 +39,6 @@ const Coupons = () => {
       const { data, error } = await supabase
         .from("products")
         .select("id, nome")
-        .eq("show_on_landing", true)
         .order("nome");
       if (error) throw error;
       return data;
