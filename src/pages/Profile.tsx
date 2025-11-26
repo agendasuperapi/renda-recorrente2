@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, KeyboardEvent } from "react";
-import { User, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { User, CheckCircle2, XCircle, Loader2, Edit2 } from "lucide-react";
+import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import {
   Select,
   SelectContent,
@@ -20,6 +21,7 @@ const Profile = () => {
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     username: "",
@@ -357,6 +359,14 @@ const Profile = () => {
           </p>
         </div>
 
+        <UsernameEditDialog
+          open={usernameDialogOpen}
+          onOpenChange={setUsernameDialogOpen}
+          currentUsername={profile.username}
+          userId={currentUserId}
+          onSuccess={loadProfile}
+        />
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <Card>
             <CardHeader>
@@ -379,50 +389,23 @@ const Profile = () => {
                 </div>
                 <div className="relative">
                   <Label htmlFor="username">Nome de Usuário</Label>
-                  <div className="relative">
+                  <div className="flex gap-2">
                     <Input
                       id="username"
                       value={profile.username}
-                      onChange={(e) => handleUsernameChange(e.target.value)}
-                      onKeyDown={handleKeyDown}
+                      disabled
                       placeholder="seuusername"
-                      className={
-                        usernameAvailable === false 
-                          ? "border-destructive" 
-                          : usernameAvailable === true 
-                          ? "border-green-500" 
-                          : ""
-                      }
+                      className="bg-muted"
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {checkingUsername && (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      )}
-                      {!checkingUsername && usernameAvailable === true && (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      )}
-                      {!checkingUsername && usernameAvailable === false && (
-                        <XCircle className="h-4 w-4 text-destructive" />
-                      )}
-                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setUsernameDialogOpen(true)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  {profile.username.length >= 3 && !checkingUsername && (
-                    <p className={`text-xs mt-1 ${
-                      usernameAvailable === true 
-                        ? "text-green-600" 
-                        : usernameAvailable === false 
-                        ? "text-destructive" 
-                        : "text-muted-foreground"
-                    }`}>
-                      {usernameAvailable === true && "✓ Nome de usuário disponível"}
-                      {usernameAvailable === false && "✗ Nome de usuário já está em uso"}
-                    </p>
-                  )}
-                  {profile.username.length > 0 && profile.username.length < 3 && (
-                    <p className="text-xs mt-1 text-muted-foreground">
-                      Mínimo 3 caracteres
-                    </p>
-                  )}
                 </div>
                 <div>
                   <Label htmlFor="cpf">CPF</Label>
