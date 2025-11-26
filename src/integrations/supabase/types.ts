@@ -995,6 +995,8 @@ export type Database = {
       }
       stripe_events: {
         Row: {
+          cancellation_comment: string | null
+          cancellation_reason: string | null
           created_at: string | null
           email: string | null
           environment: string | null
@@ -1008,6 +1010,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cancellation_comment?: string | null
+          cancellation_reason?: string | null
           created_at?: string | null
           email?: string | null
           environment?: string | null
@@ -1021,6 +1025,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cancellation_comment?: string | null
+          cancellation_reason?: string | null
           created_at?: string | null
           email?: string | null
           environment?: string | null
@@ -1099,6 +1105,8 @@ export type Database = {
       subscriptions: {
         Row: {
           cancel_at: string | null
+          cancellation_comment: string | null
+          cancellation_reason: string | null
           cancelled_at: string | null
           created_at: string | null
           current_period_end: string | null
@@ -1115,6 +1123,8 @@ export type Database = {
         }
         Insert: {
           cancel_at?: string | null
+          cancellation_comment?: string | null
+          cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string | null
           current_period_end?: string | null
@@ -1131,6 +1141,8 @@ export type Database = {
         }
         Update: {
           cancel_at?: string | null
+          cancellation_comment?: string | null
+          cancellation_reason?: string | null
           cancelled_at?: string | null
           created_at?: string | null
           current_period_end?: string | null
