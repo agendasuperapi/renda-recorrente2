@@ -190,6 +190,26 @@ serve(async (req) => {
         if (cancelAt) updateData.cancel_at = cancelAt;
         if (canceledAt) updateData.cancelled_at = canceledAt;
 
+        // Verificar se o plano mudou
+        if (subscription.items?.data?.[0]?.price?.id) {
+          const stripePriceId = subscription.items.data[0].price.id;
+          console.log(`[Stripe Webhook] Checking for plan change with price_id:`, stripePriceId);
+          
+          // Buscar o plan_id correspondente ao novo stripe_price_id
+          const { data: planIntegration } = await supabase
+            .from("plan_integrations")
+            .select("plan_id")
+            .eq("stripe_price_id", stripePriceId)
+            .eq("environment_type", environment)
+            .eq("is_active", true)
+            .single();
+
+          if (planIntegration?.plan_id) {
+            updateData.plan_id = planIntegration.plan_id;
+            console.log(`[Stripe Webhook] Plan changed to:`, planIntegration.plan_id);
+          }
+        }
+
         const { error: updateError } = await supabase
           .from("subscriptions")
           .update(updateData)
