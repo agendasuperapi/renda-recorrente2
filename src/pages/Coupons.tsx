@@ -101,11 +101,11 @@ const Coupons = () => {
     },
   });
 
-  const generateCustomCode = (username: string, couponCode: string) => {
-    return `${username.toUpperCase().replace(/\s/g, "")}${couponCode.toUpperCase().replace(/\s/g, "")}`;
+  const generateCustomCode = (username: string) => {
+    return username.toUpperCase().replace(/\s/g, "");
   };
 
-  const handleActivateCoupon = (couponId: string, couponCode: string) => {
+  const handleActivateCoupon = (couponId: string) => {
     if (!profile?.username) {
       toast({
         title: "Erro",
@@ -115,7 +115,7 @@ const Coupons = () => {
       return;
     }
 
-    const customCode = generateCustomCode(profile.username, couponCode);
+    const customCode = generateCustomCode(profile.username);
     activateCoupon.mutate({ couponId, customCode });
   };
 
@@ -186,7 +186,7 @@ const Coupons = () => {
             <div className="space-y-4">
               {nonActivatedCoupons.map((coupon) => {
                 const customCode = profile?.username 
-                  ? generateCustomCode(profile.username, coupon.code)
+                  ? generateCustomCode(profile.username)
                   : "";
 
                 return (
@@ -219,7 +219,7 @@ const Coupons = () => {
                       </div>
                     </div>
                     <Button
-                      onClick={() => handleActivateCoupon(coupon.id, coupon.code)}
+                      onClick={() => handleActivateCoupon(coupon.id)}
                       disabled={activateCoupon.isPending || !profile?.username}
                     >
                       <Check className="h-4 w-4 mr-2" />

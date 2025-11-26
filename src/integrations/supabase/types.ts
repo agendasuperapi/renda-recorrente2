@@ -120,19 +120,25 @@ export type Database = {
           affiliate_id: string
           coupon_id: string
           created_at: string | null
+          custom_code: string | null
           id: string
+          is_active: boolean | null
         }
         Insert: {
           affiliate_id: string
           coupon_id: string
           created_at?: string | null
+          custom_code?: string | null
           id?: string
+          is_active?: boolean | null
         }
         Update: {
           affiliate_id?: string
           coupon_id?: string
           created_at?: string | null
+          custom_code?: string | null
           id?: string
+          is_active?: boolean | null
         }
         Relationships: [
           {
