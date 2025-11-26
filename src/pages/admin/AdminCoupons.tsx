@@ -305,7 +305,23 @@ const AdminCoupons = () => {
           }
         }}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button 
+              className="gap-2"
+              onClick={() => {
+                setEditingCoupon(null);
+                form.reset({
+                  name: "",
+                  code: "",
+                  description: "",
+                  type: "percentage",
+                  value: 10,
+                  is_active: true,
+                  is_visible_to_affiliates: true,
+                  is_primary: false,
+                });
+                setDateInputValue("");
+              }}
+            >
               <Plus className="h-4 w-4" />
               Criar Cupom
             </Button>
