@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -813,10 +813,14 @@ const AdminStripeEvents = () => {
           </DialogHeader>
           {selectedEvent && (
             <Tabs defaultValue="event" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="event">
                   <Database className="w-4 h-4 mr-2" />
                   Detalhes do Evento
+                </TabsTrigger>
+                <TabsTrigger value="json">
+                  <Code className="w-4 h-4 mr-2" />
+                  Evento Json
                 </TabsTrigger>
                 <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
                   <User className="w-4 h-4 mr-2" />
@@ -884,11 +888,13 @@ const AdminStripeEvents = () => {
                     </div>
                   )}
                 </div>
+              </TabsContent>
 
+              <TabsContent value="json" className="space-y-4 mt-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-medium text-muted-foreground">
-                      Dados do Evento (JSON)
+                      JSON Completo do Evento
                     </p>
                     <Button
                       variant="outline"
@@ -899,7 +905,7 @@ const AdminStripeEvents = () => {
                       Copiar
                     </Button>
                   </div>
-                  <div className="max-h-[300px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                  <div className="max-h-[500px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
                     <pre className="text-xs whitespace-pre-wrap break-words w-full">
                       {JSON.stringify(selectedEvent.event_data, null, 2)}
                     </pre>
