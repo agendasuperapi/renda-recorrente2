@@ -393,7 +393,7 @@ const Coupons = () => {
                                   onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary))}
                                 >
                                   <Copy className="h-4 w-4 mr-2" />
-                                  Copiar Código
+                                  Copiar Cupom
                                 </Button>
                                 {getAffiliateLink(coupon) && (
                                   <>
@@ -520,7 +520,7 @@ const Coupons = () => {
                             onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary))}
                           >
                             <Copy className="h-4 w-4 mr-2" />
-                            Copiar Código
+                            Copiar Cupom
                           </Button>
                           {getAffiliateLink(coupon) && (
                             <>
