@@ -40,7 +40,10 @@ const couponFormSchema = z.object({
   is_active: z.boolean().default(true),
   is_visible_to_affiliates: z.boolean().default(true),
   is_primary: z.boolean().default(false),
-  max_uses: z.number().optional(),
+  max_uses: z.preprocess(
+    (val) => val === null || val === "" || val === undefined ? undefined : val,
+    z.number().optional()
+  ),
   product_id: z.string().min(1, "Produto é obrigatório"),
 });
 
