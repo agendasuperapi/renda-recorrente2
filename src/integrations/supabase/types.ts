@@ -323,6 +323,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean | null
+          is_primary: boolean | null
           max_uses: number | null
           name: string
           product_id: string | null
@@ -340,6 +341,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_primary?: boolean | null
           max_uses?: number | null
           name: string
           product_id?: string | null
@@ -357,6 +359,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_primary?: boolean | null
           max_uses?: number | null
           name?: string
           product_id?: string | null
