@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -17,6 +17,150 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const ClientProfile = ({ userId }: { userId: string | null }) => {
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profile", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          Carregando dados do cliente...
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+        Nenhum dado de cliente encontrado.
+      </div>
+    );
+  }
+
+  return (
+    <ScrollArea className="max-h-[50vh]">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Nome</p>
+          <p className="text-sm">{profile.name || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Username</p>
+          <p className="text-sm">{profile.username || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Telefone</p>
+          <p className="text-sm">{profile.phone || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">CPF</p>
+          <p className="text-sm">{profile.cpf || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Data de Nascimento</p>
+          <p className="text-sm">
+            {profile.birth_date 
+              ? format(new Date(profile.birth_date), "dd/MM/yyyy", { locale: ptBR })
+              : "-"}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Gênero</p>
+          <p className="text-sm">{profile.gender || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">CEP</p>
+          <p className="text-sm">{profile.cep || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Rua</p>
+          <p className="text-sm">{profile.street || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Número</p>
+          <p className="text-sm">{profile.number || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Complemento</p>
+          <p className="text-sm">{profile.complement || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Bairro</p>
+          <p className="text-sm">{profile.neighborhood || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Cidade</p>
+          <p className="text-sm">{profile.city || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Estado</p>
+          <p className="text-sm">{profile.state || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Instagram</p>
+          <p className="text-sm">{profile.instagram || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Facebook</p>
+          <p className="text-sm">{profile.facebook || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">TikTok</p>
+          <p className="text-sm">{profile.tiktok || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Código de Afiliado</p>
+          <p className="text-sm font-mono">{profile.affiliate_code || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Código de Indicação</p>
+          <p className="text-sm font-mono">{profile.referrer_code || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Tipo de PIX</p>
+          <p className="text-sm">{profile.pix_type || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Chave PIX</p>
+          <p className="text-sm">{profile.pix_key || "-"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Cadastrado em</p>
+          <p className="text-sm">
+            {profile.created_at 
+              ? format(new Date(profile.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+              : "-"}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Atualizado em</p>
+          <p className="text-sm">
+            {profile.updated_at 
+              ? format(new Date(profile.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+              : "-"}
+          </p>
+        </div>
+      </div>
+    </ScrollArea>
+  );
+};
 
 const AdminStripeEvents = () => {
   const { toast } = useToast();
@@ -452,95 +596,112 @@ const AdminStripeEvents = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh]">
+        <DialogContent className="max-w-4xl max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>Detalhes do Evento</DialogTitle>
           </DialogHeader>
           {selectedEvent && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Event ID</p>
-                  <p className="text-sm font-mono break-all">{selectedEvent.event_id}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Tipo</p>
-                  <div className="mt-1">{getEventTypeBadge(selectedEvent.event_type)}</div>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Email</p>
-                  <p className="text-sm">{selectedEvent.email || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Data</p>
-                  <p className="text-sm">
-                    {format(new Date(selectedEvent.created_at), "dd/MM/yyyy HH:mm:ss", {
-                      locale: ptBR,
-                    })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Status</p>
-                  <div className="mt-1">{getStatusBadge(selectedEvent.processed)}</div>
-                </div>
-                {selectedEvent.user_id && (
+            <Tabs defaultValue="event" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="event">
+                  <Database className="w-4 h-4 mr-2" />
+                  Detalhes do Evento
+                </TabsTrigger>
+                <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
+                  <User className="w-4 h-4 mr-2" />
+                  Cliente
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="event" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">User ID</p>
-                    <p className="text-sm font-mono text-xs break-all">{selectedEvent.user_id}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Event ID</p>
+                    <p className="text-sm font-mono break-all">{selectedEvent.event_id}</p>
                   </div>
-                )}
-                {selectedEvent.event_type === 'customer.subscription.updated' && 
-                 (selectedEvent.event_data as any)?.cancel_at_period_end && (
-                  <div className="col-span-2">
-                    <Badge variant="destructive" className="gap-1">
-                      <Clock className="w-3 h-3" />
-                      Cancelamento Agendado para o Final do Período
-                    </Badge>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Tipo</p>
+                    <div className="mt-1">{getEventTypeBadge(selectedEvent.event_type)}</div>
                   </div>
-                )}
-                {selectedEvent.event_type === 'customer.subscription.updated' && 
-                 (selectedEvent.event_data as any)?.cancel_at_period_end && 
-                 (selectedEvent.event_data as any)?.cancellation_details && (
-                  <div className="col-span-2">
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Detalhes do Cancelamento
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Email</p>
+                    <p className="text-sm">{selectedEvent.email || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Data</p>
+                    <p className="text-sm">
+                      {format(new Date(selectedEvent.created_at), "dd/MM/yyyy HH:mm:ss", {
+                        locale: ptBR,
+                      })}
                     </p>
-                    <div className="rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
-                      <pre 
-                        className="text-xs break-all whitespace-pre-wrap"
-                        style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
-                      >
-                        {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
-                      </pre>
-                    </div>
                   </div>
-                )}
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Dados do Evento (JSON)
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyJson}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copiar
-                  </Button>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Status</p>
+                    <div className="mt-1">{getStatusBadge(selectedEvent.processed)}</div>
+                  </div>
+                  {selectedEvent.user_id && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{selectedEvent.user_id}</p>
+                    </div>
+                  )}
+                  {selectedEvent.event_type === 'customer.subscription.updated' && 
+                   (selectedEvent.event_data as any)?.cancel_at_period_end && (
+                    <div className="col-span-2">
+                      <Badge variant="destructive" className="gap-1">
+                        <Clock className="w-3 h-3" />
+                        Cancelamento Agendado para o Final do Período
+                      </Badge>
+                    </div>
+                  )}
+                  {selectedEvent.event_type === 'customer.subscription.updated' && 
+                   (selectedEvent.event_data as any)?.cancel_at_period_end && 
+                   (selectedEvent.event_data as any)?.cancellation_details && (
+                    <div className="col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                        Detalhes do Cancelamento
+                      </p>
+                      <div className="rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                        <pre 
+                          className="text-xs break-all whitespace-pre-wrap"
+                          style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                        >
+                          {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <ScrollArea className="h-[300px] rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
-                  <pre 
-                    className="text-xs break-all whitespace-pre-wrap"
-                    style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
-                  >
-                    {JSON.stringify(selectedEvent.event_data, null, 2)}
-                  </pre>
-                </ScrollArea>
-              </div>
-            </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Dados do Evento (JSON)
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyJson}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copiar
+                    </Button>
+                  </div>
+                  <ScrollArea className="h-[300px] rounded-md border bg-muted/50 p-4 overflow-hidden max-w-full">
+                    <pre 
+                      className="text-xs break-all whitespace-pre-wrap"
+                      style={{ overflowWrap: 'anywhere', wordBreak: 'break-all' }}
+                    >
+                      {JSON.stringify(selectedEvent.event_data, null, 2)}
+                    </pre>
+                  </ScrollArea>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="client" className="space-y-4 mt-4">
+                <ClientProfile userId={selectedEvent.user_id} />
+              </TabsContent>
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
