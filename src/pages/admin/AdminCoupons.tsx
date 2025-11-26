@@ -29,7 +29,10 @@ const couponTypeLabels = {
 
 const couponFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
-  code: z.string().min(1, "Código é obrigatório"),
+  code: z.string()
+    .min(1, "Código é obrigatório")
+    .regex(/^\S+$/, "Código não pode conter espaços")
+    .transform(val => val.toUpperCase().replace(/\s/g, "")),
   description: z.string().optional(),
   type: z.enum(["percentage", "days", "free_trial"]),
   value: z.number().min(1, "Valor deve ser maior que 0"),
@@ -320,7 +323,7 @@ const AdminCoupons = () => {
                           <Input 
                             placeholder="Ex: BLACKFRIDAY" 
                             {...field} 
-                            onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                            onChange={(e) => field.onChange(e.target.value.toUpperCase().replace(/\s/g, ""))}
                           />
                         </FormControl>
                         <FormMessage />
