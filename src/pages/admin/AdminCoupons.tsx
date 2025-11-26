@@ -715,54 +715,63 @@ const AdminCoupons = () => {
                 </TableRow>
               ) : (
                 filteredCoupons.map((coupon: any) => (
-                  <TableRow key={coupon.id}>
-                    <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
-                    <TableCell>{coupon.name}</TableCell>
-                    <TableCell>
-                      {coupon.products?.nome || (
-                        <span className="text-muted-foreground">Todos</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
-                    <TableCell>{coupon.value}</TableCell>
-                    <TableCell>
-                      {coupon.current_uses || 0}
-                      {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
-                    </TableCell>
-                    <TableCell>
-                      {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={coupon.is_active ? "default" : "secondary"}>
-                        {coupon.is_active ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {coupon.is_primary && (
-                        <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                          Principal
+                  <>
+                    <TableRow key={coupon.id}>
+                      <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
+                      <TableCell>{coupon.name}</TableCell>
+                      <TableCell>
+                        {coupon.products?.nome || (
+                          <span className="text-muted-foreground">Todos</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
+                      <TableCell>{coupon.value}</TableCell>
+                      <TableCell>
+                        {coupon.current_uses || 0}
+                        {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                      </TableCell>
+                      <TableCell>
+                        {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={coupon.is_active ? "default" : "secondary"}>
+                          {coupon.is_active ? "Ativo" : "Inativo"}
                         </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(coupon)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(coupon.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell>
+                        {coupon.is_primary && (
+                          <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                            Principal
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(coupon)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(coupon.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    {coupon.description && (
+                      <TableRow key={`${coupon.id}-description`} className="border-b-0">
+                        <TableCell colSpan={10} className="text-sm text-muted-foreground py-2 pl-8">
+                          {coupon.description}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))
               )}
             </TableBody>
