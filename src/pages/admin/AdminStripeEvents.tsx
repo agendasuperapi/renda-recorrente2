@@ -387,6 +387,8 @@ const AdminStripeEvents = () => {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
+  const [subscriptionIdFilter, setSubscriptionIdFilter] = useState<string>("");
+  const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
 
   // Debounce search term
   useEffect(() => {
@@ -398,7 +400,7 @@ const AdminStripeEvents = () => {
   }, [searchTerm]);
 
   const { data: eventsData, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo],
+    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, subscriptionIdFilter, environmentFilter],
     queryFn: async () => {
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
@@ -417,6 +419,14 @@ const AdminStripeEvents = () => {
 
       if (eventTypeFilter && eventTypeFilter !== "all") {
         query = query.eq("event_type", eventTypeFilter);
+      }
+
+      if (subscriptionIdFilter) {
+        query = query.eq("stripe_subscription_id", subscriptionIdFilter);
+      }
+
+      if (environmentFilter && environmentFilter !== "all") {
+        query = query.eq("environment", environmentFilter);
       }
 
       if (dateFrom) {
@@ -546,8 +556,28 @@ const AdminStripeEvents = () => {
                 autoComplete="off"
               />
             </form>
-            
+
             <div className="flex flex-wrap items-center gap-3">
+              <Input
+                placeholder="Filtrar por Subscription ID..."
+                className="w-[280px]"
+                value={subscriptionIdFilter}
+                onChange={(e) => setSubscriptionIdFilter(e.target.value)}
+                type="text"
+                autoComplete="off"
+              />
+            
+              <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Ambiente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os ambientes</SelectItem>
+                  <SelectItem value="test">Teste</SelectItem>
+                  <SelectItem value="production">Produção</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
                 <SelectTrigger className="w-[220px]">
                   <SelectValue placeholder="Filtrar por tipo" />
@@ -600,7 +630,7 @@ const AdminStripeEvents = () => {
                 </PopoverContent>
               </Popover>
 
-              {(dateFrom || dateTo || eventTypeFilter !== "all") && (
+              {(dateFrom || dateTo || eventTypeFilter !== "all" || subscriptionIdFilter || environmentFilter !== "all") && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -608,6 +638,8 @@ const AdminStripeEvents = () => {
                     setDateFrom(undefined);
                     setDateTo(undefined);
                     setEventTypeFilter("all");
+                    setSubscriptionIdFilter("");
+                    setEnvironmentFilter("all");
                   }}
                 >
                   Limpar filtros
