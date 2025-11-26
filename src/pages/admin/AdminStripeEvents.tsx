@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -12,8 +12,10 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminStripeEvents = () => {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -54,6 +56,16 @@ const AdminStripeEvents = () => {
   const handleViewDetails = (event: any) => {
     setSelectedEvent(event);
     setDialogOpen(true);
+  };
+
+  const handleCopyJson = () => {
+    if (selectedEvent) {
+      navigator.clipboard.writeText(JSON.stringify(selectedEvent.event_data, null, 2));
+      toast({
+        title: "Copiado!",
+        description: "JSON copiado para a área de transferência",
+      });
+    }
   };
 
   const getStatusBadge = (processed: boolean) => {
@@ -241,9 +253,19 @@ const AdminStripeEvents = () => {
               </div>
 
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-2">
-                  Dados do Evento (JSON)
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Dados do Evento (JSON)
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyJson}
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copiar
+                  </Button>
+                </div>
                 <ScrollArea className="h-[300px] rounded-md border bg-muted/50 p-4">
                   <pre className="text-xs">
                     {JSON.stringify(selectedEvent.event_data, null, 2)}
