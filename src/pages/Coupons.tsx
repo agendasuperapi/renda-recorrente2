@@ -52,7 +52,7 @@ const Coupons = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coupons")
-        .select("*, products(nome)")
+        .select("*, products(nome, icone_light, icone_dark)")
         .eq("is_visible_to_affiliates", true)
         .eq("is_active", true)
         .order("name");
@@ -210,12 +210,18 @@ const Coupons = () => {
   const groupedByProduct = productFilter === "all" 
     ? allCoupons.reduce((acc, coupon) => {
         const productName = coupon.products?.nome || "Sem produto";
-        if (!acc[productName]) {
-          acc[productName] = [];
+        const productKey = `${productName}|${coupon.products?.icone_light || ''}|${coupon.products?.icone_dark || ''}`;
+        if (!acc[productKey]) {
+          acc[productKey] = {
+            name: productName,
+            iconLight: coupon.products?.icone_light,
+            iconDark: coupon.products?.icone_dark,
+            coupons: []
+          };
         }
-        acc[productName].push(coupon);
+        acc[productKey].coupons.push(coupon);
         return acc;
-      }, {} as Record<string, typeof allCoupons>)
+      }, {} as Record<string, { name: string; iconLight?: string; iconDark?: string; coupons: typeof allCoupons }>)
     : null;
 
   if (isLoading) {
@@ -282,13 +288,22 @@ const Coupons = () => {
             </div>
           ) : productFilter === "all" && groupedByProduct ? (
             <div className="space-y-8">
-              {Object.entries(groupedByProduct).map(([productName, coupons]) => (
-                <div key={productName}>
-                  <h3 className="text-lg font-semibold mb-4 text-foreground border-b pb-2">
-                    {productName}
-                  </h3>
+              {Object.entries(groupedByProduct).map(([productKey, productData]) => (
+                <div key={productKey}>
+                  <div className="flex items-center gap-3 mb-4 pb-2 border-b">
+                    {(productData.iconLight || productData.iconDark) && (
+                      <img
+                        src={productData.iconLight || productData.iconDark || ''}
+                        alt={productData.name}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-border"
+                      />
+                    )}
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {productData.name}
+                    </h3>
+                  </div>
                   <div className="space-y-4">
-                    {coupons.map((coupon) => {
+                    {productData.coupons.map((coupon) => {
                       const isActivated = !!coupon.activatedCoupon;
                       const customCode = profile?.username 
                         ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
