@@ -651,6 +651,72 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          billing_reason: string | null
+          created_at: string | null
+          currency: string | null
+          environment: string | null
+          id: string
+          metadata: Json | null
+          payment_date: string | null
+          plan_id: string | null
+          status: string
+          stripe_invoice_id: string
+          stripe_subscription_id: string | null
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          billing_reason?: string | null
+          created_at?: string | null
+          currency?: string | null
+          environment?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_date?: string | null
+          plan_id?: string | null
+          status?: string
+          stripe_invoice_id: string
+          stripe_subscription_id?: string | null
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          billing_reason?: string | null
+          created_at?: string | null
+          currency?: string | null
+          environment?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_date?: string | null
+          plan_id?: string | null
+          status?: string
+          stripe_invoice_id?: string
+          stripe_subscription_id?: string | null
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_features: {
         Row: {
           created_at: string | null

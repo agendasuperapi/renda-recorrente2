@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -159,6 +160,7 @@ const defaultFaqs: FAQ[] = [
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { theme } = useTheme();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -179,6 +181,8 @@ const LandingPage = () => {
   const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [announcementBanner, setAnnouncementBanner] = useState<AnnouncementBanner | null>(null);
+  const [clickCount, setClickCount] = useState(0);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Busca banner de anúncio
   const { data: bannerData } = useQuery({
@@ -1455,7 +1459,33 @@ const LandingPage = () => {
           </Button>
         )}
         <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-3 md:mb-4 px-3 md:px-0" style={{ color: getHeadingColor('planos') }}>
+          <h2 
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-3 md:mb-4 px-3 md:px-0 cursor-pointer select-none" 
+            style={{ color: getHeadingColor('planos') }}
+            onClick={() => {
+              const newCount = clickCount + 1;
+              setClickCount(newCount);
+              
+              // Resetar contador após 2 segundos sem cliques
+              if (clickTimeoutRef.current) {
+                clearTimeout(clickTimeoutRef.current);
+              }
+              clickTimeoutRef.current = setTimeout(() => {
+                setClickCount(0);
+              }, 2000);
+              
+              // Ativar modo desenvolvedor ao clicar 10x
+              if (newCount === 10) {
+                localStorage.setItem('devMode', 'true');
+                setClickCount(0);
+                toast({
+                  title: "🔧 Modo Desenvolvedor Ativado",
+                  description: "Os formulários serão preenchidos automaticamente",
+                  duration: 3000,
+                });
+              }
+            }}
+          >
             Escolha seu Plano
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-center mb-8 md:mb-12 px-3 md:px-0" style={{ color: getTextColor('planos') }}>
