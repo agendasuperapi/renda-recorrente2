@@ -1614,7 +1614,7 @@ const LandingPage = () => {
                   <div className="border rounded-lg p-4 bg-muted/50 space-y-4">
                     {validatedCoupon.affiliate && (
                       <div className="flex flex-col md:flex-row items-center md:items-start gap-3">
-                        <Avatar className="h-18 w-18 md:h-12 md:w-12">
+                        <Avatar className="h-12 w-12">
                           <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
                           <AvatarFallback>
                             {validatedCoupon.affiliate.name?.charAt(0) || "A"}
