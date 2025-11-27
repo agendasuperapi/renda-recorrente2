@@ -231,9 +231,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t border-sidebar-border space-y-2">
         <div className="flex items-center gap-2 px-3 py-2">
-          <Avatar className="w-[30px] h-[30px]">
+          <Avatar className="w-8 h-8 shrink-0">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-            <AvatarFallback className="bg-primary text-white text-xs">
+            <AvatarFallback className="bg-primary text-white text-[10px]">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
