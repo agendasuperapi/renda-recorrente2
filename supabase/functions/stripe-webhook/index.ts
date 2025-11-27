@@ -112,7 +112,10 @@ serve(async (req) => {
       user_id: metadata.user_id,
       plan_id: metadata.plan_id,
       product_id: metadata.product_id,
-      email: eventEmail
+      email: eventEmail,
+      affiliate_id: metadata.affiliate_id,
+      affiliate_coupon_id: metadata.affiliate_coupon_id,
+      coupon_code: metadata.coupon_code
     });
     
     // Registrar evento na tabela stripe_events com metadata completo
@@ -129,6 +132,9 @@ serve(async (req) => {
         environment: environment,
         cancellation_details: cancellationDetails,
         reason: eventReason,
+        affiliate_id: metadata.affiliate_id || null,
+        affiliate_coupon_id: metadata.affiliate_coupon_id || null,
+        stripe_subscription_id: eventObject.subscription || null,
         processed: false,
       });
 
@@ -166,6 +172,8 @@ serve(async (req) => {
             stripe_subscription_id: subscription.id,
             status: subscription.status,
             environment: environment,
+            affiliate_id: subscription.metadata?.affiliate_id || session.metadata?.affiliate_id || null,
+            affiliate_coupon_id: subscription.metadata?.affiliate_coupon_id || session.metadata?.affiliate_coupon_id || null,
           };
 
           const currentStart = toIsoFromUnix(subscription.current_period_start as number | null | undefined);
@@ -461,6 +469,8 @@ serve(async (req) => {
             status: 'paid',
             payment_date: new Date(invoice.created * 1000).toISOString(),
             environment: environment,
+            affiliate_id: invoiceMetadata.affiliate_id || null,
+            affiliate_coupon_id: invoiceMetadata.affiliate_coupon_id || null,
             metadata: {
               product_id: invoiceMetadata.product_id,
               invoice_pdf: invoice.invoice_pdf,

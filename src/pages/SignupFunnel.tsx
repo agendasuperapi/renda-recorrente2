@@ -324,13 +324,26 @@ export default function SignupFunnel() {
         throw new Error("Erro ao criar usuário");
       }
 
+      // Capturar dados do cupom da URL
+      const searchParams = new URLSearchParams(window.location.search);
+      const couponData = searchParams.get('coupon_code') ? {
+        code: searchParams.get('coupon_code') || '',
+        type: searchParams.get('coupon_type') || '',
+        value: parseInt(searchParams.get('coupon_value') || '0'),
+        affiliate_id: searchParams.get('affiliate_id') || '',
+        affiliate_coupon_id: searchParams.get('affiliate_coupon_id') || ''
+      } : null;
+
+      console.log('[SignupFunnel] Coupon data from URL:', couponData);
+
       // Criar sessão de checkout Stripe
       const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-stripe-checkout', {
         body: {
           plan_id: planId,
           user_email: formData.email,
           user_name: formData.name,
-          user_id: authData.user.id
+          user_id: authData.user.id,
+          coupon: couponData
         }
       });
 

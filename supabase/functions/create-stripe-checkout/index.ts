@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { plan_id, user_email, user_name, user_id } = await req.json();
+    const { plan_id, user_email, user_name, user_id, coupon } = await req.json();
 
     if (!plan_id || !user_email || !user_name || !user_id) {
       return new Response(
@@ -28,6 +28,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('[create-stripe-checkout] Iniciando processo para plano:', plan_id);
+    console.log('[create-stripe-checkout] Coupon data received:', coupon);
 
     // 1. Buscar plano para obter product_id e features (para trial_days)
     const { data: plan, error: planError } = await supabase
@@ -46,19 +47,37 @@ Deno.serve(async (req) => {
 
     const product_id = plan.product_id;
 
-    // Extrair trial_days das features do plano
-    let trialDays = 0;
+    // Calcular trial days do cupom (prioridade sobre trial do plano)
+    let couponTrialDays = 0;
+    if (coupon) {
+      if (coupon.type === 'days') {
+        couponTrialDays = coupon.value; // Ex: 7 dias
+        console.log('[create-stripe-checkout] Cupom de trial days aplicado:', couponTrialDays);
+      } else if (coupon.type === 'free_trial') {
+        couponTrialDays = coupon.value * 30; // Ex: 1 mês = 30 dias
+        console.log('[create-stripe-checkout] Cupom de mês grátis aplicado:', couponTrialDays, 'dias');
+      }
+    }
+
+    // Extrair trial_days das features do plano (usado apenas se cupom não fornecer trial)
+    let planTrialDays = 0;
     const features = plan.features || [];
     
     for (const feature of features) {
       if (typeof feature === 'string' && feature.startsWith('trial_days:')) {
         const days = parseInt(feature.split(':')[1]);
         if (!isNaN(days) && days > 0) {
-          trialDays = days;
-          console.log('[create-stripe-checkout] Trial days encontrado:', trialDays);
+          planTrialDays = days;
+          console.log('[create-stripe-checkout] Trial days do plano encontrado:', planTrialDays);
           break;
         }
       }
+    }
+
+    // Trial final: cupom tem prioridade sobre plano
+    const finalTrialDays = couponTrialDays > 0 ? couponTrialDays : planTrialDays;
+    if (finalTrialDays > 0) {
+      console.log('[create-stripe-checkout] Trial days final:', finalTrialDays);
     }
 
     // 2. Buscar ambiente ativo (test ou production)
@@ -170,7 +189,10 @@ Deno.serve(async (req) => {
         plan_id: plan_id,
         product_id: product_id || '',
         user_email: user_email,
-        environment: environmentMode
+        environment: environmentMode,
+        affiliate_id: coupon?.affiliate_id || '',
+        affiliate_coupon_id: coupon?.affiliate_coupon_id || '',
+        coupon_code: coupon?.code || ''
       },
       subscription_data: {
         metadata: {
@@ -178,15 +200,18 @@ Deno.serve(async (req) => {
           plan_id: plan_id,
           product_id: product_id || '',
           user_email: user_email,
-          environment: environmentMode
+          environment: environmentMode,
+          affiliate_id: coupon?.affiliate_id || '',
+          affiliate_coupon_id: coupon?.affiliate_coupon_id || '',
+          coupon_code: coupon?.code || ''
         }
       }
     };
 
-    // Adicionar trial period se configurado no plano
-    if (trialDays > 0) {
-      sessionConfig.subscription_data.trial_period_days = trialDays;
-      console.log('[create-stripe-checkout] Adicionando trial period de', trialDays, 'dias');
+    // Adicionar trial period se configurado
+    if (finalTrialDays > 0) {
+      sessionConfig.subscription_data.trial_period_days = finalTrialDays;
+      console.log('[create-stripe-checkout] Adicionando trial period de', finalTrialDays, 'dias');
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
