@@ -12,6 +12,7 @@ export const DashboardLayout = () => {
   const [user, setUser] = useState<User | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [hasActivePlan, setHasActivePlan] = useState<boolean | null>(null);
 
   const checkUserRole = async (userId: string) => {
     // Tentar ler do cache primeiro
@@ -45,19 +46,57 @@ export const DashboardLayout = () => {
     }
   };
 
+  const checkSubscription = async (userId: string, adminStatus: boolean) => {
+    // Se for admin, sempre tem acesso
+    if (adminStatus) {
+      setHasActivePlan(true);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("id, status")
+        .eq("user_id", userId)
+        .in("status", ["active", "trialing"])
+        .limit(1)
+        .single();
+
+      const hasActive = !error && !!data;
+      setHasActivePlan(hasActive);
+
+      // Se não tiver plano ativo e não estiver já na página /plan, redirecionar
+      if (!hasActive && window.location.pathname !== "/plan") {
+        navigate("/plan");
+      }
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+      setHasActivePlan(false);
+    }
+  };
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         navigate("/auth");
       } else {
         setUser(session.user);
-        checkUserRole(session.user.id);
+        await checkUserRole(session.user.id);
+        
+        // Verificar role do cache ou aguardar um pouco
+        const cachedRole = localStorage.getItem(`user_role_${session.user.id}`);
+        const adminStatus = cachedRole === 'super_admin';
+        
+        // Verificar subscription após verificar role
+        setTimeout(() => {
+          checkSubscription(session.user.id, adminStatus);
+        }, 100);
       }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_OUT") {
         // Limpar cache ao fazer logout
         if (user?.id) {
@@ -66,14 +105,21 @@ export const DashboardLayout = () => {
         navigate("/auth");
       } else if (session) {
         setUser(session.user);
-        checkUserRole(session.user.id);
+        await checkUserRole(session.user.id);
+        
+        const cachedRole = localStorage.getItem(`user_role_${session.user.id}`);
+        const adminStatus = cachedRole === 'super_admin';
+        
+        setTimeout(() => {
+          checkSubscription(session.user.id, adminStatus);
+        }, 100);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const isLoading = !user || isAdmin === null;
+  const isLoading = !user || isAdmin === null || hasActivePlan === null;
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
