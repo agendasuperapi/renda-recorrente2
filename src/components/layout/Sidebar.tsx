@@ -302,7 +302,10 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={handleLogout}
+            onClick={() => {
+              closeSidebar?.();
+              handleLogout();
+            }}
             className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors text-sm"
           >
             <LogOut size={18} />
