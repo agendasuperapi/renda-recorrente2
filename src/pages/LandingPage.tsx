@@ -1816,8 +1816,29 @@ const LandingPage = () => {
                     <Button
                       className="w-full bg-[#86efac] hover:bg-[#4ade80] text-gray-900 font-semibold py-6 rounded-lg transition-all duration-300"
                       onClick={() => {
-                        console.log('Redirecting to signup funnel for plan:', plan.id);
-                        window.location.href = `/signup/${plan.id}`;
+                        console.log('[Plan Button] Redirecting to signup for plan:', plan.id);
+                        
+                        // Montar URL com dados do cupom se houver
+                        let url = `/signup/${plan.id}`;
+                        if (validatedCoupon) {
+                          const params = new URLSearchParams({
+                            coupon_code: validatedCoupon.code || '',
+                            coupon_type: validatedCoupon.type || '',
+                            coupon_value: validatedCoupon.value?.toString() || '0',
+                            affiliate_id: validatedCoupon.affiliate?.id || '',
+                            affiliate_coupon_id: validatedCoupon.affiliate_coupon_id || ''
+                          });
+                          url += `?${params.toString()}`;
+                          console.log('[Plan Button] Coupon data attached:', {
+                            code: validatedCoupon.code,
+                            type: validatedCoupon.type,
+                            value: validatedCoupon.value,
+                            affiliate_id: validatedCoupon.affiliate?.id,
+                            affiliate_coupon_id: validatedCoupon.affiliate_coupon_id
+                          });
+                        }
+                        
+                        window.location.href = url;
                       }}
                     >
                       <MousePointer2 className="w-5 h-5 mr-2" />

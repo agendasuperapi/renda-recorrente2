@@ -685,6 +685,7 @@ export type Database = {
       }
       payments: {
         Row: {
+          affiliate_id: string | null
           amount: number
           billing_reason: string | null
           created_at: string | null
@@ -701,6 +702,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_id?: string | null
           amount: number
           billing_reason?: string | null
           created_at?: string | null
@@ -717,6 +719,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_id?: string | null
           amount?: number
           billing_reason?: string | null
           created_at?: string | null
@@ -733,6 +736,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_plan_id_fkey"
             columns: ["plan_id"]
@@ -1103,6 +1113,7 @@ export type Database = {
       }
       stripe_events: {
         Row: {
+          affiliate_id: string | null
           cancellation_details: Json | null
           created_at: string | null
           email: string | null
@@ -1119,6 +1130,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          affiliate_id?: string | null
           cancellation_details?: Json | null
           created_at?: string | null
           email?: string | null
@@ -1135,6 +1147,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          affiliate_id?: string | null
           cancellation_details?: Json | null
           created_at?: string | null
           email?: string | null
@@ -1168,6 +1181,13 @@ export type Database = {
           {
             foreignKeyName: "fk_stripe_events_user_id"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_events_affiliate_id_fkey"
+            columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1215,6 +1235,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          affiliate_id: string | null
           cancel_at: string | null
           cancel_at_period_end: boolean | null
           cancellation_details: Json | null
@@ -1233,6 +1254,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_id?: string | null
           cancel_at?: string | null
           cancel_at_period_end?: boolean | null
           cancellation_details?: Json | null
@@ -1251,6 +1273,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_id?: string | null
           cancel_at?: string | null
           cancel_at_period_end?: boolean | null
           cancellation_details?: Json | null
@@ -1269,6 +1292,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriptions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriptions_plan_id_fkey"
             columns: ["plan_id"]
