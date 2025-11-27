@@ -1629,8 +1629,8 @@ const LandingPage = () => {
                       </div>
                     )}
                     
-                    <div className="space-y-3">
-                      <Badge variant="outline" className="text-base">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3">
+                      <Badge variant="outline" className="text-base w-fit">
                         {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
                         {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
                         {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
