@@ -16,7 +16,7 @@ import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
   CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check,
-  MousePointer2, Trophy, Lock
+  MousePointer2, Trophy, Lock, X
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -1590,17 +1590,36 @@ const LandingPage = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    placeholder="Digite o código do cupom"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleApplyCoupon();
-                      }
-                    }}
-                    className="flex-1"
-                  />
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="Digite o código do cupom"
+                      value={couponCode}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        setValidatedCoupon(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleApplyCoupon();
+                        }
+                      }}
+                      className="pr-10"
+                    />
+                    {couponCode && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                        onClick={() => {
+                          setCouponCode("");
+                          setValidatedCoupon(null);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                   <Button 
                     onClick={handleApplyCoupon}
                     disabled={loadingCoupon || !couponCode.trim()}
