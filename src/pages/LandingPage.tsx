@@ -1583,7 +1583,7 @@ const LandingPage = () => {
           </p>
           
           {/* Card de Cupom */}
-          <div className="max-w-2xl mx-auto mb-8 px-3 md:px-0">
+          <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0">
             <Card className="border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="text-center">Possui um cupom?</CardTitle>
