@@ -685,6 +685,7 @@ export type Database = {
       }
       payments: {
         Row: {
+          affiliate_coupon_id: string | null
           affiliate_id: string | null
           amount: number
           billing_reason: string | null
@@ -702,6 +703,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_coupon_id?: string | null
           affiliate_id?: string | null
           amount: number
           billing_reason?: string | null
@@ -719,6 +721,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_coupon_id?: string | null
           affiliate_id?: string | null
           amount?: number
           billing_reason?: string | null
@@ -736,6 +739,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_affiliate_coupon_id_fkey"
+            columns: ["affiliate_coupon_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_coupons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_affiliate_id_fkey"
             columns: ["affiliate_id"]
@@ -1113,6 +1123,7 @@ export type Database = {
       }
       stripe_events: {
         Row: {
+          affiliate_coupon_id: string | null
           affiliate_id: string | null
           cancellation_details: Json | null
           created_at: string | null
@@ -1130,6 +1141,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          affiliate_coupon_id?: string | null
           affiliate_id?: string | null
           cancellation_details?: Json | null
           created_at?: string | null
@@ -1147,6 +1159,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          affiliate_coupon_id?: string | null
           affiliate_id?: string | null
           cancellation_details?: Json | null
           created_at?: string | null
@@ -1183,6 +1196,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_events_affiliate_coupon_id_fkey"
+            columns: ["affiliate_coupon_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_coupons"
             referencedColumns: ["id"]
           },
           {
@@ -1235,6 +1255,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          affiliate_coupon_id: string | null
           affiliate_id: string | null
           cancel_at: string | null
           cancel_at_period_end: boolean | null
@@ -1254,6 +1275,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_coupon_id?: string | null
           affiliate_id?: string | null
           cancel_at?: string | null
           cancel_at_period_end?: boolean | null
@@ -1273,6 +1295,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_coupon_id?: string | null
           affiliate_id?: string | null
           cancel_at?: string | null
           cancel_at_period_end?: boolean | null
@@ -1292,6 +1315,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriptions_affiliate_coupon_id_fkey"
+            columns: ["affiliate_coupon_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_coupons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriptions_affiliate_id_fkey"
             columns: ["affiliate_id"]
