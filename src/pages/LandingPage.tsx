@@ -522,8 +522,9 @@ const LandingPage = () => {
           created_by
         `)
         .eq("code", couponCode.toUpperCase())
+        .eq("product_id", PRODUCT_ID)
         .eq("is_active", true)
-        .single();
+        .maybeSingle();
 
       if (couponError || !couponData) {
         // Tentar buscar pelo custom_code na tabela affiliate_coupons
@@ -535,8 +536,9 @@ const LandingPage = () => {
             affiliate:profiles(*)
           `)
           .eq("custom_code", couponCode.toUpperCase())
+          .eq("product_id", PRODUCT_ID)
           .eq("is_active", true)
-          .single();
+          .maybeSingle();
 
         if (affiliateError || !affiliateCouponData) {
           toast({
@@ -565,7 +567,7 @@ const LandingPage = () => {
         .from("profiles")
         .select("*")
         .eq("id", couponData.created_by)
-        .single();
+        .maybeSingle();
 
       setValidatedCoupon({
         ...couponData,
