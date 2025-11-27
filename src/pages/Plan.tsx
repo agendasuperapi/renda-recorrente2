@@ -172,7 +172,12 @@ const Plan = () => {
       if (response.error) throw response.error;
       
       if (response.data?.checkout_url) {
-        window.location.href = response.data.checkout_url;
+        // Em desenvolvimento, abre em nova aba. Em produção, na mesma aba
+        if (import.meta.env.DEV) {
+          window.open(response.data.checkout_url, '_blank');
+        } else {
+          window.location.href = response.data.checkout_url;
+        }
       }
     } catch (error) {
       console.error("Erro ao criar checkout:", error);
@@ -239,8 +244,8 @@ const Plan = () => {
     <div className="space-y-8">
       {/* Alert quando não tem plano ativo */}
       {!subscription && user && (
-        <Alert className="border-primary bg-primary/10">
-          <AlertCircle className="h-5 w-5 text-primary" />
+        <Alert className="border-destructive bg-destructive/10">
+          <AlertCircle className="h-5 w-5 text-destructive" />
           <AlertDescription>
             <div className="space-y-1">
               <p className="font-semibold text-foreground">Você ainda não possui um plano ativo</p>
