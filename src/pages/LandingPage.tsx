@@ -16,7 +16,7 @@ import {
   Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus,
   Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap,
   CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check,
-  MousePointer2, Trophy, Lock, X
+  MousePointer2, Trophy, Lock, X, Ticket
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -1588,7 +1588,10 @@ const LandingPage = () => {
           <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0">
             <Card className="border-2 border-primary/20">
               <CardHeader>
-                <CardTitle className="text-center">Possui um cupom?</CardTitle>
+                <div className="flex items-center justify-center gap-3">
+                  <Ticket className="h-6 w-6 text-primary" />
+                  <CardTitle className="text-center">Possui um cupom?</CardTitle>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-2">
