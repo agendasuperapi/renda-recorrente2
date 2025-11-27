@@ -200,22 +200,19 @@ const Profile = () => {
     setCheckingCpf(true);
     
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, name')
-        .eq('cpf', cpf)
-        .neq('id', currentUserId)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke('check-cpf-availability', {
+        body: { cpf, userId: currentUserId }
+      });
 
       if (error) throw error;
 
-      const isAvailable = data === null;
+      const isAvailable = data.available;
       setCpfAvailable(isAvailable);
       
       if (!isAvailable) {
         toast({
           title: "CPF já cadastrado",
-          description: `Este CPF já está sendo utilizado por ${data.name || 'outro usuário'}.`,
+          description: `Este CPF já está sendo utilizado${data.existingUser ? ` por ${data.existingUser}` : ''}.`,
           variant: "destructive",
         });
       }
@@ -224,6 +221,11 @@ const Profile = () => {
     } catch (error) {
       console.error('Erro ao verificar CPF:', error);
       setCpfAvailable(null);
+      toast({
+        title: "Erro ao verificar CPF",
+        description: "Não foi possível verificar a disponibilidade do CPF.",
+        variant: "destructive",
+      });
       return false;
     } finally {
       setCheckingCpf(false);
