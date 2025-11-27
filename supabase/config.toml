@@ -1,5 +1,8 @@
 project_id = "adpnzkvzvjbervzrqhhx"
 
+[functions.check-cpf-availability]
+verify_jwt = true
+
 [functions.check-email-exists]
 verify_jwt = false
 
@@ -11,3 +14,4 @@ verify_jwt = true
 
 [functions.stripe-webhook]
 verify_jwt = false
+
