@@ -213,7 +213,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t border-sidebar-border space-y-2">
         <div className="flex items-center gap-2 px-3 py-2">
-          <Avatar className="w-[50px] h-[50px]">
+          <Avatar className="w-10 h-10">
             <AvatarFallback className="bg-primary text-white">
               {getInitials()}
             </AvatarFallback>
