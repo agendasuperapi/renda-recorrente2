@@ -1628,14 +1628,17 @@ const LandingPage = () => {
                       </div>
                     )}
                     
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      <Badge variant="outline" className="text-base">
+                        {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
+                        {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
+                        {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
+                      </Badge>
+                      
                       {validatedCoupon.description && (
-                        <div>
-                          <span className="font-semibold">Descrição:</span>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {validatedCoupon.description}
-                          </p>
-                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {validatedCoupon.description}
+                        </p>
                       )}
                     </div>
                   </div>
