@@ -1629,22 +1629,6 @@ const LandingPage = () => {
                     )}
                     
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">Cupom:</span>
-                        <Badge variant="secondary">
-                          {validatedCoupon.code}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">Tipo:</span>
-                        <Badge variant="outline">
-                          {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
-                          {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
-                          {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
-                        </Badge>
-                      </div>
-                      
                       {validatedCoupon.description && (
                         <div>
                           <span className="font-semibold">Descrição:</span>
