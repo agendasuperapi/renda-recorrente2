@@ -1478,11 +1478,11 @@ export type Database = {
       validate_coupon: {
         Args: { p_coupon_code: string; p_product_id: string }
         Returns: {
+          affiliate_avatar_url: string
           affiliate_coupon_id: string
-          affiliate_email: string
           affiliate_id: string
           affiliate_name: string
-          affiliate_phone: string
+          affiliate_username: string
           code: string
           coupon_id: string
           custom_code: string
