@@ -25,7 +25,7 @@ import {
   Settings,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -85,6 +85,24 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const [showAdminMenu, setShowAdminMenu] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (user?.id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+        
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      }
+    };
+    fetchAvatar();
+  }, [user?.id]);
 
   const handleLogout = async () => {
     try {
@@ -213,8 +231,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t border-sidebar-border space-y-2">
         <div className="flex items-center gap-2 px-3 py-2">
-          <Avatar className="w-[50px] h-[50px]">
-            <AvatarFallback className="bg-primary text-white">
+          <Avatar className="w-[30px] h-[30px]">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
+            <AvatarFallback className="bg-primary text-white text-xs">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
