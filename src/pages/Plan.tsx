@@ -224,9 +224,9 @@ const Plan = () => {
                 <AlertCircle className={`w-5 h-5 mt-0.5 ${subscription.cancel_at_period_end ? "text-destructive" : "text-primary"}`} />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Situação</p>
-                  <Badge variant={subscription.cancel_at_period_end ? "destructive" : subscription.status === "active" ? "default" : "secondary"}>
-                    {subscription.cancel_at_period_end ? "Cancelamento solicitado" : subscription.status === "active" ? "Ativo" : subscription.status}
-                  </Badge>
+                <Badge variant={subscription.cancel_at_period_end ? "destructive" : subscription.status === "active" ? "default" : "secondary"}>
+                  {subscription.cancel_at_period_end ? "Cancelamento solicitado" : subscription.status === "active" ? "Ativo" : subscription.status === "trialing" ? "Período de teste" : subscription.status}
+                </Badge>
                 </div>
               </div>
 
