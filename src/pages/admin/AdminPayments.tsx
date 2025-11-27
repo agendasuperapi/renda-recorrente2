@@ -22,6 +22,8 @@ type Payment = {
   plans: { name: string; price: number } | null;
   profiles: { name: string; email: string } | null;
   subscriptions: { stripe_subscription_id: string | null } | null;
+  affiliate_profiles: { name: string } | null;
+  affiliate_coupons: { custom_code: string | null; coupons: { code: string } | null } | null;
 };
 
 export default function AdminPayments() {
@@ -38,7 +40,9 @@ export default function AdminPayments() {
           *,
           plans:plan_id (name, price),
           profiles:user_id (name, email),
-          subscriptions:subscription_id (stripe_subscription_id)
+          subscriptions:subscription_id (stripe_subscription_id),
+          affiliate_profiles:affiliate_id (name),
+          affiliate_coupons:affiliate_coupon_id (custom_code, coupons:coupon_id (code))
         `)
         .order("payment_date", { ascending: false });
 
@@ -184,6 +188,7 @@ export default function AdminPayments() {
                     <TableHead>Usuário / Email</TableHead>
                     <TableHead>Invoice ID</TableHead>
                     <TableHead>Plano</TableHead>
+                    <TableHead>Afiliado / Cupom</TableHead>
                     <TableHead>Motivo</TableHead>
                     <TableHead>Valor</TableHead>
                     <TableHead>Ambiente</TableHead>
@@ -207,6 +212,22 @@ export default function AdminPayments() {
                           {payment.stripe_invoice_id.substring(0, 14)}...
                         </TableCell>
                         <TableCell>{payment.plans?.name || "N/A"}</TableCell>
+                        <TableCell>
+                          {payment.affiliate_profiles || payment.affiliate_coupons ? (
+                            <div className="flex flex-col">
+                              {payment.affiliate_profiles?.name && (
+                                <span className="font-medium text-xs">{payment.affiliate_profiles.name}</span>
+                              )}
+                              {(payment.affiliate_coupons?.custom_code || payment.affiliate_coupons?.coupons?.code) && (
+                                <span className="text-xs text-muted-foreground">
+                                  {payment.affiliate_coupons?.custom_code || payment.affiliate_coupons?.coupons?.code}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
                             {payment.billing_reason === "subscription_create" ? "Nova" :
@@ -232,7 +253,7 @@ export default function AdminPayments() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground">
+                      <TableCell colSpan={9} className="text-center text-muted-foreground">
                         Nenhum pagamento encontrado
                       </TableCell>
                     </TableRow>
