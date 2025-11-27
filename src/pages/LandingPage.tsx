@@ -1632,8 +1632,9 @@ const LandingPage = () => {
                 </div>
 
                 {validatedCoupon && (
-                  <div className="border rounded-lg p-4 bg-muted/50 space-y-4 animate-fade-in">
-                    <div className="flex flex-col items-center md:items-start gap-4">
+                  <div className="border rounded-lg p-4 bg-muted/50 animate-fade-in">
+                    {/* Layout Mobile */}
+                    <div className="flex flex-col md:hidden items-center gap-4">
                       {validatedCoupon.affiliate && (
                         <div className="flex items-center gap-3">
                           <Avatar>
@@ -1642,7 +1643,7 @@ const LandingPage = () => {
                               {validatedCoupon.affiliate.name?.charAt(0) || "A"}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="text-center md:text-left">
+                          <div className="text-center">
                             <p className="font-semibold">{validatedCoupon.affiliate.name}</p>
                             <p className="text-sm text-muted-foreground">
                               @{validatedCoupon.affiliate.username}
@@ -1651,7 +1652,7 @@ const LandingPage = () => {
                         </div>
                       )}
                       
-                      <div className="flex flex-col md:flex-row md:items-center gap-3 text-center md:text-left items-center md:items-start w-full">
+                      <div className="flex flex-col items-center gap-3 text-center w-full">
                         <Badge variant="outline" className="text-base w-fit">
                           {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
                           {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
@@ -1665,6 +1666,40 @@ const LandingPage = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Layout Desktop/Tablet */}
+                    {validatedCoupon.affiliate && (
+                      <div className="hidden md:flex items-start gap-4">
+                        <Avatar>
+                          <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
+                          <AvatarFallback>
+                            {validatedCoupon.affiliate.name?.charAt(0) || "A"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 space-y-3">
+                          <div>
+                            <p className="font-semibold text-lg">{validatedCoupon.affiliate.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              @{validatedCoupon.affiliate.username}
+                            </p>
+                          </div>
+                          
+                          <div className="flex flex-col md:flex-row md:items-center gap-3">
+                            <Badge variant="outline" className="text-base w-fit">
+                              {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
+                              {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
+                              {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
+                            </Badge>
+                            
+                            {validatedCoupon.description && (
+                              <p className="text-lg text-muted-foreground">
+                                {validatedCoupon.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
