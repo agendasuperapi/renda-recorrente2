@@ -86,22 +86,24 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const queryClient = useQueryClient();
   const [showAdminMenu, setShowAdminMenu] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchAvatar = async () => {
+    const fetchProfile = async () => {
       if (user?.id) {
         const { data } = await supabase
           .from('profiles')
-          .select('avatar_url')
+          .select('avatar_url, name')
           .eq('id', user.id)
           .single();
         
-        if (data?.avatar_url) {
+        if (data) {
           setAvatarUrl(data.avatar_url);
+          setUserName(data.name);
         }
       }
     };
-    fetchAvatar();
+    fetchProfile();
 
     // Subscription em tempo real para atualizar o avatar quando mudar
     if (user?.id) {
@@ -116,11 +118,17 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             filter: `id=eq.${user.id}`,
           },
           (payload) => {
-            console.log('🔄 Avatar update received:', payload);
-            if (payload.new && 'avatar_url' in payload.new) {
-              const newAvatarUrl = (payload.new as any).avatar_url;
-              console.log('✅ Setting new avatar URL:', newAvatarUrl);
-              setAvatarUrl(newAvatarUrl);
+            console.log('🔄 Profile update received:', payload);
+            if (payload.new) {
+              const newData = payload.new as any;
+              if ('avatar_url' in newData) {
+                console.log('✅ Setting new avatar URL:', newData.avatar_url);
+                setAvatarUrl(newData.avatar_url);
+              }
+              if ('name' in newData) {
+                console.log('✅ Setting new name:', newData.name);
+                setUserName(newData.name);
+              }
             }
           }
         )
@@ -179,7 +187,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   };
 
   const getInitials = () => {
-    const name = user?.user_metadata?.name || user?.email;
+    const name = userName || user?.user_metadata?.name || user?.email;
     return name?.substring(0, 2).toUpperCase() || "U";
   };
   
@@ -270,7 +278,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
-              {user.user_metadata?.name || "Usuário"}
+              {userName || user.user_metadata?.name || "Usuário"}
             </p>
             <p className="text-xs text-sidebar-foreground/70 truncate">
               {user.email}
