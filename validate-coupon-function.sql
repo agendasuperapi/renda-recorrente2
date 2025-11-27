@@ -18,8 +18,8 @@ RETURNS TABLE (
   affiliate_coupon_id uuid,
   affiliate_id uuid,
   affiliate_name text,
-  affiliate_email text,
-  affiliate_phone text,
+  affiliate_username text,
+  affiliate_avatar_url text,
   custom_code text
 )
 LANGUAGE plpgsql
@@ -42,8 +42,8 @@ BEGIN
     NULL::uuid as affiliate_coupon_id,
     prof.id as affiliate_id,
     prof.name as affiliate_name,
-    prof.email as affiliate_email,
-    prof.phone as affiliate_phone,
+    prof.username as affiliate_username,
+    prof.avatar_url as affiliate_avatar_url,
     NULL::text as custom_code
   FROM public.coupons c
   LEFT JOIN public.profiles prof ON c.created_by = prof.id
@@ -71,8 +71,8 @@ BEGIN
       ac.id as affiliate_coupon_id,
       prof.id as affiliate_id,
       prof.name as affiliate_name,
-      prof.email as affiliate_email,
-      prof.phone as affiliate_phone,
+      prof.username as affiliate_username,
+      prof.avatar_url as affiliate_avatar_url,
       ac.custom_code
     FROM public.affiliate_coupons ac
     INNER JOIN public.coupons c ON ac.coupon_id = c.id
