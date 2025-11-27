@@ -69,7 +69,9 @@ const Plan = () => {
           plan:plans(*)
         `)
         .eq("user_id", user.id)
-        .eq("status", "active")
+        .in("status", ["active", "trialing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
         .single();
 
       if (error) {
