@@ -1841,7 +1841,11 @@ const LandingPage = () => {
                       const days = trialDays ? parseInt(trialDays, 10) : 0;
                       console.log(`[Plan ${plan.name}] Trial days parsed:`, days);
                       
-                      return days > 0 ? (
+                      // Hide trial text if coupon with days/free_trial is applied
+                      const hasCouponWithFreeDays = validatedCoupon && 
+                        (validatedCoupon.type === 'days' || validatedCoupon.type === 'free_trial');
+                      
+                      return (days > 0 && !hasCouponWithFreeDays) ? (
                         <p className="text-[#22c55e] text-center text-sm font-medium mt-4">
                           Teste Grátis por {days} {days === 1 ? 'dia' : 'dias'}
                         </p>
