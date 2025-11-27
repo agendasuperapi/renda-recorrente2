@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Check, Shield, Trophy, Lock, Users, ExternalLink, AlertCircle, Calendar, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +11,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import * as LucideIcons from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -48,6 +48,7 @@ const Plan = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [selectingPlan, setSelectingPlan] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState<any>(null);
 
   // Fetch current user
   const { data: user } = useQuery({
@@ -57,6 +58,34 @@ const Plan = () => {
       return user;
     },
   });
+
+  // Check for pending checkout
+  const { data: pendingCheckoutData } = useQuery({
+    queryKey: ["pending-checkout", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await (supabase as any)
+        .from("pending_checkouts")
+        .select("*, plans(name, price, billing_period)")
+        .eq("user_id", user.id)
+        .eq("status", "pending")
+        .gt("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !data) return null;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  useEffect(() => {
+    if (pendingCheckoutData) {
+      setPendingCheckout(pendingCheckoutData);
+    }
+  }, [pendingCheckoutData]);
 
   // Fetch current subscription
   const { data: subscription, isLoading: subscriptionLoading } = useQuery({
@@ -172,6 +201,20 @@ const Plan = () => {
       if (response.error) throw response.error;
       
       if (response.data?.checkout_url) {
+        // Save checkout data to database
+        await (supabase as any)
+          .from("pending_checkouts")
+          .insert({
+            user_id: session.user.id,
+            plan_id: planId,
+            checkout_url: response.data.checkout_url,
+            stripe_session_id: response.data.session_id,
+            status: "pending",
+          });
+
+        // Clear pending checkout state
+        setPendingCheckout(null);
+
         // Em desenvolvimento, abre em nova aba. Em produção, na mesma aba
         if (import.meta.env.DEV) {
           window.open(response.data.checkout_url, '_blank');
@@ -184,6 +227,16 @@ const Plan = () => {
       toast.error("Erro ao processar pagamento. Tente novamente.");
     } finally {
       setSelectingPlan(false);
+    }
+  };
+
+  const handleContinuePendingCheckout = () => {
+    if (pendingCheckout?.checkout_url) {
+      if (import.meta.env.DEV) {
+        window.open(pendingCheckout.checkout_url, '_blank');
+      } else {
+        window.location.href = pendingCheckout.checkout_url;
+      }
     }
   };
 
@@ -242,8 +295,33 @@ const Plan = () => {
 
   return (
     <div className="space-y-8">
-      {/* Alert quando não tem plano ativo */}
-      {!subscription && user && (
+      {/* Alert para checkout pendente */}
+      {user && !subscription && pendingCheckout && (
+        <Alert className="border-2 border-primary bg-primary/5">
+          <AlertCircle className="h-5 w-5 text-primary" />
+          <AlertDescription>
+            <div className="space-y-3">
+              <p className="font-semibold text-foreground">Checkout Pendente</p>
+              <p className="text-muted-foreground">
+                Você iniciou o processo de assinatura do plano <strong>{pendingCheckout.plans?.name}</strong> ({pendingCheckout.plans?.billing_period === 'monthly' ? 'Mensal' : 'Anual'}).
+                Deseja continuar com este plano?
+              </p>
+              <Button 
+                onClick={handleContinuePendingCheckout}
+                className="w-full sm:w-auto"
+              >
+                Pagar Plano ({new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pendingCheckout.plans?.price || 0)})
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2">
+                Ou escolha um novo plano abaixo
+              </p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Alert quando não tem plano ativo e não tem checkout pendente */}
+      {!subscription && user && !pendingCheckout && (
         <Alert className="border-destructive bg-destructive/10">
           <AlertCircle className="h-5 w-5 text-destructive" />
           <AlertDescription>
