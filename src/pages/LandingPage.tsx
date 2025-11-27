@@ -1636,7 +1636,7 @@ const LandingPage = () => {
                     {/* Layout Mobile */}
                     <div className="flex flex-col md:hidden items-center gap-4">
                       {validatedCoupon.affiliate && (
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col items-center gap-3">
                           <Avatar>
                             <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
                             <AvatarFallback>
