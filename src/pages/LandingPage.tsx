@@ -1611,7 +1611,7 @@ const LandingPage = () => {
                 </div>
 
                 {validatedCoupon && (
-                  <div className="border rounded-lg p-4 bg-muted/50 space-y-4">
+                  <div className="border rounded-lg p-4 bg-muted/50 space-y-4 animate-fade-in">
                     {validatedCoupon.affiliate && (
                       <div className="flex flex-col md:flex-row items-center md:items-start gap-3">
                         <Avatar>
