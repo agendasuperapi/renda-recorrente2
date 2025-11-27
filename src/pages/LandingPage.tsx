@@ -514,64 +514,42 @@ const LandingPage = () => {
 
     setLoadingCoupon(true);
     try {
-      // Buscar cupom pelo código ou custom_code
-      const { data: couponData, error: couponError } = await supabase
-        .from("coupons")
-        .select(`
-          *,
-          created_by
-        `)
-        .eq("code", couponCode.toUpperCase())
-        .eq("product_id", PRODUCT_ID)
-        .eq("is_active", true)
-        .maybeSingle();
+      // Usar a function segura para validar o cupom
+      const { data, error } = await (supabase as any).rpc('validate_coupon', {
+        p_coupon_code: couponCode.toUpperCase(),
+        p_product_id: PRODUCT_ID
+      });
 
-      if (couponError || !couponData) {
-        // Tentar buscar pelo custom_code na tabela affiliate_coupons
-        const { data: affiliateCouponData, error: affiliateError } = await supabase
-          .from("affiliate_coupons")
-          .select(`
-            *,
-            coupon:coupons(*),
-            affiliate:profiles(*)
-          `)
-          .eq("custom_code", couponCode.toUpperCase())
-          .eq("product_id", PRODUCT_ID)
-          .eq("is_active", true)
-          .maybeSingle();
-
-        if (affiliateError || !affiliateCouponData) {
-          toast({
-            title: "Cupom não encontrado",
-            description: "O código digitado não existe ou está inativo",
-            variant: "destructive",
-          });
-          setValidatedCoupon(null);
-          return;
-        }
-
-        // Cupom de afiliado encontrado
-        setValidatedCoupon({
-          ...affiliateCouponData.coupon,
-          affiliate: affiliateCouponData.affiliate,
-        });
+      if (error || !data || !Array.isArray(data) || data.length === 0) {
         toast({
-          title: "Cupom válido!",
-          description: "Cupom aplicado com sucesso",
+          title: "Cupom não encontrado",
+          description: "O código digitado não existe ou está inativo",
+          variant: "destructive",
         });
+        setValidatedCoupon(null);
         return;
       }
 
-      // Cupom principal encontrado, buscar dados do afiliado criador
-      const { data: affiliateData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", couponData.created_by)
-        .maybeSingle();
-
+      const couponResult = data[0];
+      
+      // Montar objeto no formato esperado
       setValidatedCoupon({
-        ...couponData,
-        affiliate: affiliateData,
+        id: couponResult.coupon_id,
+        code: couponResult.code,
+        name: couponResult.name,
+        description: couponResult.description,
+        type: couponResult.type,
+        value: couponResult.value,
+        is_active: couponResult.is_active,
+        valid_until: couponResult.valid_until,
+        product_id: couponResult.product_id,
+        affiliate: couponResult.affiliate_id ? {
+          id: couponResult.affiliate_id,
+          name: couponResult.affiliate_name,
+          email: couponResult.affiliate_email,
+          phone: couponResult.affiliate_phone
+        } : null,
+        affiliate_coupon_id: couponResult.affiliate_coupon_id
       });
 
       toast({
