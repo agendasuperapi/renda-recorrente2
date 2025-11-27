@@ -197,8 +197,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center justify-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <img src={logo} alt="APP Renda Recorrente" className="h-16 w-auto" />
+          <ThemeToggle />
         </div>
         <div className="text-center text-xs text-sidebar-foreground/50">
           Versão: {APP_VERSION}
@@ -259,7 +260,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               </div>
             )}
           </div>
-          <ThemeToggle />
         </div>
         <button
           onClick={handleLogout}
