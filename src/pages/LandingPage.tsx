@@ -1637,7 +1637,7 @@ const LandingPage = () => {
                       </Badge>
                       
                       {validatedCoupon.description && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-lg text-muted-foreground">
                           {validatedCoupon.description}
                         </p>
                       )}
