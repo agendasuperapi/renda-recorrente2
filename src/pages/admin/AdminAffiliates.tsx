@@ -43,7 +43,7 @@ const AdminAffiliates = () => {
       const { data: subscriptions, error: subscriptionsError } = await supabase
         .from("subscriptions")
         .select("user_id, plan_id, status, plans(name, billing_period)")
-        .eq("status", "active");
+        .in("status", ["active", "trialing"]);
 
       if (subscriptionsError) throw subscriptionsError;
 
@@ -99,8 +99,9 @@ const AdminAffiliates = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive"> = {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "trial"> = {
       active: "default",
+      trialing: "trial",
       inactive: "secondary",
       cancelled: "destructive"
     };
@@ -183,9 +184,13 @@ const AdminAffiliates = () => {
                     <TableCell>{affiliate.planName}</TableCell>
                     <TableCell className="capitalize">{affiliate.planPeriod}</TableCell>
                     <TableCell>
-                      <Badge variant={getStatusBadge(affiliate.planStatus)}>
-                        {affiliate.planStatus === "active" ? "Ativo" : "Inativo"}
-                      </Badge>
+                        <Badge variant={getStatusBadge(affiliate.planStatus)}>
+                          {affiliate.planStatus === "active" 
+                            ? "Ativo" 
+                            : affiliate.planStatus === "trialing" 
+                              ? "Em teste" 
+                              : "Inativo"}
+                        </Badge>
                     </TableCell>
                     <TableCell className="text-center font-medium">
                       {affiliate.referralsCount}
