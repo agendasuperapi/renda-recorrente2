@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
 type Payment = {
   id: string;
@@ -36,8 +37,13 @@ export default function AdminPayments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
+  const [affiliateFilter, setAffiliateFilter] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const { data: payments, isLoading } = useQuery({
     queryKey: ["admin-payments"],
@@ -69,8 +75,22 @@ export default function AdminPayments() {
     const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
     const matchesEnvironment = environmentFilter === "all" || payment.environment === environmentFilter;
     
-    return matchesSearch && matchesStatus && matchesEnvironment;
+    const matchesAffiliate = !affiliateFilter || 
+      payment.affiliate_profiles?.name?.toLowerCase().includes(affiliateFilter.toLowerCase()) ||
+      payment.affiliate_coupons?.custom_code?.toLowerCase().includes(affiliateFilter.toLowerCase()) ||
+      payment.affiliate_coupons?.coupons?.code?.toLowerCase().includes(affiliateFilter.toLowerCase());
+    
+    const matchesDateRange = (!startDate || new Date(payment.payment_date) >= new Date(startDate)) &&
+                             (!endDate || new Date(payment.payment_date) <= new Date(endDate));
+    
+    return matchesSearch && matchesStatus && matchesEnvironment && matchesAffiliate && matchesDateRange;
   });
+
+  const totalPages = Math.ceil((filteredPayments?.length || 0) / itemsPerPage);
+  const paginatedPayments = filteredPayments?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
   const totalPaidProduction = payments?.filter(p => p.environment === "production").reduce((sum, p) => sum + Number(p.amount), 0) || 0;
@@ -166,6 +186,26 @@ export default function AdminPayments() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
             />
+            <Input
+              placeholder="Filtrar por afiliado/cupom..."
+              value={affiliateFilter}
+              onChange={(e) => setAffiliateFilter(e.target.value)}
+              className="max-w-sm"
+            />
+            <Input
+              type="date"
+              placeholder="Data inicial"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-[160px]"
+            />
+            <Input
+              type="date"
+              placeholder="Data final"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-[160px]"
+            />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Status" />
@@ -209,8 +249,8 @@ export default function AdminPayments() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPayments && filteredPayments.length > 0 ? (
-                    filteredPayments.map((payment) => (
+                  {paginatedPayments && paginatedPayments.length > 0 ? (
+                    paginatedPayments.map((payment) => (
                       <TableRow key={payment.id}>
                         <TableCell className="text-xs">
                           {format(new Date(payment.payment_date), "dd/MM/yy HH:mm", { locale: ptBR })}
@@ -279,6 +319,38 @@ export default function AdminPayments() {
                   )}
                 </TableBody>
               </Table>
+            </div>
+          )}
+          
+          {filteredPayments && filteredPayments.length > 0 && (
+            <div className="flex justify-center mt-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </CardContent>
