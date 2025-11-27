@@ -181,8 +181,7 @@ export default function AdminPayments() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data</TableHead>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>Usuário / Email</TableHead>
                     <TableHead>Invoice ID</TableHead>
                     <TableHead>Plano</TableHead>
                     <TableHead>Motivo</TableHead>
@@ -198,8 +197,12 @@ export default function AdminPayments() {
                         <TableCell className="text-xs">
                           {format(new Date(payment.payment_date), "dd/MM/yy HH:mm", { locale: ptBR })}
                         </TableCell>
-                        <TableCell>{payment.profiles?.name || "N/A"}</TableCell>
-                        <TableCell className="text-xs">{payment.profiles?.email || "N/A"}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{payment.profiles?.name || "N/A"}</span>
+                            <span className="text-xs text-muted-foreground">{payment.profiles?.email || "N/A"}</span>
+                          </div>
+                        </TableCell>
                         <TableCell className="font-mono text-xs">
                           {payment.stripe_invoice_id.substring(0, 14)}...
                         </TableCell>
@@ -229,7 +232,7 @@ export default function AdminPayments() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground">
                         Nenhum pagamento encontrado
                       </TableCell>
                     </TableRow>
