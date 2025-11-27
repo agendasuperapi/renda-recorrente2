@@ -23,6 +23,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingCpf, setCheckingCpf] = useState(false);
+  const [cpfAvailable, setCpfAvailable] = useState<boolean | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
   const [profile, setProfile] = useState({
@@ -189,67 +191,115 @@ const Profile = () => {
     setProfile({ ...profile, phone: cleaned });
   };
 
+  const checkCpfAvailability = async (cpf: string) => {
+    if (!cpf || cpf.length !== 11) {
+      setCpfAvailable(null);
+      return false;
+    }
+
+    setCheckingCpf(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .eq('cpf', cpf)
+        .neq('id', currentUserId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const isAvailable = data === null;
+      setCpfAvailable(isAvailable);
+      
+      if (!isAvailable) {
+        toast({
+          title: "CPF já cadastrado",
+          description: `Este CPF já está sendo utilizado por ${data.name || 'outro usuário'}.`,
+          variant: "destructive",
+        });
+      }
+      
+      return isAvailable;
+    } catch (error) {
+      console.error('Erro ao verificar CPF:', error);
+      setCpfAvailable(null);
+      return false;
+    } finally {
+      setCheckingCpf(false);
+    }
+  };
+
   const handleCpfChange = async (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     setProfile({ ...profile, cpf: cleaned });
+    
+    // Reset CPF availability when changing
+    if (cleaned.length !== 11) {
+      setCpfAvailable(null);
+    }
 
-    // Consulta CPF quando tiver 11 dígitos
+    // Verifica disponibilidade e consulta CPF quando tiver 11 dígitos
     if (cleaned.length === 11) {
-      try {
-        const { data, error } = await supabase.functions.invoke('consultar-cpf', {
-          body: { 
-            cpf: cleaned,
-            birthDate: profile.birth_date || undefined
-          },
-        });
+      // Primeiro verifica se o CPF já está cadastrado
+      const isAvailable = await checkCpfAvailability(cleaned);
+      
+      // Só consulta os dados se o CPF estiver disponível
+      if (isAvailable) {
+        try {
+          const { data, error } = await supabase.functions.invoke('consultar-cpf', {
+            body: { 
+              cpf: cleaned,
+              birthDate: profile.birth_date || undefined
+            },
+          });
 
-        if (error) throw error;
+          if (error) throw error;
 
-        if (!data.error) {
-          const updates: any = {};
-          
-          // Preenche nome completo
-          if (data.name) {
-            updates.name = data.name;
-          }
-          
-          // Preenche data de nascimento se disponível
-          if (data.birthDate && data.birthDate !== '****-**-**') {
-            updates.birth_date = data.birthDate;
-          }
-          
-          // Preenche gênero se disponível
-          if (data.gender) {
-            const genderMap: { [key: string]: string } = {
-              'm': 'masculino',
-              'f': 'feminino',
-              'male': 'masculino',
-              'female': 'feminino'
-            };
-            updates.gender = genderMap[data.gender.toLowerCase()] || data.gender;
-          }
+          if (!data.error) {
+            const updates: any = {};
+            
+            // Preenche nome completo
+            if (data.name) {
+              updates.name = data.name;
+            }
+            
+            // Preenche data de nascimento se disponível
+            if (data.birthDate && data.birthDate !== '****-**-**') {
+              updates.birth_date = data.birthDate;
+            }
+            
+            // Preenche gênero se disponível
+            if (data.gender) {
+              const genderMap: { [key: string]: string } = {
+                'm': 'masculino',
+                'f': 'feminino',
+                'male': 'masculino',
+                'female': 'feminino'
+              };
+              updates.gender = genderMap[data.gender.toLowerCase()] || data.gender;
+            }
 
-          if (Object.keys(updates).length > 0) {
-            setProfile(prev => ({ ...prev, ...updates }));
+            if (Object.keys(updates).length > 0) {
+              setProfile(prev => ({ ...prev, ...updates }));
+              toast({
+                title: "Dados encontrados",
+                description: "Informações preenchidas automaticamente!",
+              });
+            }
+          } else {
             toast({
-              title: "Dados encontrados",
-              description: "Informações preenchidas automaticamente!",
+              title: "CPF não encontrado na base",
+              description: "Não foi possível consultar os dados do CPF, mas você pode prosseguir com o cadastro.",
             });
           }
-        } else {
+        } catch (error) {
+          console.error('Erro ao consultar CPF:', error);
           toast({
-            title: "CPF não encontrado",
-            description: "Não foi possível consultar os dados do CPF.",
-            variant: "destructive",
+            title: "Erro ao consultar CPF",
+            description: "Não foi possível buscar os dados, mas você pode prosseguir com o cadastro.",
           });
         }
-      } catch (error) {
-        console.error('Erro ao consultar CPF:', error);
-        toast({
-          title: "Erro ao consultar CPF",
-          description: "Não foi possível buscar os dados.",
-          variant: "destructive",
-        });
       }
     }
   };
@@ -412,36 +462,21 @@ const Profile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar se o CPF está disponível antes de salvar
+    if (profile.cpf && cpfAvailable === false) {
+      toast({
+        title: "CPF já cadastrado",
+        description: "Este CPF já está sendo utilizado por outro usuário.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
-    // Verificar se o CPF já está cadastrado
-    if (profile.cpf) {
-      const cleanedCpf = profile.cpf.replace(/\D/g, '');
-      
-      const { data: existingCpf, error: cpfCheckError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('cpf', profile.cpf)
-        .neq('id', user.id)
-        .maybeSingle();
-
-      if (cpfCheckError) {
-        console.error('Erro ao verificar CPF:', cpfCheckError);
-      }
-
-      if (existingCpf) {
-        setLoading(false);
-        toast({
-          title: "CPF já cadastrado",
-          description: "Este CPF já está sendo utilizado por outro usuário.",
-          variant: "destructive",
-        });
-        return;
-      }
-    }
 
     const { error } = await supabase
       .from("profiles")
@@ -604,14 +639,38 @@ const Profile = () => {
                 </div>
                 <div>
                   <Label htmlFor="cpf">CPF</Label>
-                  <Input
-                    id="cpf"
-                    value={formatCpf(profile.cpf)}
-                    onChange={(e) => handleCpfChange(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="cpf"
+                      value={formatCpf(profile.cpf)}
+                      onChange={(e) => handleCpfChange(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      className={cpfAvailable === false ? "border-destructive" : cpfAvailable === true ? "border-green-500" : ""}
+                    />
+                    {checkingCpf && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                    {!checkingCpf && cpfAvailable === true && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      </div>
+                    )}
+                    {!checkingCpf && cpfAvailable === false && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <XCircle className="h-4 w-4 text-destructive" />
+                      </div>
+                    )}
+                  </div>
+                  {cpfAvailable === true && profile.cpf.length === 11 && (
+                    <p className="text-xs text-green-600 mt-1">CPF disponível para cadastro</p>
+                  )}
+                  {cpfAvailable === false && (
+                    <p className="text-xs text-destructive mt-1">CPF já cadastrado no sistema</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="phone">Telefone</Label>
