@@ -1613,14 +1613,14 @@ const LandingPage = () => {
                 {validatedCoupon && (
                   <div className="border rounded-lg p-4 bg-muted/50 space-y-4">
                     {validatedCoupon.affiliate && (
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-col md:flex-row items-center md:items-start gap-3">
                         <Avatar className="h-12 w-12">
                           <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
                           <AvatarFallback>
                             {validatedCoupon.affiliate.name?.charAt(0) || "A"}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className="text-center md:text-left">
                           <p className="font-semibold">{validatedCoupon.affiliate.name}</p>
                           <p className="text-sm text-muted-foreground">
                             @{validatedCoupon.affiliate.username}
@@ -1629,7 +1629,7 @@ const LandingPage = () => {
                       </div>
                     )}
                     
-                    <div className="flex flex-col md:flex-row md:items-center gap-3">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3 text-center md:text-left items-center md:items-start">
                       <Badge variant="outline" className="text-base w-fit">
                         {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
                         {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
