@@ -116,14 +116,20 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             filter: `id=eq.${user.id}`,
           },
           (payload) => {
+            console.log('🔄 Avatar update received:', payload);
             if (payload.new && 'avatar_url' in payload.new) {
-              setAvatarUrl(payload.new.avatar_url);
+              const newAvatarUrl = (payload.new as any).avatar_url;
+              console.log('✅ Setting new avatar URL:', newAvatarUrl);
+              setAvatarUrl(newAvatarUrl);
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('📡 Realtime subscription status:', status);
+        });
 
       return () => {
+        console.log('🔌 Unsubscribing from profile changes');
         supabase.removeChannel(channel);
       };
     }
