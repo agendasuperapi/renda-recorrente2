@@ -546,8 +546,8 @@ const LandingPage = () => {
         affiliate: couponResult.affiliate_id ? {
           id: couponResult.affiliate_id,
           name: couponResult.affiliate_name,
-          email: couponResult.affiliate_email,
-          phone: couponResult.affiliate_phone
+          username: couponResult.affiliate_username,
+          avatar_url: couponResult.affiliate_avatar_url
         } : null,
         affiliate_coupon_id: couponResult.affiliate_coupon_id
       });
