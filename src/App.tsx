@@ -33,6 +33,7 @@ import AdminCpfApis from "./pages/admin/AdminCpfApis";
 import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminPayments from "./pages/admin/AdminPayments";
+import AdminAffiliates from "./pages/admin/AdminAffiliates";
 import Payments from "./pages/Payments";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -74,6 +75,7 @@ const App = () => (
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/affiliates" element={<AdminAffiliates />} />
               <Route path="/admin/plans" element={<AdminPlans />} />
               <Route path="/admin/landing-page" element={<AdminLandingPage />} />
               <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
