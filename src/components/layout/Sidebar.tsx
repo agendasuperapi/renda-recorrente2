@@ -102,6 +102,31 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       }
     };
     fetchAvatar();
+
+    // Subscription em tempo real para atualizar o avatar quando mudar
+    if (user?.id) {
+      const channel = supabase
+        .channel('profile-avatar-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`,
+          },
+          (payload) => {
+            if (payload.new && 'avatar_url' in payload.new) {
+              setAvatarUrl(payload.new.avatar_url);
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user?.id]);
 
   const handleLogout = async () => {
