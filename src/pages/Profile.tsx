@@ -417,6 +417,32 @@ const Profile = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Verificar se o CPF já está cadastrado
+    if (profile.cpf) {
+      const cleanedCpf = profile.cpf.replace(/\D/g, '');
+      
+      const { data: existingCpf, error: cpfCheckError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('cpf', profile.cpf)
+        .neq('id', user.id)
+        .maybeSingle();
+
+      if (cpfCheckError) {
+        console.error('Erro ao verificar CPF:', cpfCheckError);
+      }
+
+      if (existingCpf) {
+        setLoading(false);
+        toast({
+          title: "CPF já cadastrado",
+          description: "Este CPF já está sendo utilizado por outro usuário.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const { error } = await supabase
       .from("profiles")
       .update({
