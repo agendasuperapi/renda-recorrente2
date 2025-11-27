@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import * as LucideIcons from "lucide-react";
 import { useTheme } from "next-themes";
+import { useState } from "react";
 
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
@@ -46,6 +47,7 @@ interface Subscription {
 const Plan = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const [selectingPlan, setSelectingPlan] = useState(false);
 
   // Fetch current user
   const { data: user } = useQuery({
@@ -138,6 +140,48 @@ const Plan = () => {
     return IconComponent || LucideIcons.CheckCircle2;
   };
 
+  const handleSelectPlan = async (planId: string) => {
+    try {
+      setSelectingPlan(true);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Não está logado - vai para signup
+        window.location.href = `/signup/${planId}`;
+        return;
+      }
+      
+      // Está logado - criar checkout direto
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", session.user.id)
+        .single();
+
+      const response = await supabase.functions.invoke("create-stripe-checkout", {
+        body: {
+          plan_id: planId,
+          user_email: session.user.email,
+          user_name: profile?.name || session.user.email,
+          user_id: session.user.id,
+          coupon: null
+        }
+      });
+      
+      if (response.error) throw response.error;
+      
+      if (response.data?.checkout_url) {
+        window.location.href = response.data.checkout_url;
+      }
+    } catch (error) {
+      console.error("Erro ao criar checkout:", error);
+      toast.error("Erro ao processar pagamento. Tente novamente.");
+    } finally {
+      setSelectingPlan(false);
+    }
+  };
+
   const handleManageSubscription = async (flowPath?: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -193,6 +237,21 @@ const Plan = () => {
 
   return (
     <div className="space-y-8">
+      {/* Alert quando não tem plano ativo */}
+      {!subscription && user && (
+        <Alert className="border-primary bg-primary/10">
+          <AlertCircle className="h-5 w-5 text-primary" />
+          <AlertDescription>
+            <div className="space-y-1">
+              <p className="font-semibold text-foreground">Você ainda não possui um plano ativo</p>
+              <p className="text-muted-foreground">
+                Escolha um dos planos abaixo para começar a usar todas as funcionalidades do aplicativo e começar a ganhar comissões!
+              </p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Current Plan Info */}
       {subscription && (
         <Card className={subscription.cancel_at_period_end ? "border-destructive" : ""}>
@@ -392,19 +451,19 @@ const Plan = () => {
                   {/* Button */}
                   <Button
                     className="w-full font-medium py-6 rounded-xl mb-4"
-                    disabled={isCurrent}
+                    disabled={isCurrent || selectingPlan}
                     onClick={() => {
                       if (!isCurrent) {
                         if (subscription) {
                           handleManageSubscription("/subscriptions/update");
                         } else {
-                          window.location.href = `/signup/${plan.id}`;
+                          handleSelectPlan(plan.id);
                         }
                       }
                     }}
                   >
                     <Users className="mr-2 h-5 w-5" />
-                    {isCurrent ? "Plano Atual" : `Selecionar ${plan.name}`}
+                    {isCurrent ? "Plano Atual" : selectingPlan ? "Processando..." : `Selecionar ${plan.name}`}
                   </Button>
 
                   {/* Trial Text */}
