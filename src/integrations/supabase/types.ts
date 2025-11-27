@@ -1475,6 +1475,26 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_coupon: {
+        Args: { p_coupon_code: string; p_product_id: string }
+        Returns: {
+          affiliate_coupon_id: string
+          affiliate_email: string
+          affiliate_id: string
+          affiliate_name: string
+          affiliate_phone: string
+          code: string
+          coupon_id: string
+          custom_code: string
+          description: string
+          is_active: boolean
+          name: string
+          product_id: string
+          type: Database["public"]["Enums"]["coupon_type"]
+          valid_until: string
+          value: number
+        }[]
+      }
     }
     Enums: {
       app_role: "super_admin" | "afiliado"
