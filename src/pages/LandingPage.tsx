@@ -1589,7 +1589,7 @@ const LandingPage = () => {
                 <CardTitle className="text-center">Possui um cupom?</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     placeholder="Digite o código do cupom"
                     value={couponCode}
@@ -1604,6 +1604,7 @@ const LandingPage = () => {
                   <Button 
                     onClick={handleApplyCoupon}
                     disabled={loadingCoupon || !couponCode.trim()}
+                    className="w-full sm:w-auto"
                   >
                     {loadingCoupon ? "Validando..." : "Aplicar cupom"}
                   </Button>
