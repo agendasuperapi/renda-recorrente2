@@ -66,6 +66,7 @@ const adminMenuItems = [
   { icon: Home, label: "Home Landing Page", path: "/" },
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
   { icon: Users, label: "Usuários", path: "/admin/users" },
+  { icon: Target, label: "Afiliados", path: "/admin/affiliates" },
   { icon: FileSearch, label: "API de CPF", path: "/admin/cpf-apis" },
   { icon: CreditCard, label: "Pagamentos", path: "/admin/payments" },
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
