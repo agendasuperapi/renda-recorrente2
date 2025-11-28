@@ -168,24 +168,88 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Preview */}
-          <div className="space-y-2">
-            <Label>Pré-visualização do Gradiente</Label>
-            <div 
-              className="h-32 rounded-lg border flex items-center justify-center"
-              style={{
-                background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')}, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')})`
-              }}
-            >
-              {logoUrl && (
-                <img 
-                  src={logoUrl} 
-                  alt="Logo" 
-                  className="h-16 object-contain"
-                />
-              )}
-            </div>
-          </div>
+          {/* Preview do Sidebar */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Pré-visualização do Menu</CardTitle>
+              <CardDescription>
+                Veja como o menu lateral ficará com as configurações escolhidas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg overflow-hidden">
+                <div 
+                  className="w-64 h-96 flex flex-col p-4"
+                  style={{
+                    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')}, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')})`,
+                    color: textColor
+                  }}
+                >
+                  {/* Logo */}
+                  <div className="mb-6 flex items-center justify-center py-2">
+                    {logoUrl ? (
+                      <img 
+                        src={logoUrl} 
+                        alt="Logo" 
+                        className="h-12 object-contain"
+                      />
+                    ) : (
+                      <div 
+                        className="h-12 w-12 rounded flex items-center justify-center text-xs"
+                        style={{ backgroundColor: textColor + '20', color: textColor }}
+                      >
+                        Logo
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="space-y-1">
+                    <div 
+                      className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                      style={{ color: textColor }}
+                    >
+                      <div className="w-4 h-4 rounded" style={{ backgroundColor: textColor + '40' }} />
+                      <span className="text-sm">Dashboard</span>
+                    </div>
+                    <div 
+                      className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                      style={{ 
+                        backgroundColor: accentColor + '20',
+                        color: accentColor
+                      }}
+                    >
+                      <div className="w-4 h-4 rounded" style={{ backgroundColor: accentColor }} />
+                      <span className="text-sm font-medium">Cupons</span>
+                    </div>
+                    <div 
+                      className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors"
+                      style={{ color: textColor }}
+                    >
+                      <div className="w-4 h-4 rounded" style={{ backgroundColor: textColor + '40' }} />
+                      <span className="text-sm">Pagamentos</span>
+                    </div>
+                  </div>
+
+                  {/* User Info */}
+                  <div className="mt-auto pt-4 border-t" style={{ borderColor: textColor + '20' }}>
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs"
+                        style={{ backgroundColor: textColor + '20', color: textColor }}
+                      >
+                        U
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium" style={{ color: textColor }}>Usuário</p>
+                        <p className="text-xs" style={{ color: textColor + 'CC' }}>user@email.com</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Logo Upload */}
           <Card>
