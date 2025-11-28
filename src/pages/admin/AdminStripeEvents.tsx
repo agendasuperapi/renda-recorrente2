@@ -4,10 +4,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -376,7 +377,7 @@ const PlanInfo = ({ userId }: { userId: string | null }) => {
 const AdminStripeEvents = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showCancelAtPeriodEnd, setShowCancelAtPeriodEnd] = useState(false);
@@ -389,31 +390,24 @@ const AdminStripeEvents = () => {
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
   const [subscriptionIdFilter, setSubscriptionIdFilter] = useState<string>("");
   const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
-
-  // Debounce search term
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  const [sortColumn, setSortColumn] = useState<string>("created_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const { data: eventsData, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, subscriptionIdFilter, environmentFilter],
+    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, subscriptionIdFilter, environmentFilter, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
 
       let query = supabase
-        .from("stripe_events")
+        .from("view_admin_stripe_events")
         .select("*", { count: "exact" })
-        .order("created_at", { ascending: false })
+        .order(sortColumn, { ascending: sortDirection === "asc" })
         .range(from, to);
 
       if (debouncedSearch) {
         query = query.or(
-          `event_id.ilike.%${debouncedSearch}%,event_type.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`
+          `event_id.ilike.%${debouncedSearch}%,event_type.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,user_name.ilike.%${debouncedSearch}%`
         );
       }
 
@@ -485,6 +479,25 @@ const AdminStripeEvents = () => {
   const handleViewSubscription = (stripeSubscriptionId: string) => {
     setSelectedSubscriptionId(stripeSubscriptionId);
     setSubscriptionDialogOpen(true);
+  };
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("desc");
+    }
+    setPage(1);
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    }
+    return sortDirection === "asc" ? 
+      <ArrowUp className="ml-2 h-4 w-4" /> : 
+      <ArrowDown className="ml-2 h-4 w-4" />;
   };
 
   const handleCopyJson = () => {
@@ -705,11 +718,31 @@ const AdminStripeEvents = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>
+                      <Button variant="ghost" onClick={() => handleSort("event_type")} className="h-8 p-0 hover:bg-transparent">
+                        Tipo
+                        <SortIcon column="event_type" />
+                      </Button>
+                    </TableHead>
+                    <TableHead>
+                      <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
+                        Email
+                        <SortIcon column="email" />
+                      </Button>
+                    </TableHead>
                     <TableHead>Reason</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>
+                      <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
+                        Data
+                        <SortIcon column="created_at" />
+                      </Button>
+                    </TableHead>
+                    <TableHead>
+                      <Button variant="ghost" onClick={() => handleSort("processed")} className="h-8 p-0 hover:bg-transparent">
+                        Status
+                        <SortIcon column="processed" />
+                      </Button>
+                    </TableHead>
                     <TableHead className="text-center">Cancelamento</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>

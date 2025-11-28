@@ -120,6 +120,13 @@ export type Database = {
             referencedRelation: "view_admin_affiliates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
         ]
       }
       affiliate_coupons: {
@@ -163,6 +170,13 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_coupons_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
           {
@@ -342,6 +356,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "commissions_subscription_id_fkey"
             columns: ["subscription_id"]
             isOneToOne: false
@@ -421,6 +442,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupons_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
           {
@@ -789,6 +817,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_plan_id_fkey"
             columns: ["plan_id"]
             isOneToOne: false
@@ -814,6 +849,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -872,6 +914,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_checkouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1201,6 +1250,13 @@ export type Database = {
             referencedRelation: "view_admin_affiliates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profiles_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
         ]
       }
       referrals: {
@@ -1247,6 +1303,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "referrals_referrer_id_fkey"
             columns: ["referrer_id"]
             isOneToOne: false
@@ -1258,6 +1321,13 @@ export type Database = {
             columns: ["referrer_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1347,6 +1417,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_stripe_events_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "stripe_events_affiliate_coupon_id_fkey"
             columns: ["affiliate_coupon_id"]
             isOneToOne: false
@@ -1365,6 +1442,13 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stripe_events_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1407,6 +1491,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "sub_affiliates_sub_affiliate_id_fkey"
             columns: ["sub_affiliate_id"]
             isOneToOne: false
@@ -1418,6 +1509,13 @@ export type Database = {
             columns: ["sub_affiliate_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sub_affiliates_sub_affiliate_id_fkey"
+            columns: ["sub_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1506,6 +1604,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "subscriptions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "subscriptions_plan_id_fkey"
             columns: ["plan_id"]
             isOneToOne: false
@@ -1524,6 +1629,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1578,6 +1690,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1647,6 +1766,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "withdrawals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "withdrawals_approved_by_fkey"
             columns: ["approved_by"]
             isOneToOne: false
@@ -1658,6 +1784,13 @@ export type Database = {
             columns: ["approved_by"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "withdrawals_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1679,6 +1812,106 @@ export type Database = {
           username: string | null
         }
         Relationships: []
+      }
+      view_admin_payments: {
+        Row: {
+          affiliate_name: string | null
+          amount: number | null
+          billing_reason: string | null
+          coupon_code: string | null
+          coupon_custom_code: string | null
+          created_at: string | null
+          currency: string | null
+          environment: string | null
+          id: string | null
+          payment_date: string | null
+          plan_name: string | null
+          plan_price: number | null
+          status: string | null
+          stripe_invoice_id: string | null
+          stripe_subscription_id: string | null
+          user_email: string | null
+          user_name: string | null
+        }
+        Relationships: []
+      }
+      view_admin_stripe_events: {
+        Row: {
+          affiliate_name: string | null
+          cancellation_details: Json | null
+          created_at: string | null
+          email: string | null
+          environment: string | null
+          event_data: Json | null
+          event_id: string | null
+          event_type: string | null
+          id: string | null
+          plan_name: string | null
+          processed: boolean | null
+          product_name: string | null
+          reason: string | null
+          stripe_subscription_id: string | null
+          user_email_profile: string | null
+          user_name: string | null
+        }
+        Relationships: []
+      }
+      view_admin_users: {
+        Row: {
+          affiliate_code: string | null
+          avatar_url: string | null
+          birth_date: string | null
+          blocked_at: string | null
+          blocked_by: string | null
+          blocked_message: string | null
+          cep: string | null
+          city: string | null
+          complement: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string | null
+          facebook: string | null
+          gender: string | null
+          id: string | null
+          instagram: string | null
+          is_blocked: boolean | null
+          name: string | null
+          neighborhood: string | null
+          number: string | null
+          phone: string | null
+          pix_key: string | null
+          pix_type: string | null
+          referrer_code: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          state: string | null
+          street: string | null
+          tiktok: string | null
+          updated_at: string | null
+          username: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
