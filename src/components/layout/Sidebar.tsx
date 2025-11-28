@@ -41,6 +41,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
 import { APP_VERSION } from "@/config/version";
 import logo from "@/assets/logo.png";
+import { ProfileEditDialog } from "@/components/ProfileEditDialog";
 
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -92,6 +93,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
 
   // Observar mudanças de tema
   useEffect(() => {
@@ -273,6 +275,23 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     const name = userName || user?.user_metadata?.name || user?.email;
     return name?.substring(0, 2).toUpperCase() || "U";
   };
+
+  const handleProfileUpdate = () => {
+    // Recarregar os dados do perfil
+    if (user?.id) {
+      supabase
+        .from('profiles')
+        .select('avatar_url, name')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setAvatarUrl(data.avatar_url);
+            setUserName(data.name);
+          }
+        });
+    }
+  };
   
   // Prefetch de dados ao hover nos links
   const handlePrefetch = async (path: string) => {
@@ -364,7 +383,10 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex flex-col items-center gap-3 px-3 py-2">
-          <Avatar className="w-16 h-16">
+          <Avatar 
+            className="w-16 h-16 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => setIsProfileDialogOpen(true)}
+          >
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
             <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
               {getInitials()}
@@ -414,6 +436,16 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
           </button>
           <ThemeToggle />
         </div>
+        
+        <ProfileEditDialog
+          open={isProfileDialogOpen}
+          onOpenChange={setIsProfileDialogOpen}
+          userId={user.id}
+          currentName={userName || user.user_metadata?.name || ""}
+          currentEmail={user.email || ""}
+          currentAvatarUrl={avatarUrl}
+          onProfileUpdate={handleProfileUpdate}
+        />
       </div>
     </>
   );
