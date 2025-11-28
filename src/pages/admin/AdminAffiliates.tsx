@@ -208,6 +208,7 @@ const AdminAffiliates = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os períodos</SelectItem>
+                  <SelectItem value="daily">Diário</SelectItem>
                   <SelectItem value="monthly">Mensal</SelectItem>
                   <SelectItem value="annual">Anual</SelectItem>
                 </SelectContent>
@@ -303,7 +304,7 @@ const AdminAffiliates = () => {
                     <TableCell>{affiliate.username || "-"}</TableCell>
                     <TableCell>{affiliate.planName}</TableCell>
                     <TableCell className="capitalize">
-                      {affiliate.planPeriod === "monthly" ? "Mensal" : affiliate.planPeriod === "annual" ? "Anual" : affiliate.planPeriod}
+                      {affiliate.planPeriod === "daily" ? "Diário" : affiliate.planPeriod === "monthly" ? "Mensal" : affiliate.planPeriod === "annual" ? "Anual" : affiliate.planPeriod}
                     </TableCell>
                     <TableCell>
                         <Badge variant={getStatusBadge(affiliate.planStatus)}>
