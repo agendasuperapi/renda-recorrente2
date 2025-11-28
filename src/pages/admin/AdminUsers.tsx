@@ -43,7 +43,7 @@ const AdminUsers = () => {
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, name, username, email, phone, cpf, birth_date, gender, created_at, street, number, complement, neighborhood, cep, city, state, pix_key, pix_type, instagram, facebook, tiktok, is_blocked, blocked_message")
+        .select("id, name, username, email, phone, cpf, birth_date, gender, created_at, street, number, complement, neighborhood, cep, city, state, pix_key, pix_type, instagram, facebook, tiktok, is_blocked, blocked_message, affiliate_code")
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -199,6 +199,7 @@ const AdminUsers = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
@@ -213,10 +214,12 @@ const AdminUsers = () => {
                     {[...Array(5)].map((_, i) => (
                       <TableRow key={i}>
                         <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-8 w-20" /></TableCell>
                       </TableRow>
                     ))}
@@ -225,6 +228,7 @@ const AdminUsers = () => {
                   paginatedUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email || "-"}</TableCell>
                       <TableCell>{user.username || "-"}</TableCell>
                       <TableCell>
                         <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
@@ -274,7 +278,7 @@ const AdminUsers = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       Nenhum usuário encontrado
                     </TableCell>
                   </TableRow>
