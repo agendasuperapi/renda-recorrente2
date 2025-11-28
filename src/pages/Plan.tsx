@@ -386,9 +386,9 @@ const Plan = () => {
             </div>
 
             {isTrialActive && trialEndDate && (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert className="border-primary/30 bg-primary/5">
+                <AlertCircle className="h-4 w-4 text-primary" />
+                <AlertDescription className="text-foreground">
                   Seu período de teste termina em {format(trialEndDate, "dd/MM/yyyy HH:mm", { locale: ptBR })}. Depois desse período o valor do plano será cobrado no seu cartão.
                 </AlertDescription>
               </Alert>
