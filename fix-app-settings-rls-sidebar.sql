@@ -10,6 +10,9 @@ CREATE POLICY "Admins can manage all settings"
   FOR ALL
   USING (has_role(auth.uid(), 'super_admin'::app_role));
 
+-- Remove policy antiga de sidebar se existir
+DROP POLICY IF EXISTS "Authenticated users can manage sidebar settings" ON public.app_settings;
+
 -- Política para permitir usuários autenticados gerenciarem apenas configurações do sidebar
 CREATE POLICY "Authenticated users can manage sidebar settings"
   ON public.app_settings
