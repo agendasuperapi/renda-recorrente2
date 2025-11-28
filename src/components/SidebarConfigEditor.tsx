@@ -145,9 +145,9 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
         if (error) throw error;
       }
 
-      // Invalidar e aguardar revalidação
-      await queryClient.invalidateQueries({ queryKey: ['app-settings'] });
-      await queryClient.refetchQueries({ queryKey: ['app-settings'] });
+      // Invalidar e recarregar configurações do sidebar
+      await queryClient.invalidateQueries({ queryKey: ['sidebar-config'] });
+      await queryClient.refetchQueries({ queryKey: ['sidebar-config'] });
       
       toast.success('Configurações do sidebar salvas com sucesso!');
       onConfigSaved?.();
