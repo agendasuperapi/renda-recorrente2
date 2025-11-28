@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, Ban, Unlock } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -19,12 +19,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 const AdminUsers = () => {
@@ -32,9 +32,8 @@ const AdminUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
-  const [blockMessage, setBlockMessage] = useState("");
-  const [userToBlock, setUserToBlock] = useState<any>(null);
+  const [editedBlockMessage, setEditedBlockMessage] = useState("");
+  const [isBlocked, setIsBlocked] = useState(false);
   const itemsPerPage = 10;
   const queryClient = useQueryClient();
 
@@ -104,16 +103,12 @@ const AdminUsers = () => {
 
   const handleViewDetails = (user: any) => {
     setSelectedUser(user);
+    setIsBlocked(user.is_blocked || false);
+    setEditedBlockMessage(user.blocked_message || "");
     setIsDetailsOpen(true);
   };
 
-  const handleBlockUser = (user: any) => {
-    setUserToBlock(user);
-    setBlockMessage("");
-    setIsBlockDialogOpen(true);
-  };
-
-  const blockUserMutation = useMutation({
+  const updateBlockStatusMutation = useMutation({
     mutationFn: async ({ userId, isBlocked, message }: { userId: string; isBlocked: boolean; message?: string }) => {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -132,9 +127,6 @@ const AdminUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Status do usuário atualizado com sucesso!");
-      setIsBlockDialogOpen(false);
-      setUserToBlock(null);
-      setBlockMessage("");
     },
     onError: (error) => {
       console.error("Error updating user status:", error);
@@ -142,25 +134,18 @@ const AdminUsers = () => {
     },
   });
 
-  const handleConfirmBlock = () => {
-    if (!userToBlock) return;
+  const handleSaveBlockStatus = () => {
+    if (!selectedUser) return;
     
-    if (!blockMessage.trim()) {
+    if (isBlocked && !editedBlockMessage.trim()) {
       toast.error("Por favor, insira uma mensagem de bloqueio");
       return;
     }
 
-    blockUserMutation.mutate({
-      userId: userToBlock.id,
-      isBlocked: true,
-      message: blockMessage,
-    });
-  };
-
-  const handleUnblock = (user: any) => {
-    blockUserMutation.mutate({
-      userId: user.id,
-      isBlocked: false,
+    updateBlockStatusMutation.mutate({
+      userId: selectedUser.id,
+      isBlocked: isBlocked,
+      message: editedBlockMessage,
     });
   };
 
@@ -245,40 +230,19 @@ const AdminUsers = () => {
                       </TableCell>
                       <TableCell>{user.phone || "-"}</TableCell>
                       <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(user)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {user.role !== "super_admin" && (
-                            user.is_blocked ? (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleUnblock(user)}
-                              >
-                                <Unlock className="h-4 w-4" />
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleBlockUser(user)}
-                              >
-                                <Ban className="h-4 w-4" />
-                              </Button>
-                            )
-                          )}
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDetails(user)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                       Nenhum usuário encontrado
                     </TableCell>
                   </TableRow>
@@ -464,6 +428,59 @@ const AdminUsers = () => {
 
                   <Separator />
 
+                  {/* Controle de Bloqueio */}
+                  {selectedUser?.role !== "super_admin" && (
+                    <>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Controle de Bloqueio</h3>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between p-4 border rounded-lg">
+                            <div className="space-y-0.5">
+                              <Label htmlFor="block-status">Status de Bloqueio</Label>
+                              <p className="text-sm text-muted-foreground">
+                                {isBlocked ? "Usuário está bloqueado" : "Usuário está ativo"}
+                              </p>
+                            </div>
+                            <Switch
+                              id="block-status"
+                              checked={isBlocked}
+                              onCheckedChange={setIsBlocked}
+                            />
+                          </div>
+
+                          {isBlocked && (
+                            <div className="space-y-2">
+                              <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
+                              <Textarea
+                                id="blockMessage"
+                                placeholder="Digite a mensagem que será exibida ao usuário..."
+                                value={editedBlockMessage}
+                                onChange={(e) => setEditedBlockMessage(e.target.value)}
+                                rows={4}
+                              />
+                            </div>
+                          )}
+
+                          <Button 
+                            onClick={handleSaveBlockStatus}
+                            className="w-full"
+                            disabled={updateBlockStatusMutation.isPending}
+                          >
+                            {updateBlockStatusMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                          </Button>
+
+                          {selectedUser?.blocked_at && (
+                            <p className="text-xs text-muted-foreground text-center">
+                              Bloqueado em: {format(new Date(selectedUser.blocked_at), "dd/MM/yyyy HH:mm")}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <Separator />
+                    </>
+                  )}
+
                   {/* Histórico de Atividades */}
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Histórico de Atividades</h3>
@@ -498,34 +515,6 @@ const AdminUsers = () => {
                 </div>
               )}
             </ScrollArea>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={isBlockDialogOpen} onOpenChange={setIsBlockDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Bloquear Usuário</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
-                <Textarea
-                  id="blockMessage"
-                  placeholder="Digite a mensagem que será exibida ao usuário..."
-                  value={blockMessage}
-                  onChange={(e) => setBlockMessage(e.target.value)}
-                  rows={4}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsBlockDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button variant="destructive" onClick={handleConfirmBlock}>
-                Bloquear
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
