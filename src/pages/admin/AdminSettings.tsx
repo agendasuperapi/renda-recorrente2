@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -98,6 +99,35 @@ export default function AdminSettings() {
               checked={isProduction}
               onCheckedChange={handleToggle}
               disabled={isLoading || updateSettingMutation.isPending}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Personalização do Menu Lateral</CardTitle>
+          <CardDescription>
+            Configure as cores, gradiente e ícone do menu lateral do sistema
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label className="text-base">
+                Aparência do Sidebar
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Personalize cores, gradiente, textos e o logo do menu lateral
+              </p>
+            </div>
+            <SidebarConfigEditor 
+              onConfigSaved={() => {
+                toast({
+                  title: "Configurações salvas",
+                  description: "Recarregue a página para ver as mudanças aplicadas",
+                });
+              }}
             />
           </div>
         </CardContent>
