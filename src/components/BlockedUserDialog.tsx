@@ -17,11 +17,14 @@ export const BlockedUserDialog = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkBlockStatus = async () => {
+    let channel: any;
+
+    const setupRealtimeSubscription = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) return;
 
+      // Initial check
       const { data: profile } = await supabase
         .from("profiles")
         .select("is_blocked, blocked_message")
@@ -31,15 +34,40 @@ export const BlockedUserDialog = () => {
       if (profile?.is_blocked) {
         setIsBlocked(true);
         setBlockedMessage(profile.blocked_message || "Sua conta foi bloqueada pelo administrador.");
+      } else {
+        setIsBlocked(false);
       }
+
+      // Subscribe to realtime changes
+      channel = supabase
+        .channel('profile-block-status')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${user.id}`
+          },
+          (payload: any) => {
+            if (payload.new.is_blocked) {
+              setIsBlocked(true);
+              setBlockedMessage(payload.new.blocked_message || "Sua conta foi bloqueada pelo administrador.");
+            } else {
+              setIsBlocked(false);
+            }
+          }
+        )
+        .subscribe();
     };
 
-    checkBlockStatus();
+    setupRealtimeSubscription();
 
-    // Check on every route change
-    const interval = setInterval(checkBlockStatus, 5000);
-
-    return () => clearInterval(interval);
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   const handleLogout = async () => {
