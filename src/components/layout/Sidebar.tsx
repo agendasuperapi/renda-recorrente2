@@ -73,7 +73,7 @@ const affiliateMenuItems = [
 
 const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
-  { icon: Users, label: "Usuários", path: "/admin/users" },
+  { icon: Settings, label: "Configurações", path: "/admin/users" },
   { icon: Target, label: "Afiliados", path: "/admin/affiliates" },
   { icon: CreditCard, label: "Pagamentos", path: "/admin/payments" },
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
