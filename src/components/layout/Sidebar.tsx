@@ -73,7 +73,6 @@ const affiliateMenuItems = [
 
 const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
-  { icon: Users, label: "Usuários", path: "/admin/users" },
   { icon: Target, label: "Afiliados", path: "/admin/affiliates" },
   { icon: CreditCard, label: "Pagamentos", path: "/admin/payments" },
   { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
@@ -90,6 +89,7 @@ const configMenuItems = [
   { icon: Home, label: "Home Landing Page", path: "/" },
   { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
   { icon: Settings, label: "Configurações", path: "/admin/settings" },
+  { icon: Users, label: "Usuários", path: "/admin/users" },
   { icon: FileSearch, label: "API de CPF", path: "/admin/cpf-apis" },
   { icon: FileText, label: "Termos e Privacidade", path: "/admin/legal-documents" },
 ];
