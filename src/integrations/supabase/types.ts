@@ -1658,6 +1658,138 @@ export type Database = {
         }
         Relationships: []
       }
+      unified_payments: {
+        Row: {
+          affiliate_coupon_id: string | null
+          affiliate_id: string | null
+          amount: number
+          billing_reason: string | null
+          created_at: string | null
+          currency: string | null
+          environment: string | null
+          external_payment_id: string | null
+          id: string
+          metadata: Json | null
+          payment_date: string | null
+          plan_id: string | null
+          product_id: string
+          status: string
+          stripe_invoice_id: string | null
+          stripe_subscription_id: string | null
+          unified_user_id: string | null
+        }
+        Insert: {
+          affiliate_coupon_id?: string | null
+          affiliate_id?: string | null
+          amount: number
+          billing_reason?: string | null
+          created_at?: string | null
+          currency?: string | null
+          environment?: string | null
+          external_payment_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_date?: string | null
+          plan_id?: string | null
+          product_id: string
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_subscription_id?: string | null
+          unified_user_id?: string | null
+        }
+        Update: {
+          affiliate_coupon_id?: string | null
+          affiliate_id?: string | null
+          amount?: number
+          billing_reason?: string | null
+          created_at?: string | null
+          currency?: string | null
+          environment?: string | null
+          external_payment_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_date?: string | null
+          plan_id?: string | null
+          product_id?: string
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_subscription_id?: string | null
+          unified_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_unified_user_id_fkey"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unified_users: {
+        Row: {
+          affiliate_code: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string
+          external_user_id: string
+          id: string
+          name: string | null
+          phone: string | null
+          product_id: string
+          referrer_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_code?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email: string
+          external_user_id: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          product_id: string
+          referrer_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_code?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string
+          external_user_id?: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          product_id?: string
+          referrer_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null

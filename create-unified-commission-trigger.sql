@@ -6,8 +6,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_plan_commission_percentage INTEGER;
-  v_affiliate_profile_id UUID;
-  v_referrer_code TEXT;
+  v_affiliate_id UUID;
   v_commission_amount NUMERIC;
 BEGIN
   -- Buscar percentual de comissão do plano
@@ -19,23 +18,18 @@ BEGIN
     RETURN NEW;
   END IF;
   
-  -- Buscar o código do afiliado (referrer) do usuário unificado
-  SELECT referrer_code INTO v_referrer_code
+  -- Buscar o affiliate_id do usuário unificado
+  SELECT affiliate_id INTO v_affiliate_id
   FROM public.unified_users
   WHERE id = NEW.unified_user_id;
   
-  -- Se não tem referrer_code, não gera comissão
-  IF v_referrer_code IS NULL THEN
+  -- Se não tem affiliate_id, não gera comissão
+  IF v_affiliate_id IS NULL THEN
     RETURN NEW;
   END IF;
   
-  -- Buscar o ID do perfil do afiliado usando o affiliate_code
-  SELECT id INTO v_affiliate_profile_id
-  FROM public.profiles
-  WHERE affiliate_code = v_referrer_code;
-  
   -- Se encontrou afiliado, criar comissão
-  IF v_affiliate_profile_id IS NOT NULL THEN
+  IF v_affiliate_id IS NOT NULL THEN
     v_commission_amount := (NEW.amount * v_plan_commission_percentage) / 100;
     
     INSERT INTO public.commissions (
@@ -48,7 +42,7 @@ BEGIN
       reference_month,
       notes
     ) VALUES (
-      v_affiliate_profile_id,
+      v_affiliate_id,
       NULL, -- subscription_id é NULL pois pode ser de outro banco
       v_commission_amount,
       v_plan_commission_percentage,
@@ -65,10 +59,7 @@ BEGIN
     
     -- Log da comissão gerada
     RAISE NOTICE 'Comissão gerada: Afiliado %, Valor %, Produto %', 
-      v_affiliate_profile_id, v_commission_amount, NEW.product_id;
-  ELSE
-    -- Log quando não encontra o afiliado
-    RAISE NOTICE 'Afiliado não encontrado para referrer_code: %', v_referrer_code;
+      v_affiliate_id, v_commission_amount, NEW.product_id;
   END IF;
   
   RETURN NEW;
