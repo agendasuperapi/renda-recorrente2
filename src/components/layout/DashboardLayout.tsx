@@ -13,6 +13,7 @@ export const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [hasActivePlan, setHasActivePlan] = useState<boolean | null>(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   const checkUserRole = async (userId: string): Promise<boolean> => {
     // Tentar ler do cache primeiro
@@ -57,6 +58,13 @@ export const DashboardLayout = () => {
       return;
     }
 
+    // Não verificar subscription em rotas admin
+    const isAdminRoute = window.location.pathname.startsWith('/admin');
+    if (isAdminRoute) {
+      setHasActivePlan(true);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("subscriptions")
@@ -64,7 +72,7 @@ export const DashboardLayout = () => {
         .eq("user_id", userId)
         .in("status", ["active", "trialing"])
         .limit(1)
-        .single();
+        .maybeSingle();
 
       const hasActive = !error && !!data;
       setHasActivePlan(hasActive);
@@ -129,7 +137,16 @@ export const DashboardLayout = () => {
     };
   }, [navigate]);
 
-  const isLoading = !user || isAdmin === null || hasActivePlan === null;
+  // Timeout de segurança para evitar loading infinito
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingTimeout(true);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  const isLoading = (!user || isAdmin === null || hasActivePlan === null) && !loadingTimeout;
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
