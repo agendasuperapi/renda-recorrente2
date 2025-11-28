@@ -471,7 +471,7 @@ const AdminCoupons = () => {
                               type="button"
                               variant="outline"
                               size="icon"
-                              onClick={() => field.onChange(Math.max(1, field.value - 1))}
+                              onClick={() => field.onChange(Math.max(0, field.value - 1))}
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
