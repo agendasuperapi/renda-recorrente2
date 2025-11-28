@@ -116,7 +116,8 @@ export default function AdminPayments() {
 
       if (error) throw error;
       
-      const all = data || [];
+      type StatsRow = { amount: number; environment: string; payment_date: string };
+      const all = (data as unknown as StatsRow[]) || [];
       const totalPaid = all.reduce((sum, p) => sum + Number(p.amount), 0);
       const totalPaidProduction = all.filter(p => p.environment === "production").reduce((sum, p) => sum + Number(p.amount), 0);
       const totalPaidTest = all.filter(p => p.environment === "test").reduce((sum, p) => sum + Number(p.amount), 0);
@@ -484,10 +485,9 @@ export default function AdminPayments() {
           </DialogHeader>
           {selectedPayment && (
             <Tabs defaultValue="payment" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="payment">Detalhes do Pagamento</TabsTrigger>
-                <TabsTrigger value="metadata">Metadata Json</TabsTrigger>
-                <TabsTrigger value="client" disabled={!selectedPayment.profiles}>Cliente</TabsTrigger>
+                <TabsTrigger value="client" disabled={!selectedPayment.user_name}>Cliente</TabsTrigger>
               </TabsList>
               
               <TabsContent value="payment" className="space-y-4 mt-4">
@@ -536,46 +536,48 @@ export default function AdminPayments() {
                         </Badge>
                       </div>
                     )}
-                    {selectedPayment.plans && (
+                    {selectedPayment.plan_name && (
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Plano</p>
-                        <p className="text-sm font-semibold">{selectedPayment.plans.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {Number(selectedPayment.plans.price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        </p>
+                        <p className="text-sm font-semibold">{selectedPayment.plan_name}</p>
+                        {selectedPayment.plan_price && (
+                          <p className="text-xs text-muted-foreground">
+                            {Number(selectedPayment.plan_price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                          </p>
+                        )}
                       </div>
                     )}
-                    {selectedPayment.profiles && (
+                    {selectedPayment.user_name && (
                       <>
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Nome do Cliente</p>
-                          <p className="text-sm">{selectedPayment.profiles.name}</p>
+                          <p className="text-sm">{selectedPayment.user_name}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Email do Cliente</p>
-                          <p className="text-sm">{selectedPayment.profiles.email}</p>
+                          <p className="text-sm">{selectedPayment.user_email || "-"}</p>
                         </div>
                       </>
                     )}
-                    {selectedPayment.subscriptions?.stripe_subscription_id && (
+                    {selectedPayment.stripe_subscription_id && (
                       <div className="col-span-2">
                         <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
-                        <p className="text-sm font-mono break-all">{selectedPayment.subscriptions.stripe_subscription_id}</p>
+                        <p className="text-sm font-mono break-all">{selectedPayment.stripe_subscription_id}</p>
                       </div>
                     )}
-                    {(selectedPayment.affiliate_profiles || selectedPayment.affiliate_coupons) && (
+                    {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && (
                       <>
-                        {selectedPayment.affiliate_profiles && (
+                        {selectedPayment.affiliate_name && (
                           <div>
                             <p className="text-sm font-medium text-muted-foreground">Afiliado</p>
-                            <p className="text-sm font-semibold">{selectedPayment.affiliate_profiles.name}</p>
+                            <p className="text-sm font-semibold">{selectedPayment.affiliate_name}</p>
                           </div>
                         )}
-                        {selectedPayment.affiliate_coupons && (
+                        {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && (
                           <div>
                             <p className="text-sm font-medium text-muted-foreground">Cupom Utilizado</p>
                             <Badge variant="outline">
-                              {selectedPayment.affiliate_coupons.custom_code || selectedPayment.affiliate_coupons.coupons?.code}
+                              {selectedPayment.coupon_custom_code || selectedPayment.coupon_code}
                             </Badge>
                           </div>
                         )}
@@ -585,30 +587,17 @@ export default function AdminPayments() {
                 </ScrollArea>
               </TabsContent>
 
-              <TabsContent value="metadata" className="space-y-4 mt-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
-                    Metadata JSON
-                  </p>
-                  <div className="max-h-[500px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
-                    <pre className="text-xs whitespace-pre-wrap break-all w-full">
-                      {JSON.stringify(selectedPayment.metadata || {}, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              </TabsContent>
-              
               <TabsContent value="client" className="space-y-4 mt-4">
-                {selectedPayment.profiles ? (
+                {selectedPayment.user_name ? (
                   <ScrollArea className="max-h-[50vh]">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Nome</p>
-                        <p className="text-sm">{selectedPayment.profiles.name}</p>
+                        <p className="text-sm">{selectedPayment.user_name}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Email</p>
-                        <p className="text-sm">{selectedPayment.profiles.email}</p>
+                        <p className="text-sm">{selectedPayment.user_email || "-"}</p>
                       </div>
                     </div>
                   </ScrollArea>
