@@ -72,7 +72,9 @@ const Profile = () => {
       .single();
 
     if (error) {
-      console.error("Error loading profile:", error);
+      if (import.meta.env.DEV) {
+        console.error("Error loading profile:", error);
+      }
       return;
     }
 
@@ -465,6 +467,56 @@ const Profile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate CPF format (11 digits)
+    if (profile.cpf && !/^\d{11}$/.test(profile.cpf.replace(/\D/g, ''))) {
+      toast({
+        title: "CPF inválido",
+        description: "O CPF deve conter 11 dígitos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate phone format (10 or 11 digits)
+    if (profile.phone && !/^\d{10,11}$/.test(profile.phone.replace(/\D/g, ''))) {
+      toast({
+        title: "Telefone inválido",
+        description: "O telefone deve conter 10 ou 11 dígitos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate CEP format (8 digits)
+    if (profile.cep && !/^\d{8}$/.test(profile.cep.replace(/\D/g, ''))) {
+      toast({
+        title: "CEP inválido",
+        description: "O CEP deve conter 8 dígitos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate name length
+    if (profile.name && (profile.name.length < 2 || profile.name.length > 100)) {
+      toast({
+        title: "Nome inválido",
+        description: "O nome deve ter entre 2 e 100 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate PIX key length
+    if (profile.pix_key && profile.pix_key.length > 100) {
+      toast({
+        title: "Chave PIX inválida",
+        description: "A chave PIX deve ter no máximo 100 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Verificar se o CPF está disponível antes de salvar
     if (profile.cpf && cpfAvailable === false) {
       toast({
@@ -507,9 +559,12 @@ const Profile = () => {
     setLoading(false);
 
     if (error) {
+      if (import.meta.env.DEV) {
+        console.error("Error updating profile:", error);
+      }
       toast({
         title: "Erro ao salvar",
-        description: error.message,
+        description: "Tente novamente mais tarde.",
         variant: "destructive",
       });
       return;
