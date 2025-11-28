@@ -7,7 +7,7 @@ import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -45,7 +45,7 @@ export default function AdminPayments() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const { data: payments, isLoading } = useQuery({
+  const { data: payments, isLoading, refetch } = useQuery({
     queryKey: ["admin-payments"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
@@ -101,6 +101,20 @@ export default function AdminPayments() {
   const handleViewDetails = (payment: Payment) => {
     setSelectedPayment(payment);
     setDialogOpen(true);
+  };
+
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setEnvironmentFilter("all");
+    setAffiliateFilter("");
+    setStartDate("");
+    setEndDate("");
+    setCurrentPage(1);
   };
 
   return (
@@ -227,6 +241,15 @@ export default function AdminPayments() {
                 <SelectItem value="test">Teste</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex gap-2 mt-2">
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Atualizar
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleResetFilters}>
+              Limpar filtros
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
