@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Check, Shield, Trophy, Lock, Users, ExternalLink, AlertCircle, Calendar, CreditCard } from "lucide-react";
+import { Check, Shield, Trophy, Lock, Users, ExternalLink, AlertCircle, Calendar, CreditCard, MousePointer2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -549,7 +549,7 @@ const Plan = () => {
                       }
                     }}
                   >
-                    <Users className="mr-2 h-5 w-5" />
+                    <MousePointer2 className="mr-2 h-5 w-5" />
                     {isCurrent ? "Plano Atual" : selectingPlan ? "Processando..." : `Selecionar ${plan.name}`}
                   </Button>
 
