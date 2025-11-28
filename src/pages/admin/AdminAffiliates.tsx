@@ -10,6 +10,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+// Interface para tipagem da view
+interface AdminAffiliate {
+  id: string;
+  name: string;
+  email: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  is_blocked: boolean | null;
+  plan_name: string;
+  plan_period: string;
+  plan_status: string;
+  referrals_count: number;
+}
 import {
   Pagination,
   PaginationContent,
@@ -37,62 +52,12 @@ const AdminAffiliates = () => {
   const { data: affiliates, isLoading, refetch } = useQuery({
     queryKey: ["admin-affiliates"],
     queryFn: async () => {
-      // Buscar perfis de afiliados
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("view_admin_affiliates" as any)
+        .select("*");
 
-      if (profilesError) throw profilesError;
-
-      // Buscar roles
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
-
-      if (rolesError) throw rolesError;
-
-      // Buscar subscriptions
-      const { data: subscriptions, error: subscriptionsError } = await supabase
-        .from("subscriptions")
-        .select("user_id, plan_id, status, plans(name, billing_period)")
-        .in("status", ["active", "trialing"]);
-
-      if (subscriptionsError) throw subscriptionsError;
-
-      // Buscar indicações
-      const { data: referrals, error: referralsError } = await supabase
-        .from("referrals")
-        .select("referrer_id");
-
-      if (referralsError) throw referralsError;
-
-      // Criar maps
-      const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
-      const subscriptionsMap = new Map(
-        subscriptions?.map(s => [s.user_id, s]) || []
-      );
-      
-      // Contar indicações por afiliado
-      const referralsCount = new Map();
-      referrals?.forEach(r => {
-        const count = referralsCount.get(r.referrer_id) || 0;
-        referralsCount.set(r.referrer_id, count + 1);
-      });
-
-      // Filtrar apenas afiliados (não admins)
-      return profiles
-        ?.filter(profile => rolesMap.get(profile.id) !== "super_admin")
-        .map(profile => {
-          const subscription = subscriptionsMap.get(profile.id);
-          return {
-            ...profile,
-            planName: subscription?.plans?.name || "Sem plano",
-            planPeriod: subscription?.plans?.billing_period || "-",
-            planStatus: subscription?.status || "inactive",
-            referralsCount: referralsCount.get(profile.id) || 0
-          };
-        }) || [];
+      if (error) throw error;
+      return (data || []) as unknown as AdminAffiliate[];
     },
   });
 
@@ -104,13 +69,13 @@ const AdminAffiliates = () => {
       affiliate.username?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Filtro de plano
-    const matchesPlan = planFilter === "all" || affiliate.planName === planFilter;
+    const matchesPlan = planFilter === "all" || affiliate.plan_name === planFilter;
 
     // Filtro de período
-    const matchesPeriod = periodFilter === "all" || affiliate.planPeriod === periodFilter;
+    const matchesPeriod = periodFilter === "all" || affiliate.plan_period === periodFilter;
 
     // Filtro de status
-    const matchesStatus = statusFilter === "all" || affiliate.planStatus === statusFilter;
+    const matchesStatus = statusFilter === "all" || affiliate.plan_status === statusFilter;
 
     // Filtro de data de cadastro
     let matchesDate = true;
@@ -151,7 +116,7 @@ const AdminAffiliates = () => {
   };
 
   // Obter lista única de planos
-  const uniquePlans = [...new Set(affiliates?.map(a => a.planName) || [])];
+  const uniquePlans = [...new Set(affiliates?.map(a => a.plan_name) || [])];
 
   const handleRefresh = () => {
     refetch();
@@ -302,15 +267,15 @@ const AdminAffiliates = () => {
                     </TableCell>
                     <TableCell>{affiliate.email || "-"}</TableCell>
                     <TableCell>{affiliate.username || "-"}</TableCell>
-                    <TableCell>{affiliate.planName}</TableCell>
+                    <TableCell>{affiliate.plan_name}</TableCell>
                     <TableCell className="capitalize">
-                      {affiliate.planPeriod === "daily" ? "Diário" : affiliate.planPeriod === "monthly" ? "Mensal" : affiliate.planPeriod === "annual" ? "Anual" : affiliate.planPeriod}
+                      {affiliate.plan_period === "daily" ? "Diário" : affiliate.plan_period === "monthly" ? "Mensal" : affiliate.plan_period === "annual" ? "Anual" : affiliate.plan_period}
                     </TableCell>
                     <TableCell>
-                        <Badge variant={getStatusBadge(affiliate.planStatus)}>
-                          {affiliate.planStatus === "active" 
+                        <Badge variant={getStatusBadge(affiliate.plan_status)}>
+                          {affiliate.plan_status === "active" 
                             ? "Ativo" 
-                            : affiliate.planStatus === "trialing" 
+                            : affiliate.plan_status === "trialing" 
                               ? "Em teste" 
                               : "Inativo"}
                         </Badge>
@@ -319,7 +284,7 @@ const AdminAffiliates = () => {
                       {affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}
                     </TableCell>
                     <TableCell className="text-center font-medium">
-                      {affiliate.referralsCount}
+                      {affiliate.referrals_count}
                     </TableCell>
                   </TableRow>
                 ))
