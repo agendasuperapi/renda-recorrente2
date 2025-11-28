@@ -112,7 +112,9 @@ const AdminPlans = () => {
         .order("created_at", { ascending: false });
       
       if (error) {
-        console.error("[AdminPlans] Erro ao carregar:", error);
+        if (import.meta.env.DEV) {
+          console.error("[AdminPlans] Erro ao carregar:", error);
+        }
         throw error;
       }
       console.log("[AdminPlans] Planos carregados:", data?.length ?? 0, data);
@@ -247,7 +249,9 @@ const AdminPlans = () => {
     },
     onError: (error) => {
       toast.error("Erro ao criar plano");
-      console.error(error);
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
     },
   });
 
@@ -308,7 +312,9 @@ const AdminPlans = () => {
     },
     onError: (error) => {
       toast.error("Erro ao atualizar plano");
-      console.error(error);
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
     },
   });
 
@@ -327,7 +333,9 @@ const AdminPlans = () => {
     },
     onError: (error) => {
       toast.error("Erro ao excluir plano");
-      console.error(error);
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
     },
   });
 
@@ -450,7 +458,9 @@ const AdminPlans = () => {
         .eq("is_active", true);
 
       if (deactivateError) {
-        console.error("Erro ao desativar integrações anteriores:", deactivateError);
+        if (import.meta.env.DEV) {
+          console.error("Erro ao desativar integrações anteriores:", deactivateError);
+        }
       }
     }
 
@@ -480,7 +490,9 @@ const AdminPlans = () => {
 
     if (error) {
       toast.error("Erro ao salvar integração Stripe");
-      console.error(error);
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
     } else {
       toast.success("Integração Stripe salva com sucesso");
       setIsStripeDialogOpen(false);
@@ -549,7 +561,9 @@ const AdminPlans = () => {
 
       if (deactivateError) {
         toast.error("Erro ao desativar outras integrações");
-        console.error(deactivateError);
+        if (import.meta.env.DEV) {
+          console.error(deactivateError);
+        }
         return;
       }
     }
@@ -561,7 +575,9 @@ const AdminPlans = () => {
 
     if (error) {
       toast.error("Erro ao atualizar status da integração");
-      console.error(error);
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
       return;
     }
 
@@ -582,7 +598,9 @@ const AdminPlans = () => {
 
     if (error) {
       toast.error("Erro ao remover integração Stripe");
-      console.error(error);
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
     } else {
       toast.success("Integração Stripe removida com sucesso");
       queryClient.invalidateQueries({ queryKey: ["plan-integrations"] });

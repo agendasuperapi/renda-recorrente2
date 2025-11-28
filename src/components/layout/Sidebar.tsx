@@ -156,10 +156,12 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       
       // Se o erro for "session not found", fazer logout local e continuar
       if (error && error.message !== 'Auth session missing!') {
-        console.error('Erro ao fazer logout:', error);
+        if (import.meta.env.DEV) {
+          console.error('Erro ao fazer logout:', error);
+        }
         toast({
           title: "Erro ao sair",
-          description: error.message,
+          description: "Tente novamente mais tarde.",
           variant: "destructive",
         });
         return;
@@ -179,7 +181,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       // Redirecionar sempre, mesmo se a sessão não existir
       navigate('/');
     } catch (error) {
-      console.error('Erro inesperado ao fazer logout:', error);
+      if (import.meta.env.DEV) {
+        console.error('Erro inesperado ao fazer logout:', error);
+      }
       // Mesmo com erro, tentar limpar dados locais e redirecionar
       localStorage.clear();
       queryClient.clear();
