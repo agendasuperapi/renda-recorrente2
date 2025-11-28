@@ -335,7 +335,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground">
+        <SheetContent side="left" className="w-64 p-0 text-sidebar-foreground" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-gradient-start)), hsl(var(--sidebar-gradient-end)))' }}>
           <VisuallyHidden>
             <SheetTitle>Menu de navegação</SheetTitle>
           </VisuallyHidden>
@@ -348,7 +348,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   }
 
   return (
-    <aside className="hidden lg:flex w-64 bg-sidebar text-sidebar-foreground flex-col h-screen sticky top-0 flex-shrink-0">
+    <aside className="hidden lg:flex w-64 text-sidebar-foreground flex-col h-screen sticky top-0 flex-shrink-0" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-gradient-start)), hsl(var(--sidebar-gradient-end)))' }}>
       <SidebarContent />
     </aside>
   );
