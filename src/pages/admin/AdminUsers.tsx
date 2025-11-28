@@ -38,10 +38,17 @@ const AdminUsers = () => {
 
       const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
 
-      return profiles?.map(profile => ({
+      const usersWithRoles = profiles?.map(profile => ({
         ...profile,
         role: rolesMap.get(profile.id) || "afiliado"
       })) || [];
+
+      // Sort admins first, then by created_at desc
+      return usersWithRoles.sort((a, b) => {
+        if (a.role === "super_admin" && b.role !== "super_admin") return -1;
+        if (a.role !== "super_admin" && b.role === "super_admin") return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
     },
   });
 
@@ -95,7 +102,6 @@ const AdminUsers = () => {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Username</TableHead>
-                  <TableHead>Código Afiliado</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Cadastro</TableHead>
                   <TableHead>Telefone</TableHead>
@@ -108,7 +114,6 @@ const AdminUsers = () => {
                       <TableRow key={i}>
                         <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                         <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-28" /></TableCell>
@@ -120,9 +125,6 @@ const AdminUsers = () => {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.username || "-"}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{user.affiliate_code || "-"}</Badge>
-                      </TableCell>
                       <TableCell>
                         <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
                           {user.role === "super_admin" ? "Admin" : "Afiliado"}
@@ -136,7 +138,7 @@ const AdminUsers = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       Nenhum usuário encontrado
                     </TableCell>
                   </TableRow>
