@@ -8,6 +8,8 @@ DECLARE
   v_plan_commission_percentage INTEGER;
   v_affiliate_id UUID;
   v_commission_amount NUMERIC;
+  v_subscription_id UUID;
+  v_product_name TEXT;
 BEGIN
   -- Buscar percentual de comissão do plano
   SELECT commission_percentage INTO v_plan_commission_percentage
@@ -32,6 +34,16 @@ BEGIN
   IF v_affiliate_id IS NOT NULL THEN
     v_commission_amount := (NEW.amount * v_plan_commission_percentage) / 100;
     
+    -- Buscar o subscription_id se for um pagamento local (APP Renda recorrente)
+    SELECT p.subscription_id INTO v_subscription_id
+    FROM public.payments p
+    WHERE p.id = NEW.external_payment_id;
+    
+    -- Buscar nome do produto para o log
+    SELECT nome INTO v_product_name
+    FROM public.products 
+    WHERE id = NEW.product_id;
+    
     INSERT INTO public.commissions (
       affiliate_id,
       subscription_id,
@@ -43,7 +55,7 @@ BEGIN
       notes
     ) VALUES (
       v_affiliate_id,
-      NULL, -- subscription_id é NULL pois pode ser de outro banco
+      v_subscription_id, -- subscription_id local ou NULL se for de outro banco
       v_commission_amount,
       v_plan_commission_percentage,
       CASE 
@@ -53,7 +65,7 @@ BEGIN
       'pending',
       DATE_TRUNC('month', NEW.payment_date)::DATE,
       'Comissão gerada de pagamento unificado - Produto: ' || 
-      (SELECT nome FROM public.products WHERE id = NEW.product_id) || 
+      v_product_name || 
       ' - Invoice: ' || COALESCE(NEW.stripe_invoice_id, 'N/A')
     );
     
