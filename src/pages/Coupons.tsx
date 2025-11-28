@@ -346,6 +346,9 @@ const Coupons = () => {
                     <h3 className="text-lg font-semibold text-foreground">
                       {productData.name}
                     </h3>
+                    <Badge variant="outline" className="ml-auto">
+                      {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
+                    </Badge>
                   </div>
                   <div className="space-y-4">
                     {productData.coupons.map((coupon) => {
