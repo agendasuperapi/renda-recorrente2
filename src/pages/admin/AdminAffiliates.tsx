@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -40,6 +40,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type SortColumn = "name" | "email" | "created_at" | "referrals_count" | null;
+type SortDirection = "asc" | "desc";
+
 const AdminAffiliates = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,11 +52,13 @@ const AdminAffiliates = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [sortColumn, setSortColumn] = useState<SortColumn>("created_at");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: affiliates, isLoading, refetch } = useQuery({
-    queryKey: ["admin-affiliates", currentPage, itemsPerPage, debouncedSearch, planFilter, periodFilter, statusFilter, startDate, endDate],
+    queryKey: ["admin-affiliates", currentPage, itemsPerPage, debouncedSearch, planFilter, periodFilter, statusFilter, startDate, endDate, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
@@ -82,8 +87,11 @@ const AdminAffiliates = () => {
         query = query.lte("created_at", endDate + "T23:59:59");
       }
 
-      // Paginação no banco
-      query = query.order("created_at", { ascending: false }).range(from, to);
+      // Ordenação e paginação no banco
+      if (sortColumn) {
+        query = query.order(sortColumn, { ascending: sortDirection === "asc" });
+      }
+      query = query.range(from, to);
 
       const { data, error, count } = await query;
       if (error) throw error;
@@ -135,6 +143,29 @@ const AdminAffiliates = () => {
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
     setter(value);
     setCurrentPage(1);
+  };
+
+  // Função para ordenação de colunas
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      // Se já está ordenando por essa coluna, inverte a direção
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Se é uma nova coluna, começa com ASC
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1); // Resetar para primeira página ao mudar ordenação
+  };
+
+  // Componente para renderizar ícone de ordenação
+  const SortIcon = ({ column }: { column: SortColumn }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
+    }
+    return sortDirection === "asc" 
+      ? <ArrowUp className="h-4 w-4 ml-1" />
+      : <ArrowDown className="h-4 w-4 ml-1" />;
   };
 
   const handleRefresh = () => {
@@ -246,14 +277,46 @@ const AdminAffiliates = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Afiliado</TableHead>
-                <TableHead>Email</TableHead>
+                <TableHead>
+                  <button 
+                    onClick={() => handleSort("name")}
+                    className="flex items-center hover:text-foreground transition-colors font-medium"
+                  >
+                    Afiliado
+                    <SortIcon column="name" />
+                  </button>
+                </TableHead>
+                <TableHead>
+                  <button 
+                    onClick={() => handleSort("email")}
+                    className="flex items-center hover:text-foreground transition-colors font-medium"
+                  >
+                    Email
+                    <SortIcon column="email" />
+                  </button>
+                </TableHead>
                 <TableHead>Username</TableHead>
                 <TableHead>Plano</TableHead>
                 <TableHead>Período</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Data Cadastro</TableHead>
-                <TableHead>Indicações</TableHead>
+                <TableHead>
+                  <button 
+                    onClick={() => handleSort("created_at")}
+                    className="flex items-center hover:text-foreground transition-colors font-medium"
+                  >
+                    Data Cadastro
+                    <SortIcon column="created_at" />
+                  </button>
+                </TableHead>
+                <TableHead>
+                  <button 
+                    onClick={() => handleSort("referrals_count")}
+                    className="flex items-center hover:text-foreground transition-colors font-medium"
+                  >
+                    Indicações
+                    <SortIcon column="referrals_count" />
+                  </button>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
