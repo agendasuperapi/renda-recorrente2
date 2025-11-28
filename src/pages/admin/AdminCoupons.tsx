@@ -290,6 +290,22 @@ const AdminCoupons = () => {
     }
   );
 
+  // Group coupons by product when "all" is selected
+  const groupedByProduct = selectedProduct === "all"
+    ? filteredCoupons.reduce((acc, coupon) => {
+        const productName = coupon.products?.nome || "Sem produto";
+        const productId = coupon.product_id || "no-product";
+        if (!acc[productId]) {
+          acc[productId] = {
+            name: productName,
+            coupons: []
+          };
+        }
+        acc[productId].coupons.push(coupon);
+        return acc;
+      }, {} as Record<string, { name: string; coupons: typeof filteredCoupons }>)
+    : null;
+
   const totalCoupons = couponsList.length;
   const activeCoupons = couponsList.filter((c) => c.is_active).length;
   const totalUses = couponsList.reduce((sum, c) => sum + (c.current_uses || 0), 0);
@@ -701,36 +717,119 @@ const AdminCoupons = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Usos</TableHead>
-                <TableHead>Validade</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Principal</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          {isLoading ? (
+            <div className="text-center py-8">Carregando...</div>
+          ) : filteredCoupons.length === 0 ? (
+            <div className="text-center text-muted-foreground py-8">
+              Nenhum cupom cadastrado
+            </div>
+          ) : selectedProduct === "all" && groupedByProduct ? (
+            <div className="space-y-8">
+              {Object.entries(groupedByProduct).map(([productId, productData]: [string, { name: string; coupons: any[] }]) => (
+                <div key={productId}>
+                  <div className="flex items-center gap-3 mb-4 pb-2 border-b">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {productData.name}
+                    </h3>
+                    <Badge variant="outline" className="ml-auto">
+                      {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
+                    </Badge>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Código</TableHead>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Valor</TableHead>
+                        <TableHead>Usos</TableHead>
+                        <TableHead>Validade</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Principal</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {productData.coupons.map((coupon: any) => (
+                        <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
+                          <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{coupon.name}</div>
+                              {coupon.description && (
+                                <div className="text-sm text-muted-foreground mt-1">
+                                  {coupon.description}
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
+                          <TableCell>{coupon.value}</TableCell>
+                          <TableCell>
+                            {coupon.current_uses || 0}
+                            {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                          </TableCell>
+                          <TableCell>
+                            {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={coupon.is_active ? "default" : "secondary"}
+                              className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900" : ""}
+                            >
+                              {coupon.is_active ? "Ativo" : "Inativo"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {coupon.is_primary && (
+                              <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                                Principal
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEdit(coupon)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(coupon.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
-                    Carregando...
-                  </TableCell>
+                  <TableHead>Código</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Produto</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Valor</TableHead>
+                  <TableHead>Usos</TableHead>
+                  <TableHead>Validade</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Principal</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
-              ) : filteredCoupons.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
-                    Nenhum cupom cadastrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredCoupons.map((coupon: any) => (
+              </TableHeader>
+              <TableBody>
+                {filteredCoupons.map((coupon: any) => (
                   <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
                     <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                     <TableCell>
@@ -791,10 +890,10 @@ const AdminCoupons = () => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
