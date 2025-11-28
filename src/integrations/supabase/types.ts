@@ -1045,6 +1045,9 @@ export type Database = {
           affiliate_code: string | null
           avatar_url: string | null
           birth_date: string | null
+          blocked_at: string | null
+          blocked_by: string | null
+          blocked_message: string | null
           cep: string | null
           city: string | null
           complement: string | null
@@ -1056,6 +1059,7 @@ export type Database = {
           has_seen_welcome_dashboard: boolean | null
           id: string
           instagram: string | null
+          is_blocked: boolean | null
           name: string
           neighborhood: string | null
           number: string | null
@@ -1073,6 +1077,9 @@ export type Database = {
           affiliate_code?: string | null
           avatar_url?: string | null
           birth_date?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
+          blocked_message?: string | null
           cep?: string | null
           city?: string | null
           complement?: string | null
@@ -1084,6 +1091,7 @@ export type Database = {
           has_seen_welcome_dashboard?: boolean | null
           id: string
           instagram?: string | null
+          is_blocked?: boolean | null
           name: string
           neighborhood?: string | null
           number?: string | null
@@ -1101,6 +1109,9 @@ export type Database = {
           affiliate_code?: string | null
           avatar_url?: string | null
           birth_date?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
+          blocked_message?: string | null
           cep?: string | null
           city?: string | null
           complement?: string | null
@@ -1112,6 +1123,7 @@ export type Database = {
           has_seen_welcome_dashboard?: boolean | null
           id?: string
           instagram?: string | null
+          is_blocked?: boolean | null
           name?: string
           neighborhood?: string | null
           number?: string | null
@@ -1125,7 +1137,15 @@ export type Database = {
           updated_at?: string | null
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_blocked_by_fkey"
+            columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
