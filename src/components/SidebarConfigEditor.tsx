@@ -145,10 +145,17 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
         if (error) throw error;
       }
 
-      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+      // Invalidar e aguardar revalidação
+      await queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+      await queryClient.refetchQueries({ queryKey: ['app-settings'] });
+      
       toast.success('Configurações do sidebar salvas com sucesso!');
-      setOpen(false);
       onConfigSaved?.();
+      
+      // Pequeno delay para garantir atualização visual
+      setTimeout(() => {
+        setOpen(false);
+      }, 300);
     } catch (error: any) {
       console.error('Erro ao salvar configurações:', error);
       toast.error('Erro ao salvar configurações: ' + error.message);
