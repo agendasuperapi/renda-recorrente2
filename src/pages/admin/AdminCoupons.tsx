@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -35,7 +36,7 @@ const couponFormSchema = z.object({
     .transform(val => val.toUpperCase().replace(/\s/g, "")),
   description: z.string().optional(),
   type: z.enum(["percentage", "days", "free_trial"]),
-  value: z.number().min(1, "Valor deve ser maior que 0"),
+  value: z.number().min(0, "Valor não pode ser negativo"),
   valid_until: z.date().optional(),
   is_active: z.boolean().default(true),
   is_visible_to_affiliates: z.boolean().default(true),
@@ -56,6 +57,8 @@ const AdminCoupons = () => {
   const [selectedProduct, setSelectedProduct] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateInputValue, setDateInputValue] = useState("");
+  const [showZeroConfirmation, setShowZeroConfirmation] = useState(false);
+  const [pendingFormValues, setPendingFormValues] = useState<CouponFormValues | null>(null);
   const queryClient = useQueryClient();
 
   const form = useForm<CouponFormValues>({
@@ -240,11 +243,36 @@ const AdminCoupons = () => {
   });
 
   const onSubmit = (values: CouponFormValues) => {
+    // Se o valor for zero, mostrar confirmação
+    if (values.value === 0) {
+      setPendingFormValues(values);
+      setShowZeroConfirmation(true);
+      return;
+    }
+    
+    // Continuar normalmente se não for zero
+    executeSubmit(values);
+  };
+
+  const executeSubmit = (values: CouponFormValues) => {
     if (editingCoupon) {
       updateCouponMutation.mutate({ ...values, id: editingCoupon.id });
     } else {
       createCouponMutation.mutate(values);
     }
+  };
+
+  const handleConfirmZeroValue = () => {
+    if (pendingFormValues) {
+      executeSubmit(pendingFormValues);
+    }
+    setShowZeroConfirmation(false);
+    setPendingFormValues(null);
+  };
+
+  const handleCancelZeroValue = () => {
+    setShowZeroConfirmation(false);
+    setPendingFormValues(null);
   };
 
   const handleEdit = (coupon: any) => {
@@ -940,6 +968,21 @@ const AdminCoupons = () => {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={showZeroConfirmation} onOpenChange={setShowZeroConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar valor zero</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você está prestes a criar um cupom com valor zero. Isso significa que o cupom não oferecerá nenhum desconto ou benefício adicional. Deseja continuar?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelZeroValue}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmZeroValue}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
