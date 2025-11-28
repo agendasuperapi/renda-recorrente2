@@ -533,6 +533,7 @@ const AdminStripeEvents = () => {
       "customer.subscription.created": "bg-success text-success-foreground",
       "customer.subscription.updated": "bg-info text-info-foreground",
       "customer.subscription.deleted": "bg-destructive text-destructive-foreground",
+      "customer.subscription.trial_will_end": "bg-warning text-warning-foreground",
       "invoice.paid": "bg-success text-success-foreground",
       "invoice.payment_failed": "bg-destructive text-destructive-foreground",
       "payment_method.attached": "bg-warning text-white",
