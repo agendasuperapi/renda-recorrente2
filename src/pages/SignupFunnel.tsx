@@ -353,6 +353,21 @@ export default function SignupFunnel() {
         console.log('[SignupFunnel] Redirecting to Stripe:', checkoutData.checkout_url);
         console.log('[SignupFunnel] User authenticated:', authData.user.id);
         
+        // Salvar checkout pendente na tabela
+        const { error: insertError } = await supabase
+          .from("pending_checkouts")
+          .insert({
+            user_id: authData.user.id,
+            plan_id: planId,
+            checkout_url: checkoutData.checkout_url,
+            stripe_session_id: checkoutData.session_id,
+            status: "pending",
+          });
+
+        if (insertError) {
+          console.error("Erro ao salvar checkout pendente:", insertError);
+        }
+        
         // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
         // Em desenvolvimento ou modo dev, abrir em nova aba. Em produção, redirecionar na mesma aba
         const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';

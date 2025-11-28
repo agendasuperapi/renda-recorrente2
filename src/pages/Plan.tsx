@@ -202,7 +202,7 @@ const Plan = () => {
       
       if (response.data?.checkout_url) {
         // Save checkout data to database
-        await (supabase as any)
+        const { error: insertError } = await (supabase as any)
           .from("pending_checkouts")
           .insert({
             user_id: session.user.id,
@@ -211,6 +211,10 @@ const Plan = () => {
             stripe_session_id: response.data.session_id,
             status: "pending",
           });
+
+        if (insertError) {
+          console.error("Erro ao salvar checkout pendente:", insertError);
+        }
 
         // Clear pending checkout state
         setPendingCheckout(null);

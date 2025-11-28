@@ -776,6 +776,57 @@ export type Database = {
           },
         ]
       }
+      pending_checkouts: {
+        Row: {
+          checkout_url: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          plan_id: string
+          status: string
+          stripe_session_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          checkout_url: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          plan_id: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          checkout_url?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          plan_id?: string
+          status?: string
+          stripe_session_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_checkouts_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_checkouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plan_features: {
         Row: {
           created_at: string | null
@@ -1463,6 +1514,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_old_checkouts: { Args: never; Returns: undefined }
       get_next_test_number: { Args: never; Returns: number }
       get_user_role: {
         Args: { _user_id: string }
