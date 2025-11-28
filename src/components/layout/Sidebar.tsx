@@ -289,42 +289,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     return name?.substring(0, 2).toUpperCase() || "U";
   };
   
-  // Prefetch de dados ao hover nos links
-  const handlePrefetch = async (path: string) => {
-    // Mapeia as rotas para as queryKeys correspondentes
-    const prefetchMap: Record<string, string[]> = {
-      '/dashboard': ['dashboard-stats'],
-      '/admin/users': ['admin-users'],
-      '/admin/coupons': ['admin-coupons'],
-      '/admin/plans': ['admin-plans'],
-      '/admin/products': ['admin-products'],
-      
-      '/admin/bank-accounts': ['admin-bank-accounts'],
-      '/admin/stripe-events': ['admin-stripe-events'],
-      '/commissions/daily': ['commissions-daily'],
-      '/commissions/monthly': ['commissions-monthly'],
-      '/withdrawals': ['withdrawals'],
-      '/referrals': ['referrals'],
-      '/sub-affiliates': ['sub-affiliates'],
-      '/activities': ['activities'],
-    };
-
-    const queryKeys = prefetchMap[path];
-    if (queryKeys) {
-      // Prefetch apenas se não estiver em cache ou estiver stale
-      queryKeys.forEach(key => {
-        queryClient.prefetchQuery({
-          queryKey: [key],
-          queryFn: async () => {
-            // Esta função será substituída pela query real quando a página carregar
-            // O importante é que o prefetch prepare o cache
-            return null;
-          },
-        });
-      });
-    }
-  };
-  
   if (!user) return null;
 
   const menuItems = isAdmin 
@@ -358,12 +322,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                 backgroundColor: isActive ? accentColor : 'transparent',
                 color: currentTextColor,
               }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                }
-                handlePrefetch(item.path);
-              }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                        }
+                      }}
               onMouseLeave={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.backgroundColor = 'transparent';
@@ -415,12 +378,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                         backgroundColor: isActive ? accentColor : 'transparent',
                         color: currentTextColor,
                       }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                        }
-                        handlePrefetch(item.path);
-                      }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.backgroundColor = 'transparent';
@@ -476,7 +438,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                         if (!isActive) {
                           e.currentTarget.style.backgroundColor = `${accentColor}30`;
                         }
-                        handlePrefetch(item.path);
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
