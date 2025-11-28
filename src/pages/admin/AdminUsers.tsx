@@ -3,8 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, Ban, Unlock } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -19,23 +19,31 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
+  const [blockMessage, setBlockMessage] = useState("");
+  const [userToBlock, setUserToBlock] = useState<any>(null);
   const itemsPerPage = 10;
+  const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, name, username, email, phone, cpf, birth_date, gender, created_at, street, number, complement, neighborhood, cep, city, state, pix_key, pix_type, instagram, facebook, tiktok, is_blocked, blocked_message")
         .order("created_at", { ascending: false });
 
       if (profilesError) throw profilesError;
@@ -99,6 +107,63 @@ const AdminUsers = () => {
     setIsDetailsOpen(true);
   };
 
+  const handleBlockUser = (user: any) => {
+    setUserToBlock(user);
+    setBlockMessage("");
+    setIsBlockDialogOpen(true);
+  };
+
+  const blockUserMutation = useMutation({
+    mutationFn: async ({ userId, isBlocked, message }: { userId: string; isBlocked: boolean; message?: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          is_blocked: isBlocked,
+          blocked_message: message || null,
+          blocked_at: isBlocked ? new Date().toISOString() : null,
+          blocked_by: isBlocked ? user?.id : null,
+        })
+        .eq("id", userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("Status do usuário atualizado com sucesso!");
+      setIsBlockDialogOpen(false);
+      setUserToBlock(null);
+      setBlockMessage("");
+    },
+    onError: (error) => {
+      console.error("Error updating user status:", error);
+      toast.error("Erro ao atualizar status do usuário");
+    },
+  });
+
+  const handleConfirmBlock = () => {
+    if (!userToBlock) return;
+    
+    if (!blockMessage.trim()) {
+      toast.error("Por favor, insira uma mensagem de bloqueio");
+      return;
+    }
+
+    blockUserMutation.mutate({
+      userId: userToBlock.id,
+      isBlocked: true,
+      message: blockMessage,
+    });
+  };
+
+  const handleUnblock = (user: any) => {
+    blockUserMutation.mutate({
+      userId: user.id,
+      isBlocked: false,
+    });
+  };
+
   return (
     <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -136,6 +201,7 @@ const AdminUsers = () => {
                   <TableHead>Nome</TableHead>
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Cadastro</TableHead>
                   <TableHead>Telefone</TableHead>
                   <TableHead>Ações</TableHead>
@@ -166,17 +232,43 @@ const AdminUsers = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        <Badge variant={user.is_blocked ? "destructive" : "default"}>
+                          {user.is_blocked ? "Bloqueado" : "Ativo"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         {user.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "-"}
                       </TableCell>
                       <TableCell>{user.phone || "-"}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(user)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetails(user)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {user.role !== "super_admin" && (
+                            user.is_blocked ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleUnblock(user)}
+                              >
+                                <Unlock className="h-4 w-4" />
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleBlockUser(user)}
+                              >
+                                <Ban className="h-4 w-4" />
+                              </Button>
+                            )
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -402,6 +494,34 @@ const AdminUsers = () => {
                 </div>
               )}
             </ScrollArea>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isBlockDialogOpen} onOpenChange={setIsBlockDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bloquear Usuário</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
+                <Textarea
+                  id="blockMessage"
+                  placeholder="Digite a mensagem que será exibida ao usuário..."
+                  value={blockMessage}
+                  onChange={(e) => setBlockMessage(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsBlockDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button variant="destructive" onClick={handleConfirmBlock}>
+                Bloquear
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
