@@ -25,6 +25,7 @@ import {
   Home,
   Settings,
   ChevronDown,
+  PlusSquare,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -388,7 +389,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                <Package size={18} />
+                <PlusSquare size={18} />
                 <span className="flex-1 text-left">Cadastros</span>
                 <ChevronDown
                   size={16}
