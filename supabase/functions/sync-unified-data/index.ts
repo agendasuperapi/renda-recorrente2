@@ -13,7 +13,7 @@ interface SyncUserData {
   phone?: string;
   cpf?: string;
   affiliate_code?: string;
-  referrer_code?: string;
+  affiliate_id?: string;
 }
 
 interface SyncPaymentData {
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
           phone: user.phone,
           cpf: user.cpf,
           affiliate_code: user.affiliate_code,
-          referrer_code: user.referrer_code,
+          affiliate_id: user.affiliate_id,
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'external_user_id,product_id',
