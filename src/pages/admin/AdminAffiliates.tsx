@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useDebounce } from "@/hooks/useDebounce";
 
 // Interface para tipagem da view
 interface AdminAffiliate {
@@ -49,53 +50,68 @@ const AdminAffiliates = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const { data: affiliates, isLoading, refetch } = useQuery({
-    queryKey: ["admin-affiliates"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("view_admin_affiliates" as any)
-        .select("*");
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
+  const { data: affiliates, isLoading, refetch } = useQuery({
+    queryKey: ["admin-affiliates", currentPage, itemsPerPage, debouncedSearch, planFilter, periodFilter, statusFilter, startDate, endDate],
+    queryFn: async () => {
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      let query = supabase
+        .from("view_admin_affiliates" as any)
+        .select("*", { count: "exact" });
+
+      // Filtros aplicados no banco de dados
+      if (debouncedSearch) {
+        query = query.or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+      }
+      if (planFilter !== "all") {
+        query = query.eq("plan_name", planFilter);
+      }
+      if (periodFilter !== "all") {
+        query = query.eq("plan_period", periodFilter);
+      }
+      if (statusFilter !== "all") {
+        query = query.eq("plan_status", statusFilter);
+      }
+      if (startDate) {
+        query = query.gte("created_at", startDate);
+      }
+      if (endDate) {
+        query = query.lte("created_at", endDate + "T23:59:59");
+      }
+
+      // Paginação no banco
+      query = query.order("created_at", { ascending: false }).range(from, to);
+
+      const { data, error, count } = await query;
       if (error) throw error;
-      return (data || []) as unknown as AdminAffiliate[];
+      
+      return { 
+        data: (data || []) as unknown as AdminAffiliate[], 
+        totalCount: count || 0 
+      };
     },
   });
 
-  const filteredAffiliates = affiliates?.filter(affiliate => {
-    // Filtro de busca por texto
-    const matchesSearch = 
-      affiliate.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      affiliate.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      affiliate.username?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // Filtro de plano
-    const matchesPlan = planFilter === "all" || affiliate.plan_name === planFilter;
-
-    // Filtro de período
-    const matchesPeriod = periodFilter === "all" || affiliate.plan_period === periodFilter;
-
-    // Filtro de status
-    const matchesStatus = statusFilter === "all" || affiliate.plan_status === statusFilter;
-
-    // Filtro de data de cadastro
-    let matchesDate = true;
-    if (startDate || endDate) {
-      const affiliateDate = new Date(affiliate.created_at);
-      if (startDate && new Date(startDate) > affiliateDate) {
-        matchesDate = false;
-      }
-      if (endDate && new Date(endDate) < affiliateDate) {
-        matchesDate = false;
-      }
-    }
-
-    return matchesSearch && matchesPlan && matchesPeriod && matchesStatus && matchesDate;
+  // Query separada para lista de planos (para o filtro dropdown)
+  const { data: plansData } = useQuery({
+    queryKey: ["plans-for-filter"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("plans")
+        .select("name")
+        .eq("is_active", true);
+      return data?.map(p => p.name) || [];
+    },
   });
 
-  const totalPages = Math.ceil((filteredAffiliates?.length || 0) / itemsPerPage);
+  const paginatedAffiliates = affiliates?.data;
+  const totalCount = affiliates?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedAffiliates = filteredAffiliates?.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -115,8 +131,11 @@ const AdminAffiliates = () => {
     return name?.substring(0, 2).toUpperCase() || "AF";
   };
 
-  // Obter lista única de planos
-  const uniquePlans = [...new Set(affiliates?.map(a => a.plan_name) || [])];
+  // Resetar para página 1 quando filtros mudam
+  const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
+    setter(value);
+    setCurrentPage(1);
+  };
 
   const handleRefresh = () => {
     refetch();
@@ -155,19 +174,19 @@ const AdminAffiliates = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <Select value={planFilter} onValueChange={setPlanFilter}>
+              <Select value={planFilter} onValueChange={handleFilterChange(setPlanFilter)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Plano" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os planos</SelectItem>
-                  {uniquePlans.map(plan => (
+                  {plansData?.map(plan => (
                     <SelectItem key={plan} value={plan}>{plan}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={periodFilter} onValueChange={setPeriodFilter}>
+              <Select value={periodFilter} onValueChange={handleFilterChange(setPeriodFilter)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Período" />
                 </SelectTrigger>
@@ -179,7 +198,7 @@ const AdminAffiliates = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={handleFilterChange(setStatusFilter)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -195,14 +214,20 @@ const AdminAffiliates = () => {
                 type="date"
                 placeholder="Data início"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setCurrentPage(1);
+                }}
               />
 
               <Input
                 type="date"
                 placeholder="Data fim"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setCurrentPage(1);
+                }}
               />
             </div>
 
@@ -298,11 +323,11 @@ const AdminAffiliates = () => {
             </TableBody>
           </Table>
 
-          {filteredAffiliates && filteredAffiliates.length > 0 && (
+          {totalCount > 0 && (
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center gap-4">
                 <p className="text-sm text-muted-foreground">
-                  Mostrando {startIndex + 1} a {Math.min(endIndex, filteredAffiliates.length)} de {filteredAffiliates.length} afiliados
+                  Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} afiliados
                 </p>
                 <Select 
                   value={itemsPerPage.toString()} 
