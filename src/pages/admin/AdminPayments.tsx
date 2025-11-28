@@ -7,7 +7,7 @@ import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type Payment = {
   id: string;
@@ -25,13 +26,19 @@ type Payment = {
   payment_date: string;
   environment: string;
   currency: string | null;
-  metadata: any;
-  plans: { name: string; price: number } | null;
-  profiles: { name: string; email: string } | null;
-  subscriptions: { stripe_subscription_id: string | null } | null;
-  affiliate_profiles: { name: string } | null;
-  affiliate_coupons: { custom_code: string | null; coupons: { code: string } | null } | null;
+  created_at: string;
+  plan_name: string | null;
+  plan_price: number | null;
+  user_name: string | null;
+  user_email: string | null;
+  stripe_subscription_id: string | null;
+  affiliate_name: string | null;
+  coupon_custom_code: string | null;
+  coupon_code: string | null;
 };
+
+type SortColumn = "payment_date" | "amount" | "user_name" | "plan_name" | null;
+type SortDirection = "asc" | "desc";
 
 export default function AdminPayments() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,60 +50,88 @@ export default function AdminPayments() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [sortColumn, setSortColumn] = useState<SortColumn>("payment_date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: payments, isLoading, refetch } = useQuery({
-    queryKey: ["admin-payments"],
+    queryKey: ["admin-payments", currentPage, itemsPerPage, debouncedSearch, statusFilter, environmentFilter, affiliateFilter, startDate, endDate, sortColumn, sortDirection],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("payments")
-        .select(`
-          *,
-          plans:plan_id (name, price),
-          profiles:user_id (name, email),
-          subscriptions:subscription_id (stripe_subscription_id),
-          affiliate_profiles:affiliate_id (name),
-          affiliate_coupons:affiliate_coupon_id (custom_code, coupons:coupon_id (code))
-        `)
-        .order("payment_date", { ascending: false });
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
 
+      let query = supabase
+        .from("view_admin_payments" as any)
+        .select("*", { count: "exact" });
+
+      // Filtros aplicados no banco de dados
+      if (debouncedSearch) {
+        query = query.or(`stripe_invoice_id.ilike.%${debouncedSearch}%,user_email.ilike.%${debouncedSearch}%,user_name.ilike.%${debouncedSearch}%,plan_name.ilike.%${debouncedSearch}%`);
+      }
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+      if (environmentFilter !== "all") {
+        query = query.eq("environment", environmentFilter);
+      }
+      if (affiliateFilter) {
+        query = query.or(`affiliate_name.ilike.%${affiliateFilter}%,coupon_custom_code.ilike.%${affiliateFilter}%,coupon_code.ilike.%${affiliateFilter}%`);
+      }
+      if (startDate) {
+        query = query.gte("payment_date", startDate);
+      }
+      if (endDate) {
+        query = query.lte("payment_date", endDate + "T23:59:59");
+      }
+
+      // Ordenação e paginação no banco
+      if (sortColumn) {
+        query = query.order(sortColumn, { ascending: sortDirection === "asc" });
+      }
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
       if (error) throw error;
-      return data as unknown as Payment[];
+      
+      return { 
+        data: (data || []) as unknown as Payment[], 
+        totalCount: count || 0 
+      };
     },
   });
 
-  const filteredPayments = payments?.filter(payment => {
-    const matchesSearch = 
-      payment.stripe_invoice_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.profiles?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.plans?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
-    const matchesEnvironment = environmentFilter === "all" || payment.environment === environmentFilter;
-    
-    const matchesAffiliate = !affiliateFilter || 
-      payment.affiliate_profiles?.name?.toLowerCase().includes(affiliateFilter.toLowerCase()) ||
-      payment.affiliate_coupons?.custom_code?.toLowerCase().includes(affiliateFilter.toLowerCase()) ||
-      payment.affiliate_coupons?.coupons?.code?.toLowerCase().includes(affiliateFilter.toLowerCase());
-    
-    const matchesDateRange = (!startDate || new Date(payment.payment_date) >= new Date(startDate)) &&
-                             (!endDate || new Date(payment.payment_date) <= new Date(endDate));
-    
-    return matchesSearch && matchesStatus && matchesEnvironment && matchesAffiliate && matchesDateRange;
+  const paginatedPayments = payments?.data;
+  const totalCount = payments?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  // Query separada para estatísticas
+  const { data: statsData } = useQuery({
+    queryKey: ["admin-payments-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("view_admin_payments" as any)
+        .select("amount, environment, payment_date");
+
+      if (error) throw error;
+      
+      const all = data || [];
+      const totalPaid = all.reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalPaidProduction = all.filter(p => p.environment === "production").reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalPaidTest = all.filter(p => p.environment === "test").reduce((sum, p) => sum + Number(p.amount), 0);
+      const paymentCount = all.length;
+      const lastPayment = all[0];
+
+      return {
+        totalPaid,
+        totalPaidProduction,
+        totalPaidTest,
+        paymentCount,
+        lastPayment
+      };
+    },
   });
-
-  const totalPages = Math.ceil((filteredPayments?.length || 0) / itemsPerPage);
-  const paginatedPayments = filteredPayments?.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPaid = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-  const totalPaidProduction = payments?.filter(p => p.environment === "production").reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-  const totalPaidTest = payments?.filter(p => p.environment === "test").reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-  const paymentCount = payments?.length || 0;
-  const lastPayment = payments?.[0];
 
   const handleViewDetails = (payment: Payment) => {
     setSelectedPayment(payment);
@@ -117,6 +152,25 @@ export default function AdminPayments() {
     setCurrentPage(1);
   };
 
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const SortIcon = ({ column }: { column: SortColumn }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
+    }
+    return sortDirection === "asc" 
+      ? <ArrowUp className="h-4 w-4 ml-1" />
+      : <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
   return (
     <div className="space-y-6 p-6">
       <div>
@@ -133,10 +187,10 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalPaid.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(statsData?.totalPaid || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
             <p className="text-xs text-muted-foreground">
-              Em {paymentCount} pagamentos
+              Em {statsData?.paymentCount || 0} pagamentos
             </p>
           </CardContent>
         </Card>
@@ -148,7 +202,7 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalPaidProduction.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(statsData?.totalPaidProduction || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
             <p className="text-xs text-muted-foreground">
               Pagamentos reais
@@ -163,7 +217,7 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {totalPaidTest.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(statsData?.totalPaidTest || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
             <p className="text-xs text-muted-foreground">
               Pagamentos teste
@@ -178,11 +232,11 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {lastPayment ? Number(lastPayment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "N/A"}
+              {statsData?.lastPayment ? Number(statsData.lastPayment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {lastPayment 
-                ? format(new Date(lastPayment.payment_date), "dd/MM/yyyy", { locale: ptBR })
+              {statsData?.lastPayment 
+                ? format(new Date(statsData.lastPayment.payment_date), "dd/MM/yyyy", { locale: ptBR })
                 : "Nenhum"}
             </p>
           </CardContent>
@@ -260,12 +314,44 @@ export default function AdminPayments() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Usuário / Email</TableHead>
-                    <TableHead>Plano</TableHead>
+                    <TableHead>
+                      <button 
+                        onClick={() => handleSort("payment_date")}
+                        className="flex items-center hover:text-foreground transition-colors font-medium"
+                      >
+                        Data
+                        <SortIcon column="payment_date" />
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button 
+                        onClick={() => handleSort("user_name")}
+                        className="flex items-center hover:text-foreground transition-colors font-medium"
+                      >
+                        Usuário / Email
+                        <SortIcon column="user_name" />
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button 
+                        onClick={() => handleSort("plan_name")}
+                        className="flex items-center hover:text-foreground transition-colors font-medium"
+                      >
+                        Plano
+                        <SortIcon column="plan_name" />
+                      </button>
+                    </TableHead>
                     <TableHead>Afiliado / Cupom</TableHead>
                     <TableHead>Motivo</TableHead>
-                    <TableHead>Valor</TableHead>
+                    <TableHead>
+                      <button 
+                        onClick={() => handleSort("amount")}
+                        className="flex items-center hover:text-foreground transition-colors font-medium"
+                      >
+                        Valor
+                        <SortIcon column="amount" />
+                      </button>
+                    </TableHead>
                     <TableHead>Ambiente</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
@@ -280,20 +366,20 @@ export default function AdminPayments() {
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium">{payment.profiles?.name || "N/A"}</span>
-                            <span className="text-xs text-muted-foreground">{payment.profiles?.email || "N/A"}</span>
+                            <span className="font-medium">{payment.user_name || "N/A"}</span>
+                            <span className="text-xs text-muted-foreground">{payment.user_email || "N/A"}</span>
                           </div>
                         </TableCell>
-                        <TableCell>{payment.plans?.name || "N/A"}</TableCell>
+                        <TableCell>{payment.plan_name || "N/A"}</TableCell>
                         <TableCell>
-                          {payment.affiliate_profiles || payment.affiliate_coupons ? (
+                          {payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code ? (
                             <div className="flex flex-col">
-                              {payment.affiliate_profiles?.name && (
-                                <span className="font-medium text-xs">{payment.affiliate_profiles.name}</span>
+                              {payment.affiliate_name && (
+                                <span className="font-medium text-xs">{payment.affiliate_name}</span>
                               )}
-                              {(payment.affiliate_coupons?.custom_code || payment.affiliate_coupons?.coupons?.code) && (
+                              {(payment.coupon_custom_code || payment.coupon_code) && (
                                 <span className="text-xs text-muted-foreground">
-                                  {payment.affiliate_coupons?.custom_code || payment.affiliate_coupons?.coupons?.code}
+                                  {payment.coupon_custom_code || payment.coupon_code}
                                 </span>
                               )}
                             </div>
@@ -345,7 +431,7 @@ export default function AdminPayments() {
             </div>
           )}
           
-          {filteredPayments && filteredPayments.length > 0 && (
+          {totalCount > 0 && (
             <div className="flex justify-center mt-4">
               <Pagination>
                 <PaginationContent>
@@ -355,17 +441,29 @@ export default function AdminPayments() {
                       className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                     />
                   </PaginationItem>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(page)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
                   <PaginationItem>
                     <PaginationNext 
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
