@@ -32,7 +32,9 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
@@ -334,6 +336,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground">
+          <VisuallyHidden>
+            <SheetTitle>Menu de navegação</SheetTitle>
+          </VisuallyHidden>
           <div className="flex flex-col h-full">
             <SidebarContent closeSidebar={() => onOpenChange?.(false)} />
           </div>

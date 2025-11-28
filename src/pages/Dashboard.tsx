@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -102,6 +103,9 @@ const Dashboard = () => {
       {/* Modal de Boas-vindas */}
       <Dialog open={showWelcome} onOpenChange={handleCloseWelcome}>
         <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+          <VisuallyHidden>
+            <DialogTitle>Bem-vindo ao sistema</DialogTitle>
+          </VisuallyHidden>
           <div className="p-8 text-center space-y-4">
             <div className="mx-auto w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
               <CheckCircle2 className="w-12 h-12 text-primary animate-in zoom-in duration-500" />
