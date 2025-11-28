@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X } from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +31,7 @@ import { toast } from "sonner";
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -37,60 +39,44 @@ const AdminUsers = () => {
   const [editedBlockMessage, setEditedBlockMessage] = useState("");
   const [isBlocked, setIsBlocked] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortColumn, setSortColumn] = useState<string>("created_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const queryClient = useQueryClient();
 
-  const { data: users, isLoading } = useQuery({
-    queryKey: ["admin-users"],
+  const { data: usersData, isLoading } = useQuery({
+    queryKey: ["admin-users", debouncedSearch, statusFilter, currentPage, itemsPerPage, sortColumn, sortDirection],
     queryFn: async () => {
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, name, username, email, phone, cpf, birth_date, gender, created_at, street, number, complement, neighborhood, cep, city, state, pix_key, pix_type, instagram, facebook, tiktok, is_blocked, blocked_message, affiliate_code")
-        .order("created_at", { ascending: false });
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
 
-      if (profilesError) throw profilesError;
+      let query = supabase
+        .from("view_admin_users")
+        .select("*", { count: "exact" })
+        .order(sortColumn, { ascending: sortDirection === "asc" })
+        .range(from, to);
 
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("user_id, role");
+      if (debouncedSearch) {
+        query = query.or(
+          `name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%,affiliate_code.ilike.%${debouncedSearch}%`
+        );
+      }
 
-      if (rolesError) throw rolesError;
+      if (statusFilter === "active") {
+        query = query.eq("is_blocked", false);
+      } else if (statusFilter === "blocked") {
+        query = query.eq("is_blocked", true);
+      }
 
-      const rolesMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
-
-      const usersWithRoles = profiles?.map(profile => ({
-        ...profile,
-        role: rolesMap.get(profile.id) || "afiliado"
-      })) || [];
-
-      // Sort admins first, then by created_at desc
-      return usersWithRoles.sort((a, b) => {
-        if (a.role === "super_admin" && b.role !== "super_admin") return -1;
-        if (a.role !== "super_admin" && b.role === "super_admin") return 1;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
+      const { data, error, count } = await query;
+      if (error) throw error;
+      
+      return { users: data || [], total: count || 0 };
     },
   });
 
-  const filteredUsers = users?.filter(user => {
-    const matchesSearch = 
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.affiliate_code?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = 
-      statusFilter === "all" ? true :
-      statusFilter === "active" ? !user.is_blocked :
-      statusFilter === "blocked" ? user.is_blocked :
-      true;
-    
-    return matchesSearch && matchesStatus;
-  });
-
-  const totalPages = Math.ceil((filteredUsers?.length || 0) / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedUsers = filteredUsers?.slice(startIndex, endIndex);
+  const users = usersData?.users || [];
+  const totalCount = usersData?.total || 0;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const { data: activities, isLoading: activitiesLoading } = useQuery({
     queryKey: ["user-activities", selectedUser?.id],
@@ -162,6 +148,31 @@ const AdminUsers = () => {
     });
   };
 
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("desc");
+    }
+    setCurrentPage(1);
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    }
+    return sortDirection === "asc" ? 
+      <ArrowUp className="ml-2 h-4 w-4" /> : 
+      <ArrowDown className="ml-2 h-4 w-4" />;
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setCurrentPage(1);
+  };
+
   return (
     <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -207,6 +218,13 @@ const AdminUsers = () => {
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
+                <Button 
+                  variant="outline"
+                  onClick={handleResetFilters}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar filtros
+                </Button>
               </div>
               <div className="flex gap-4 items-center">
                 <span className="text-sm text-muted-foreground">Resultados por página:</span>
@@ -232,12 +250,27 @@ const AdminUsers = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort("name")} className="h-8 p-0 hover:bg-transparent">
+                      Nome
+                      <SortIcon column="name" />
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
+                      Email
+                      <SortIcon column="email" />
+                    </Button>
+                  </TableHead>
                   <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Cadastro</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
+                      Cadastro
+                      <SortIcon column="created_at" />
+                    </Button>
+                  </TableHead>
                   <TableHead>Telefone</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
@@ -258,8 +291,8 @@ const AdminUsers = () => {
                       </TableRow>
                     ))}
                   </>
-                ) : paginatedUsers && paginatedUsers.length > 0 ? (
-                  paginatedUsers.map((user) => (
+                ) : users && users.length > 0 ? (
+                  users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.email || "-"}</TableCell>
@@ -299,10 +332,10 @@ const AdminUsers = () => {
               </TableBody>
             </Table>
 
-            {filteredUsers && filteredUsers.length > 0 && (
+            {users && users.length > 0 && (
               <div className="flex items-center justify-between mt-4">
                 <p className="text-sm text-muted-foreground">
-                  Mostrando {startIndex + 1} a {Math.min(endIndex, filteredUsers.length)} de {filteredUsers.length} usuários
+                  Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} usuários
                 </p>
                 <Pagination>
                   <PaginationContent>
