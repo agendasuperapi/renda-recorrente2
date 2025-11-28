@@ -29,7 +29,7 @@ export const DashboardLayout = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking role:", error);
@@ -89,45 +89,53 @@ export const DashboardLayout = () => {
 
   useEffect(() => {
     let mounted = true;
+    let initialized = false;
 
-    const initialize = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+    const initializeUser = async (sessionUser: User) => {
+      if (!mounted || initialized) return;
+      initialized = true;
+
+      setUser(sessionUser);
+      const adminStatus = await checkUserRole(sessionUser.id);
+
       if (!mounted) return;
-      
+
+      await checkSubscription(sessionUser.id, adminStatus);
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+
       if (!session) {
         navigate("/auth");
         return;
       }
-      
-      setUser(session.user);
-      const adminStatus = await checkUserRole(session.user.id);
-      
-      if (!mounted) return;
-      
-      await checkSubscription(session.user.id, adminStatus);
-    };
 
-    initialize();
+      initializeUser(session.user);
+    });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-      
+
       if (event === "SIGNED_OUT") {
         // Limpar cache ao fazer logout
         if (user?.id) {
           localStorage.removeItem(`user_role_${user.id}`);
         }
         navigate("/auth");
-      } else if (session) {
+        return;
+      }
+
+      if (session?.user) {
         setUser(session.user);
-        const adminStatus = await checkUserRole(session.user.id);
-        
-        if (!mounted) return;
-        
-        await checkSubscription(session.user.id, adminStatus);
+
+        // Adiar chamadas assíncronas para evitar deadlocks
+        setTimeout(() => {
+          if (!mounted || !session.user) return;
+          initializeUser(session.user);
+        }, 0);
       }
     });
 
