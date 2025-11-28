@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -29,12 +30,13 @@ import { toast } from "sonner";
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [editedBlockMessage, setEditedBlockMessage] = useState("");
   const [isBlocked, setIsBlocked] = useState(false);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
@@ -69,10 +71,21 @@ const AdminUsers = () => {
     },
   });
 
-  const filteredUsers = users?.filter(user => 
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.affiliate_code?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users?.filter(user => {
+    const matchesSearch = 
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.affiliate_code?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = 
+      statusFilter === "all" ? true :
+      statusFilter === "active" ? !user.is_blocked :
+      statusFilter === "blocked" ? user.is_blocked :
+      true;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const totalPages = Math.ceil((filteredUsers?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -166,17 +179,53 @@ const AdminUsers = () => {
 
         <Card>
           <CardHeader>
-            <div className="flex gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por nome ou código..."
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-4 flex-wrap">
+                <div className="relative flex-1 min-w-[300px]">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por nome, email, username ou código..."
+                    className="pl-9"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filtrar Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="active">Ativos</SelectItem>
+                    <SelectItem value="blocked">Bloqueados</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-users"] })}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
               </div>
-              <Button variant="outline">Filtros</Button>
+              <div className="flex gap-4 items-center">
+                <span className="text-sm text-muted-foreground">Resultados por página:</span>
+                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
