@@ -115,7 +115,17 @@ const AdminCoupons = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data as any[];
+      
+      // Ordenar para que cupons principais apareçam primeiro
+      const sortedData = (data as any[]).sort((a, b) => {
+        // Primeiro por is_primary (true primeiro)
+        if (a.is_primary && !b.is_primary) return -1;
+        if (!a.is_primary && b.is_primary) return 1;
+        // Depois por data de criação (mais recente primeiro)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      return sortedData;
     },
   });
 
