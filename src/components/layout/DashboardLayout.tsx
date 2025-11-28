@@ -14,11 +14,12 @@ export const DashboardLayout = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [hasActivePlan, setHasActivePlan] = useState<boolean | null>(null);
 
-  const checkUserRole = async (userId: string) => {
+  const checkUserRole = async (userId: string): Promise<boolean> => {
     // Tentar ler do cache primeiro
     const cachedRole = localStorage.getItem(`user_role_${userId}`);
     if (cachedRole !== null) {
-      setIsAdmin(cachedRole === 'super_admin');
+      const isAdminCached = cachedRole === 'super_admin';
+      setIsAdmin(isAdminCached);
     }
 
     // Verificar no servidor (sempre, para garantir segurança)
@@ -33,16 +34,19 @@ export const DashboardLayout = () => {
         console.error("Error checking role:", error);
         setIsAdmin(false);
         localStorage.removeItem(`user_role_${userId}`);
+        return false;
       } else {
         const role = data?.role || 'afiliado';
         const adminStatus = role === "super_admin";
         setIsAdmin(adminStatus);
         localStorage.setItem(`user_role_${userId}`, role);
+        return adminStatus;
       }
     } catch (error) {
       console.error("Error:", error);
       setIsAdmin(false);
       localStorage.removeItem(`user_role_${userId}`);
+      return false;
     }
   };
 
@@ -76,27 +80,33 @@ export const DashboardLayout = () => {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    let mounted = true;
+
+    const initialize = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!mounted) return;
+      
       if (!session) {
         navigate("/auth");
-      } else {
-        setUser(session.user);
-        await checkUserRole(session.user.id);
-        
-        // Verificar role do cache ou aguardar um pouco
-        const cachedRole = localStorage.getItem(`user_role_${session.user.id}`);
-        const adminStatus = cachedRole === 'super_admin';
-        
-        // Verificar subscription após verificar role
-        setTimeout(() => {
-          checkSubscription(session.user.id, adminStatus);
-        }, 100);
+        return;
       }
-    });
+      
+      setUser(session.user);
+      const adminStatus = await checkUserRole(session.user.id);
+      
+      if (!mounted) return;
+      
+      await checkSubscription(session.user.id, adminStatus);
+    };
+
+    initialize();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
       if (event === "SIGNED_OUT") {
         // Limpar cache ao fazer logout
         if (user?.id) {
@@ -105,18 +115,18 @@ export const DashboardLayout = () => {
         navigate("/auth");
       } else if (session) {
         setUser(session.user);
-        await checkUserRole(session.user.id);
+        const adminStatus = await checkUserRole(session.user.id);
         
-        const cachedRole = localStorage.getItem(`user_role_${session.user.id}`);
-        const adminStatus = cachedRole === 'super_admin';
+        if (!mounted) return;
         
-        setTimeout(() => {
-          checkSubscription(session.user.id, adminStatus);
-        }, 100);
+        await checkSubscription(session.user.id, adminStatus);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const isLoading = !user || isAdmin === null || hasActivePlan === null;
