@@ -2,7 +2,8 @@
 -- Esta view consolida dados de profiles, subscriptions, plans e referrals
 -- em uma única consulta, melhorando performance significativamente
 
-CREATE OR REPLACE VIEW public.view_admin_affiliates AS
+CREATE OR REPLACE VIEW public.view_admin_affiliates
+WITH (security_invoker = true) AS
 SELECT 
     p.id,
     p.name,
