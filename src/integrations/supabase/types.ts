@@ -1743,6 +1743,7 @@ export type Database = {
       unified_users: {
         Row: {
           affiliate_code: string | null
+          affiliate_id: string | null
           cpf: string | null
           created_at: string | null
           email: string
@@ -1751,11 +1752,11 @@ export type Database = {
           name: string | null
           phone: string | null
           product_id: string
-          referrer_code: string | null
           updated_at: string | null
         }
         Insert: {
           affiliate_code?: string | null
+          affiliate_id?: string | null
           cpf?: string | null
           created_at?: string | null
           email: string
@@ -1764,11 +1765,11 @@ export type Database = {
           name?: string | null
           phone?: string | null
           product_id: string
-          referrer_code?: string | null
           updated_at?: string | null
         }
         Update: {
           affiliate_code?: string | null
+          affiliate_id?: string | null
           cpf?: string | null
           created_at?: string | null
           email?: string
@@ -1777,10 +1778,30 @@ export type Database = {
           name?: string | null
           phone?: string | null
           product_id?: string
-          referrer_code?: string | null
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "unified_users_product_id_fkey"
             columns: ["product_id"]
