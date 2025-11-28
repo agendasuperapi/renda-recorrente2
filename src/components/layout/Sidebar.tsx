@@ -379,7 +379,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             </p>
             {isAdmin && (
               <div className="flex items-center gap-2">
-                <p className="text-xs font-medium" style={{ color: accentColor }}>Super Admin</p>
+                <p className="text-xs font-medium" style={{ color: currentTextColor }}>Super Admin</p>
                 <Button
                   variant="ghost"
                   size="sm"
