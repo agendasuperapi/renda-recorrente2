@@ -4,7 +4,8 @@
 
 -- 1. VIEW PARA ADMIN PAYMENTS
 -- Consolida dados de pagamentos com joins de plans, profiles, subscriptions e affiliates
-CREATE OR REPLACE VIEW public.view_admin_payments AS
+CREATE OR REPLACE VIEW public.view_admin_payments
+WITH (security_invoker = true) AS
 SELECT 
     p.id,
     p.stripe_invoice_id,
@@ -43,7 +44,8 @@ COMMENT ON VIEW public.view_admin_payments IS 'View otimizada para listagem de p
 
 -- 2. VIEW PARA ADMIN USERS
 -- Consolida dados de usuários com suas roles
-CREATE OR REPLACE VIEW public.view_admin_users AS
+CREATE OR REPLACE VIEW public.view_admin_users
+WITH (security_invoker = true) AS
 SELECT 
     p.id,
     p.name,
@@ -86,7 +88,8 @@ COMMENT ON VIEW public.view_admin_users IS 'View otimizada para listagem de usu�
 
 -- 3. VIEW PARA ADMIN STRIPE EVENTS
 -- Já existe boa estrutura na tabela stripe_events, mas podemos adicionar dados relacionados
-CREATE OR REPLACE VIEW public.view_admin_stripe_events AS
+CREATE OR REPLACE VIEW public.view_admin_stripe_events
+WITH (security_invoker = true) AS
 SELECT 
     se.id,
     se.event_id,
