@@ -363,22 +363,22 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       </nav>
 
       <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
-        <div className="flex items-center gap-2 px-3 py-2">
-          <Avatar className="w-8 h-8 shrink-0">
+        <div className="flex flex-col items-center gap-3 px-3 py-2">
+          <Avatar className="w-16 h-16">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-            <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-[10px]">
+            <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: currentTextColor }}>
+          <div className="flex flex-col items-center text-center w-full">
+            <p className="text-sm font-medium truncate w-full" style={{ color: currentTextColor }}>
               {userName || user.user_metadata?.name || "Usuário"}
             </p>
-            <p className="text-xs truncate" style={{ color: `${currentTextColor}70` }}>
+            <p className="text-xs truncate w-full" style={{ color: `${currentTextColor}70` }}>
               {user.email}
             </p>
             {isAdmin && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-1">
                 <p className="text-xs font-medium" style={{ color: currentTextColor }}>Super Admin</p>
                 <Button
                   variant="ghost"
