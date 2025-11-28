@@ -43,7 +43,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutos
+      staleTime: 1000 * 60 * 5, // 5 minutos - mantém dados frescos por esse tempo
       refetchOnWindowFocus: false, // Não refazer query ao focar janela
       retry: 1, // Tentar apenas 1 vez em caso de erro
     },
