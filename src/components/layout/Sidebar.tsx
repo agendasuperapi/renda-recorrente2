@@ -24,6 +24,7 @@ import {
   FileText,
   Home,
   Settings,
+  ChevronDown,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,6 +36,11 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -66,7 +72,6 @@ const affiliateMenuItems = [
 ];
 
 const adminMenuItems = [
-  { icon: Home, label: "Home Landing Page", path: "/" },
   { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
   { icon: Users, label: "Usuários", path: "/admin/users" },
   { icon: Target, label: "Afiliados", path: "/admin/affiliates" },
@@ -77,8 +82,12 @@ const adminMenuItems = [
   { icon: Package, label: "Produtos", path: "/admin/products" },
   { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
   { icon: CreditCard, label: "Planos e Preços", path: "/admin/plans" },
-  { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
   { icon: FileText, label: "Termos e Privacidade", path: "/admin/legal-documents" },
+];
+
+const configMenuItems = [
+  { icon: Home, label: "Home Landing Page", path: "/" },
+  { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
   { icon: Settings, label: "Configurações", path: "/admin/settings" },
 ];
 
@@ -92,6 +101,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
+  const [configMenuOpen, setConfigMenuOpen] = useState(false);
 
   // Observar mudanças de tema
   useEffect(() => {
@@ -360,6 +370,65 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             </Link>
           );
         })}
+
+        {isAdmin && showAdminMenu && (
+          <Collapsible open={configMenuOpen} onOpenChange={setConfigMenuOpen}>
+            <CollapsibleTrigger
+              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
+              style={{ color: currentTextColor }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `${accentColor}30`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Settings size={18} />
+              <span className="flex-1 text-left">Configurações</span>
+              <ChevronDown
+                size={16}
+                className="transition-transform"
+                style={{
+                  transform: configMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pl-4 space-y-1 mt-1">
+              {configMenuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
+                    )}
+                    style={{
+                      backgroundColor: isActive ? accentColor : 'transparent',
+                      color: currentTextColor,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                      }
+                      handlePrefetch(item.path);
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    <Icon size={18} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </nav>
 
       <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
