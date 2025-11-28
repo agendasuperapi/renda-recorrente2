@@ -458,12 +458,26 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex flex-col items-center gap-3 px-3 py-2">
-          <Avatar className="w-16 h-16">
-            {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-            <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
-              {getInitials()}
-            </AvatarFallback>
-          </Avatar>
+          <div className="flex items-center gap-2">
+            <Avatar className="w-16 h-16">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
+              <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setShowAdminMenu(!showAdminMenu)}
+                title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
+                style={{ color: currentTextColor }}
+              >
+                {showAdminMenu ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
+              </Button>
+            )}
+          </div>
           <div className="flex flex-col items-center text-center w-full">
             <p className="text-sm font-medium truncate w-full" style={{ color: currentTextColor }}>
               {userName || user.user_metadata?.name || "Usuário"}
@@ -471,21 +485,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <p className="text-xs truncate w-full" style={{ color: `${currentTextColor}70` }}>
               {user.email}
             </p>
-            {isAdmin && (
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-xs font-medium" style={{ color: currentTextColor }}>Super Admin</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs"
-                  onClick={() => setShowAdminMenu(!showAdminMenu)}
-                  title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
-                  style={{ color: currentTextColor }}
-                >
-                  {showAdminMenu ? <Crown className="w-3 h-3" /> : <User className="w-3 h-3" />}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
