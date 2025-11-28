@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "./Sidebar";
@@ -15,6 +15,8 @@ export const DashboardLayout = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [hasActivePlan, setHasActivePlan] = useState<boolean | null>(null);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const initRef = useRef(false);
 
   const checkUserRole = async (userId: string): Promise<boolean> => {
     // Tentar ler do cache primeiro
@@ -90,11 +92,12 @@ export const DashboardLayout = () => {
 
   useEffect(() => {
     let mounted = true;
-    let initialized = false;
+
+    // Se já inicializou, não fazer nada
+    if (initRef.current) return;
 
     const initializeUser = async (sessionUser: User) => {
-      if (!mounted || initialized) return;
-      initialized = true;
+      if (!mounted || initRef.current) return;
 
       setUser(sessionUser);
       const adminStatus = await checkUserRole(sessionUser.id);
@@ -102,6 +105,10 @@ export const DashboardLayout = () => {
       if (!mounted) return;
 
       await checkSubscription(sessionUser.id, adminStatus);
+      
+      // Marcar como inicializado
+      initRef.current = true;
+      setInitialized(true);
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -125,18 +132,17 @@ export const DashboardLayout = () => {
         if (user?.id) {
           localStorage.removeItem(`user_role_${user.id}`);
         }
+        initRef.current = false;
+        setInitialized(false);
         navigate("/auth");
         return;
       }
 
-      if (session?.user) {
+      // Apenas atualizar user se já inicializou
+      if (session?.user && initRef.current) {
         setUser(session.user);
-
-        // Adiar chamadas assíncronas para evitar deadlocks
-        setTimeout(() => {
-          if (!mounted || !session.user) return;
-          initializeUser(session.user);
-        }, 0);
+      } else if (session?.user && !initRef.current) {
+        initializeUser(session.user);
       }
     });
 
@@ -155,7 +161,7 @@ export const DashboardLayout = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  const isLoading = (!user || isAdmin === null || hasActivePlan === null) && !loadingTimeout;
+  const isLoading = !initialized && !loadingTimeout;
 
   return (
     <>
