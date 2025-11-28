@@ -107,7 +107,7 @@ const AdminCoupons = () => {
         .from("coupons")
         .select(`
           *,
-          products!coupons_product_id_fkey(nome)
+          products!coupons_product_id_fkey(nome, icone_light, icone_dark)
         `)
         .order("created_at", { ascending: false });
       
@@ -298,12 +298,14 @@ const AdminCoupons = () => {
         if (!acc[productId]) {
           acc[productId] = {
             name: productName,
+            iconLight: coupon.products?.icone_light,
+            iconDark: coupon.products?.icone_dark,
             coupons: []
           };
         }
         acc[productId].coupons.push(coupon);
         return acc;
-      }, {} as Record<string, { name: string; coupons: typeof filteredCoupons }>)
+      }, {} as Record<string, { name: string; iconLight?: string; iconDark?: string; coupons: typeof filteredCoupons }>)
     : null;
 
   const totalCoupons = couponsList.length;
@@ -725,9 +727,16 @@ const AdminCoupons = () => {
             </div>
           ) : selectedProduct === "all" && groupedByProduct ? (
             <div className="space-y-8">
-              {Object.entries(groupedByProduct).map(([productId, productData]: [string, { name: string; coupons: any[] }]) => (
+              {Object.entries(groupedByProduct).map(([productId, productData]: [string, { name: string; iconLight?: string; iconDark?: string; coupons: any[] }]) => (
                 <div key={productId}>
                   <div className="flex items-center gap-3 mb-4 pb-2 border-b">
+                    {(productData.iconLight || productData.iconDark) && (
+                      <img
+                        src={productData.iconLight || productData.iconDark || ''}
+                        alt={productData.name}
+                        className="w-10 h-10 rounded-full object-cover border-2 border-border"
+                      />
+                    )}
                     <h3 className="text-lg font-semibold text-foreground">
                       {productData.name}
                     </h3>
