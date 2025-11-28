@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   User,
@@ -90,6 +91,51 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [showAdminMenu, setShowAdminMenu] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+
+  // Carregar configurações do sidebar
+  const { data: sidebarConfig } = useQuery({
+    queryKey: ['sidebar-config'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('*')
+        .in('key', [
+          'sidebar_color_start',
+          'sidebar_color_end',
+          'sidebar_intensity_start',
+          'sidebar_intensity_end',
+          'sidebar_text_color',
+          'sidebar_accent_color',
+          'sidebar_logo_url'
+        ]);
+
+      if (error) {
+        console.error('Error loading sidebar config:', error);
+        return null;
+      }
+
+      const config: Record<string, string> = {};
+      data?.forEach(setting => {
+        config[setting.key] = setting.value;
+      });
+      
+      return config;
+    },
+  });
+
+  // Extrair configurações
+  const colorStart = sidebarConfig?.sidebar_color_start || '#00bf63';
+  const colorEnd = sidebarConfig?.sidebar_color_end || '#00bf63';
+  const intensityStart = parseInt(sidebarConfig?.sidebar_intensity_start || '37');
+  const intensityEnd = parseInt(sidebarConfig?.sidebar_intensity_end || '25');
+  const textColor = sidebarConfig?.sidebar_text_color || '#ffffff';
+  const accentColor = sidebarConfig?.sidebar_accent_color || '#00e676';
+  const logoUrl = sidebarConfig?.sidebar_logo_url || logo;
+
+  // Calcular gradiente
+  const gradientStyle = {
+    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')}, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')})`
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -242,11 +288,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
-      <div className="p-6 border-b border-sidebar-border">
+      <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex items-center justify-center mb-4">
-          <img src={logo} alt="APP Renda Recorrente" className="h-16 w-auto" />
+          <img src={logoUrl} alt="APP Renda Recorrente" className="h-16 w-auto" />
         </div>
-        <div className="text-center text-xs text-sidebar-foreground/50">
+        <div className="text-center text-xs" style={{ color: `${textColor}80` }}>
           Versão: {APP_VERSION}
         </div>
       </div>
@@ -261,12 +307,23 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
-                isActive
-                  ? "bg-primary text-white"
-                  : "hover:bg-sidebar-accent text-sidebar-foreground"
+                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
               )}
-              onMouseEnter={() => handlePrefetch(item.path)}
+              style={{
+                backgroundColor: isActive ? accentColor : 'transparent',
+                color: textColor,
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+                handlePrefetch(item.path);
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
             >
               <Icon size={18} />
               {item.label}
@@ -275,30 +332,31 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border space-y-2">
+      <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex items-center gap-2 px-3 py-2">
           <Avatar className="w-8 h-8 shrink-0">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-            <AvatarFallback className="bg-primary text-white text-[10px]">
+            <AvatarFallback style={{ backgroundColor: accentColor, color: textColor }} className="text-[10px]">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">
+            <p className="text-sm font-medium truncate" style={{ color: textColor }}>
               {userName || user.user_metadata?.name || "Usuário"}
             </p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">
+            <p className="text-xs truncate" style={{ color: `${textColor}70` }}>
               {user.email}
             </p>
             {isAdmin && (
               <div className="flex items-center gap-2">
-                <p className="text-xs text-primary font-medium">Super Admin</p>
+                <p className="text-xs font-medium" style={{ color: accentColor }}>Super Admin</p>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-6 px-2 text-xs"
                   onClick={() => setShowAdminMenu(!showAdminMenu)}
                   title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
+                  style={{ color: textColor }}
                 >
                   {showAdminMenu ? <Crown className="w-3 h-3" /> : <User className="w-3 h-3" />}
                 </Button>
@@ -312,7 +370,14 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               closeSidebar?.();
               handleLogout();
             }}
-            className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors text-sm"
+            className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
+            style={{ color: textColor }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = `${accentColor}30`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
             <LogOut size={18} />
             Sair
@@ -335,7 +400,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0 text-sidebar-foreground" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-gradient-start)), hsl(var(--sidebar-gradient-end)))' }}>
+        <SheetContent side="left" className="w-64 p-0" style={{ ...gradientStyle, color: textColor }}>
           <VisuallyHidden>
             <SheetTitle>Menu de navegação</SheetTitle>
           </VisuallyHidden>
@@ -348,7 +413,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   }
 
   return (
-    <aside className="hidden lg:flex w-64 text-sidebar-foreground flex-col h-screen sticky top-0 flex-shrink-0" style={{ background: 'linear-gradient(180deg, hsl(var(--sidebar-gradient-start)), hsl(var(--sidebar-gradient-end)))' }}>
+    <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: textColor }}>
       <SidebarContent />
     </aside>
   );
