@@ -29,11 +29,15 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
   const [colorEnd, setColorEnd] = useState('#00bf63');
   const [intensityStart, setIntensityStart] = useState(37);
   const [intensityEnd, setIntensityEnd] = useState(25);
+  const [gradientStartPos, setGradientStartPos] = useState(0);
   const [textColor, setTextColor] = useState('#ffffff');
+  const [textColorLight, setTextColorLight] = useState('#000000');
+  const [textColorDark, setTextColorDark] = useState('#ffffff');
   const [accentColor, setAccentColor] = useState('#00e676');
   
-  // Estado para o ícone
-  const [logoUrl, setLogoUrl] = useState('');
+  // Estado para os logos
+  const [logoUrlLight, setLogoUrlLight] = useState('');
+  const [logoUrlDark, setLogoUrlDark] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
   
   const [isSaving, setIsSaving] = useState(false);
@@ -50,9 +54,13 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
             'sidebar_color_end',
             'sidebar_intensity_start',
             'sidebar_intensity_end',
+            'sidebar_gradient_start_position',
             'sidebar_text_color',
+            'sidebar_text_color_light',
+            'sidebar_text_color_dark',
             'sidebar_accent_color',
-            'sidebar_logo_url'
+            'sidebar_logo_url_light',
+            'sidebar_logo_url_dark'
           ]);
 
         if (error) throw error;
@@ -72,14 +80,26 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
               case 'sidebar_intensity_end':
                 setIntensityEnd(parseInt(setting.value));
                 break;
+              case 'sidebar_gradient_start_position':
+                setGradientStartPos(parseInt(setting.value));
+                break;
               case 'sidebar_text_color':
                 setTextColor(setting.value);
+                break;
+              case 'sidebar_text_color_light':
+                setTextColorLight(setting.value);
+                break;
+              case 'sidebar_text_color_dark':
+                setTextColorDark(setting.value);
                 break;
               case 'sidebar_accent_color':
                 setAccentColor(setting.value);
                 break;
-              case 'sidebar_logo_url':
-                setLogoUrl(setting.value);
+              case 'sidebar_logo_url_light':
+                setLogoUrlLight(setting.value);
+                break;
+              case 'sidebar_logo_url_dark':
+                setLogoUrlDark(setting.value);
                 break;
             }
           });
@@ -94,14 +114,14 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
     }
   }, [open]);
 
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>, mode: 'light' | 'dark') => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setUploadingLogo(true);
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `sidebar-logo-${Date.now()}.${fileExt}`;
+      const fileName = `sidebar-logo-${mode}-${Date.now()}.${fileExt}`;
       const filePath = `logos/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -114,8 +134,13 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
         .from('avatars')
         .getPublicUrl(filePath);
 
-      setLogoUrl(publicUrl);
-      toast.success('Logo carregado com sucesso!');
+      if (mode === 'light') {
+        setLogoUrlLight(publicUrl);
+      } else {
+        setLogoUrlDark(publicUrl);
+      }
+      
+      toast.success(`Logo (${mode === 'light' ? 'claro' : 'escuro'}) carregado com sucesso!`);
     } catch (error: any) {
       console.error('Erro ao fazer upload:', error);
       toast.error('Erro ao fazer upload do logo: ' + error.message);
@@ -132,9 +157,13 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
         { key: 'sidebar_color_end', value: colorEnd, description: 'Cor final do gradiente do sidebar' },
         { key: 'sidebar_intensity_start', value: intensityStart.toString(), description: 'Intensidade inicial do gradiente' },
         { key: 'sidebar_intensity_end', value: intensityEnd.toString(), description: 'Intensidade final do gradiente' },
+        { key: 'sidebar_gradient_start_position', value: gradientStartPos.toString(), description: 'Posição de início do gradiente' },
         { key: 'sidebar_text_color', value: textColor, description: 'Cor do texto do sidebar' },
+        { key: 'sidebar_text_color_light', value: textColorLight, description: 'Cor do texto do sidebar em modo claro' },
+        { key: 'sidebar_text_color_dark', value: textColorDark, description: 'Cor do texto do sidebar em modo escuro' },
         { key: 'sidebar_accent_color', value: accentColor, description: 'Cor de destaque do sidebar' },
-        { key: 'sidebar_logo_url', value: logoUrl, description: 'URL do logo do sidebar' },
+        { key: 'sidebar_logo_url_light', value: logoUrlLight, description: 'URL do logo do sidebar em modo claro' },
+        { key: 'sidebar_logo_url_dark', value: logoUrlDark, description: 'URL do logo do sidebar em modo escuro' },
       ];
 
       for (const setting of settings) {
@@ -188,18 +217,29 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
                 <div 
                   className="w-64 h-96 flex flex-col p-4"
                   style={{
-                    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')}, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')})`,
+                    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')} ${gradientStartPos}%, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')} 100%)`,
                     color: textColor
                   }}
                 >
                   {/* Logo */}
                   <div className="mb-6 flex items-center justify-center py-2">
-                    {logoUrl ? (
-                      <img 
-                        src={logoUrl} 
-                        alt="Logo" 
-                        className="h-12 object-contain"
-                      />
+                    {(logoUrlLight || logoUrlDark) ? (
+                      <div className="flex flex-col gap-2 items-center">
+                        {logoUrlLight && (
+                          <img 
+                            src={logoUrlLight} 
+                            alt="Logo Claro" 
+                            className="h-10 object-contain"
+                          />
+                        )}
+                        {logoUrlDark && (
+                          <img 
+                            src={logoUrlDark} 
+                            alt="Logo Escuro" 
+                            className="h-10 object-contain"
+                          />
+                        )}
+                      </div>
                     ) : (
                       <div 
                         className="h-12 w-12 rounded flex items-center justify-center text-xs"
@@ -261,20 +301,21 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
           {/* Logo Upload */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Logo do Menu</CardTitle>
+              <CardTitle className="text-base">Logos do Menu</CardTitle>
               <CardDescription>
-                Faça upload do logo que aparecerá no topo do menu lateral
+                Faça upload dos logos para modo claro e escuro
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Logo Modo Claro */}
               <div className="space-y-2">
-                <Label htmlFor="logo-upload">Carregar Logo</Label>
+                <Label htmlFor="logo-upload-light" className="font-semibold">Logo - Modo Claro</Label>
                 <div className="flex items-center gap-4">
                   <Input
-                    id="logo-upload"
+                    id="logo-upload-light"
                     type="file"
                     accept="image/*"
-                    onChange={handleLogoUpload}
+                    onChange={(e) => handleLogoUpload(e, 'light')}
                     disabled={uploadingLogo}
                     className="flex-1"
                   />
@@ -282,18 +323,47 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
                     <span className="text-sm text-muted-foreground">Carregando...</span>
                   )}
                 </div>
+                {logoUrlLight && (
+                  <div className="space-y-2">
+                    <Input
+                      value={logoUrlLight}
+                      onChange={(e) => setLogoUrlLight(e.target.value)}
+                      placeholder="URL da imagem (modo claro)"
+                      className="text-xs"
+                    />
+                    <img src={logoUrlLight} alt="Preview Logo Claro" className="h-12 object-contain" />
+                  </div>
+                )}
               </div>
-              
-              {logoUrl && (
-                <div className="flex items-center gap-2">
-                  <Label>URL Atual:</Label>
+
+              {/* Logo Modo Escuro */}
+              <div className="space-y-2">
+                <Label htmlFor="logo-upload-dark" className="font-semibold">Logo - Modo Escuro</Label>
+                <div className="flex items-center gap-4">
                   <Input
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="URL da imagem"
+                    id="logo-upload-dark"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleLogoUpload(e, 'dark')}
+                    disabled={uploadingLogo}
+                    className="flex-1"
                   />
+                  {uploadingLogo && (
+                    <span className="text-sm text-muted-foreground">Carregando...</span>
+                  )}
                 </div>
-              )}
+                {logoUrlDark && (
+                  <div className="space-y-2">
+                    <Input
+                      value={logoUrlDark}
+                      onChange={(e) => setLogoUrlDark(e.target.value)}
+                      placeholder="URL da imagem (modo escuro)"
+                      className="text-xs"
+                    />
+                    <img src={logoUrlDark} alt="Preview Logo Escuro" className="h-12 object-contain bg-gray-800 p-2 rounded" />
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -369,6 +439,17 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label>Posição Início ({gradientStartPos}%)</Label>
+                <Slider
+                  value={[gradientStartPos]}
+                  onValueChange={(value) => setGradientStartPos(value[0])}
+                  min={0}
+                  max={100}
+                  step={10}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -381,21 +462,40 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="textColor">Cor do Texto</Label>
+                  <Label htmlFor="textColorLight" className="font-semibold">Cor do Texto - Modo Claro</Label>
                   <div className="flex gap-2">
                     <Input
-                      id="textColor"
+                      id="textColorLight"
                       type="color"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
+                      value={textColorLight}
+                      onChange={(e) => setTextColorLight(e.target.value)}
                       className="w-20 h-10"
                     />
                     <Input
                       type="text"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
+                      value={textColorLight}
+                      onChange={(e) => setTextColorLight(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="textColorDark" className="font-semibold">Cor do Texto - Modo Escuro</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="textColorDark"
+                      type="color"
+                      value={textColorDark}
+                      onChange={(e) => setTextColorDark(e.target.value)}
+                      className="w-20 h-10"
+                    />
+                    <Input
+                      type="text"
+                      value={textColorDark}
+                      onChange={(e) => setTextColorDark(e.target.value)}
                       className="flex-1"
                     />
                   </div>

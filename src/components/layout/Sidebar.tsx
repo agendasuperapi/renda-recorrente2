@@ -91,6 +91,25 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [showAdminMenu, setShowAdminMenu] = useState(true);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
+
+  // Observar mudanças de tema
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDarkTheme(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // Carregar configurações do sidebar
   const { data: sidebarConfig } = useQuery({
@@ -104,9 +123,13 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
           'sidebar_color_end',
           'sidebar_intensity_start',
           'sidebar_intensity_end',
+          'sidebar_gradient_start_position',
           'sidebar_text_color',
+          'sidebar_text_color_light',
+          'sidebar_text_color_dark',
           'sidebar_accent_color',
-          'sidebar_logo_url'
+          'sidebar_logo_url_light',
+          'sidebar_logo_url_dark'
         ]);
 
       if (error) {
@@ -128,13 +151,20 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const colorEnd = sidebarConfig?.sidebar_color_end || '#00bf63';
   const intensityStart = parseInt(sidebarConfig?.sidebar_intensity_start || '37');
   const intensityEnd = parseInt(sidebarConfig?.sidebar_intensity_end || '25');
-  const textColor = sidebarConfig?.sidebar_text_color || '#ffffff';
+  const gradientStartPos = parseInt(sidebarConfig?.sidebar_gradient_start_position || '0');
+  const textColorLight = sidebarConfig?.sidebar_text_color_light || '#000000';
+  const textColorDark = sidebarConfig?.sidebar_text_color_dark || '#ffffff';
   const accentColor = sidebarConfig?.sidebar_accent_color || '#00e676';
-  const logoUrl = sidebarConfig?.sidebar_logo_url || logo;
+  const logoUrlLight = sidebarConfig?.sidebar_logo_url_light || logo;
+  const logoUrlDark = sidebarConfig?.sidebar_logo_url_dark || logo;
 
-  // Calcular gradiente
+  // Usar tema do estado
+  const currentTextColor = isDarkTheme ? textColorDark : textColorLight;
+  const currentLogoUrl = isDarkTheme ? logoUrlDark : logoUrlLight;
+
+  // Calcular gradiente com posição de início
   const gradientStyle = {
-    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')}, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')})`
+    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')} ${gradientStartPos}%, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')} 100%)`
   };
 
   useEffect(() => {
@@ -290,9 +320,9 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     <>
       <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex items-center justify-center mb-4">
-          <img src={logoUrl} alt="APP Renda Recorrente" className="h-16 w-auto" />
+          <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-16 w-auto" />
         </div>
-        <div className="text-center text-xs" style={{ color: `${textColor}80` }}>
+        <div className="text-center text-xs" style={{ color: `${currentTextColor}80` }}>
           Versão: {APP_VERSION}
         </div>
       </div>
@@ -311,7 +341,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               )}
               style={{
                 backgroundColor: isActive ? accentColor : 'transparent',
-                color: textColor,
+                color: currentTextColor,
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
@@ -336,15 +366,15 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
         <div className="flex items-center gap-2 px-3 py-2">
           <Avatar className="w-8 h-8 shrink-0">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-            <AvatarFallback style={{ backgroundColor: accentColor, color: textColor }} className="text-[10px]">
+            <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-[10px]">
               {getInitials()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: textColor }}>
+            <p className="text-sm font-medium truncate" style={{ color: currentTextColor }}>
               {userName || user.user_metadata?.name || "Usuário"}
             </p>
-            <p className="text-xs truncate" style={{ color: `${textColor}70` }}>
+            <p className="text-xs truncate" style={{ color: `${currentTextColor}70` }}>
               {user.email}
             </p>
             {isAdmin && (
@@ -356,7 +386,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                   className="h-6 px-2 text-xs"
                   onClick={() => setShowAdminMenu(!showAdminMenu)}
                   title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
-                  style={{ color: textColor }}
+                  style={{ color: currentTextColor }}
                 >
                   {showAdminMenu ? <Crown className="w-3 h-3" /> : <User className="w-3 h-3" />}
                 </Button>
@@ -371,7 +401,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               handleLogout();
             }}
             className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-            style={{ color: textColor }}
+            style={{ color: currentTextColor }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = `${accentColor}30`;
             }}
@@ -400,7 +430,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0" style={{ ...gradientStyle, color: textColor }}>
+        <SheetContent side="left" className="w-64 p-0" style={{ ...gradientStyle, color: currentTextColor }}>
           <VisuallyHidden>
             <SheetTitle>Menu de navegação</SheetTitle>
           </VisuallyHidden>
@@ -413,7 +443,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   }
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: textColor }}>
+    <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
       <SidebarContent />
     </aside>
   );
