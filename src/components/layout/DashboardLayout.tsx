@@ -7,10 +7,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BlockedUserDialog } from "@/components/BlockedUserDialog";
 import { UserProvider } from "@/contexts/UserContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -133,6 +135,7 @@ export const DashboardLayout = () => {
         if (user?.id) {
           localStorage.removeItem(`user_role_${user.id}`);
         }
+        queryClient.clear();
         initRef.current = false;
         setInitialized(false);
         navigate("/auth");
