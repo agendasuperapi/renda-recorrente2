@@ -383,6 +383,7 @@ export type Database = {
           status: Database["public"]["Enums"]["commission_status"]
           subscription_id: string | null
           unified_payment_id: string | null
+          unified_user_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -401,6 +402,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["commission_status"]
           subscription_id?: string | null
           unified_payment_id?: string | null
+          unified_user_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -419,6 +421,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["commission_status"]
           subscription_id?: string | null
           unified_payment_id?: string | null
+          unified_user_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -483,6 +486,34 @@ export type Database = {
             columns: ["unified_payment_id"]
             isOneToOne: false
             referencedRelation: "unified_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_commissions_unified_user_id"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_commissions_unified_user_id"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["unified_user_id"]
+          },
+          {
+            foreignKeyName: "fk_commissions_unified_user_id"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_commissions_unified_user_id"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
             referencedColumns: ["id"]
           },
         ]
