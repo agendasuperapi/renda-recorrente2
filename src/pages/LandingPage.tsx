@@ -216,17 +216,20 @@ const LandingPage = () => {
       try {
         const savedCoupon = localStorage.getItem('lastUsedCoupon');
         if (savedCoupon) {
-          const { code, data } = JSON.parse(savedCoupon);
+          const { code, custom_code, data } = JSON.parse(savedCoupon);
+          
+          // Usar o código completo que foi digitado (custom_code se for de afiliado)
+          const codeToValidate = code;
           
           // Validar se o cupom ainda está ativo
           const { data: validationData, error } = await (supabase as any).rpc('validate_coupon', {
-            p_coupon_code: code,
+            p_coupon_code: codeToValidate,
             p_product_id: PRODUCT_ID
           });
 
           if (!error && validationData && Array.isArray(validationData) && validationData.length > 0) {
             // Cupom ainda válido, aplicar
-            setCouponCode(code);
+            setCouponCode(codeToValidate); // Preencher com o código completo (username+cupom)
             setValidatedCoupon(data);
           } else {
             // Cupom inválido, remover do localStorage
@@ -586,9 +589,10 @@ const LandingPage = () => {
       
       setValidatedCoupon(couponData);
       
-      // Salvar cupom no localStorage
+      // Salvar cupom no localStorage - usar o código digitado pelo usuário (pode ser custom_code)
       localStorage.setItem('lastUsedCoupon', JSON.stringify({
-        code: couponResult.code,
+        code: couponCode.toUpperCase(), // Código exatamente como foi digitado (custom_code se for de afiliado)
+        custom_code: couponResult.custom_code || null, // Guardar custom_code para referência
         data: couponData
       }));
 
