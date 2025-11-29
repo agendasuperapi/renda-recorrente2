@@ -26,6 +26,7 @@ import {
   Settings,
   ChevronDown,
   PlusSquare,
+  Coins,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,7 +64,7 @@ const affiliateMenuItems = [
   { icon: GraduationCap, label: "Treinamento", path: "/training" },
   { icon: Target, label: "Indicações", path: "/referrals" },
   { icon: Users, label: "Sub Afiliados", path: "/sub-affiliates" },
-  { icon: Target, label: "Comissões Diárias", path: "/commissions-daily" },
+  { icon: Coins, label: "Comissões Diárias", path: "/commissions-daily" },
   { icon: Calendar, label: "Comissões Mensais", path: "/commissions-monthly" },
   { icon: Calendar, label: "Atividades", path: "/activities" },
   { icon: Ticket, label: "Cupons e Links", path: "/coupons" },
