@@ -8,43 +8,35 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
 
 const Coupons = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [productFilter, setProductFilter] = useState<string>("all");
-
-  // Fetch current user and session
-  const { data: session } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session;
-    },
-  });
+  const { userId } = useAuth();
 
   // Fetch current user profile
   const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuário não autenticado");
+      if (!userId) throw new Error("Usuário não autenticado");
 
       const { data, error } = await supabase
         .from("profiles")
         .select("id, username")
-        .eq("id", user.id)
+        .eq("id", userId)
         .single();
 
       if (error) throw error;
       return data;
     },
-    enabled: !!session,
+    enabled: !!userId,
   });
 
   // Fetch products for filter
   const { data: products } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
@@ -53,12 +45,12 @@ const Coupons = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!session,
+    enabled: !!userId,
   });
 
   // Fetch available admin coupons
   const { data: availableCoupons, isLoading: couponsLoading } = useQuery({
-    queryKey: ["available-coupons"],
+    queryKey: ["available-coupons", userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("coupons")
@@ -70,14 +62,14 @@ const Coupons = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!session,
+    enabled: !!userId,
   });
 
   // Fetch affiliate's activated coupons
   const { data: activatedCoupons, isLoading: activatedLoading } = useQuery({
-    queryKey: ["activated-coupons", profile?.id],
+    queryKey: ["activated-coupons", userId],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!userId) return [];
 
       const { data, error } = await supabase
         .from("affiliate_coupons")
@@ -85,13 +77,13 @@ const Coupons = () => {
           *,
           coupons(*, products(nome))
         `)
-        .eq("affiliate_id", profile.id)
+        .eq("affiliate_id", userId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as any[];
     },
-    enabled: !!profile?.id,
+    enabled: !!userId,
   });
 
   // Activate coupon mutation
@@ -124,7 +116,7 @@ const Coupons = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activated-coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["activated-coupons", userId] });
       toast({
         title: "Cupom liberado!",
         description: "Seu cupom personalizado foi criado com sucesso",
@@ -150,7 +142,7 @@ const Coupons = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activated-coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["activated-coupons", userId] });
       toast({
         title: "Cupom inativado",
         description: "O cupom foi inativado com sucesso",
@@ -176,7 +168,7 @@ const Coupons = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activated-coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["activated-coupons", userId] });
       toast({
         title: "Cupom ativado",
         description: "O cupom foi ativado com sucesso",
