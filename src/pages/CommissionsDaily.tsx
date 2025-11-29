@@ -198,8 +198,33 @@ const CommissionsDaily = () => {
       setTotalCount(count || 0);
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
       
-      // Calcular total filtrado
-      const total = (data || []).reduce((sum, commission) => sum + (commission.valor || 0), 0);
+      // Calcular total filtrado de TODAS as comissões (sem paginação)
+      let totalQuery = (supabase as any)
+        .from("view_commissions_daily")
+        .select("valor")
+        .eq("affiliate_id", userId);
+
+      if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
+        totalQuery = totalQuery.eq("product_id", filters.product_id);
+      }
+      if (filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " ") {
+        totalQuery = totalQuery.eq("plan_id", filters.plan_id);
+      }
+      if (debouncedCliente && debouncedCliente.trim()) {
+        totalQuery = totalQuery.ilike("cliente", `%${debouncedCliente}%`);
+      }
+      if (filters.status && filters.status.trim() && filters.status !== " ") {
+        totalQuery = totalQuery.eq("status", filters.status);
+      }
+      if (filters.data_inicio && filters.data_inicio.trim()) {
+        totalQuery = totalQuery.gte("data", filters.data_inicio);
+      }
+      if (filters.data_fim && filters.data_fim.trim()) {
+        totalQuery = totalQuery.lte("data", filters.data_fim);
+      }
+
+      const { data: totalData } = await totalQuery;
+      const total = (totalData || []).reduce((sum: number, item: any) => sum + (item.valor || 0), 0);
       setTotalFiltrado(total);
     } catch (error) {
       console.error("Erro ao carregar comissões:", error);
