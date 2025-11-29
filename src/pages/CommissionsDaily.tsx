@@ -178,10 +178,10 @@ const CommissionsDaily = () => {
         query = query.eq("status", filters.status);
       }
     if (filters.data_inicio && filters.data_inicio.trim()) {
-      query = query.gte("data", `${filters.data_inicio} 00:00:00`);
+      query = query.gte("data_filtro", filters.data_inicio);
     }
     if (filters.data_fim && filters.data_fim.trim()) {
-      query = query.lte("data", `${filters.data_fim} 23:59:59`);
+      query = query.lte("data_filtro", filters.data_fim);
     }
 
       // Paginação
