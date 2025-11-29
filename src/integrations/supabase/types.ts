@@ -336,6 +336,36 @@ export type Database = {
         }
         Relationships: []
       }
+      commission_levels: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          level: number
+          percentage: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level: number
+          percentage: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number
+          percentage?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       commissions: {
         Row: {
           affiliate_id: string
@@ -2804,6 +2834,7 @@ export type Database = {
           email: string | null
           external_user_id: string | null
           id: string | null
+          level: number | null
           name: string | null
           parent_affiliate_id: string | null
           plan_id: string | null

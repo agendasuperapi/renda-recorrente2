@@ -14,6 +14,15 @@ const Coupons = () => {
   const queryClient = useQueryClient();
   const [productFilter, setProductFilter] = useState<string>("all");
 
+  // Fetch current user and session
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
   // Fetch current user profile
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile"],
@@ -30,6 +39,7 @@ const Coupons = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !!session,
   });
 
   // Fetch products for filter
@@ -43,6 +53,7 @@ const Coupons = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !!session,
   });
 
   // Fetch available admin coupons
@@ -59,6 +70,7 @@ const Coupons = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !!session,
   });
 
   // Fetch affiliate's activated coupons
