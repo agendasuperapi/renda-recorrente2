@@ -334,7 +334,7 @@ const AdminUsers = () => {
 
             {users && users.length > 0 && (
               <div className="flex items-center justify-between mt-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground whitespace-nowrap">
                   Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} usuários
                 </p>
                 <Pagination>
