@@ -13,6 +13,12 @@ BEGIN
     RETURN NEW;
   END IF;
   
+  -- Evitar que alguém seja sub-afiliado de si mesmo
+  IF NEW.affiliate_id = NEW.external_user_id THEN
+    RAISE NOTICE 'Usuário não pode ser sub-afiliado de si mesmo: %', NEW.external_user_id;
+    RETURN NEW;
+  END IF;
+  
   -- Buscar o profile_id do afiliado pai pelo affiliate_code
   SELECT id INTO v_parent_profile_id
   FROM public.profiles
@@ -69,6 +75,7 @@ SELECT DISTINCT
   uu.created_at
 FROM public.unified_users uu
 WHERE uu.affiliate_id IS NOT NULL
+  AND uu.affiliate_id != uu.external_user_id -- Evitar que alguém seja sub-afiliado de si mesmo
   AND NOT EXISTS (
     SELECT 1 
     FROM public.sub_affiliates sa 
