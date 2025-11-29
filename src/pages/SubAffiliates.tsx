@@ -51,11 +51,7 @@ const SubAffiliates = () => {
 
   useEffect(() => {
     loadSubAffiliates();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [subAffiliates, nameFilter, emailFilter, planFilter, statusFilter, startDateFilter, endDateFilter]);
+  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, startDateFilter, endDateFilter]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -71,20 +67,63 @@ const SubAffiliates = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      // Construir query base
+      let query = supabase
         .from('view_sub_affiliates' as any)
-        .select('*')
-        .eq('parent_affiliate_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .eq('parent_affiliate_id', user.id);
+
+      // Aplicar filtros
+      if (nameFilter) {
+        query = query.or(`name.ilike.%${nameFilter}%,username.ilike.%${nameFilter}%`);
+      }
+
+      if (emailFilter) {
+        query = query.ilike('email', `%${emailFilter}%`);
+      }
+
+      if (planFilter && planFilter !== "all") {
+        query = query.eq('plan_name', planFilter);
+      }
+
+      if (statusFilter && statusFilter !== "all") {
+        query = query.eq('status', statusFilter);
+      }
+
+      if (startDateFilter) {
+        query = query.gte('created_at', startDateFilter);
+      }
+
+      if (endDateFilter) {
+        query = query.lte('created_at', endDateFilter + "T23:59:59");
+      }
+
+      // Calcular range para paginação
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      // Buscar dados com paginação
+      const { data, error, count } = await query
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
 
       setSubAffiliates((data as any) || []);
+      setFilteredData((data as any) || []);
       
-      // Calcular estatísticas
-      const total = data?.length || 0;
-      const commissions = data?.reduce((sum: number, sub: any) => sum + (Number(sub.total_commission) || 0), 0) || 0;
-      setStats({ total, commissions });
+      // Calcular estatísticas com base no total filtrado
+      const { data: allData, error: statsError } = await supabase
+        .from('view_sub_affiliates' as any)
+        .select('total_commission')
+        .eq('parent_affiliate_id', user.id);
+
+      if (!statsError && allData) {
+        const commissions = allData.reduce((sum: number, sub: any) => sum + (Number(sub.total_commission) || 0), 0);
+        setStats({ total: count || 0, commissions });
+      } else {
+        setStats({ total: count || 0, commissions: 0 });
+      }
 
     } catch (error: any) {
       console.error('Erro ao carregar sub-afiliados:', error);
@@ -98,45 +137,6 @@ const SubAffiliates = () => {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = [...subAffiliates];
-
-    if (nameFilter) {
-      filtered = filtered.filter(sub => 
-        sub.name?.toLowerCase().includes(nameFilter.toLowerCase()) ||
-        sub.username?.toLowerCase().includes(nameFilter.toLowerCase())
-      );
-    }
-
-    if (emailFilter) {
-      filtered = filtered.filter(sub => 
-        sub.email?.toLowerCase().includes(emailFilter.toLowerCase())
-      );
-    }
-
-    if (planFilter && planFilter !== "all") {
-      filtered = filtered.filter(sub => sub.plan_name === planFilter);
-    }
-
-    if (statusFilter && statusFilter !== "all") {
-      filtered = filtered.filter(sub => sub.status === statusFilter);
-    }
-
-    if (startDateFilter) {
-      filtered = filtered.filter(sub => 
-        new Date(sub.created_at) >= new Date(startDateFilter)
-      );
-    }
-
-    if (endDateFilter) {
-      filtered = filtered.filter(sub => 
-        new Date(sub.created_at) <= new Date(endDateFilter + "T23:59:59")
-      );
-    }
-
-    setFilteredData(filtered);
-    setCurrentPage(1);
-  };
 
   const clearFilters = () => {
     setNameFilter("");
@@ -145,7 +145,6 @@ const SubAffiliates = () => {
     setStatusFilter("all");
     setStartDateFilter("");
     setEndDateFilter("");
-    setCurrentPage(1);
   };
 
   const getStatusBadge = (status: string) => {
@@ -162,14 +161,34 @@ const SubAffiliates = () => {
   };
 
   // Paginação
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(stats.total / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + itemsPerPage, stats.total);
 
-  // Obter planos únicos para o filtro
-  const uniquePlans = Array.from(new Set(subAffiliates.map(sub => sub.plan_name).filter(Boolean)));
-  const uniqueStatuses = Array.from(new Set(subAffiliates.map(sub => sub.status)));
+  // Obter planos e status únicos do banco de dados
+  const [uniquePlans, setUniquePlans] = useState<string[]>([]);
+  const [uniqueStatuses, setUniqueStatuses] = useState<string[]>([]);
+
+  useEffect(() => {
+    loadFilterOptions();
+  }, []);
+
+  const loadFilterOptions = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('view_sub_affiliates' as any)
+      .select('plan_name, status')
+      .eq('parent_affiliate_id', user.id);
+
+    if (data) {
+      const plans = Array.from(new Set(data.map((item: any) => item.plan_name).filter(Boolean)));
+      const statuses = Array.from(new Set(data.map((item: any) => item.status)));
+      setUniquePlans(plans as string[]);
+      setUniqueStatuses(statuses as string[]);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -374,7 +393,7 @@ const SubAffiliates = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedData.map((sub) => (
+                filteredData.map((sub) => (
                   <TableRow key={sub.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -418,7 +437,7 @@ const SubAffiliates = () => {
           {/* Controles de paginação e informações */}
           <div className="grid grid-cols-3 items-center mt-4">
             <div className="text-sm text-muted-foreground">
-              Mostrando {startIndex + 1} a {Math.min(endIndex, filteredData.length)} de {filteredData.length} resultados
+              Mostrando {startIndex + 1} a {endIndex} de {stats.total} resultados
             </div>
             
             {totalPages > 1 && (
