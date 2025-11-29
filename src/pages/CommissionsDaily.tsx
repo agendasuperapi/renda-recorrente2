@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useUser } from "@/contexts/UserContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Clock, DollarSign, RefreshCw, X } from "lucide-react";
+import { Calendar, Clock, DollarSign, RefreshCw, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
@@ -41,9 +42,11 @@ interface Stats {
 }
 
 const CommissionsDaily = () => {
+  const { userId } = useUser();
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [stats, setStats] = useState<Stats>({ hoje: 0, ultimos_7_dias: 0, este_mes: 0 });
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
   
@@ -97,14 +100,13 @@ const CommissionsDaily = () => {
   };
 
   const loadStats = async () => {
+    if (!userId) return;
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data: statsData } = await (supabase as any)
         .from("view_commissions_stats")
         .select("*")
-        .eq("affiliate_id", user.id)
+        .eq("affiliate_id", userId)
         .single();
 
       if (statsData) {
@@ -120,16 +122,21 @@ const CommissionsDaily = () => {
   };
 
   const loadCommissions = async () => {
-    setLoading(true);
+    if (!userId) return;
+    
+    // Se já tem dados, usar isFiltering (não desmonta)
+    if (commissions.length > 0) {
+      setIsFiltering(true);
+    } else {
+      setInitialLoading(true);
+    }
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       // Construir query com filtros
       let query = (supabase as any)
         .from("view_commissions_daily")
         .select("*", { count: "exact" })
-        .eq("affiliate_id", user.id);
+        .eq("affiliate_id", userId);
 
       if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
         query = query.eq("product_id", filters.product_id);
@@ -160,7 +167,8 @@ const CommissionsDaily = () => {
       console.error("Erro ao carregar comissões:", error);
       toast.error("Erro ao carregar comissões");
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      setIsFiltering(false);
     }
   };
 
@@ -207,7 +215,7 @@ const CommissionsDaily = () => {
     );
   };
 
-  if (loading && commissions.length === 0) {
+  if (initialLoading && commissions.length === 0) {
     return <TableSkeleton title="Comissões Diárias" columns={7} rows={5} showSearch />;
   }
 
@@ -328,16 +336,22 @@ const CommissionsDaily = () => {
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => { loadStats(); loadCommissions(); }} disabled={loading}>
-                  <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                <Button variant="outline" size="icon" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering}>
+                  <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
                 </Button>
               </div>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
+          <div className="relative">
+            {isFiltering && (
+              <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            )}
+            <Table className={isFiltering ? "pointer-events-none" : ""}>
+              <TableHeader>
               <TableRow>
                 <TableHead>Data</TableHead>
                 <TableHead>Produto</TableHead>
@@ -374,7 +388,8 @@ const CommissionsDaily = () => {
                 ))
               )}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
 
           {/* Paginação */}
           {totalPages > 1 && (

@@ -6,6 +6,7 @@ import { User } from "@supabase/supabase-js";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BlockedUserDialog } from "@/components/BlockedUserDialog";
+import { UserProvider } from "@/contexts/UserContext";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -166,25 +167,27 @@ export const DashboardLayout = () => {
   return (
     <>
       <BlockedUserDialog />
-      <div className="flex h-screen bg-background overflow-hidden">
-        <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} />
-        <main className={`flex-1 overflow-y-auto ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
-          {isLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-8 w-64" />
-              <Skeleton className="h-4 w-96" />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                <Skeleton className="h-32" />
-                <Skeleton className="h-32" />
-                <Skeleton className="h-32" />
-                <Skeleton className="h-32" />
+      <UserProvider value={{ userId: user?.id || null }}>
+        <div className="flex h-screen bg-background overflow-hidden">
+          <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} />
+          <main className={`flex-1 overflow-y-auto ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
+            {isLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-96" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                  <Skeleton className="h-32" />
+                  <Skeleton className="h-32" />
+                  <Skeleton className="h-32" />
+                  <Skeleton className="h-32" />
+                </div>
               </div>
-            </div>
-          ) : (
-            <Outlet />
-          )}
-        </main>
-      </div>
+            ) : (
+              <Outlet />
+            )}
+          </main>
+        </div>
+      </UserProvider>
     </>
   );
 };
