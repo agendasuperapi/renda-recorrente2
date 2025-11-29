@@ -2929,6 +2929,10 @@ export type Database = {
       }
     }
     Functions: {
+      check_username_availability: {
+        Args: { p_user_id: string; p_username: string }
+        Returns: boolean
+      }
       expire_old_checkouts: { Args: never; Returns: undefined }
       get_available_coupons_for_affiliates: {
         Args: never

@@ -136,17 +136,8 @@ const Coupons = () => {
 
   // Activate coupon mutation
   const activateCoupon = useMutation({
-    mutationFn: async ({ couponId, customCode }: { couponId: string; customCode: string }) => {
+    mutationFn: async ({ couponId, customCode, productId }: { couponId: string; customCode: string; productId: string }) => {
       if (!profile?.id) throw new Error("Perfil não encontrado");
-
-      // Get the coupon's product_id
-      const { data: couponData, error: couponError } = await supabase
-        .from("coupons")
-        .select("product_id")
-        .eq("id", couponId)
-        .single();
-
-      if (couponError) throw couponError;
 
       const { data, error } = await supabase
         .from("affiliate_coupons")
@@ -154,7 +145,7 @@ const Coupons = () => {
           affiliate_id: profile.id,
           coupon_id: couponId,
           custom_code: customCode,
-          product_id: couponData.product_id,
+          product_id: productId,
           is_active: true,
         })
         .select()
@@ -258,7 +249,7 @@ const Coupons = () => {
     return null;
   };
 
-  const handleActivateCoupon = (couponId: string, couponCode: string, isPrimary: boolean) => {
+  const handleActivateCoupon = (couponId: string, couponCode: string, isPrimary: boolean, productId: string) => {
     if (!profile?.username) {
       toast({
         title: "Erro",
@@ -269,7 +260,7 @@ const Coupons = () => {
     }
 
     const customCode = generateCustomCode(profile.username, couponCode, isPrimary);
-    activateCoupon.mutate({ couponId, customCode });
+    activateCoupon.mutate({ couponId, customCode, productId });
   };
 
   const handleCopy = (text: string) => {
@@ -535,7 +526,7 @@ const Coupons = () => {
                               </>
                             ) : (
                               <Button
-                                onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false)}
+                                onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)}
                                 disabled={activateCoupon.isPending || !profile?.username}
                               >
                                 <Check className="h-4 w-4 mr-2" />
@@ -687,7 +678,7 @@ const Coupons = () => {
                         </>
                       ) : (
                         <Button
-                          onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false)}
+                          onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)}
                           disabled={activateCoupon.isPending || !profile?.username}
                         >
                           <Check className="h-4 w-4 mr-2" />
