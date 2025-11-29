@@ -263,6 +263,23 @@ const AdminAffiliates = () => {
             </div>
 
             <div className="flex gap-2">
+              <Select 
+                value={itemsPerPage.toString()} 
+                onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Itens por página" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                  <SelectItem value="100">100 por página</SelectItem>
+                </SelectContent>
+              </Select>
               <Button variant="outline" size="sm" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Atualizar
@@ -388,28 +405,9 @@ const AdminAffiliates = () => {
 
           {totalCount > 0 && (
             <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center gap-4">
-                <p className="text-sm text-muted-foreground whitespace-nowrap">
-                  Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} afiliados
-                </p>
-                <Select 
-                  value={itemsPerPage.toString()} 
-                  onValueChange={(value) => {
-                    setItemsPerPage(Number(value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Itens por página" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10 por página</SelectItem>
-                    <SelectItem value="20">20 por página</SelectItem>
-                    <SelectItem value="50">50 por página</SelectItem>
-                    <SelectItem value="100">100 por página</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <p className="text-sm text-muted-foreground whitespace-nowrap">
+                Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} afiliados
+              </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
