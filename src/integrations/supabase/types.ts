@@ -85,6 +85,13 @@ export type Database = {
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
+          {
+            foreignKeyName: "accounts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
         ]
       }
       activities: {
@@ -205,6 +212,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "affiliate_coupons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["product_id"]
           },
         ]
@@ -397,6 +411,13 @@ export type Database = {
             referencedColumns: ["product_id"]
           },
           {
+            foreignKeyName: "commissions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+          {
             foreignKeyName: "commissions_subscription_id_fkey"
             columns: ["subscription_id"]
             isOneToOne: false
@@ -504,6 +525,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "coupons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["product_id"]
           },
         ]
@@ -886,6 +914,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "payments_subscription_id_fkey"
             columns: ["subscription_id"]
             isOneToOne: false
@@ -965,6 +1000,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "pending_checkouts_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "pending_checkouts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1028,6 +1070,13 @@ export type Database = {
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["plan_id"]
           },
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
         ]
       }
       plan_integrations: {
@@ -1084,6 +1133,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "plan_integrations_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["plan_id"]
           },
         ]
@@ -1153,6 +1209,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "plans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["product_id"]
           },
           {
@@ -1486,6 +1549,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "fk_stripe_events_plan_id"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "fk_stripe_events_product_id"
             columns: ["product_id"]
             isOneToOne: false
@@ -1497,6 +1567,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "fk_stripe_events_product_id"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["product_id"]
           },
           {
@@ -1722,6 +1799,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "subscriptions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1836,6 +1920,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "unified_payments_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -1847,6 +1938,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["product_id"]
           },
           {
@@ -1939,6 +2037,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
             referencedColumns: ["product_id"]
           },
         ]
@@ -2249,6 +2354,82 @@ export type Database = {
           },
         ]
       }
+      view_commissions_monthly: {
+        Row: {
+          affiliate_id: string | null
+          affiliate_name: string | null
+          canceladas: number | null
+          disponiveis: number | null
+          mes_referencia: string | null
+          pendentes: number | null
+          percentual_medio: number | null
+          plan_id: string | null
+          plano: string | null
+          product_id: string | null
+          produto: string | null
+          quantidade_comissoes: number | null
+          sacadas: number | null
+          tipo_predominante: string | null
+          valor_total: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      view_commissions_monthly_stats: {
+        Row: {
+          affiliate_id: string | null
+          count_3_meses: number | null
+          count_ano: number | null
+          count_mes: number | null
+          este_ano: number | null
+          este_mes: number | null
+          ultimos_3_meses: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       view_commissions_stats: {
         Row: {
           affiliate_id: string | null
@@ -2286,6 +2467,16 @@ export type Database = {
     }
     Functions: {
       expire_old_checkouts: { Args: never; Returns: undefined }
+      get_commissions_monthly_total: {
+        Args: {
+          p_affiliate_id: string
+          p_mes_fim?: string
+          p_mes_inicio?: string
+          p_plan_id?: string
+          p_product_id?: string
+        }
+        Returns: number
+      }
       get_commissions_total: {
         Args: {
           p_affiliate_id: string

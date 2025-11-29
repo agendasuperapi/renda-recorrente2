@@ -48,13 +48,13 @@ Deno.serve(async (req) => {
     const product_id = plan.product_id;
 
     // Calcular trial days do cupom (prioridade sobre trial do plano)
-    let couponTrialDays = 0;
+    let couponTrialDays = null; // null = não há cupom de trial, 0 ou mais = valor do cupom
     if (coupon) {
       if (coupon.type === 'days') {
-        couponTrialDays = coupon.value; // Ex: 7 dias
+        couponTrialDays = coupon.value || 0; // Ex: 7 dias (pode ser 0)
         console.log('[create-stripe-checkout] Cupom de trial days aplicado:', couponTrialDays);
       } else if (coupon.type === 'free_trial') {
-        couponTrialDays = coupon.value * 30; // Ex: 1 mês = 30 dias
+        couponTrialDays = (coupon.value || 0) * 30; // Ex: 1 mês = 30 dias (pode ser 0)
         console.log('[create-stripe-checkout] Cupom de mês grátis aplicado:', couponTrialDays, 'dias');
       }
     }
@@ -74,11 +74,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Trial final: cupom tem prioridade sobre plano
-    const finalTrialDays = couponTrialDays > 0 ? couponTrialDays : planTrialDays;
-    if (finalTrialDays > 0) {
-      console.log('[create-stripe-checkout] Trial days final:', finalTrialDays);
-    }
+    // Trial final: cupom tem prioridade sobre plano (mesmo que seja 0)
+    const finalTrialDays = couponTrialDays !== null ? couponTrialDays : planTrialDays;
+    console.log('[create-stripe-checkout] Trial days final:', finalTrialDays, '(coupon:', couponTrialDays, ', plan:', planTrialDays, ')');
 
     // 2. Buscar ambiente ativo (test ou production)
     const { data: envSettings, error: envError } = await supabase
