@@ -340,16 +340,6 @@ const CommissionsDaily = () => {
           <div className="flex flex-col space-y-4">
             <CardTitle>Histórico Diário</CardTitle>
             
-            {/* Total Filtrado */}
-            {commissions.length > 0 && (
-              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Total das comissões filtradas:</span>
-                  <span className="text-xl font-bold text-primary">{formatCurrency(totalFiltrado)}</span>
-                </div>
-              </div>
-            )}
-            
             {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <Select 
@@ -490,6 +480,16 @@ const CommissionsDaily = () => {
             </TableBody>
             </Table>
           </div>
+
+          {/* Total Filtrado */}
+          {commissions.length > 0 && (
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Total das comissões filtradas:</span>
+                <span className="text-xl font-bold text-primary">{formatCurrency(totalFiltrado)}</span>
+              </div>
+            </div>
+          )}
 
           {/* Paginação */}
           {totalPages > 1 && (
