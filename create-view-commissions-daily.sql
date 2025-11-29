@@ -49,15 +49,15 @@ CREATE OR REPLACE VIEW public.view_commissions_stats
 WITH (security_invoker = true) AS
 SELECT 
     c.affiliate_id,
-    -- Hoje
-    SUM(CASE WHEN DATE(c.payment_date) = CURRENT_DATE THEN c.amount ELSE 0 END) as hoje,
-    COUNT(CASE WHEN DATE(c.payment_date) = CURRENT_DATE THEN 1 END) as count_hoje,
+    -- Hoje (no fuso horário de São Paulo)
+    SUM(CASE WHEN (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date THEN c.amount ELSE 0 END) as hoje,
+    COUNT(CASE WHEN (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date THEN 1 END) as count_hoje,
     -- Últimos 7 dias
-    SUM(CASE WHEN c.payment_date >= CURRENT_DATE - INTERVAL '7 days' THEN c.amount ELSE 0 END) as ultimos_7_dias,
-    COUNT(CASE WHEN c.payment_date >= CURRENT_DATE - INTERVAL '7 days' THEN 1 END) as count_7_dias,
+    SUM(CASE WHEN c.payment_date >= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '7 days' THEN c.amount ELSE 0 END) as ultimos_7_dias,
+    COUNT(CASE WHEN c.payment_date >= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '7 days' THEN 1 END) as count_7_dias,
     -- Este mês
-    SUM(CASE WHEN DATE_TRUNC('month', c.payment_date) = DATE_TRUNC('month', CURRENT_DATE) THEN c.amount ELSE 0 END) as este_mes,
-    COUNT(CASE WHEN DATE_TRUNC('month', c.payment_date) = DATE_TRUNC('month', CURRENT_DATE) THEN 1 END) as count_mes
+    SUM(CASE WHEN DATE_TRUNC('month', c.payment_date AT TIME ZONE 'America/Sao_Paulo') = DATE_TRUNC('month', CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo') THEN c.amount ELSE 0 END) as este_mes,
+    COUNT(CASE WHEN DATE_TRUNC('month', c.payment_date AT TIME ZONE 'America/Sao_Paulo') = DATE_TRUNC('month', CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo') THEN 1 END) as count_mes
 FROM 
     public.commissions c
 WHERE 
