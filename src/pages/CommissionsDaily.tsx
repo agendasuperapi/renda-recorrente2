@@ -68,12 +68,26 @@ const CommissionsDaily = () => {
   }, []);
 
   const loadFiltersData = async () => {
-    const [{ data: productsData }, { data: plansData }] = await Promise.all([
-      supabase.from("products").select("id, nome").order("nome"),
-      supabase.from("plans").select("id, name").order("name"),
-    ]);
+    const { data: productsData } = await supabase
+      .from("products")
+      .select("id, nome")
+      .order("nome");
     
     setProducts(productsData || []);
+  };
+
+  const loadPlansForProduct = async (productId: string) => {
+    if (!productId || productId === " ") {
+      setPlans([]);
+      return;
+    }
+
+    const { data: plansData } = await supabase
+      .from("plans")
+      .select("id, name")
+      .eq("product_id", productId)
+      .order("name");
+    
     setPlans(plansData || []);
   };
 
@@ -244,7 +258,13 @@ const CommissionsDaily = () => {
             
             {/* Filtros */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <Select value={filters.product_id} onValueChange={(value) => setFilters(f => ({ ...f, product_id: value }))}>
+              <Select 
+                value={filters.product_id} 
+                onValueChange={(value) => {
+                  setFilters(f => ({ ...f, product_id: value, plan_id: "" }));
+                  loadPlansForProduct(value);
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Produto" />
                 </SelectTrigger>
@@ -256,17 +276,19 @@ const CommissionsDaily = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value=" ">Todos os planos</SelectItem>
-                  {plans.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {filters.product_id && filters.product_id !== " " && (
+                <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Plano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value=" ">Todos os planos</SelectItem>
+                    {plans.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
               <Input
                 placeholder="Cliente"
