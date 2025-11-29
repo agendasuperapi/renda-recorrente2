@@ -113,14 +113,17 @@ const SubAffiliates = () => {
       setFilteredData((data as any) || []);
       
       // Calcular estatísticas com base no total filtrado
-      const { data: allData, error: statsError } = await supabase
-        .from('view_sub_affiliates' as any)
-        .select('total_commission')
-        .eq('parent_affiliate_id', user.id);
+      const { data: statsData, error: statsError } = await supabase
+        .from('view_sub_affiliates_stats' as any)
+        .select('total_sub_affiliates, total_commission')
+        .eq('parent_affiliate_id', user.id)
+        .maybeSingle();
 
-      if (!statsError && allData) {
-        const commissions = allData.reduce((sum: number, sub: any) => sum + (Number(sub.total_commission) || 0), 0);
-        setStats({ total: count || 0, commissions });
+      if (!statsError && statsData) {
+        setStats({ 
+          total: Number((statsData as any).total_sub_affiliates) || 0, 
+          commissions: Number((statsData as any).total_commission) || 0 
+        });
       } else {
         setStats({ total: count || 0, commissions: 0 });
       }
