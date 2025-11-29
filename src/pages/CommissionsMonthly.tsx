@@ -407,9 +407,9 @@ const CommissionsMonthly = () => {
                   <TableHead>Mês/Ano</TableHead>
                   <TableHead>Produto</TableHead>
                   <TableHead>Plano</TableHead>
-                  <TableHead className="text-right">Qtd. Comissões</TableHead>
-                  <TableHead className="text-right">Valor Total</TableHead>
-                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead>Qtd. Comissões</TableHead>
+                  <TableHead>Valor Total</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -425,9 +425,9 @@ const CommissionsMonthly = () => {
                       <TableCell className="font-medium capitalize">{formatMonth(commission.mes_referencia)}</TableCell>
                       <TableCell>{commission.produto || "-"}</TableCell>
                       <TableCell>{commission.plano || "-"}</TableCell>
-                      <TableCell className="text-right">{commission.quantidade_comissoes}</TableCell>
-                      <TableCell className="text-right font-medium">{formatCurrency(commission.valor_total)}</TableCell>
-                      <TableCell className="text-center">
+                      <TableCell>{commission.quantidade_comissoes}</TableCell>
+                      <TableCell className="font-medium">{formatCurrency(commission.valor_total)}</TableCell>
+                      <TableCell>
                         <div className="text-xs space-y-1">
                           {commission.pendentes > 0 && (
                             <div className="text-yellow-600">Pendentes: {commission.pendentes}</div>
