@@ -27,7 +27,7 @@ interface SubAffiliate {
   status: string;
   created_at: string;
   referrals_count: number;
-  total_commission: number;
+  my_commission_from_sub: number;
   level: number;
 }
 
@@ -278,7 +278,7 @@ const SubAffiliates = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Comissões de Sub-Afiliados
+              Minhas Comissões (via Sub-Afiliados)
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
@@ -430,7 +430,7 @@ const SubAffiliates = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Data Cadastro</TableHead>
                 <TableHead className="text-center">Indicações</TableHead>
-                <TableHead className="text-left">Comissão Gerada</TableHead>
+                <TableHead className="text-left">Minha Comissão</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -477,7 +477,7 @@ const SubAffiliates = () => {
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL'
-                      }).format(Number(sub.total_commission) || 0)}
+                      }).format(Number(sub.my_commission_from_sub) || 0)}
                     </TableCell>
                   </TableRow>
                 ))
