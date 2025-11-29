@@ -11,6 +11,7 @@ DECLARE
   v_unified_user_id UUID;
   v_user_profile RECORD;
   v_affiliate_id UUID;
+  v_subscription RECORD;
 BEGIN
   -- Buscar o product_id do APP Renda recorrente
   SELECT id INTO v_product_id
@@ -47,6 +48,21 @@ BEGIN
     LIMIT 1;
   END IF;
   
+  -- Buscar dados da subscription se existir
+  IF NEW.subscription_id IS NOT NULL THEN
+    SELECT 
+      s.plan_id,
+      s.status,
+      s.environment,
+      s.cancel_at_period_end,
+      s.trial_end,
+      s.current_period_start,
+      s.current_period_end
+    INTO v_subscription
+    FROM public.subscriptions s
+    WHERE s.id = NEW.subscription_id;
+  END IF;
+  
   -- Inserir ou atualizar unified_users
   INSERT INTO public.unified_users (
     external_user_id,
@@ -57,6 +73,13 @@ BEGIN
     cpf,
     affiliate_code,
     affiliate_id,
+    environment,
+    plan_id,
+    cancel_at_period_end,
+    trial_end,
+    status,
+    current_period_start,
+    current_period_end,
     created_at,
     updated_at
   ) VALUES (
@@ -68,6 +91,13 @@ BEGIN
     v_user_profile.cpf,
     v_user_profile.affiliate_code,
     v_affiliate_id,
+    COALESCE(v_subscription.environment, NEW.environment, 'production'),
+    COALESCE(v_subscription.plan_id, NEW.plan_id),
+    COALESCE(v_subscription.cancel_at_period_end, false),
+    v_subscription.trial_end,
+    COALESCE(v_subscription.status, 'active'),
+    v_subscription.current_period_start,
+    v_subscription.current_period_end,
     now(),
     now()
   )
@@ -79,6 +109,13 @@ BEGIN
     cpf = EXCLUDED.cpf,
     affiliate_code = EXCLUDED.affiliate_code,
     affiliate_id = EXCLUDED.affiliate_id,
+    environment = COALESCE(EXCLUDED.environment, unified_users.environment),
+    plan_id = COALESCE(EXCLUDED.plan_id, unified_users.plan_id),
+    cancel_at_period_end = COALESCE(EXCLUDED.cancel_at_period_end, unified_users.cancel_at_period_end),
+    trial_end = COALESCE(EXCLUDED.trial_end, unified_users.trial_end),
+    status = COALESCE(EXCLUDED.status, unified_users.status),
+    current_period_start = COALESCE(EXCLUDED.current_period_start, unified_users.current_period_start),
+    current_period_end = COALESCE(EXCLUDED.current_period_end, unified_users.current_period_end),
     updated_at = now()
   RETURNING id INTO v_unified_user_id;
   
@@ -138,4 +175,4 @@ CREATE TRIGGER tr_sync_local_payment_to_unified
   EXECUTE FUNCTION public.sync_local_payment_to_unified();
 
 COMMENT ON FUNCTION public.sync_local_payment_to_unified() IS 
-  'Sincroniza automaticamente pagamentos locais do APP Renda recorrente nas tabelas unified_users e unified_payments';
+  'Sincroniza automaticamente pagamentos locais do APP Renda recorrente nas tabelas unified_users e unified_payments, incluindo dados de subscription';
