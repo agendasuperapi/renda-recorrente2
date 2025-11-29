@@ -2569,6 +2569,7 @@ export type Database = {
           data: string | null
           data_filtro: string | null
           id: string | null
+          level: number | null
           percentual: number | null
           plan_id: string | null
           plano: string | null
