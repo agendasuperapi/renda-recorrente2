@@ -244,7 +244,10 @@ const CommissionsDaily = () => {
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     try {
-      return format(new Date(dateString), "dd/MM/yyyy HH:mm", { locale: ptBR });
+      // Garantir que a data/hora seja interpretada corretamente
+      // Se vier do banco com timezone, usar diretamente
+      const date = new Date(dateString);
+      return format(date, "dd/MM/yyyy HH:mm", { locale: ptBR });
     } catch {
       return "-";
     }
