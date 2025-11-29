@@ -1,4 +1,5 @@
 -- Atualizar view para incluir o campo level da tabela sub_affiliates
+-- Agora filtra corretamente o level baseado no parent_affiliate_id
 CREATE OR REPLACE VIEW public.view_sub_affiliates
 WITH (security_invoker = on) AS
 SELECT 
@@ -14,8 +15,16 @@ SELECT
   uu.status,
   uu.created_at,
   uu.product_id,
-  -- Buscar o level da tabela sub_affiliates
-  COALESCE(sa.level, 1) as level,
+  -- Buscar o level correto baseado no parent_affiliate_id
+  -- Retorna o level do relacionamento com o afiliado pai
+  COALESCE(
+    (SELECT sa.level 
+     FROM public.sub_affiliates sa
+     WHERE sa.sub_affiliate_id = uu.external_user_id
+     AND sa.parent_affiliate_id = uu.affiliate_id
+     LIMIT 1), 
+    1
+  ) as level,
   -- Contar quantas indicações este sub-afiliado fez
   COALESCE(
     (SELECT COUNT(*)::integer 
@@ -34,7 +43,6 @@ SELECT
 FROM public.unified_users uu
 LEFT JOIN public.profiles p ON p.id = uu.external_user_id
 LEFT JOIN public.plans pl ON pl.id = uu.plan_id
-LEFT JOIN public.sub_affiliates sa ON sa.sub_affiliate_id = uu.external_user_id
 WHERE uu.affiliate_id IS NOT NULL
 ORDER BY uu.created_at DESC;
 
