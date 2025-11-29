@@ -178,10 +178,14 @@ const CommissionsMonthly = () => {
         query = query.eq("plan_id", filters.plan_id);
       }
       if (filters.mes_inicio && filters.mes_inicio.trim()) {
-        query = query.gte("mes_referencia", filters.mes_inicio);
+        // Converte yyyy-MM para yyyy-MM-01 (primeiro dia do mês)
+        query = query.gte("mes_referencia", `${filters.mes_inicio}-01`);
       }
       if (filters.mes_fim && filters.mes_fim.trim()) {
-        query = query.lte("mes_referencia", filters.mes_fim);
+        // Converte yyyy-MM para yyyy-MM-01 e adiciona 1 mês, depois subtrai 1 dia para pegar o último dia
+        const [year, month] = filters.mes_fim.split('-').map(Number);
+        const lastDay = new Date(year, month, 0).getDate();
+        query = query.lte("mes_referencia", `${filters.mes_fim}-${lastDay}`);
       }
 
       // Paginação
@@ -199,12 +203,20 @@ const CommissionsMonthly = () => {
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
       
       // Calcular total filtrado usando função RPC
+      const mesInicio = filters.mes_inicio && filters.mes_inicio.trim() ? `${filters.mes_inicio}-01` : null;
+      let mesFim = null;
+      if (filters.mes_fim && filters.mes_fim.trim()) {
+        const [year, month] = filters.mes_fim.split('-').map(Number);
+        const lastDay = new Date(year, month, 0).getDate();
+        mesFim = `${filters.mes_fim}-${lastDay}`;
+      }
+      
       const { data: totalData } = await (supabase as any).rpc("get_commissions_monthly_total", {
         p_affiliate_id: userId,
         p_product_id: filters.product_id && filters.product_id.trim() && filters.product_id !== " " ? filters.product_id : null,
         p_plan_id: filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " " ? filters.plan_id : null,
-        p_mes_inicio: filters.mes_inicio && filters.mes_inicio.trim() ? filters.mes_inicio : null,
-        p_mes_fim: filters.mes_fim && filters.mes_fim.trim() ? filters.mes_fim : null,
+        p_mes_inicio: mesInicio,
+        p_mes_fim: mesFim,
       });
       
       const total = Number(totalData) || 0;
