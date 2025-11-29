@@ -2307,6 +2307,7 @@ export type Database = {
         Row: {
           affiliate_id: string | null
           affiliate_name: string | null
+          available_date: string | null
           cliente: string | null
           cliente_email: string | null
           commission_type: string | null

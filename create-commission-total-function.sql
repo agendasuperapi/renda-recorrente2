@@ -24,8 +24,8 @@ BEGIN
     AND (p_plan_id IS NULL OR plan_id = p_plan_id)
     AND (p_cliente IS NULL OR cliente ILIKE '%' || p_cliente || '%')
     AND (p_status IS NULL OR status = p_status)
-    AND (p_data_inicio IS NULL OR data >= p_data_inicio)
-    AND (p_data_fim IS NULL OR data <= p_data_fim);
+    AND (p_data_inicio IS NULL OR data >= (p_data_inicio::timestamp))
+    AND (p_data_fim IS NULL OR data <= (p_data_fim::timestamp + interval '23 hours 59 minutes 59 seconds'));
   
   RETURN v_total;
 END;
