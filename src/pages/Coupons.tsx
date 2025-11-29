@@ -10,6 +10,36 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 
+interface AvailableCoupon {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  type: string;
+  value: number;
+  is_active: boolean;
+  valid_until: string | null;
+  product_id: string;
+  is_primary: boolean | null;
+  max_uses: number | null;
+  current_uses: number | null;
+  created_at: string;
+  products: {
+    nome: string;
+    icone_light: string | null;
+    icone_dark: string | null;
+    site_landingpage: string | null;
+  } | null;
+  activatedCoupon?: any;
+}
+
+interface GroupedProduct {
+  name: string;
+  iconLight?: string | null;
+  iconDark?: string | null;
+  coupons: AvailableCoupon[];
+}
+
 const Coupons = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -48,19 +78,37 @@ const Coupons = () => {
     enabled: !!userId,
   });
 
-  // Fetch available admin coupons
-  const { data: availableCoupons, isLoading: couponsLoading } = useQuery({
+  // Fetch available admin coupons using RPC function
+  const { data: availableCoupons, isLoading: couponsLoading } = useQuery<AvailableCoupon[]>({
     queryKey: ["available-coupons", userId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("coupons")
-        .select("*, products(nome, icone_light, icone_dark, site_landingpage)")
-        .eq("is_visible_to_affiliates", true)
-        .eq("is_active", true)
-        .order("name");
+        .rpc("get_available_coupons_for_affiliates" as any);
 
       if (error) throw error;
-      return data;
+      
+      // Transform to expected format with nested products object
+      return (data as any[])?.map((coupon: any) => ({
+        id: coupon.id,
+        code: coupon.code,
+        name: coupon.name,
+        description: coupon.description,
+        type: coupon.type,
+        value: coupon.value,
+        is_active: coupon.is_active,
+        valid_until: coupon.valid_until,
+        product_id: coupon.product_id,
+        is_primary: coupon.is_primary,
+        max_uses: coupon.max_uses,
+        current_uses: coupon.current_uses,
+        created_at: coupon.created_at,
+        products: {
+          nome: coupon.product_nome,
+          icone_light: coupon.product_icone_light,
+          icone_dark: coupon.product_icone_dark,
+          site_landingpage: coupon.product_site_landingpage,
+        }
+      })) || [];
     },
     enabled: !!userId,
   });
@@ -270,7 +318,7 @@ const Coupons = () => {
         }
         acc[productKey].coupons.push(coupon);
         return acc;
-      }, {} as Record<string, { name: string; iconLight?: string; iconDark?: string; coupons: typeof allCoupons }>)
+      }, {} as Record<string, GroupedProduct>)
     : null;
 
   if (isLoading) {
