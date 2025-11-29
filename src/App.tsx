@@ -34,6 +34,7 @@ import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminAffiliates from "./pages/admin/AdminAffiliates";
+import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
 import Payments from "./pages/Payments";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
               <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
               <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/admin/commission-levels" element={<AdminCommissionLevels />} />
               <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>

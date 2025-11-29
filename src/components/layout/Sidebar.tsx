@@ -92,6 +92,7 @@ const configMenuItems = [
   { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
   { icon: Settings, label: "Configurações", path: "/admin/settings" },
   { icon: Users, label: "Usuários", path: "/admin/users" },
+  { icon: Coins, label: "Níveis de Comissão", path: "/admin/commission-levels" },
   { icon: FileSearch, label: "API de CPF", path: "/admin/cpf-apis" },
   { icon: FileText, label: "Termos e Privacidade", path: "/admin/legal-documents" },
 ];
