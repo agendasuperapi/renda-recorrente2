@@ -110,9 +110,16 @@ const Referrals = () => {
   const loadReferrals = async () => {
     setLoading(true);
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        setLoading(false);
+        return;
+      }
+
       let query = supabase
         .from("view_referrals" as any)
-        .select("*", { count: "exact" });
+        .select("*", { count: "exact" })
+        .eq("affiliate_id", session.session.user.id);
 
       // Apply filters
       if (debouncedSearch) {
@@ -151,23 +158,35 @@ const Referrals = () => {
 
   const loadStats = async () => {
     try {
-      let query = supabase.from("view_referrals" as any).select("status", { count: "exact" });
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) return;
+
+      let query = supabase
+        .from("view_referrals_stats" as any)
+        .select("*")
+        .eq("affiliate_id", session.session.user.id);
 
       if (selectedProduct !== "all") {
         query = query.eq("product_id", selectedProduct);
       }
 
-      const { count: total } = await query;
+      const { data, error } = await query;
 
-      const { count: active } = await query.eq("status", "active");
+      if (error) throw error;
 
-      const conversionRate = total && total > 0 ? ((active || 0) / total) * 100 : 0;
+      // Agregar resultados se houver múltiplos produtos
+      const aggregated = (data || []).reduce((acc: any, curr: any) => ({
+        total: acc.total + (curr.total_referrals || 0),
+        active: acc.active + (curr.active_subscriptions || 0),
+        conversionRate: 0 // Será recalculado abaixo
+      }), { total: 0, active: 0, conversionRate: 0 });
 
-      setStats({
-        total: total || 0,
-        active: active || 0,
-        conversionRate: Math.round(conversionRate)
-      });
+      // Recalcular taxa de conversão agregada
+      aggregated.conversionRate = aggregated.total > 0 
+        ? Math.round((aggregated.active / aggregated.total) * 100)
+        : 0;
+
+      setStats(aggregated);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
