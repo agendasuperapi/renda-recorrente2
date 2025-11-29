@@ -2673,6 +2673,67 @@ export type Database = {
           },
         ]
       }
+      view_referrals_stats: {
+        Row: {
+          active_subscriptions: number | null
+          affiliate_id: string | null
+          conversion_rate: number | null
+          product_id: string | null
+          product_name: string | null
+          total_referrals: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
     }
     Functions: {
       expire_old_checkouts: { Args: never; Returns: undefined }
