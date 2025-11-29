@@ -101,12 +101,20 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
-  const [showAdminMenu, setShowAdminMenu] = useState(true);
+  const [showAdminMenu, setShowAdminMenu] = useState(() => {
+    const saved = localStorage.getItem('sidebar_admin_view');
+    return saved ? JSON.parse(saved) : true;
+  });
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
+
+  // Salvar preferência de menu no localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebar_admin_view', JSON.stringify(showAdminMenu));
+  }, [showAdminMenu]);
 
   // Observar mudanças de tema
   useEffect(() => {
