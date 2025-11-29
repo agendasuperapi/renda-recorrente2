@@ -63,12 +63,12 @@ const CommissionsDaily = () => {
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 20;
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
     loadCommissions();
-  }, [currentPage, filters.product_id, filters.plan_id, filters.status, debouncedCliente]);
+  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, debouncedCliente]);
 
   // Carregar estatísticas apenas uma vez
   useEffect(() => {
@@ -334,6 +334,20 @@ const CommissionsDaily = () => {
               </Select>
 
               <div className="flex gap-2">
+                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 por página</SelectItem>
+                    <SelectItem value="20">20 por página</SelectItem>
+                    <SelectItem value="50">50 por página</SelectItem>
+                    <SelectItem value="100">100 por página</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button variant="outline" onClick={clearFilters}>
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
@@ -395,7 +409,10 @@ const CommissionsDaily = () => {
 
           {/* Paginação */}
           {totalPages > 1 && (
-            <div className="mt-4">
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Página {currentPage} de {totalPages}
+              </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
@@ -435,6 +452,13 @@ const CommissionsDaily = () => {
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
+            </div>
+          )}
+          {totalPages <= 1 && commissions.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground text-center">
+                {commissions.length} registro(s) encontrado(s)
+              </p>
             </div>
           )}
         </CardContent>
