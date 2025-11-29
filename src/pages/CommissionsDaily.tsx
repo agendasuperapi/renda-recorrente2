@@ -83,6 +83,7 @@ const CommissionsDaily = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
@@ -185,6 +186,7 @@ const CommissionsDaily = () => {
       if (error) throw error;
 
       setCommissions(data || []);
+      setTotalCount(count || 0);
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
     } catch (error) {
       console.error("Erro ao carregar comissões:", error);
@@ -371,7 +373,7 @@ const CommissionsDaily = () => {
                   setItemsPerPage(Number(value));
                   setCurrentPage(1);
                 }}>
-                  <SelectTrigger className="w-[120px]">
+                  <SelectTrigger className="w-[150px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -444,7 +446,7 @@ const CommissionsDaily = () => {
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground whitespace-nowrap">
-                Página {currentPage} de {totalPages}
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} comissões
               </p>
               <Pagination>
                 <PaginationContent>
