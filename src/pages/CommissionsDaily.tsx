@@ -228,8 +228,8 @@ const CommissionsDaily = () => {
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; className: string }> = {
       pending: { label: "Pendente", className: "bg-yellow-500/10 text-yellow-500" },
-      approved: { label: "Aprovado", className: "bg-green-500/10 text-green-500" },
-      paid: { label: "Pago", className: "bg-blue-500/10 text-blue-500" },
+      available: { label: "Disponível", className: "bg-green-500/10 text-green-500" },
+      withdrawn: { label: "Sacado", className: "bg-blue-500/10 text-blue-500" },
       cancelled: { label: "Cancelado", className: "bg-red-500/10 text-red-500" },
     };
     
@@ -362,8 +362,8 @@ const CommissionsDaily = () => {
                 <SelectContent>
                   <SelectItem value=" ">Todos os status</SelectItem>
                   <SelectItem value="pending">Pendente</SelectItem>
-                  <SelectItem value="approved">Aprovado</SelectItem>
-                  <SelectItem value="paid">Pago</SelectItem>
+                  <SelectItem value="available">Disponível</SelectItem>
+                  <SelectItem value="withdrawn">Sacado</SelectItem>
                   <SelectItem value="cancelled">Cancelado</SelectItem>
                 </SelectContent>
               </Select>
