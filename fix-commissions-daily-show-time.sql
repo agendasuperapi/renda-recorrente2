@@ -10,8 +10,8 @@ CREATE VIEW public.view_commissions_daily
 WITH (security_invoker = true) AS
 SELECT 
     c.id,
-    -- Manter timestamp completo com hora no timezone de São Paulo
-    (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') as data,
+    -- Timestamp completo sem conversão dupla (navegador já converte)
+    c.payment_date as data,
     c.created_at,
     -- Produto
     p.id as product_id,
