@@ -211,6 +211,21 @@ const AdminUsers = () => {
                     <SelectItem value="blocked">Bloqueados</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5 por página</SelectItem>
+                    <SelectItem value="10">10 por página</SelectItem>
+                    <SelectItem value="25">25 por página</SelectItem>
+                    <SelectItem value="50">50 por página</SelectItem>
+                    <SelectItem value="100">100 por página</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button 
                   variant="outline" 
                   size="icon"
@@ -225,24 +240,6 @@ const AdminUsers = () => {
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
                 </Button>
-              </div>
-              <div className="flex gap-4 items-center">
-                <span className="text-sm text-muted-foreground">Resultados por página:</span>
-                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
-                }}>
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </CardHeader>
