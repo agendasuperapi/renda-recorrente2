@@ -66,9 +66,12 @@ const CommissionsDaily = () => {
     product_id: "",
     plan_id: "",
     status: "",
+    data_inicio: "",
+    data_fim: "",
   });
   const [clienteSearch, setClienteSearch] = useState("");
   const debouncedCliente = useDebounce(clienteSearch, 500);
+  const [totalFiltrado, setTotalFiltrado] = useState(0);
   
   // Detectar se o usuário está fora do fuso horário GMT-3
   const [showTimezoneWarning, setShowTimezoneWarning] = useState(false);
@@ -88,7 +91,7 @@ const CommissionsDaily = () => {
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
     loadCommissions();
-  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, debouncedCliente]);
+  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.data_inicio, filters.data_fim, debouncedCliente]);
 
   // Carregar estatísticas apenas uma vez
   useEffect(() => {
@@ -174,6 +177,12 @@ const CommissionsDaily = () => {
       if (filters.status && filters.status.trim() && filters.status !== " ") {
         query = query.eq("status", filters.status);
       }
+      if (filters.data_inicio && filters.data_inicio.trim()) {
+        query = query.gte("data", filters.data_inicio);
+      }
+      if (filters.data_fim && filters.data_fim.trim()) {
+        query = query.lte("data", filters.data_fim);
+      }
 
       // Paginação
       const from = (currentPage - 1) * itemsPerPage;
@@ -188,6 +197,10 @@ const CommissionsDaily = () => {
       setCommissions(data || []);
       setTotalCount(count || 0);
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
+      
+      // Calcular total filtrado
+      const total = (data || []).reduce((sum, commission) => sum + (commission.valor || 0), 0);
+      setTotalFiltrado(total);
     } catch (error) {
       console.error("Erro ao carregar comissões:", error);
       toast.error("Erro ao carregar comissões");
@@ -203,6 +216,8 @@ const CommissionsDaily = () => {
       product_id: "",
       plan_id: "",
       status: "",
+      data_inicio: "",
+      data_fim: "",
     });
     setClienteSearch("");
     setPlans([]);
@@ -315,8 +330,18 @@ const CommissionsDaily = () => {
           <div className="flex flex-col space-y-4">
             <CardTitle>Histórico Diário</CardTitle>
             
+            {/* Total Filtrado */}
+            {commissions.length > 0 && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">Total das comissões filtradas:</span>
+                  <span className="text-xl font-bold text-primary">{formatCurrency(totalFiltrado)}</span>
+                </div>
+              </div>
+            )}
+            
             {/* Filtros */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               <Select 
                 value={filters.product_id} 
                 onValueChange={(value) => {
@@ -350,6 +375,20 @@ const CommissionsDaily = () => {
               )}
 
               <Input
+                type="date"
+                placeholder="Data início"
+                value={filters.data_inicio}
+                onChange={(e) => setFilters(f => ({ ...f, data_inicio: e.target.value }))}
+              />
+
+              <Input
+                type="date"
+                placeholder="Data fim"
+                value={filters.data_fim}
+                onChange={(e) => setFilters(f => ({ ...f, data_fim: e.target.value }))}
+              />
+
+              <Input
                 placeholder="Cliente"
                 value={clienteSearch}
                 onChange={(e) => setClienteSearch(e.target.value)}
@@ -368,7 +407,7 @@ const CommissionsDaily = () => {
                 </SelectContent>
               </Select>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 md:col-span-2">
                 <Select value={itemsPerPage.toString()} onValueChange={(value) => {
                   setItemsPerPage(Number(value));
                   setCurrentPage(1);
