@@ -1967,40 +1967,61 @@ export type Database = {
         Row: {
           affiliate_code: string | null
           affiliate_id: string | null
+          cancel_at_period_end: boolean | null
           cpf: string | null
           created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
           email: string
+          environment: string | null
           external_user_id: string
           id: string
           name: string | null
           phone: string | null
+          plan_id: string | null
           product_id: string
+          status: string | null
+          trial_end: string | null
           updated_at: string | null
         }
         Insert: {
           affiliate_code?: string | null
           affiliate_id?: string | null
+          cancel_at_period_end?: boolean | null
           cpf?: string | null
           created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email: string
+          environment?: string | null
           external_user_id: string
           id?: string
           name?: string | null
           phone?: string | null
+          plan_id?: string | null
           product_id: string
+          status?: string | null
+          trial_end?: string | null
           updated_at?: string | null
         }
         Update: {
           affiliate_code?: string | null
           affiliate_id?: string | null
+          cancel_at_period_end?: boolean | null
           cpf?: string | null
           created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email?: string
+          environment?: string | null
           external_user_id?: string
           id?: string
           name?: string | null
           phone?: string | null
+          plan_id?: string | null
           product_id?: string
+          status?: string | null
+          trial_end?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -2024,6 +2045,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "view_admin_users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "unified_users_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
           },
           {
             foreignKeyName: "unified_users_product_id_fkey"
