@@ -407,7 +407,7 @@ const CommissionsMonthly = () => {
                   <TableHead>Mês/Ano</TableHead>
                   <TableHead>Produto</TableHead>
                   <TableHead>Plano</TableHead>
-                  <TableHead>Qtd. Comissões</TableHead>
+                  <TableHead className="text-center">Qtd. Comissões</TableHead>
                   <TableHead>Valor Total</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -425,23 +425,10 @@ const CommissionsMonthly = () => {
                       <TableCell className="font-medium capitalize">{formatMonth(commission.mes_referencia)}</TableCell>
                       <TableCell>{commission.produto || "-"}</TableCell>
                       <TableCell>{commission.plano || "-"}</TableCell>
-                      <TableCell>{commission.quantidade_comissoes}</TableCell>
+                      <TableCell className="text-center">{commission.quantidade_comissoes}</TableCell>
                       <TableCell className="font-medium">{formatCurrency(commission.valor_total)}</TableCell>
                       <TableCell>
-                        <div className="text-xs space-y-1">
-                          {commission.pendentes > 0 && (
-                            <div className="text-yellow-600">Pendentes: {commission.pendentes}</div>
-                          )}
-                          {commission.disponiveis > 0 && (
-                            <div className="text-green-600">Disponíveis: {commission.disponiveis}</div>
-                          )}
-                          {commission.sacadas > 0 && (
-                            <div className="text-blue-600">Sacadas: {commission.sacadas}</div>
-                          )}
-                          {commission.canceladas > 0 && (
-                            <div className="text-red-600">Canceladas: {commission.canceladas}</div>
-                          )}
-                        </div>
+...
                       </TableCell>
                     </TableRow>
                   ))
