@@ -53,6 +53,7 @@ BEGIN
       percentage,
       commission_type,
       status,
+      payment_date,
       reference_month,
       notes
     ) VALUES (
@@ -67,6 +68,7 @@ BEGIN
         ELSE 'renovacao'
       END,
       'pending',
+      NEW.payment_date, -- Data do pagamento unificado
       DATE_TRUNC('month', NEW.payment_date)::DATE,
       'Comissão gerada de pagamento unificado - Produto: ' || 
       v_product_name || 
