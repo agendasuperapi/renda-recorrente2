@@ -33,6 +33,7 @@ interface Commission {
   percentual: number;
   valor: number;
   status: string;
+  level: number;
 }
 
 interface Stats {
@@ -269,6 +270,24 @@ const CommissionsDaily = () => {
     );
   };
 
+  const getLevelBadge = (level: number) => {
+    const levelColors: Record<number, string> = {
+      1: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30",
+      2: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30",
+      3: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+      4: "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/30",
+      5: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/30",
+    };
+
+    const colorClass = levelColors[level] || "bg-muted text-muted-foreground border-border";
+
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-mono font-medium border ${colorClass}`}>
+        N{level}
+      </span>
+    );
+  };
+
   if (initialLoading && !hasLoadedOnce) {
     return <TableSkeleton title="Comissões Diárias" columns={7} rows={5} showSearch />;
   }
@@ -450,6 +469,7 @@ const CommissionsDaily = () => {
                 <TableHead>Produto</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Plano</TableHead>
+                <TableHead>Nível</TableHead>
                 <TableHead>Percentual</TableHead>
                 <TableHead>Valor</TableHead>
                 <TableHead>Status</TableHead>
@@ -458,7 +478,7 @@ const CommissionsDaily = () => {
             <TableBody>
               {commissions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                     Nenhuma comissão registrada
                   </TableCell>
                 </TableRow>
@@ -474,6 +494,7 @@ const CommissionsDaily = () => {
                       </div>
                     </TableCell>
                     <TableCell>{commission.plano || "-"}</TableCell>
+                    <TableCell>{getLevelBadge(commission.level)}</TableCell>
                     <TableCell>{commission.percentual}%</TableCell>
                     <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
                     <TableCell>{getStatusBadge(commission.status)}</TableCell>
@@ -481,7 +502,7 @@ const CommissionsDaily = () => {
                 ))
               )}
             </TableBody>
-            </Table>
+          </Table>
           </div>
 
           {/* Total Filtrado */}
