@@ -105,6 +105,8 @@ export default function AdminPayments() {
   const paginatedPayments = payments?.data;
   const totalCount = payments?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
 
   // Query separada para estatísticas
   const { data: statsData } = useQuery({
@@ -298,6 +300,23 @@ export default function AdminPayments() {
             </Select>
           </div>
           <div className="flex gap-2 mt-2">
+            <Select 
+              value={itemsPerPage.toString()} 
+              onValueChange={(value) => {
+                setItemsPerPage(Number(value));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 por página</SelectItem>
+                <SelectItem value="20">20 por página</SelectItem>
+                <SelectItem value="50">50 por página</SelectItem>
+                <SelectItem value="100">100 por página</SelectItem>
+              </SelectContent>
+            </Select>
             <Button variant="outline" size="sm" onClick={handleRefresh}>
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar
@@ -433,7 +452,10 @@ export default function AdminPayments() {
           )}
           
           {totalCount > 0 && (
-            <div className="flex justify-center mt-4">
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-sm text-muted-foreground whitespace-nowrap">
+                Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} pagamentos
+              </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
