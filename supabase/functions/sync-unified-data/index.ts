@@ -14,6 +14,14 @@ interface SyncUserData {
   cpf?: string;
   affiliate_code?: string;
   affiliate_id?: string;
+  // Campos de subscription
+  environment?: string;
+  plan_id?: string;
+  cancel_at_period_end?: boolean;
+  trial_end?: string;
+  status?: string;
+  current_period_start?: string;
+  current_period_end?: string;
 }
 
 interface SyncPaymentData {
@@ -34,10 +42,23 @@ interface SyncPaymentData {
   metadata?: Record<string, any>;
 }
 
+interface SyncSubscriptionData {
+  external_user_id: string;
+  product_id: string;
+  environment?: string;
+  plan_id?: string;
+  cancel_at_period_end?: boolean;
+  trial_end?: string;
+  status?: string;
+  current_period_start?: string;
+  current_period_end?: string;
+}
+
 interface SyncRequest {
-  action: 'sync_user' | 'sync_payment' | 'sync_both';
+  action: 'sync_user' | 'sync_payment' | 'sync_both' | 'sync_subscription';
   user?: SyncUserData;
   payment?: SyncPaymentData;
+  subscription?: SyncSubscriptionData;
   api_key?: string;
 }
 
@@ -54,11 +75,14 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body: SyncRequest = await req.json();
-    console.log('📥 Sync request received:', { action: body.action, product_id: body.user?.product_id || body.payment?.product_id });
+    console.log('📥 Sync request received:', { 
+      action: body.action, 
+      product_id: body.user?.product_id || body.payment?.product_id || body.subscription?.product_id 
+    });
 
     // Validação básica
-    if (!body.action || !['sync_user', 'sync_payment', 'sync_both'].includes(body.action)) {
-      throw new Error('Invalid action. Must be: sync_user, sync_payment, or sync_both');
+    if (!body.action || !['sync_user', 'sync_payment', 'sync_both', 'sync_subscription'].includes(body.action)) {
+      throw new Error('Invalid action. Must be: sync_user, sync_payment, sync_both, or sync_subscription');
     }
 
     const response: any = {
@@ -94,6 +118,13 @@ Deno.serve(async (req) => {
           cpf: user.cpf,
           affiliate_code: user.affiliate_code,
           affiliate_id: user.affiliate_id,
+          environment: user.environment,
+          plan_id: user.plan_id,
+          cancel_at_period_end: user.cancel_at_period_end,
+          trial_end: user.trial_end,
+          status: user.status,
+          current_period_start: user.current_period_start,
+          current_period_end: user.current_period_end,
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'external_user_id,product_id',
@@ -109,6 +140,51 @@ Deno.serve(async (req) => {
 
       console.log('✅ User synced successfully:', unifiedUser.id);
       response.data.user = unifiedUser;
+    }
+
+    // Sync Subscription (apenas atualiza dados de subscription no unified_users)
+    if (body.action === 'sync_subscription') {
+      if (!body.subscription) {
+        throw new Error('Subscription data is required for sync_subscription action');
+      }
+
+      const { subscription } = body;
+
+      // Validar campos obrigatórios
+      if (!subscription.external_user_id || !subscription.product_id) {
+        throw new Error('Missing required subscription fields: external_user_id, product_id');
+      }
+
+      console.log('🔄 Syncing subscription for user:', subscription.external_user_id);
+
+      // Atualizar apenas os campos de subscription do unified_users
+      const updateData: any = {
+        updated_at: new Date().toISOString(),
+      };
+
+      if (subscription.environment !== undefined) updateData.environment = subscription.environment;
+      if (subscription.plan_id !== undefined) updateData.plan_id = subscription.plan_id;
+      if (subscription.cancel_at_period_end !== undefined) updateData.cancel_at_period_end = subscription.cancel_at_period_end;
+      if (subscription.trial_end !== undefined) updateData.trial_end = subscription.trial_end;
+      if (subscription.status !== undefined) updateData.status = subscription.status;
+      if (subscription.current_period_start !== undefined) updateData.current_period_start = subscription.current_period_start;
+      if (subscription.current_period_end !== undefined) updateData.current_period_end = subscription.current_period_end;
+
+      const { data: updatedUser, error: subscriptionError } = await supabase
+        .from('unified_users')
+        .update(updateData)
+        .eq('external_user_id', subscription.external_user_id)
+        .eq('product_id', subscription.product_id)
+        .select()
+        .single();
+
+      if (subscriptionError) {
+        console.error('❌ Error syncing subscription:', subscriptionError);
+        throw subscriptionError;
+      }
+
+      console.log('✅ Subscription synced successfully for user:', updatedUser.id);
+      response.data.subscription = updatedUser;
     }
 
     // Sync Payment
