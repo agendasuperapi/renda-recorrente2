@@ -430,7 +430,9 @@ const CommissionsDaily = () => {
                     <PaginationPrevious 
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
+                    >
+                      Anterior
+                    </PaginationPrevious>
                   </PaginationItem>
                   
                   {[...Array(totalPages)].map((_, i) => {
@@ -459,7 +461,9 @@ const CommissionsDaily = () => {
                     <PaginationNext 
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
+                    >
+                      Próxima
+                    </PaginationNext>
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
