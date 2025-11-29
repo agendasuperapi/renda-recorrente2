@@ -10,7 +10,7 @@ import { Calendar, Clock, DollarSign, RefreshCw, X, Loader2 } from "lucide-react
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Pagination,
@@ -61,13 +61,13 @@ const CommissionsDaily = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
   
-  // Filtros
+  // Filtros - com datas padrão (últimos 7 dias)
   const [filters, setFilters] = useState({
     product_id: "",
     plan_id: "",
     status: "",
-    data_inicio: "",
-    data_fim: "",
+    data_inicio: format(subDays(new Date(), 7), "yyyy-MM-dd"),
+    data_fim: format(new Date(), "yyyy-MM-dd"),
   });
   const [clienteSearch, setClienteSearch] = useState("");
   const debouncedCliente = useDebounce(clienteSearch, 500);
@@ -226,8 +226,8 @@ const CommissionsDaily = () => {
       product_id: "",
       plan_id: "",
       status: "",
-      data_inicio: "",
-      data_fim: "",
+      data_inicio: format(subDays(new Date(), 7), "yyyy-MM-dd"),
+      data_fim: format(new Date(), "yyyy-MM-dd"),
     });
     setClienteSearch("");
     setPlans([]);
