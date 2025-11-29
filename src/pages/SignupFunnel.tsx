@@ -369,9 +369,9 @@ export default function SignupFunnel() {
         }
         
         // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
-        // Em desenvolvimento ou modo dev, abrir em nova aba. Em produção, redirecionar na mesma aba
-        const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
-        if (isDevMode) {
+        // Em modo debug, abrir em nova aba. Senão, redirecionar na mesma aba
+        const isDebugMode = localStorage.getItem('devMode') === 'true';
+        if (isDebugMode) {
           window.open(checkoutData.checkout_url, '_blank');
         } else {
           window.location.href = checkoutData.checkout_url;
