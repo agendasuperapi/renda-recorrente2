@@ -39,12 +39,22 @@ interface Stats {
   hoje: number;
   ultimos_7_dias: number;
   este_mes: number;
+  count_hoje: number;
+  count_7_dias: number;
+  count_mes: number;
 }
 
 const CommissionsDaily = () => {
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<Commission[]>([]);
-  const [stats, setStats] = useState<Stats>({ hoje: 0, ultimos_7_dias: 0, este_mes: 0 });
+  const [stats, setStats] = useState<Stats>({ 
+    hoje: 0, 
+    ultimos_7_dias: 0, 
+    este_mes: 0,
+    count_hoje: 0,
+    count_7_dias: 0,
+    count_mes: 0
+  });
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
@@ -124,6 +134,9 @@ const CommissionsDaily = () => {
           hoje: statsData.hoje || 0,
           ultimos_7_dias: statsData.ultimos_7_dias || 0,
           este_mes: statsData.este_mes || 0,
+          count_hoje: statsData.count_hoje || 0,
+          count_7_dias: statsData.count_7_dias || 0,
+          count_mes: statsData.count_mes || 0,
         });
       }
     } catch (error) {
@@ -249,6 +262,9 @@ const CommissionsDaily = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">{formatCurrency(stats.hoje)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_hoje} {stats.count_hoje === 1 ? 'comissão' : 'comissões'}
+            </p>
           </CardContent>
         </Card>
 
@@ -261,6 +277,9 @@ const CommissionsDaily = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-info">{formatCurrency(stats.ultimos_7_dias)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_7_dias} {stats.count_7_dias === 1 ? 'comissão' : 'comissões'}
+            </p>
           </CardContent>
         </Card>
 
@@ -273,6 +292,9 @@ const CommissionsDaily = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(stats.este_mes)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_mes} {stats.count_mes === 1 ? 'comissão' : 'comissões'}
+            </p>
           </CardContent>
         </Card>
       </div>
