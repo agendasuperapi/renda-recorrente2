@@ -28,6 +28,7 @@ interface SubAffiliate {
   created_at: string;
   referrals_count: number;
   total_commission: number;
+  level: number;
 }
 
 const SubAffiliates = () => {
@@ -42,6 +43,7 @@ const SubAffiliates = () => {
   const [emailFilter, setEmailFilter] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
 
@@ -51,7 +53,7 @@ const SubAffiliates = () => {
 
   useEffect(() => {
     loadSubAffiliates();
-  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, startDateFilter, endDateFilter]);
+  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -88,6 +90,10 @@ const SubAffiliates = () => {
 
       if (statusFilter && statusFilter !== "all") {
         query = query.eq('status', statusFilter);
+      }
+
+      if (levelFilter && levelFilter !== "all") {
+        query = query.eq('level', parseInt(levelFilter));
       }
 
       if (startDateFilter) {
@@ -146,6 +152,7 @@ const SubAffiliates = () => {
     setEmailFilter("");
     setPlanFilter("all");
     setStatusFilter("all");
+    setLevelFilter("all");
     setStartDateFilter("");
     setEndDateFilter("");
   };
@@ -168,9 +175,10 @@ const SubAffiliates = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, stats.total);
 
-  // Obter planos e status únicos do banco de dados
+  // Obter planos, status e níveis únicos do banco de dados
   const [uniquePlans, setUniquePlans] = useState<string[]>([]);
   const [uniqueStatuses, setUniqueStatuses] = useState<string[]>([]);
+  const [uniqueLevels, setUniqueLevels] = useState<number[]>([]);
 
   useEffect(() => {
     loadFilterOptions();
@@ -182,14 +190,16 @@ const SubAffiliates = () => {
 
     const { data } = await supabase
       .from('view_sub_affiliates' as any)
-      .select('plan_name, status')
+      .select('plan_name, status, level')
       .eq('parent_affiliate_id', user.id);
 
     if (data) {
       const plans = Array.from(new Set(data.map((item: any) => item.plan_name).filter(Boolean)));
       const statuses = Array.from(new Set(data.map((item: any) => item.status)));
+      const levels = Array.from(new Set(data.map((item: any) => item.level))).sort((a, b) => Number(a) - Number(b));
       setUniquePlans(plans as string[]);
       setUniqueStatuses(statuses as string[]);
+      setUniqueLevels(levels as number[]);
     }
   };
 
@@ -336,6 +346,22 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
+            <div className="flex-1 min-w-[150px]">
+              <Select value={levelFilter} onValueChange={setLevelFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Nível" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os níveis</SelectItem>
+                  {uniqueLevels.map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      Nível {level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex-1 min-w-[120px]">
               <Select
                 value={itemsPerPage.toString()}
@@ -382,6 +408,7 @@ const SubAffiliates = () => {
                 <TableHead>Nome/Username</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Plano</TableHead>
+                <TableHead>Nível</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Data Cadastro</TableHead>
                 <TableHead className="text-center">Indicações</TableHead>
@@ -391,7 +418,7 @@ const SubAffiliates = () => {
             <TableBody>
               {filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                     Nenhum sub-afiliado encontrado
                   </TableCell>
                 </TableRow>
@@ -419,6 +446,11 @@ const SubAffiliates = () => {
                     <TableCell>{sub.email}</TableCell>
                     <TableCell>
                       {sub.plan_name || <span className="text-muted-foreground">Sem plano</span>}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono">
+                        N{sub.level}
+                      </Badge>
                     </TableCell>
                     <TableCell>{getStatusBadge(sub.status)}</TableCell>
                     <TableCell>

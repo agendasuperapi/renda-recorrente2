@@ -2866,6 +2866,36 @@ export type Database = {
           },
         ]
       }
+      view_sub_affiliates_stats: {
+        Row: {
+          parent_affiliate_id: string | null
+          total_commission: number | null
+          total_sub_affiliates: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       expire_old_checkouts: { Args: never; Returns: undefined }
