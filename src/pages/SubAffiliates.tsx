@@ -416,13 +416,13 @@ const SubAffiliates = () => {
           </Table>
 
           {/* Controles de paginação e informações */}
-          <div className="flex items-center justify-between mt-4">
+          <div className="grid grid-cols-3 items-center mt-4">
             <div className="text-sm text-muted-foreground">
               Mostrando {startIndex + 1} a {Math.min(endIndex, filteredData.length)} de {filteredData.length} resultados
             </div>
             
             {totalPages > 1 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -471,6 +471,8 @@ const SubAffiliates = () => {
                 </Button>
               </div>
             )}
+            
+            <div></div>
           </div>
         </CardContent>
       </Card>
