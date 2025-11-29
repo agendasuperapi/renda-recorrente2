@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -9,6 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 interface SubAffiliate {
   id: string;
@@ -28,13 +32,30 @@ interface SubAffiliate {
 
 const SubAffiliates = () => {
   const [subAffiliates, setSubAffiliates] = useState<SubAffiliate[]>([]);
+  const [filteredData, setFilteredData] = useState<SubAffiliate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, commissions: 0 });
   const { toast } = useToast();
 
+  // Filtros
+  const [nameFilter, setNameFilter] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   useEffect(() => {
     loadSubAffiliates();
   }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [subAffiliates, nameFilter, emailFilter, planFilter, statusFilter, startDateFilter, endDateFilter]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -77,6 +98,56 @@ const SubAffiliates = () => {
     }
   };
 
+  const applyFilters = () => {
+    let filtered = [...subAffiliates];
+
+    if (nameFilter) {
+      filtered = filtered.filter(sub => 
+        sub.name?.toLowerCase().includes(nameFilter.toLowerCase()) ||
+        sub.username?.toLowerCase().includes(nameFilter.toLowerCase())
+      );
+    }
+
+    if (emailFilter) {
+      filtered = filtered.filter(sub => 
+        sub.email?.toLowerCase().includes(emailFilter.toLowerCase())
+      );
+    }
+
+    if (planFilter) {
+      filtered = filtered.filter(sub => sub.plan_name === planFilter);
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(sub => sub.status === statusFilter);
+    }
+
+    if (startDateFilter) {
+      filtered = filtered.filter(sub => 
+        new Date(sub.created_at) >= new Date(startDateFilter)
+      );
+    }
+
+    if (endDateFilter) {
+      filtered = filtered.filter(sub => 
+        new Date(sub.created_at) <= new Date(endDateFilter + "T23:59:59")
+      );
+    }
+
+    setFilteredData(filtered);
+    setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setNameFilter("");
+    setEmailFilter("");
+    setPlanFilter("");
+    setStatusFilter("");
+    setStartDateFilter("");
+    setEndDateFilter("");
+    setCurrentPage(1);
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       active: { label: "Ativo", variant: "default" as const },
@@ -89,6 +160,16 @@ const SubAffiliates = () => {
     const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: "secondary" as const };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
+
+  // Paginação
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  // Obter planos únicos para o filtro
+  const uniquePlans = Array.from(new Set(subAffiliates.map(sub => sub.plan_name).filter(Boolean)));
+  const uniqueStatuses = Array.from(new Set(subAffiliates.map(sub => sub.status)));
 
   if (isLoading) {
     return (
@@ -166,7 +247,136 @@ const SubAffiliates = () => {
         <CardHeader>
           <CardTitle>Lista de Sub-Afiliados</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Filtros */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Filtros</h3>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar Filtros
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadSubAffiliates}
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Atualizar
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name-filter">Nome/Username</Label>
+                <Input
+                  id="name-filter"
+                  placeholder="Filtrar por nome..."
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email-filter">Email</Label>
+                <Input
+                  id="email-filter"
+                  placeholder="Filtrar por email..."
+                  value={emailFilter}
+                  onChange={(e) => setEmailFilter(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="plan-filter">Plano</Label>
+                <Select value={planFilter} onValueChange={setPlanFilter}>
+                  <SelectTrigger id="plan-filter">
+                    <SelectValue placeholder="Todos os planos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os planos</SelectItem>
+                    {uniquePlans.map((plan) => (
+                      <SelectItem key={plan} value={plan || ""}>
+                        {plan || "Sem plano"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status-filter">Status</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger id="status-filter">
+                    <SelectValue placeholder="Todos os status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os status</SelectItem>
+                    {uniqueStatuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="start-date-filter">Data Início</Label>
+                <Input
+                  id="start-date-filter"
+                  type="date"
+                  value={startDateFilter}
+                  onChange={(e) => setStartDateFilter(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="end-date-filter">Data Fim</Label>
+                <Input
+                  id="end-date-filter"
+                  type="date"
+                  value={endDateFilter}
+                  onChange={(e) => setEndDateFilter(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Informações de paginação */}
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <div>
+              Mostrando {startIndex + 1} a {Math.min(endIndex, filteredData.length)} de {filteredData.length} resultados
+            </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="items-per-page">Itens por página:</Label>
+              <Select
+                value={itemsPerPage.toString()}
+                onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger id="items-per-page" className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -180,14 +390,14 @@ const SubAffiliates = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subAffiliates.length === 0 ? (
+              {filteredData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                     Nenhum sub-afiliado encontrado
                   </TableCell>
                 </TableRow>
               ) : (
-                subAffiliates.map((sub) => (
+                paginatedData.map((sub) => (
                   <TableRow key={sub.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -227,6 +437,58 @@ const SubAffiliates = () => {
               )}
             </TableBody>
           </Table>
+
+          {/* Controles de paginação */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Anterior
+              </Button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNumber;
+                  if (totalPages <= 5) {
+                    pageNumber = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNumber = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNumber = totalPages - 4 + i;
+                  } else {
+                    pageNumber = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNumber}
+                      variant={currentPage === pageNumber ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {pageNumber}
+                    </Button>
+                  );
+                })}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Próximo
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
