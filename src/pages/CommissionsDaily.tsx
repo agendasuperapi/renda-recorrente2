@@ -157,7 +157,7 @@ const CommissionsDaily = () => {
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: ptBR });
+      return format(new Date(dateString), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
     } catch {
       return "-";
     }
