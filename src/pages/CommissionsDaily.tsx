@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, DollarSign, RefreshCw, X } from "lucide-react";
+import { Calendar, Clock, DollarSign, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
@@ -228,6 +228,13 @@ const CommissionsDaily = () => {
             <div className="text-2xl font-bold">{formatCurrency(stats.este_mes)}</div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="flex justify-end">
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          Horário de Brasília (GMT-3)
+        </p>
       </div>
 
       <Card>
