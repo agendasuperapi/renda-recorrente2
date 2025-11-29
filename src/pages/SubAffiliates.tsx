@@ -416,7 +416,7 @@ const SubAffiliates = () => {
           </Table>
 
           {/* Controles de paginação e informações */}
-          <div className="flex flex-col items-center gap-3 mt-4">
+          <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-muted-foreground">
               Mostrando {startIndex + 1} a {Math.min(endIndex, filteredData.length)} de {filteredData.length} resultados
             </div>
@@ -466,7 +466,7 @@ const SubAffiliates = () => {
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                 >
-                  Próximo
+                  Próxima
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
