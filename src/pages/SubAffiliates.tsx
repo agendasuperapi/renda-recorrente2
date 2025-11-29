@@ -245,110 +245,112 @@ const SubAffiliates = () => {
 
       <Card>
         <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Filtros</CardTitle>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Limpar Filtros
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadSubAffiliates}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Atualizar
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name-filter">Nome/Username</Label>
+              <Input
+                id="name-filter"
+                placeholder="Filtrar por nome..."
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email-filter">Email</Label>
+              <Input
+                id="email-filter"
+                placeholder="Filtrar por email..."
+                value={emailFilter}
+                onChange={(e) => setEmailFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="plan-filter">Plano</Label>
+              <Select value={planFilter} onValueChange={setPlanFilter}>
+                <SelectTrigger id="plan-filter">
+                  <SelectValue placeholder="Todos os planos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os planos</SelectItem>
+                  {uniquePlans.map((plan) => (
+                    <SelectItem key={plan} value={plan || "no-plan"}>
+                      {plan || "Sem plano"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status-filter">Status</Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger id="status-filter">
+                  <SelectValue placeholder="Todos os status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  {uniqueStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="start-date-filter">Data Início</Label>
+              <Input
+                id="start-date-filter"
+                type="date"
+                value={startDateFilter}
+                onChange={(e) => setStartDateFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="end-date-filter">Data Fim</Label>
+              <Input
+                id="end-date-filter"
+                type="date"
+                value={endDateFilter}
+                onChange={(e) => setEndDateFilter(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Lista de Sub-Afiliados</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Filtros */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">Filtros</h3>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearFilters}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Limpar Filtros
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={loadSubAffiliates}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Atualizar
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name-filter">Nome/Username</Label>
-                <Input
-                  id="name-filter"
-                  placeholder="Filtrar por nome..."
-                  value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email-filter">Email</Label>
-                <Input
-                  id="email-filter"
-                  placeholder="Filtrar por email..."
-                  value={emailFilter}
-                  onChange={(e) => setEmailFilter(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="plan-filter">Plano</Label>
-                <Select value={planFilter} onValueChange={setPlanFilter}>
-                  <SelectTrigger id="plan-filter">
-                    <SelectValue placeholder="Todos os planos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os planos</SelectItem>
-                    {uniquePlans.map((plan) => (
-                      <SelectItem key={plan} value={plan || "no-plan"}>
-                        {plan || "Sem plano"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status-filter">Status</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger id="status-filter">
-                    <SelectValue placeholder="Todos os status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os status</SelectItem>
-                    {uniqueStatuses.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="start-date-filter">Data Início</Label>
-                <Input
-                  id="start-date-filter"
-                  type="date"
-                  value={startDateFilter}
-                  onChange={(e) => setStartDateFilter(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="end-date-filter">Data Fim</Label>
-                <Input
-                  id="end-date-filter"
-                  type="date"
-                  value={endDateFilter}
-                  onChange={(e) => setEndDateFilter(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Informações de paginação */}
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div>
