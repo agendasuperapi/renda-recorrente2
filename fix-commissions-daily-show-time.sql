@@ -25,12 +25,14 @@ SELECT
     pl.name as plano,
     -- Comissão
     c.affiliate_id,
+    aff.name as affiliate_name,
     c.amount as valor,
     c.percentage as percentual,
     c.status,
+    c.unified_payment_id,
+    c.commission_type,
     -- Informações adicionais
-    c.available_date,
-    c.payment_date as payment_date_original
+    c.available_date
 FROM public.commissions c
 LEFT JOIN public.unified_payments up ON up.id = c.unified_payment_id
 LEFT JOIN public.products p ON p.id = up.product_id
