@@ -198,33 +198,18 @@ const CommissionsDaily = () => {
       setTotalCount(count || 0);
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
       
-      // Calcular total filtrado de TODAS as comissões (sem paginação)
-      let totalQuery = (supabase as any)
-        .from("view_commissions_daily")
-        .select("valor.sum()")
-        .eq("affiliate_id", userId);
-
-      if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
-        totalQuery = totalQuery.eq("product_id", filters.product_id);
-      }
-      if (filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " ") {
-        totalQuery = totalQuery.eq("plan_id", filters.plan_id);
-      }
-      if (debouncedCliente && debouncedCliente.trim()) {
-        totalQuery = totalQuery.ilike("cliente", `%${debouncedCliente}%`);
-      }
-      if (filters.status && filters.status.trim() && filters.status !== " ") {
-        totalQuery = totalQuery.eq("status", filters.status);
-      }
-      if (filters.data_inicio && filters.data_inicio.trim()) {
-        totalQuery = totalQuery.gte("data", filters.data_inicio);
-      }
-      if (filters.data_fim && filters.data_fim.trim()) {
-        totalQuery = totalQuery.lte("data", filters.data_fim);
-      }
-
-      const { data: totalData } = await totalQuery.single();
-      const total = totalData?.sum || 0;
+      // Calcular total filtrado usando função RPC
+      const { data: totalData } = await (supabase as any).rpc("get_commissions_total", {
+        p_affiliate_id: userId,
+        p_product_id: filters.product_id && filters.product_id.trim() && filters.product_id !== " " ? filters.product_id : null,
+        p_plan_id: filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " " ? filters.plan_id : null,
+        p_cliente: debouncedCliente && debouncedCliente.trim() ? debouncedCliente : null,
+        p_status: filters.status && filters.status.trim() && filters.status !== " " ? filters.status : null,
+        p_data_inicio: filters.data_inicio && filters.data_inicio.trim() ? filters.data_inicio : null,
+        p_data_fim: filters.data_fim && filters.data_fim.trim() ? filters.data_fim : null,
+      });
+      
+      const total = Number(totalData) || 0;
       setTotalFiltrado(total);
     } catch (error) {
       console.error("Erro ao carregar comissões:", error);
