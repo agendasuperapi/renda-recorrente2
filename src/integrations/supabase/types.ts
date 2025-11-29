@@ -2847,21 +2847,21 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "unified_users_affiliate_id_fkey"
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
             columns: ["parent_affiliate_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "unified_users_affiliate_id_fkey"
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
             columns: ["parent_affiliate_id"]
             isOneToOne: false
             referencedRelation: "view_admin_affiliates"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "unified_users_affiliate_id_fkey"
+            foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
             columns: ["parent_affiliate_id"]
             isOneToOne: false
             referencedRelation: "view_admin_users"

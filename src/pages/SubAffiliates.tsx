@@ -170,6 +170,24 @@ const SubAffiliates = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const getLevelBadge = (level: number) => {
+    const levelColors: Record<number, string> = {
+      1: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30",
+      2: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30",
+      3: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+      4: "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/30",
+      5: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/30",
+    };
+
+    const colorClass = levelColors[level] || "bg-muted text-muted-foreground border-border";
+
+    return (
+      <Badge variant="outline" className={`font-mono ${colorClass}`}>
+        N{level}
+      </Badge>
+    );
+  };
+
   // Paginação
   const totalPages = Math.ceil(stats.total / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -448,9 +466,7 @@ const SubAffiliates = () => {
                       {sub.plan_name || <span className="text-muted-foreground">Sem plano</span>}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="font-mono">
-                        N{sub.level}
-                      </Badge>
+                      {getLevelBadge(sub.level)}
                     </TableCell>
                     <TableCell>{getStatusBadge(sub.status)}</TableCell>
                     <TableCell>
