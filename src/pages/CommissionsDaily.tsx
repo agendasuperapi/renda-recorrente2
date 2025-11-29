@@ -281,8 +281,9 @@ const CommissionsDaily = () => {
               </Select>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={clearFilters}>
-                  <X className="h-4 w-4" />
+                <Button variant="outline" onClick={clearFilters}>
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar filtros
                 </Button>
                 <Button variant="outline" size="icon" onClick={loadData} disabled={loading}>
                   <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
