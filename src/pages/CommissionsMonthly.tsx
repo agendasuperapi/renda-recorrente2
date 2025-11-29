@@ -1,81 +1,522 @@
+import { useState, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useUser } from "@/contexts/UserContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Calendar, DollarSign, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, DollarSign, TrendingUp, RefreshCw, X, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+interface MonthlyCommission {
+  mes_referencia: string;
+  produto: string;
+  product_id: string;
+  plano: string;
+  plan_id: string;
+  quantidade_comissoes: number;
+  valor_total: number;
+  percentual_medio: number;
+  pendentes: number;
+  disponiveis: number;
+  sacadas: number;
+  canceladas: number;
+  tipo_predominante: string;
+}
+
+interface Stats {
+  este_mes: number;
+  ultimos_3_meses: number;
+  este_ano: number;
+  count_mes: number;
+  count_3_meses: number;
+  count_ano: number;
+}
 
 const CommissionsMonthly = () => {
-  return (
-    <div className="space-y-6">
+  const { userId } = useUser();
+  const [commissions, setCommissions] = useState<MonthlyCommission[]>([]);
+  const [stats, setStats] = useState<Stats>({ 
+    este_mes: 0, 
+    ultimos_3_meses: 0, 
+    este_ano: 0,
+    count_mes: 0,
+    count_3_meses: 0,
+    count_ano: 0
+  });
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
+  
+  // Filtros
+  const [filters, setFilters] = useState({
+    product_id: "",
+    plan_id: "",
+    mes_inicio: "",
+    mes_fim: "",
+  });
+  const [totalFiltrado, setTotalFiltrado] = useState(0);
+  
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+
+  useEffect(() => {
+    loadCommissions();
+  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.mes_inicio, filters.mes_fim]);
+
+  useEffect(() => {
+    loadFiltersData();
+    loadStats();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      loadStats();
+    }
+  }, [userId]);
+
+  const loadFiltersData = async () => {
+    try {
+      const { data: productsData } = await supabase
+        .from("products")
+        .select("id, nome")
+        .order("nome");
+      
+      setProducts(productsData || []);
+    } catch (error) {
+      console.error("Erro ao carregar dados dos filtros:", error);
+    }
+  };
+
+  const loadPlansForProduct = async (productId: string) => {
+    if (!productId || productId === " ") {
+      setPlans([]);
+      return;
+    }
+    
+    try {
+      const { data: plansData } = await supabase
+        .from("plans")
+        .select("id, name")
+        .eq("product_id", productId)
+        .order("name");
+      
+      setPlans(plansData || []);
+    } catch (error) {
+      console.error("Erro ao carregar planos:", error);
+    }
+  };
+
+  const loadStats = async () => {
+    if (!userId) return;
+    
+    try {
+      const { data, error } = await (supabase as any)
+        .from("view_commissions_monthly_stats")
+        .select("*")
+        .eq("affiliate_id", userId)
+        .single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setStats({
+          este_mes: data.este_mes || 0,
+          ultimos_3_meses: data.ultimos_3_meses || 0,
+          este_ano: data.este_ano || 0,
+          count_mes: data.count_mes || 0,
+          count_3_meses: data.count_3_meses || 0,
+          count_ano: data.count_ano || 0,
+        });
+      }
+    } catch (error: any) {
+      if (error.code !== 'PGRST116') {
+        console.error("Erro ao carregar estatísticas:", error);
+      }
+    }
+  };
+
+  const loadCommissions = async () => {
+    if (!userId) return;
+    
+    if (!hasLoadedOnce) {
+      setInitialLoading(true);
+    } else {
+      setIsFiltering(true);
+    }
+
+    try {
+      let query = (supabase as any)
+        .from("view_commissions_monthly")
+        .select("*", { count: "exact" })
+        .eq("affiliate_id", userId);
+
+      if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
+        query = query.eq("product_id", filters.product_id);
+      }
+      if (filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " ") {
+        query = query.eq("plan_id", filters.plan_id);
+      }
+      if (filters.mes_inicio && filters.mes_inicio.trim()) {
+        query = query.gte("mes_referencia", filters.mes_inicio);
+      }
+      if (filters.mes_fim && filters.mes_fim.trim()) {
+        query = query.lte("mes_referencia", filters.mes_fim);
+      }
+
+      // Paginação
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+      
+      const { data, error, count } = await query
+        .order("mes_referencia", { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+
+      setCommissions(data || []);
+      setTotalCount(count || 0);
+      setTotalPages(Math.ceil((count || 0) / itemsPerPage));
+      
+      // Calcular total filtrado usando função RPC
+      const { data: totalData } = await (supabase as any).rpc("get_commissions_monthly_total", {
+        p_affiliate_id: userId,
+        p_product_id: filters.product_id && filters.product_id.trim() && filters.product_id !== " " ? filters.product_id : null,
+        p_plan_id: filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " " ? filters.plan_id : null,
+        p_mes_inicio: filters.mes_inicio && filters.mes_inicio.trim() ? filters.mes_inicio : null,
+        p_mes_fim: filters.mes_fim && filters.mes_fim.trim() ? filters.mes_fim : null,
+      });
+      
+      const total = Number(totalData) || 0;
+      setTotalFiltrado(total);
+    } catch (error) {
+      console.error("Erro ao carregar comissões:", error);
+      toast.error("Erro ao carregar comissões");
+    } finally {
+      setInitialLoading(false);
+      setIsFiltering(false);
+      setHasLoadedOnce(true);
+    }
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      product_id: "",
+      plan_id: "",
+      mes_inicio: "",
+      mes_fim: "",
+    });
+    setCurrentPage(1);
+    setPlans([]);
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  };
+
+  const formatMonth = (dateString: string) => {
+    if (!dateString) return "-";
+    try {
+      return format(new Date(dateString), "MMMM/yyyy", { locale: ptBR });
+    } catch {
+      return "-";
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Comissões Mensais</h1>
           <p className="text-muted-foreground">
             Acompanhe suas comissões mensais recorrentes
           </p>
         </div>
+        <TableSkeleton />
+      </div>
+    );
+  }
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Mês Atual
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">R$ 0,00</div>
-            </CardContent>
-          </Card>
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Comissões Mensais</h1>
+        <p className="text-muted-foreground">
+          Acompanhe suas comissões mensais recorrentes
+        </p>
+      </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Mês Anterior
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-info" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-info">R$ 0,00</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Média Mensal
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-success" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">R$ 0,00</div>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Histórico Mensal</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Este Mês
+            </CardTitle>
+            <Calendar className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Mês/Ano</TableHead>
-                  <TableHead>Assinaturas Ativas</TableHead>
-                  <TableHead>Novas Assinaturas</TableHead>
-                  <TableHead>Cancelamentos</TableHead>
-                  <TableHead>Total de Comissões</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    Nenhuma comissão registrada
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <div className="text-2xl font-bold">{formatCurrency(stats.este_mes)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_mes} comissões
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Últimos 3 Meses
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-info" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-info">{formatCurrency(stats.ultimos_3_meses)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_3_meses} comissões
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Este Ano
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">{formatCurrency(stats.este_ano)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_ano} comissões
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col space-y-4">
+            <CardTitle>Histórico Mensal</CardTitle>
+            
+            {/* Filtros */}
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+              <Select 
+                value={filters.product_id} 
+                onValueChange={(value) => {
+                  setFilters(f => ({ ...f, product_id: value, plan_id: "" }));
+                  loadPlansForProduct(value);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Produto" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value=" ">Todos os produtos</SelectItem>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {filters.product_id && filters.product_id !== " " && (
+                <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Plano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value=" ">Todos os planos</SelectItem>
+                    {plans.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              <input
+                type="month"
+                placeholder="Mês início"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={filters.mes_inicio}
+                onChange={(e) => setFilters(f => ({ ...f, mes_inicio: e.target.value }))}
+              />
+
+              <input
+                type="month"
+                placeholder="Mês fim"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={filters.mes_fim}
+                onChange={(e) => setFilters(f => ({ ...f, mes_fim: e.target.value }))}
+              />
+
+              <div className="flex gap-2 md:col-span-2">
+                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10 por página</SelectItem>
+                    <SelectItem value="20">20 por página</SelectItem>
+                    <SelectItem value="50">50 por página</SelectItem>
+                    <SelectItem value="100">100 por página</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" onClick={clearFilters}>
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar filtros
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering}>
+                  <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="relative">
+            {isFiltering && (
+              <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            )}
+            <Table className={isFiltering ? "pointer-events-none" : ""}>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Mês/Ano</TableHead>
+                  <TableHead>Produto</TableHead>
+                  <TableHead>Plano</TableHead>
+                  <TableHead className="text-right">Qtd. Comissões</TableHead>
+                  <TableHead className="text-right">Valor Total</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {commissions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      Nenhuma comissão registrada
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  commissions.map((commission, index) => (
+                    <TableRow key={`${commission.mes_referencia}-${commission.product_id}-${commission.plan_id}-${index}`}>
+                      <TableCell className="font-medium capitalize">{formatMonth(commission.mes_referencia)}</TableCell>
+                      <TableCell>{commission.produto || "-"}</TableCell>
+                      <TableCell>{commission.plano || "-"}</TableCell>
+                      <TableCell className="text-right">{commission.quantidade_comissoes}</TableCell>
+                      <TableCell className="text-right font-medium">{formatCurrency(commission.valor_total)}</TableCell>
+                      <TableCell>
+                        <div className="text-xs space-y-1">
+                          {commission.pendentes > 0 && (
+                            <div className="text-yellow-600">Pendentes: {commission.pendentes}</div>
+                          )}
+                          {commission.disponiveis > 0 && (
+                            <div className="text-green-600">Disponíveis: {commission.disponiveis}</div>
+                          )}
+                          {commission.sacadas > 0 && (
+                            <div className="text-blue-600">Sacadas: {commission.sacadas}</div>
+                          )}
+                          {commission.canceladas > 0 && (
+                            <div className="text-red-600">Canceladas: {commission.canceladas}</div>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Total Filtrado */}
+          {commissions.length > 0 && (
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-muted-foreground">Total das comissões filtradas:</span>
+                <span className="text-xl font-bold text-primary">{formatCurrency(totalFiltrado)}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Paginação */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground whitespace-nowrap">
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} registros
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  
+                  {[...Array(totalPages)].map((_, i) => {
+                    const page = i + 1;
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+          {totalPages <= 1 && commissions.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground text-center">
+                {commissions.length} registro(s) encontrado(s)
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
