@@ -259,83 +259,79 @@ const Referrals = () => {
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Input
-                placeholder="Buscar por nome ou email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              
-              <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Produto" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os produtos</SelectItem>
-                  {products.map((product) => (
-                    <SelectItem key={product.id} value={product.id}>
-                      {product.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mt-4">
+            <Input
+              placeholder="Buscar por nome ou email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            
+            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+              <SelectTrigger>
+                <SelectValue placeholder="Produto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os produtos</SelectItem>
+                {products.map((product) => (
+                  <SelectItem key={product.id} value={product.id}>
+                    {product.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <Select 
-                value={selectedPlan} 
-                onValueChange={setSelectedPlan}
-                disabled={selectedProduct === "all"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os planos</SelectItem>
-                  {plans.map((plan) => (
-                    <SelectItem key={plan.id} value={plan.id}>
-                      {plan.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Select 
+              value={selectedPlan} 
+              onValueChange={setSelectedPlan}
+              disabled={selectedProduct === "all"}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Plano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os planos</SelectItem>
+                {plans.map((plan) => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  <SelectItem value="active">Ativo</SelectItem>
-                  <SelectItem value="trialing">Trial</SelectItem>
-                  <SelectItem value="canceled">Cancelado</SelectItem>
-                  <SelectItem value="past_due">Atrasado</SelectItem>
-                  <SelectItem value="incomplete">Incompleto</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="active">Ativo</SelectItem>
+                <SelectItem value="trialing">Trial</SelectItem>
+                <SelectItem value="canceled">Cancelado</SelectItem>
+                <SelectItem value="past_due">Atrasado</SelectItem>
+                <SelectItem value="incomplete">Incompleto</SelectItem>
+              </SelectContent>
+            </Select>
 
-            <div className="flex items-center gap-2">
-              <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10 por página</SelectItem>
-                  <SelectItem value="25">25 por página</SelectItem>
-                  <SelectItem value="50">50 por página</SelectItem>
-                  <SelectItem value="100">100 por página</SelectItem>
-                </SelectContent>
-              </Select>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 por página</SelectItem>
+                <SelectItem value="25">25 por página</SelectItem>
+                <SelectItem value="50">50 por página</SelectItem>
+                <SelectItem value="100">100 por página</SelectItem>
+              </SelectContent>
+            </Select>
 
-              <Button variant="outline" onClick={clearFilters} className="gap-2">
-                <span className="text-lg">×</span>
-                Limpar filtros
-              </Button>
+            <Button variant="outline" onClick={clearFilters} className="gap-2">
+              <span className="text-lg">×</span>
+              Limpar filtros
+            </Button>
 
-              <Button variant="outline" size="icon" onClick={handleRefresh}>
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button variant="outline" size="icon" onClick={handleRefresh}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
