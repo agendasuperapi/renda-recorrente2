@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -50,21 +51,25 @@ const CommissionsDaily = () => {
   const [filters, setFilters] = useState({
     product_id: "",
     plan_id: "",
-    cliente: "",
     status: "",
   });
+  const [clienteSearch, setClienteSearch] = useState("");
+  const debouncedCliente = useDebounce(clienteSearch, 500);
   
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 20;
 
+  // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
-    loadData();
-  }, [currentPage, filters]);
+    loadCommissions();
+  }, [currentPage, filters.product_id, filters.plan_id, filters.status, debouncedCliente]);
 
+  // Carregar estatísticas apenas uma vez
   useEffect(() => {
     loadFiltersData();
+    loadStats();
   }, []);
 
   const loadFiltersData = async () => {
@@ -91,13 +96,11 @@ const CommissionsDaily = () => {
     setPlans(plansData || []);
   };
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadStats = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Carregar estatísticas
       const { data: statsData } = await (supabase as any)
         .from("view_commissions_stats")
         .select("*")
@@ -111,6 +114,16 @@ const CommissionsDaily = () => {
           este_mes: statsData.este_mes || 0,
         });
       }
+    } catch (error) {
+      console.error("Erro ao carregar estatísticas:", error);
+    }
+  };
+
+  const loadCommissions = async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       // Construir query com filtros
       let query = (supabase as any)
@@ -118,16 +131,16 @@ const CommissionsDaily = () => {
         .select("*", { count: "exact" })
         .eq("affiliate_id", user.id);
 
-      if (filters.product_id && filters.product_id.trim()) {
+      if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
         query = query.eq("product_id", filters.product_id);
       }
-      if (filters.plan_id && filters.plan_id.trim()) {
+      if (filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " ") {
         query = query.eq("plan_id", filters.plan_id);
       }
-      if (filters.cliente && filters.cliente.trim()) {
-        query = query.ilike("cliente", `%${filters.cliente}%`);
+      if (debouncedCliente && debouncedCliente.trim()) {
+        query = query.ilike("cliente", `%${debouncedCliente}%`);
       }
-      if (filters.status && filters.status.trim()) {
+      if (filters.status && filters.status.trim() && filters.status !== " ") {
         query = query.eq("status", filters.status);
       }
 
@@ -155,9 +168,10 @@ const CommissionsDaily = () => {
     setFilters({
       product_id: "",
       plan_id: "",
-      cliente: "",
       status: "",
     });
+    setClienteSearch("");
+    setPlans([]);
     setCurrentPage(1);
   };
 
@@ -292,8 +306,8 @@ const CommissionsDaily = () => {
 
               <Input
                 placeholder="Cliente"
-                value={filters.cliente}
-                onChange={(e) => setFilters(f => ({ ...f, cliente: e.target.value }))}
+                value={clienteSearch}
+                onChange={(e) => setClienteSearch(e.target.value)}
               />
 
               <Select value={filters.status} onValueChange={(value) => setFilters(f => ({ ...f, status: value }))}>
@@ -314,7 +328,7 @@ const CommissionsDaily = () => {
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
                 </Button>
-                <Button variant="outline" size="icon" onClick={loadData} disabled={loading}>
+                <Button variant="outline" size="icon" onClick={() => { loadStats(); loadCommissions(); }} disabled={loading}>
                   <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                 </Button>
               </div>
