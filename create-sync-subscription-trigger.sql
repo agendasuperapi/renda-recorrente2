@@ -1,5 +1,6 @@
 -- Trigger para sincronizar dados de subscription do APP Renda recorrente na tabela unified_users
 -- Este trigger é acionado quando uma subscription é criada ou atualizada
+-- ID do produto APP Renda recorrente: bb582482-b006-47b8-b6ea-a6944d8cfdfd
 
 CREATE OR REPLACE FUNCTION public.sync_subscription_to_unified_users()
 RETURNS TRIGGER
@@ -7,19 +8,8 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  v_product_id UUID;
+  v_product_id UUID := 'bb582482-b006-47b8-b6ea-a6944d8cfdfd'; -- APP Renda recorrente
 BEGIN
-  -- Buscar o product_id do APP Renda recorrente
-  SELECT id INTO v_product_id
-  FROM public.products
-  WHERE nome = 'APP Renda recorrente'
-  LIMIT 1;
-  
-  IF v_product_id IS NULL THEN
-    RAISE NOTICE 'Produto APP Renda recorrente não encontrado';
-    RETURN NEW;
-  END IF;
-  
   -- Atualizar unified_users com dados da subscription
   UPDATE public.unified_users
   SET 

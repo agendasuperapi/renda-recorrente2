@@ -1,5 +1,6 @@
 -- Trigger para sincronizar vendas locais do APP Renda recorrente nas tabelas unificadas
 -- Este trigger é acionado quando um pagamento é inserido na tabela payments
+-- ID do produto APP Renda recorrente: bb582482-b006-47b8-b6ea-a6944d8cfdfd
 
 CREATE OR REPLACE FUNCTION public.sync_local_payment_to_unified()
 RETURNS TRIGGER
@@ -7,24 +8,12 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  v_product_id UUID;
+  v_product_id UUID := 'bb582482-b006-47b8-b6ea-a6944d8cfdfd'; -- APP Renda recorrente
   v_unified_user_id UUID;
   v_user_profile RECORD;
   v_affiliate_id UUID;
   v_subscription RECORD;
 BEGIN
-  -- Buscar o product_id do APP Renda recorrente
-  SELECT id INTO v_product_id
-  FROM public.products
-  WHERE nome = 'APP Renda recorrente'
-  LIMIT 1;
-  
-  -- Se não encontrou o produto, retornar
-  IF v_product_id IS NULL THEN
-    RAISE NOTICE 'Produto APP Renda recorrente não encontrado';
-    RETURN NEW;
-  END IF;
-  
   -- Buscar informações do usuário
   SELECT 
     p.id,
