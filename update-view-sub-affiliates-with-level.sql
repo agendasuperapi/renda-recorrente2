@@ -23,6 +23,14 @@ SELECT
      WHERE sub.affiliate_id = uu.external_user_id), 
     0
   ) as referrals_count,
+  -- Somar comissões geradas por este sub-afiliado (para ele mesmo)
+  COALESCE(
+    (SELECT SUM(amount) 
+     FROM public.commissions c 
+     WHERE c.affiliate_id = uu.external_user_id 
+     AND c.status IN ('pending', 'available', 'paid')), 
+    0
+  ) as total_commission,
   -- Somar comissões que o AFILIADO PAI ganhou através deste sub-afiliado e sua rede
   COALESCE(
     (SELECT SUM(c.amount)
@@ -51,4 +59,4 @@ ORDER BY uu.created_at DESC;
 GRANT SELECT ON public.view_sub_affiliates TO authenticated;
 
 -- Comentário explicativo
-COMMENT ON VIEW public.view_sub_affiliates IS 'View que lista sub-afiliados com seus dados, plano, nível, quantidade de indicações e comissões que o afiliado PAI ganhou através deste sub-afiliado e sua rede.';
+COMMENT ON VIEW public.view_sub_affiliates IS 'View que lista sub-afiliados com seus dados, plano, nível, quantidade de indicações, comissões que o sub-afiliado ganhou e comissões que o afiliado PAI ganhou através deste sub-afiliado e sua rede.';

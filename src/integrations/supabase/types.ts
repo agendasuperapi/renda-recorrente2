@@ -2870,6 +2870,7 @@ export type Database = {
           external_user_id: string | null
           id: string | null
           level: number | null
+          my_commission_from_sub: number | null
           name: string | null
           parent_affiliate_id: string | null
           plan_id: string | null
@@ -2877,7 +2878,6 @@ export type Database = {
           product_id: string | null
           referrals_count: number | null
           status: string | null
-          total_commission: number | null
           username: string | null
         }
         Relationships: [
