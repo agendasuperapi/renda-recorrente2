@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp } from "lucide-react";
+import { Users, TrendingUp, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
@@ -47,14 +47,13 @@ interface Plan {
   name: string;
 }
 
-const ITEMS_PER_PAGE = 10;
-
 const Referrals = () => {
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, conversionRate: 0 });
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,9 +70,13 @@ const Referrals = () => {
   }, []);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage]);
+
+  useEffect(() => {
     loadReferrals();
     loadStats();
-  }, [currentPage, debouncedSearch, selectedProduct, selectedPlan, selectedStatus]);
+  }, [currentPage, debouncedSearch, selectedProduct, selectedPlan, selectedStatus, itemsPerPage]);
 
   useEffect(() => {
     if (selectedProduct !== "all") {
@@ -129,8 +132,8 @@ const Referrals = () => {
       }
 
       // Pagination
-      const from = (currentPage - 1) * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
+      const from = (currentPage - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
       query = query.range(from, to);
 
       const { data, error, count } = await query;
@@ -138,7 +141,7 @@ const Referrals = () => {
       if (error) throw error;
 
       setReferrals((data as any) || []);
-      setTotalPages(Math.ceil((count || 0) / ITEMS_PER_PAGE));
+      setTotalPages(Math.ceil((count || 0) / itemsPerPage));
     } catch (error) {
       console.error("Error loading referrals:", error);
     } finally {
@@ -176,6 +179,11 @@ const Referrals = () => {
     setSelectedPlan("all");
     setSelectedStatus("all");
     setCurrentPage(1);
+  };
+
+  const handleRefresh = () => {
+    loadReferrals();
+    loadStats();
   };
 
   const formatDate = (date: string | null) => {
@@ -251,7 +259,7 @@ const Referrals = () => {
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-4 mt-4">
             <Input
               placeholder="Buscar por nome ou email..."
               value={searchTerm}
@@ -303,6 +311,22 @@ const Referrals = () => {
                 <SelectItem value="incomplete">Incompleto</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 por página</SelectItem>
+                <SelectItem value="25">25 por página</SelectItem>
+                <SelectItem value="50">50 por página</SelectItem>
+                <SelectItem value="100">100 por página</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button variant="outline" onClick={handleRefresh}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
 
             <Button variant="outline" onClick={clearFilters}>
               Limpar Filtros
@@ -365,7 +389,7 @@ const Referrals = () => {
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground whitespace-nowrap">
-                Mostrando {((currentPage - 1) * ITEMS_PER_PAGE) + 1} a {Math.min(currentPage * ITEMS_PER_PAGE, stats.total)} de {stats.total} indicações
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
               </p>
               <Pagination>
                 <PaginationContent>
