@@ -4,7 +4,7 @@ CREATE OR REPLACE VIEW public.view_sub_affiliates
 WITH (security_invoker = on) AS
 SELECT 
   uu.id,
-  uu.affiliate_id as parent_affiliate_id,
+  sa.parent_affiliate_id,
   uu.external_user_id,
   p.name,
   p.username,
@@ -15,16 +15,7 @@ SELECT
   uu.status,
   uu.created_at,
   uu.product_id,
-  -- Buscar o level correto baseado no parent_affiliate_id
-  -- Retorna o level do relacionamento com o afiliado pai
-  COALESCE(
-    (SELECT sa.level 
-     FROM public.sub_affiliates sa
-     WHERE sa.sub_affiliate_id = uu.external_user_id
-     AND sa.parent_affiliate_id = uu.affiliate_id
-     LIMIT 1), 
-    1
-  ) as level,
+  sa.level,
   -- Contar quantas indicações este sub-afiliado fez
   COALESCE(
     (SELECT COUNT(*)::integer 
@@ -40,11 +31,12 @@ SELECT
      AND c.status IN ('pending', 'available', 'paid')), 
     0
   ) as total_commission
-FROM public.unified_users uu
+FROM public.sub_affiliates sa
+JOIN public.unified_users uu ON uu.external_user_id = sa.sub_affiliate_id
 LEFT JOIN public.profiles p ON p.id = uu.external_user_id
 LEFT JOIN public.plans pl ON pl.id = uu.plan_id
-WHERE uu.affiliate_id IS NOT NULL
 ORDER BY uu.created_at DESC;
+
 
 -- Garantir acesso para usuários autenticados
 GRANT SELECT ON public.view_sub_affiliates TO authenticated;
