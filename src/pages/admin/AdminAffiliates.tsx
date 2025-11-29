@@ -389,7 +389,7 @@ const AdminAffiliates = () => {
           {totalCount > 0 && (
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center gap-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground whitespace-nowrap">
                   Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} afiliados
                 </p>
                 <Select 
