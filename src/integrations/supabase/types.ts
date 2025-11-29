@@ -2313,6 +2313,7 @@ export type Database = {
           commission_type: string | null
           created_at: string | null
           data: string | null
+          data_filtro: string | null
           id: string | null
           percentual: number | null
           plan_id: string | null
