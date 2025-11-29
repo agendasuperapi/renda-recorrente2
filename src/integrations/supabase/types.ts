@@ -956,6 +956,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "payments_subscription_id_fkey"
             columns: ["subscription_id"]
             isOneToOne: false
@@ -1049,6 +1056,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "pending_checkouts_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "pending_checkouts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1126,6 +1140,13 @@ export type Database = {
             referencedRelation: "view_referrals"
             referencedColumns: ["plan_id"]
           },
+          {
+            foreignKeyName: "plan_features_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
         ]
       }
       plan_integrations: {
@@ -1196,6 +1217,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "view_referrals"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "plan_integrations_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
             referencedColumns: ["plan_id"]
           },
         ]
@@ -1626,6 +1654,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "fk_stripe_events_plan_id"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "fk_stripe_events_product_id"
             columns: ["product_id"]
             isOneToOne: false
@@ -1890,6 +1925,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "subscriptions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -2018,6 +2060,13 @@ export type Database = {
             referencedColumns: ["plan_id"]
           },
           {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+          {
             foreignKeyName: "unified_payments_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -2064,6 +2113,13 @@ export type Database = {
             columns: ["unified_user_id"]
             isOneToOne: false
             referencedRelation: "view_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_unified_user_id_fkey"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
             referencedColumns: ["id"]
           },
         ]
@@ -2177,6 +2233,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "view_referrals"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "unified_users_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
             referencedColumns: ["plan_id"]
           },
           {
@@ -2734,6 +2797,75 @@ export type Database = {
           },
         ]
       }
+      view_sub_affiliates: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          external_user_id: string | null
+          id: string | null
+          name: string | null
+          parent_affiliate_id: string | null
+          plan_id: string | null
+          plan_name: string | null
+          product_id: string | null
+          referrals_count: number | null
+          status: string | null
+          total_commission: number | null
+          username: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_affiliate_id_fkey"
+            columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
     }
     Functions: {
       expire_old_checkouts: { Args: never; Returns: undefined }
@@ -2794,7 +2926,12 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "afiliado"
-      commission_status: "pending" | "available" | "withdrawn" | "cancelled"
+      commission_status:
+        | "pending"
+        | "available"
+        | "withdrawn"
+        | "cancelled"
+        | "paid"
       coupon_type: "percentage" | "days" | "free_trial"
       withdrawal_status: "pending" | "approved" | "paid" | "rejected"
     }
@@ -2925,7 +3062,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "afiliado"],
-      commission_status: ["pending", "available", "withdrawn", "cancelled"],
+      commission_status: [
+        "pending",
+        "available",
+        "withdrawn",
+        "cancelled",
+        "paid",
+      ],
       coupon_type: ["percentage", "days", "free_trial"],
       withdrawal_status: ["pending", "approved", "paid", "rejected"],
     },

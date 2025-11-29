@@ -175,8 +175,8 @@ const SubAffiliates = () => {
                 <TableHead>Plano</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Data Cadastro</TableHead>
-                <TableHead className="text-right">Indicações</TableHead>
-                <TableHead className="text-right">Comissão Gerada</TableHead>
+                <TableHead className="text-center">Indicações</TableHead>
+                <TableHead className="text-left">Comissão Gerada</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -215,8 +215,8 @@ const SubAffiliates = () => {
                     <TableCell>
                       {format(new Date(sub.created_at), "dd/MM/yyyy", { locale: ptBR })}
                     </TableCell>
-                    <TableCell className="text-right">{sub.referrals_count}</TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-center">{sub.referrals_count}</TableCell>
+                    <TableCell className="text-left font-medium">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL'
