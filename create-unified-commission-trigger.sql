@@ -47,6 +47,8 @@ BEGIN
     INSERT INTO public.commissions (
       affiliate_id,
       subscription_id,
+      product_id,
+      unified_payment_id,
       amount,
       percentage,
       commission_type,
@@ -56,6 +58,8 @@ BEGIN
     ) VALUES (
       v_affiliate_id,
       v_subscription_id, -- subscription_id local ou NULL se for de outro banco
+      NEW.product_id, -- Produto do pagamento unificado
+      NEW.id, -- ID do pagamento unificado
       v_commission_amount,
       v_plan_commission_percentage,
       CASE 
