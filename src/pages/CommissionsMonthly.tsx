@@ -63,11 +63,14 @@ const CommissionsMonthly = () => {
   const [plans, setPlans] = useState<any[]>([]);
   
   // Filtros
-  const [filters, setFilters] = useState({
-    product_id: "",
-    plan_id: "",
-    mes_inicio: "",
-    mes_fim: "",
+  const [filters, setFilters] = useState(() => {
+    const currentMonth = format(new Date(), 'yyyy-MM');
+    return {
+      product_id: "",
+      plan_id: "",
+      mes_inicio: currentMonth,
+      mes_fim: currentMonth,
+    };
   });
   const [totalFiltrado, setTotalFiltrado] = useState(0);
   
@@ -217,11 +220,12 @@ const CommissionsMonthly = () => {
   };
 
   const clearFilters = () => {
+    const currentMonth = format(new Date(), 'yyyy-MM');
     setFilters({
       product_id: "",
       plan_id: "",
-      mes_inicio: "",
-      mes_fim: "",
+      mes_inicio: currentMonth,
+      mes_fim: currentMonth,
     });
     setCurrentPage(1);
     setPlans([]);
