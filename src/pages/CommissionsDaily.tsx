@@ -201,7 +201,7 @@ const CommissionsDaily = () => {
       // Calcular total filtrado de TODAS as comissões (sem paginação)
       let totalQuery = (supabase as any)
         .from("view_commissions_daily")
-        .select("valor")
+        .select("valor.sum()")
         .eq("affiliate_id", userId);
 
       if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
@@ -223,8 +223,8 @@ const CommissionsDaily = () => {
         totalQuery = totalQuery.lte("data", filters.data_fim);
       }
 
-      const { data: totalData } = await totalQuery;
-      const total = (totalData || []).reduce((sum: number, item: any) => sum + (item.valor || 0), 0);
+      const { data: totalData } = await totalQuery.single();
+      const total = totalData?.sum || 0;
       setTotalFiltrado(total);
     } catch (error) {
       console.error("Erro ao carregar comissões:", error);
