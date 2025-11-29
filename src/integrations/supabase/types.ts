@@ -305,9 +305,11 @@ export type Database = {
           notes: string | null
           payment_date: string | null
           percentage: number
+          product_id: string | null
           reference_month: string | null
           status: Database["public"]["Enums"]["commission_status"]
           subscription_id: string | null
+          unified_payment_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -320,9 +322,11 @@ export type Database = {
           notes?: string | null
           payment_date?: string | null
           percentage: number
+          product_id?: string | null
           reference_month?: string | null
           status?: Database["public"]["Enums"]["commission_status"]
           subscription_id?: string | null
+          unified_payment_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -335,9 +339,11 @@ export type Database = {
           notes?: string | null
           payment_date?: string | null
           percentage?: number
+          product_id?: string | null
           reference_month?: string | null
           status?: Database["public"]["Enums"]["commission_status"]
           subscription_id?: string | null
+          unified_payment_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -363,10 +369,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "commissions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "commissions_subscription_id_fkey"
             columns: ["subscription_id"]
             isOneToOne: false
             referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_unified_payment_id_fkey"
+            columns: ["unified_payment_id"]
+            isOneToOne: false
+            referencedRelation: "unified_payments"
             referencedColumns: ["id"]
           },
         ]
