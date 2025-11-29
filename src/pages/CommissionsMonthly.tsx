@@ -427,7 +427,7 @@ const CommissionsMonthly = () => {
                       <TableCell>{commission.plano || "-"}</TableCell>
                       <TableCell className="text-right">{commission.quantidade_comissoes}</TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(commission.valor_total)}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <div className="text-xs space-y-1">
                           {commission.pendentes > 0 && (
                             <div className="text-yellow-600">Pendentes: {commission.pendentes}</div>
