@@ -46,6 +46,7 @@ const CommissionsDaily = () => {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [stats, setStats] = useState<Stats>({ hoje: 0, ultimos_7_dias: 0, este_mes: 0 });
   const [initialLoading, setInitialLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
@@ -124,8 +125,8 @@ const CommissionsDaily = () => {
   const loadCommissions = async () => {
     if (!userId) return;
     
-    // Se já tem dados, usar isFiltering (não desmonta)
-    if (commissions.length > 0) {
+    // Usar hasLoadedOnce em vez de commissions.length
+    if (hasLoadedOnce) {
       setIsFiltering(true);
     } else {
       setInitialLoading(true);
@@ -169,6 +170,7 @@ const CommissionsDaily = () => {
     } finally {
       setInitialLoading(false);
       setIsFiltering(false);
+      setHasLoadedOnce(true);
     }
   };
 
@@ -215,7 +217,7 @@ const CommissionsDaily = () => {
     );
   };
 
-  if (initialLoading && commissions.length === 0) {
+  if (initialLoading && !hasLoadedOnce) {
     return <TableSkeleton title="Comissões Diárias" columns={7} rows={5} showSearch />;
   }
 
