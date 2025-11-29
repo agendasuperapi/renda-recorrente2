@@ -369,9 +369,8 @@ export default function SignupFunnel() {
         }
         
         // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
-        // Em modo debug, abrir em nova aba. Senão, redirecionar na mesma aba
-        const isDebugMode = localStorage.getItem('devMode') === 'true';
-        if (isDebugMode) {
+        // No editor da Lovable, abrir em nova aba. Quando publicado, redirecionar na mesma aba
+        if (import.meta.env.DEV) {
           window.open(checkoutData.checkout_url, '_blank');
         } else {
           window.location.href = checkoutData.checkout_url;

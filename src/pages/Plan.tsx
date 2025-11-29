@@ -219,8 +219,8 @@ const Plan = () => {
         // Clear pending checkout state
         setPendingCheckout(null);
 
-        // Em modo debug, abre em nova aba. Senão, na mesma aba
-        if (localStorage.getItem('devMode') === 'true') {
+        // No editor da Lovable, abre em nova aba. Quando publicado, na mesma aba
+        if (import.meta.env.DEV) {
           window.open(response.data.checkout_url, '_blank');
         } else {
           window.location.href = response.data.checkout_url;
@@ -236,7 +236,7 @@ const Plan = () => {
 
   const handleContinuePendingCheckout = () => {
     if (pendingCheckout?.checkout_url) {
-      if (localStorage.getItem('devMode') === 'true') {
+      if (import.meta.env.DEV) {
         window.open(pendingCheckout.checkout_url, '_blank');
       } else {
         window.location.href = pendingCheckout.checkout_url;
@@ -270,8 +270,8 @@ const Plan = () => {
       if (response.error) throw response.error;
 
       if (response.data?.url) {
-        // Em modo debug, abre em nova aba. Senão, na mesma aba
-        if (localStorage.getItem('devMode') === 'true') {
+        // No editor da Lovable, abre em nova aba. Quando publicado, na mesma aba
+        if (import.meta.env.DEV) {
           window.open(response.data.url, '_blank');
         } else {
           window.location.href = response.data.url;
