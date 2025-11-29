@@ -40,8 +40,8 @@ const SubAffiliates = () => {
   // Filtros
   const [nameFilter, setNameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
-  const [planFilter, setPlanFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
 
@@ -114,11 +114,11 @@ const SubAffiliates = () => {
       );
     }
 
-    if (planFilter) {
+    if (planFilter && planFilter !== "all") {
       filtered = filtered.filter(sub => sub.plan_name === planFilter);
     }
 
-    if (statusFilter) {
+    if (statusFilter && statusFilter !== "all") {
       filtered = filtered.filter(sub => sub.status === statusFilter);
     }
 
@@ -141,8 +141,8 @@ const SubAffiliates = () => {
   const clearFilters = () => {
     setNameFilter("");
     setEmailFilter("");
-    setPlanFilter("");
-    setStatusFilter("");
+    setPlanFilter("all");
+    setStatusFilter("all");
     setStartDateFilter("");
     setEndDateFilter("");
     setCurrentPage(1);
@@ -300,9 +300,9 @@ const SubAffiliates = () => {
                     <SelectValue placeholder="Todos os planos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os planos</SelectItem>
+                    <SelectItem value="all">Todos os planos</SelectItem>
                     {uniquePlans.map((plan) => (
-                      <SelectItem key={plan} value={plan || ""}>
+                      <SelectItem key={plan} value={plan || "no-plan"}>
                         {plan || "Sem plano"}
                       </SelectItem>
                     ))}
@@ -317,7 +317,7 @@ const SubAffiliates = () => {
                     <SelectValue placeholder="Todos os status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os status</SelectItem>
+                    <SelectItem value="all">Todos os status</SelectItem>
                     {uniqueStatuses.map((status) => (
                       <SelectItem key={status} value={status}>
                         {status}
