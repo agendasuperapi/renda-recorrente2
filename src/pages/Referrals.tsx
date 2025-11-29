@@ -363,7 +363,10 @@ const Referrals = () => {
           </Table>
 
           {totalPages > 1 && (
-            <div className="mt-4">
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Mostrando {((currentPage - 1) * ITEMS_PER_PAGE) + 1} a {Math.min(currentPage * ITEMS_PER_PAGE, stats.total)} de {stats.total} indicações
+              </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
