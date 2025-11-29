@@ -60,6 +60,15 @@ const CommissionsDaily = () => {
   const [clienteSearch, setClienteSearch] = useState("");
   const debouncedCliente = useDebounce(clienteSearch, 500);
   
+  // Detectar se o usuário está fora do fuso horário GMT-3
+  const [showTimezoneWarning, setShowTimezoneWarning] = useState(false);
+  
+  useEffect(() => {
+    const userTimezoneOffset = new Date().getTimezoneOffset();
+    const brazilTimezoneOffset = 180; // GMT-3 = +180 minutos
+    setShowTimezoneWarning(userTimezoneOffset !== brazilTimezoneOffset);
+  }, []);
+  
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -268,12 +277,14 @@ const CommissionsDaily = () => {
         </Card>
       </div>
 
-      <div className="flex justify-end">
-        <p className="text-xs text-muted-foreground flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          Horário de Brasília (GMT-3)
-        </p>
-      </div>
+      {showTimezoneWarning && (
+        <div className="flex justify-end">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            Horário de Brasília (GMT-3)
+          </p>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
