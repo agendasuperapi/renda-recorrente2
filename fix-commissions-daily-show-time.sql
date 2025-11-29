@@ -10,8 +10,10 @@ CREATE VIEW public.view_commissions_daily
 WITH (security_invoker = true) AS
 SELECT 
     c.id,
-    -- Timestamp completo sem conversão dupla (navegador já converte)
+    -- Timestamp completo para exibição (navegador já converte)
     c.payment_date as data,
+    -- Data apenas para filtros (convertida para São Paulo)
+    (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date as data_filtro,
     c.created_at,
     -- Produto
     p.id as product_id,
@@ -63,17 +65,17 @@ WITH (security_invoker = true) AS
 SELECT 
     c.affiliate_id,
     -- Hoje (no fuso horário de São Paulo)
-    SUM(CASE WHEN (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date THEN c.amount ELSE 0 END) as hoje,
-    COUNT(CASE WHEN (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date THEN 1 END) as count_hoje,
+    SUM(CASE WHEN (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date THEN c.amount ELSE 0 END) as hoje,
+    COUNT(CASE WHEN (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date THEN 1 END) as count_hoje,
     -- Últimos 7 dias
-    SUM(CASE WHEN (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date >= ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days')::date THEN c.amount ELSE 0 END) as ultimos_7_dias,
-    COUNT(CASE WHEN (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date >= ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days')::date THEN 1 END) as count_7_dias,
+    SUM(CASE WHEN (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date >= ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days')::date THEN c.amount ELSE 0 END) as ultimos_7_dias,
+    COUNT(CASE WHEN (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date >= ((CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days')::date THEN 1 END) as count_7_dias,
     -- Este mês
-    SUM(CASE WHEN EXTRACT(YEAR FROM (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
-                AND EXTRACT(MONTH FROM (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
+    SUM(CASE WHEN EXTRACT(YEAR FROM (c.payment_date AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
+                AND EXTRACT(MONTH FROM (c.payment_date AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
             THEN c.amount ELSE 0 END) as este_mes,
-    COUNT(CASE WHEN EXTRACT(YEAR FROM (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
-                AND EXTRACT(MONTH FROM (c.payment_date AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
+    COUNT(CASE WHEN EXTRACT(YEAR FROM (c.payment_date AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
+                AND EXTRACT(MONTH FROM (c.payment_date AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'))
             THEN 1 END) as count_mes
 FROM public.commissions c
 WHERE c.unified_payment_id IS NOT NULL
