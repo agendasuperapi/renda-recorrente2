@@ -91,14 +91,13 @@ export function UsernameEditDialog({
 
     try {
       const { data, error } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", username)
-        .neq("id", userId)
-        .maybeSingle();
+        .rpc("check_username_availability" as any, {
+          p_username: username,
+          p_user_id: userId
+        });
 
       if (error) throw error;
-      setUsernameAvailable(data === null);
+      setUsernameAvailable(data === true);
     } catch (error) {
       console.error("Erro ao verificar username:", error);
       setUsernameAvailable(null);

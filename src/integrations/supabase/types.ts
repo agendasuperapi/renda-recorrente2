@@ -2930,6 +2930,28 @@ export type Database = {
     }
     Functions: {
       expire_old_checkouts: { Args: never; Returns: undefined }
+      get_available_coupons_for_affiliates: {
+        Args: never
+        Returns: {
+          code: string
+          created_at: string
+          current_uses: number
+          description: string
+          id: string
+          is_active: boolean
+          is_primary: boolean
+          max_uses: number
+          name: string
+          product_icone_dark: string
+          product_icone_light: string
+          product_id: string
+          product_nome: string
+          product_site_landingpage: string
+          type: Database["public"]["Enums"]["coupon_type"]
+          valid_until: string
+          value: number
+        }[]
+      }
       get_commissions_monthly_total: {
         Args: {
           p_affiliate_id: string
