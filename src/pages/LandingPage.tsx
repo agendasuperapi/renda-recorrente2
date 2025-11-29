@@ -210,6 +210,38 @@ const LandingPage = () => {
     }
   }, [bannerData]);
 
+  // Carregar e aplicar último cupom usado do localStorage
+  useEffect(() => {
+    const loadLastUsedCoupon = async () => {
+      try {
+        const savedCoupon = localStorage.getItem('lastUsedCoupon');
+        if (savedCoupon) {
+          const { code, data } = JSON.parse(savedCoupon);
+          
+          // Validar se o cupom ainda está ativo
+          const { data: validationData, error } = await (supabase as any).rpc('validate_coupon', {
+            p_coupon_code: code,
+            p_product_id: PRODUCT_ID
+          });
+
+          if (!error && validationData && Array.isArray(validationData) && validationData.length > 0) {
+            // Cupom ainda válido, aplicar
+            setCouponCode(code);
+            setValidatedCoupon(data);
+          } else {
+            // Cupom inválido, remover do localStorage
+            localStorage.removeItem('lastUsedCoupon');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar último cupom usado:', error);
+        localStorage.removeItem('lastUsedCoupon');
+      }
+    };
+
+    loadLastUsedCoupon();
+  }, []);
+
   // Busca imagens do hero com cache
   const { data: heroImages = [] } = useQuery({
     queryKey: ['heroImages'],
@@ -533,7 +565,7 @@ const LandingPage = () => {
       const couponResult = data[0];
       
       // Montar objeto no formato esperado
-      setValidatedCoupon({
+      const couponData = {
         id: couponResult.coupon_id,
         code: couponResult.code,
         name: couponResult.name,
@@ -550,7 +582,15 @@ const LandingPage = () => {
           avatar_url: couponResult.affiliate_avatar_url
         } : null,
         affiliate_coupon_id: couponResult.affiliate_coupon_id
-      });
+      };
+      
+      setValidatedCoupon(couponData);
+      
+      // Salvar cupom no localStorage
+      localStorage.setItem('lastUsedCoupon', JSON.stringify({
+        code: couponResult.code,
+        data: couponData
+      }));
 
       toast({
         title: "Cupom válido!",
@@ -1580,6 +1620,9 @@ const LandingPage = () => {
                       onChange={(e) => {
                         setCouponCode(e.target.value.toUpperCase());
                         setValidatedCoupon(null);
+                        if (!e.target.value.trim()) {
+                          localStorage.removeItem('lastUsedCoupon');
+                        }
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -1597,6 +1640,7 @@ const LandingPage = () => {
                         onClick={() => {
                           setCouponCode("");
                           setValidatedCoupon(null);
+                          localStorage.removeItem('lastUsedCoupon');
                         }}
                       >
                         <X className="h-4 w-4" />
