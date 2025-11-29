@@ -2,8 +2,11 @@
 -- CORRIGIR TIMEZONE NA VIEW DE COMISSÕES
 -- ==========================================
 
--- Atualizar view para usar timezone de São Paulo na coluna data
-CREATE OR REPLACE VIEW public.view_commissions_daily
+-- Dropar a view existente primeiro
+DROP VIEW IF EXISTS public.view_commissions_daily CASCADE;
+
+-- Recriar a view com timezone de São Paulo na coluna data
+CREATE VIEW public.view_commissions_daily
 WITH (security_invoker = true) AS
 SELECT 
     c.id,
@@ -44,6 +47,10 @@ ORDER BY
     c.created_at DESC;
 
 COMMENT ON VIEW public.view_commissions_daily IS 'View otimizada para relatório de comissões diárias com timezone de São Paulo';
+
+-- Recriar grants
+GRANT SELECT ON public.view_commissions_daily TO authenticated;
+GRANT SELECT ON public.view_commissions_daily TO anon;
 
 -- ==========================================
 -- ATUALIZAR FUNÇÃO RPC PARA USAR DATA CORRETAMENTE
