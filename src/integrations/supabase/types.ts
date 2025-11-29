@@ -2286,6 +2286,18 @@ export type Database = {
     }
     Functions: {
       expire_old_checkouts: { Args: never; Returns: undefined }
+      get_commissions_total: {
+        Args: {
+          p_affiliate_id: string
+          p_cliente?: string
+          p_data_fim?: string
+          p_data_inicio?: string
+          p_plan_id?: string
+          p_product_id?: string
+          p_status?: Database["public"]["Enums"]["commission_status"]
+        }
+        Returns: number
+      }
       get_next_test_number: { Args: never; Returns: number }
       get_user_role: {
         Args: { _user_id: string }
