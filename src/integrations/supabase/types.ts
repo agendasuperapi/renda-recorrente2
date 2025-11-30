@@ -2878,6 +2878,7 @@ export type Database = {
           product_id: string | null
           referrals_count: number | null
           status: string | null
+          total_commission: number | null
           username: string | null
         }
         Relationships: [
