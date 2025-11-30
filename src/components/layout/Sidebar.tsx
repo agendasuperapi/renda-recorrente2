@@ -498,19 +498,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
-
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setShowAdminMenu(!showAdminMenu)}
-                title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
-                style={{ color: currentTextColor }}
-              >
-                {showAdminMenu ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
-              </Button>
-            )}
           </div>
           <div className="flex flex-col items-center text-center w-full gap-1">
             <p className="text-sm font-medium truncate w-full" style={{ color: currentTextColor }}>
@@ -563,6 +550,20 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <LogOut size={18} />
             Sair
           </button>
+          
+          {isAdmin && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setShowAdminMenu(!showAdminMenu)}
+              title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
+              style={{ color: currentTextColor }}
+            >
+              {showAdminMenu ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
+            </Button>
+          )}
+          
           <ThemeToggle />
         </div>
       </div>
