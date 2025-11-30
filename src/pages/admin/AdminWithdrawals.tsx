@@ -31,6 +31,7 @@ type Withdrawal = {
   rejected_reason: string | null;
   approved_by: string | null;
   commission_ids: string[];
+  payment_proof_url: string | null;
   created_at: string;
   profiles?: {
     name: string;
@@ -85,7 +86,7 @@ export default function AdminWithdrawals() {
       const { data, error } = await query;
       if (error) throw error;
       
-      return data as Withdrawal[];
+      return (data || []) as unknown as Withdrawal[];
     },
   });
 
@@ -124,11 +125,13 @@ export default function AdminWithdrawals() {
     mutationFn: async ({ 
       id, 
       status, 
-      rejectedReason 
+      rejectedReason,
+      paymentProofUrl
     }: { 
       id: string; 
       status: string; 
       rejectedReason?: string;
+      paymentProofUrl?: string | null;
     }) => {
       const updateData: any = { status };
       
@@ -137,6 +140,9 @@ export default function AdminWithdrawals() {
         updateData.approved_by = (await supabase.auth.getUser()).data.user?.id;
       } else if (status === "paid") {
         updateData.paid_date = new Date().toISOString();
+        if (paymentProofUrl) {
+          updateData.payment_proof_url = paymentProofUrl;
+        }
       } else if (status === "rejected") {
         updateData.rejected_reason = rejectedReason;
       }
@@ -190,8 +196,41 @@ export default function AdminWithdrawals() {
     updateWithdrawalMutation.mutate({ id, status: "approved" });
   };
 
-  const handlePaid = (id: string) => {
-    updateWithdrawalMutation.mutate({ id, status: "paid" });
+  const handlePaid = async (id: string) => {
+    let proofUrl = null;
+    
+    if (paymentProof) {
+      try {
+        const fileExt = paymentProof.name.split('.').pop();
+        const fileName = `${id}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('payment-proofs')
+          .upload(filePath, paymentProof);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('payment-proofs')
+          .getPublicUrl(filePath);
+
+        proofUrl = publicUrl;
+      } catch (error: any) {
+        toast({
+          title: "Erro ao fazer upload",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    updateWithdrawalMutation.mutate({ 
+      id, 
+      status: "paid", 
+      paymentProofUrl: proofUrl 
+    });
   };
 
   const handleReject = (id: string) => {
@@ -471,6 +510,16 @@ export default function AdminWithdrawals() {
                       <p className="text-red-600">{selectedWithdrawal.rejected_reason}</p>
                     </div>
                   )}
+                  {selectedWithdrawal.payment_proof_url && (
+                    <div className="col-span-2">
+                      <p className="text-sm text-muted-foreground mb-2">Comprovante de Pagamento</p>
+                      <img 
+                        src={selectedWithdrawal.payment_proof_url} 
+                        alt="Comprovante de pagamento" 
+                        className="max-w-md rounded-lg border"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {selectedWithdrawal.status === "pending" && (
@@ -486,7 +535,9 @@ export default function AdminWithdrawals() {
 
                 {(selectedWithdrawal.status === "approved" || selectedWithdrawal.status === "paid") && (
                   <div className="space-y-2 pt-4 border-t">
-                    <Label htmlFor="payment-proof">Comprovante de Pagamento</Label>
+                    <Label htmlFor="payment-proof">
+                      {selectedWithdrawal.status === "paid" ? "Comprovante anexado" : "Anexar Comprovante de Pagamento PIX"}
+                    </Label>
                     <Input
                       id="payment-proof"
                       type="file"
@@ -497,6 +548,11 @@ export default function AdminWithdrawals() {
                     {paymentProof && (
                       <p className="text-xs text-muted-foreground">
                         Arquivo selecionado: {paymentProof.name}
+                      </p>
+                    )}
+                    {selectedWithdrawal.status === "paid" && !selectedWithdrawal.payment_proof_url && (
+                      <p className="text-xs text-muted-foreground">
+                        Nenhum comprovante anexado
                       </p>
                     )}
                   </div>
@@ -527,7 +583,7 @@ export default function AdminWithdrawals() {
                     <Button
                       variant="default"
                       onClick={() => handlePaid(selectedWithdrawal.id)}
-                      disabled={updateWithdrawalMutation.isPending}
+                      disabled={updateWithdrawalMutation.isPending || !paymentProof}
                     >
                       <DollarSign className="h-4 w-4 mr-2" />
                       Marcar como Pago
