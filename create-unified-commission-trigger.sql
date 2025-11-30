@@ -53,10 +53,11 @@ BEGIN
     WHERE sa.sub_affiliate_id = v_external_user_id
     ORDER BY sa.level ASC
   LOOP
-    -- Buscar percentual de comissão para o nível
+    -- Buscar percentual de comissão para o nível e plano específico
     SELECT percentage INTO v_level_percentage
-    FROM public.commission_levels
-    WHERE level = v_affiliate_record.level
+    FROM public.plan_commission_levels
+    WHERE plan_id = NEW.plan_id
+      AND level = v_affiliate_record.level
       AND is_active = true
     LIMIT 1;
     

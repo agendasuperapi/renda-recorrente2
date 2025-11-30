@@ -17,9 +17,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CommissionLevel {
   id: string;
+  plan_id: string;
   level: number;
   percentage: number;
   is_active: boolean;
@@ -27,8 +35,17 @@ interface CommissionLevel {
   created_at: string;
 }
 
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  billing_period: string;
+}
+
 const AdminCommissionLevels = () => {
   const [levels, setLevels] = useState<CommissionLevel[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [maxLevels, setMaxLevels] = useState<string>("3");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -44,18 +61,68 @@ const AdminCommissionLevels = () => {
     loadData();
   }, []);
 
-  const loadData = async () => {
-    try {
-      setIsLoading(true);
+  useEffect(() => {
+    if (selectedPlanId) {
+      loadLevels();
+    }
+  }, [selectedPlanId]);
 
-      // Carregar níveis de comissão
+  const loadPlans = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("plans")
+        .select("id, name, price, billing_period")
+        .eq("product_id", "bb582482-b006-47b8-b6ea-a6944d8cfdfd")
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      
+      const plansData = data || [];
+      setPlans(plansData);
+      
+      // Auto-selecionar o primeiro plano se existir
+      if (plansData.length > 0 && !selectedPlanId) {
+        setSelectedPlanId(plansData[0].id);
+      }
+    } catch (error: any) {
+      console.error("Erro ao carregar planos:", error);
+      toast({
+        title: "Erro ao carregar planos",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadLevels = async () => {
+    if (!selectedPlanId) return;
+
+    try {
       const { data: levelsData, error: levelsError } = await supabase
-        .from("commission_levels" as any)
+        .from("plan_commission_levels" as any)
         .select("*")
+        .eq("plan_id", selectedPlanId)
         .order("level", { ascending: true });
 
       if (levelsError) throw levelsError;
       setLevels((levelsData as any) || []);
+    } catch (error: any) {
+      console.error("Erro ao carregar níveis:", error);
+      toast({
+        title: "Erro ao carregar níveis",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Carregar planos primeiro
+      await loadPlans();
 
       // Carregar limite máximo
       const { data: settingData, error: settingError } = await supabase
@@ -109,7 +176,7 @@ const AdminCommissionLevels = () => {
   const handleUpdateLevel = async (id: string, field: string, value: any) => {
     try {
       const { error } = await supabase
-        .from("commission_levels" as any)
+        .from("plan_commission_levels" as any)
         .update({ [field]: value })
         .eq("id", id);
 
@@ -136,6 +203,15 @@ const AdminCommissionLevels = () => {
 
   const handleAddLevel = async () => {
     try {
+      if (!selectedPlanId) {
+        toast({
+          title: "Erro",
+          description: "Selecione um plano primeiro",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (newLevel.level < 1 || newLevel.level > 10) {
         toast({
           title: "Erro",
@@ -154,7 +230,8 @@ const AdminCommissionLevels = () => {
         return;
       }
 
-      const { error } = await supabase.from("commission_levels" as any).insert({
+      const { error } = await supabase.from("plan_commission_levels" as any).insert({
+        plan_id: selectedPlanId,
         level: newLevel.level,
         percentage: newLevel.percentage,
         description: newLevel.description,
@@ -169,7 +246,7 @@ const AdminCommissionLevels = () => {
 
       setIsDialogOpen(false);
       setNewLevel({ level: 0, percentage: 0, description: "" });
-      loadData();
+      loadLevels();
     } catch (error: any) {
       toast({
         title: "Erro ao adicionar",
@@ -184,7 +261,7 @@ const AdminCommissionLevels = () => {
 
     try {
       const { error } = await supabase
-        .from("commission_levels" as any)
+        .from("plan_commission_levels" as any)
         .delete()
         .eq("id", id);
 
@@ -224,9 +301,32 @@ const AdminCommissionLevels = () => {
       <div>
         <h1 className="text-3xl font-bold mb-2">Níveis de Comissão</h1>
         <p className="text-muted-foreground">
-          Configure os percentuais de comissão por nível de sub-afiliados
+          Configure os percentuais de comissão por nível e por plano
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Selecione o Plano</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="plan-select">Plano do APP Renda Recorrente</Label>
+            <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+              <SelectTrigger id="plan-select">
+                <SelectValue placeholder="Selecione um plano..." />
+              </SelectTrigger>
+              <SelectContent>
+                {plans.map((plan) => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.name} - R$ {plan.price.toFixed(2)} / {plan.billing_period}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -256,7 +356,8 @@ const AdminCommissionLevels = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      {selectedPlanId && (
+        <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Percentuais por Nível</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -398,6 +499,7 @@ const AdminCommissionLevels = () => {
           </Table>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 };
