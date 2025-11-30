@@ -491,39 +491,37 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex flex-col items-center gap-3 px-3 py-2">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Avatar className="w-16 h-16">
-                {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-                <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
-              
-              {/* Badge FREE/PRO */}
-              {userPlan && (
-                <div 
-                  className={cn(
-                    "absolute -top-1 -right-1 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg border",
-                    userPlan.is_free 
-                      ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" 
-                      : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500"
-                  )}
-                >
-                  {userPlan.is_free ? (
-                    <>
-                      <Zap className="w-2.5 h-2.5" />
-                      <span>FREE</span>
-                    </>
-                  ) : (
-                    <>
-                      <Star className="w-2.5 h-2.5" />
-                      <span>PRO</span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+          <div className="flex items-center gap-2">
+            <Avatar className="w-16 h-16">
+              {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
+              <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+
+            {/* Badge FREE/PRO */}
+            {userPlan && (
+              <div 
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow-lg border",
+                  userPlan.is_free 
+                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" 
+                    : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500"
+                )}
+              >
+                {userPlan.is_free ? (
+                  <>
+                    <Zap className="w-3 h-3" />
+                    <span>FREE</span>
+                  </>
+                ) : (
+                  <>
+                    <Star className="w-3 h-3" />
+                    <span>PRO</span>
+                  </>
+                )}
+              </div>
+            )}
 
             {isAdmin && (
               <Button
