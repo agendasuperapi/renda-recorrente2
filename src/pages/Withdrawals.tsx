@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -91,6 +91,22 @@ const Withdrawals = () => {
     enabled: !!userId
   });
 
+  // Buscar histórico de saques
+  const { data: withdrawals, isLoading: withdrawalsLoading } = useQuery({
+    queryKey: ['withdrawals', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('withdrawals')
+        .select('*')
+        .eq('affiliate_id', userId)
+        .order('requested_date', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId
+  });
+
 // Verificar se hoje é o dia de saque
 const today = new Date();
 const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
@@ -146,6 +162,7 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
       });
       setWithdrawalDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ['commissions-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['withdrawals'] });
     },
     onError: (error: any) => {
       console.error('Erro ao solicitar saque:', error);
@@ -449,11 +466,62 @@ const getNextWithdrawalDate = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                  Nenhum saque solicitado
-                </TableCell>
-              </TableRow>
+              {withdrawalsLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  </TableCell>
+                </TableRow>
+              ) : withdrawals && withdrawals.length > 0 ? (
+                withdrawals.map((withdrawal) => (
+                  <TableRow key={withdrawal.id}>
+                    <TableCell>
+                      {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      R$ {withdrawal.amount.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {formatCpf(withdrawal.pix_key)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        withdrawal.status === 'paid' ? 'default' :
+                        withdrawal.status === 'approved' ? 'secondary' :
+                        withdrawal.status === 'rejected' ? 'destructive' :
+                        'outline'
+                      }>
+                        {withdrawal.status === 'pending' ? 'Pendente' :
+                         withdrawal.status === 'approved' ? 'Aprovado' :
+                         withdrawal.status === 'paid' ? 'Pago' :
+                         withdrawal.status === 'rejected' ? 'Rejeitado' :
+                         withdrawal.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {withdrawal.paid_date 
+                        ? new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })
+                        : '-'}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    Nenhum saque solicitado
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
