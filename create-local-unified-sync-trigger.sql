@@ -12,7 +12,14 @@ DECLARE
   v_unified_user_id UUID;
   v_user_profile RECORD;
   v_affiliate_id UUID;
-  v_subscription RECORD;
+  -- Variáveis individuais para subscription (substituem v_subscription RECORD)
+  v_sub_plan_id UUID;
+  v_sub_status TEXT;
+  v_sub_environment TEXT;
+  v_sub_cancel_at_period_end BOOLEAN;
+  v_sub_trial_end TIMESTAMPTZ;
+  v_sub_current_period_start TIMESTAMPTZ;
+  v_sub_current_period_end TIMESTAMPTZ;
 BEGIN
   -- Buscar informações do usuário
   SELECT 
@@ -47,7 +54,14 @@ BEGIN
       s.trial_end,
       s.current_period_start,
       s.current_period_end
-    INTO v_subscription
+    INTO 
+      v_sub_plan_id,
+      v_sub_status,
+      v_sub_environment,
+      v_sub_cancel_at_period_end,
+      v_sub_trial_end,
+      v_sub_current_period_start,
+      v_sub_current_period_end
     FROM public.subscriptions s
     WHERE s.id = NEW.subscription_id;
   END IF;
@@ -80,13 +94,13 @@ BEGIN
     v_user_profile.cpf,
     v_user_profile.affiliate_code,
     v_affiliate_id,
-    COALESCE(v_subscription.environment, NEW.environment, 'production'),
-    COALESCE(v_subscription.plan_id, NEW.plan_id),
-    COALESCE(v_subscription.cancel_at_period_end, false),
-    v_subscription.trial_end,
-    COALESCE(v_subscription.status, 'active'),
-    v_subscription.current_period_start,
-    v_subscription.current_period_end,
+    COALESCE(v_sub_environment, NEW.environment, 'production'),
+    COALESCE(v_sub_plan_id, NEW.plan_id),
+    COALESCE(v_sub_cancel_at_period_end, false),
+    v_sub_trial_end,
+    COALESCE(v_sub_status, 'active'),
+    v_sub_current_period_start,
+    v_sub_current_period_end,
     now(),
     now()
   )
