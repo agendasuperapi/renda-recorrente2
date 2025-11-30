@@ -48,6 +48,8 @@ export default function AdminWithdrawals() {
   const [rejectReason, setRejectReason] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -589,7 +591,11 @@ export default function AdminWithdrawals() {
                         <img 
                           src={previewUrl} 
                           alt="Pré-visualização do comprovante" 
-                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border"
+                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => {
+                            setViewerImageUrl(previewUrl);
+                            setImageViewerOpen(true);
+                          }}
                         />
                       </div>
                     )}
@@ -599,7 +605,11 @@ export default function AdminWithdrawals() {
                         <img 
                           src={selectedWithdrawal.payment_proof_url} 
                           alt="Comprovante de pagamento" 
-                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border"
+                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => {
+                            setViewerImageUrl(selectedWithdrawal.payment_proof_url);
+                            setImageViewerOpen(true);
+                          }}
                         />
                       </div>
                     )}
@@ -704,6 +714,19 @@ export default function AdminWithdrawals() {
               </TabsContent>
             </Tabs>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Visualização de Imagem */}
+      <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden">
+          <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+            <img 
+              src={viewerImageUrl || ""} 
+              alt="Comprovante de pagamento em tamanho completo" 
+              className="max-w-full max-h-[95vh] object-contain"
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
