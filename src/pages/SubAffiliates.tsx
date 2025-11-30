@@ -62,7 +62,7 @@ const SubAffiliates = () => {
 
   useEffect(() => {
     loadSubAffiliates();
-  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter, sortColumn, sortDirection]);
+  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -121,7 +121,7 @@ const SubAffiliates = () => {
 
       // Buscar dados com paginação
       const { data, error, count } = await query
-        .order(sortColumn, { ascending: sortDirection === "asc" })
+        .order('created_at', { ascending: false })
         .range(from, to);
 
       if (error) throw error;
@@ -169,12 +169,46 @@ const SubAffiliates = () => {
   };
 
   const handleSort = (column: string) => {
+    let newDirection: "asc" | "desc" = "asc";
+    
     if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
+      newDirection = sortDirection === "asc" ? "desc" : "asc";
     }
+    
+    setSortColumn(column);
+    setSortDirection(newDirection);
+
+    // Ordenar localmente sem recarregar
+    const sorted = [...filteredData].sort((a, b) => {
+      const aValue = a[column as keyof SubAffiliate];
+      const bValue = b[column as keyof SubAffiliate];
+
+      // Handle null/undefined values
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+
+      // Compare based on type
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return newDirection === "asc" 
+          ? aValue.localeCompare(bValue, 'pt-BR')
+          : bValue.localeCompare(aValue, 'pt-BR');
+      }
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return newDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      // For dates
+      if (column === 'created_at') {
+        const dateA = new Date(aValue as string).getTime();
+        const dateB = new Date(bValue as string).getTime();
+        return newDirection === "asc" ? dateA - dateB : dateB - dateA;
+      }
+
+      return 0;
+    });
+
+    setFilteredData(sorted);
   };
 
   const getSortIcon = (column: string) => {
