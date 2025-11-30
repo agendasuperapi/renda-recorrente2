@@ -666,26 +666,6 @@ const AdminStripeEvents = () => {
                 Atualizar
               </Button>
             </div>
-
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>
-                Mostrando {events.length > 0 ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, totalCount)} de {totalCount} eventos
-              </span>
-              <div className="flex items-center gap-2">
-                <span>Itens por página:</span>
-                <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(Number(v)); setPage(1); }}>
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -804,31 +784,51 @@ const AdminStripeEvents = () => {
           )}
 
           <div className="flex items-center justify-between px-4 py-4 border-t">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1 || isFetching}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Anterior
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1 || isFetching}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Anterior
+              </Button>
 
-            <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
                 Página {page} de {totalPages || 1}
               </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || isFetching}
+              >
+                Próxima
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages || isFetching}
-            >
-              Próxima
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Mostrando {events.length > 0 ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, totalCount)} de {totalCount} eventos
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Itens por página:</span>
+                <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(Number(v)); setPage(1); }}>
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
