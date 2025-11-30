@@ -4,7 +4,7 @@ VALUES ('payment-proofs', 'payment-proofs', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- RLS Policies para o bucket payment-proofs
-CREATE POLICY "Public Access"
+CREATE POLICY "Public Access to Payment Proofs"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'payment-proofs');
 
