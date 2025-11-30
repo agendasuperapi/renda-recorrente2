@@ -511,7 +511,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             {userPlan && (
               <div 
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shadow-lg border mt-1",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold shadow-lg border mt-1",
                   userPlan.is_free 
                     ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" 
                     : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500"
@@ -519,12 +519,12 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               >
                 {userPlan.is_free ? (
                   <>
-                    <Zap className="w-3 h-3" />
+                    <Zap className="w-3.5 h-3.5" />
                     <span>FREE</span>
                   </>
                 ) : (
                   <>
-                    <Star className="w-3 h-3" />
+                    <Star className="w-3.5 h-3.5" />
                     <span>PRO</span>
                   </>
                 )}
