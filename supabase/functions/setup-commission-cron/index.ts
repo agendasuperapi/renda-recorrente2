@@ -19,73 +19,21 @@ Deno.serve(async (req) => {
 
     console.log('🔧 Iniciando reconfiguração do cron job...')
 
-    // Buscar a configuração atual
-    const { data: settingData, error: settingError } = await supabaseClient
-      .from('app_settings')
-      .select('value')
-      .eq('key', 'commission_check_schedule')
-      .single()
+    // Chamar a função do banco que reconfigura o cron
+    const { data, error } = await supabaseClient.rpc('reconfigure_commission_cron')
 
-    if (settingError) {
-      console.error('❌ Erro ao buscar configuração:', settingError)
-      throw settingError
+    if (error) {
+      console.error('❌ Erro ao reconfigurar cron:', error)
+      throw error
     }
 
-    const scheduleConfig = settingData?.value || 'hourly'
-    console.log('📋 Configuração encontrada:', scheduleConfig)
-
-    // Converter para formato cron
-    let cronSchedule: string
-    if (scheduleConfig === 'hourly') {
-      cronSchedule = '0 * * * *' // A cada hora
-    } else {
-      // Formato HH:MM
-      const [hours, minutes] = scheduleConfig.split(':')
-      cronSchedule = `${minutes} ${hours} * * *`
-    }
-
-    console.log('⏰ Cron schedule:', cronSchedule)
-
-    // Remover job existente
-    const { error: unscheduleError } = await supabaseClient.rpc('cron.unschedule', {
-      job_name: 'process-commission-status-hourly'
-    }).single()
-
-    if (unscheduleError && !unscheduleError.message.includes('does not exist')) {
-      console.warn('⚠️ Aviso ao remover job:', unscheduleError)
-    } else {
-      console.log('🗑️ Job antigo removido')
-    }
-
-    // Criar novo job
-    const cronCommand = `
-      SELECT
-        net.http_post(
-            url:='${Deno.env.get('SUPABASE_URL')}/functions/v1/process-commission-status',
-            headers:='{"Content-Type": "application/json", "Authorization": "Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}"}'::jsonb,
-            body:=concat('{"triggered_at": "', now(), '"}')::jsonb
-        ) as request_id;
-    `
-
-    const { error: scheduleError } = await supabaseClient.rpc('cron.schedule', {
-      job_name: 'process-commission-status-hourly',
-      schedule: cronSchedule,
-      command: cronCommand
-    })
-
-    if (scheduleError) {
-      console.error('❌ Erro ao criar job:', scheduleError)
-      throw scheduleError
-    }
-
-    console.log('✅ Cron job criado com sucesso!')
+    console.log('✅ Cron job reconfigurado:', data)
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Cron job reconfigurado com sucesso',
-        schedule: cronSchedule,
-        config: scheduleConfig
+        ...data
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
