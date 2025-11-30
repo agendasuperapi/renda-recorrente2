@@ -12,6 +12,7 @@ DECLARE
   v_affiliate_record RECORD;
   v_level_percentage INTEGER;
   v_commission_amount NUMERIC;
+  v_affiliate_plan_id UUID;
 BEGIN
   -- Buscar percentual de comissão do plano
   SELECT commission_percentage INTO v_plan_commission_percentage
@@ -53,13 +54,27 @@ BEGIN
     WHERE sa.sub_affiliate_id = v_external_user_id
     ORDER BY sa.level ASC
   LOOP
-    -- Log do plan_id e level para debug
-    RAISE NOTICE 'Buscando comissão - Plan ID: %, Level: %', NEW.plan_id, v_affiliate_record.level;
+    -- Buscar o plano ativo do AFILIADO (não do cliente que está comprando)
+    SELECT s.plan_id INTO v_affiliate_plan_id
+    FROM public.subscriptions s
+    WHERE s.user_id = v_affiliate_record.parent_affiliate_id
+      AND s.status IN ('active', 'trialing')
+    ORDER BY s.created_at DESC
+    LIMIT 1;
     
-    -- Buscar percentual de comissão para o nível e plano específico
+    -- Se o afiliado não tem plano ativo, usar o plano do pagamento como fallback
+    IF v_affiliate_plan_id IS NULL THEN
+      v_affiliate_plan_id := NEW.plan_id;
+    END IF;
+    
+    -- Log do plan_id do afiliado e level para debug
+    RAISE NOTICE 'Afiliado %, Plano do Afiliado: %, Level: %', 
+      v_affiliate_record.parent_affiliate_id, v_affiliate_plan_id, v_affiliate_record.level;
+    
+    -- Buscar percentual de comissão usando o PLANO DO AFILIADO
     SELECT percentage INTO v_level_percentage
     FROM public.plan_commission_levels
-    WHERE plan_id = NEW.plan_id
+    WHERE plan_id = v_affiliate_plan_id
       AND level = v_affiliate_record.level
       AND is_active = true
     LIMIT 1;
