@@ -194,17 +194,17 @@ const AdminAffiliates = () => {
       <Card>
         <CardHeader>
           <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome, email ou username..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            
             <div className="flex flex-wrap gap-4">
+              <div className="relative flex-1 min-w-[280px]">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, email ou username..."
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+
               <Select value={planFilter} onValueChange={handleFilterChange(setPlanFilter)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Plano" />
