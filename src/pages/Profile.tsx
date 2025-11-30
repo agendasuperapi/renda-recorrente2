@@ -44,7 +44,7 @@ const Profile = () => {
     instagram: "",
     facebook: "",
     tiktok: "",
-    pix_type: "",
+    pix_type: "cpf",
     pix_key: "",
     affiliate_code: "",
     avatar_url: "",
@@ -96,8 +96,8 @@ const Profile = () => {
         instagram: data.instagram || "",
         facebook: data.facebook || "",
         tiktok: data.tiktok || "",
-        pix_type: data.pix_type || "",
-        pix_key: data.pix_key || "",
+        pix_type: "cpf",
+        pix_key: data.cpf || "",
         affiliate_code: data.affiliate_code || "",
         avatar_url: data.avatar_url || "",
       });
@@ -236,7 +236,7 @@ const Profile = () => {
 
   const handleCpfChange = async (value: string) => {
     const cleaned = value.replace(/\D/g, '');
-    setProfile({ ...profile, cpf: cleaned });
+    setProfile({ ...profile, cpf: cleaned, pix_key: cleaned, pix_type: "cpf" });
     
     // Reset CPF availability when changing
     if (cleaned.length !== 11) {
@@ -551,8 +551,8 @@ const Profile = () => {
         instagram: profile.instagram,
         facebook: profile.facebook,
         tiktok: profile.tiktok,
-        pix_type: profile.pix_type,
-        pix_key: profile.pix_key,
+        pix_type: "cpf",
+        pix_key: profile.cpf,
       })
       .eq("id", user.id);
 
@@ -895,27 +895,30 @@ const Profile = () => {
                   <Label htmlFor="pix_type">Tipo de Chave PIX</Label>
                   <Select
                     value={profile.pix_type}
-                    onValueChange={(value) => setProfile({ ...profile, pix_type: value })}
+                    disabled
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                    <SelectTrigger className="bg-muted">
+                      <SelectValue placeholder="CPF" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="cpf">CPF</SelectItem>
-                      <SelectItem value="email">E-mail</SelectItem>
-                      <SelectItem value="telefone">Telefone</SelectItem>
-                      <SelectItem value="aleatoria">Chave Aleatória</SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Apenas chave PIX tipo CPF é aceita
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="pix_key">Chave PIX</Label>
                   <Input
                     id="pix_key"
-                    value={profile.pix_key}
-                    onChange={(e) => setProfile({ ...profile, pix_key: e.target.value })}
-                    onKeyDown={handleKeyDown}
+                    value={formatCpf(profile.pix_key)}
+                    disabled
+                    className="bg-muted"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Sincronizado automaticamente com o CPF
+                  </p>
                 </div>
               </div>
 
