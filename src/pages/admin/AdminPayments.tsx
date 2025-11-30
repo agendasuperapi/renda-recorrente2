@@ -298,8 +298,6 @@ export default function AdminPayments() {
                 <SelectItem value="test">Teste</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex gap-2 mt-2">
             <Select 
               value={itemsPerPage.toString()} 
               onValueChange={(value) => {
