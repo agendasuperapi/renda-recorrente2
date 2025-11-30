@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useDebounce } from "@/hooks/useDebounce";
+import { AffiliateDetailsDialog } from "@/components/AffiliateDetailsDialog";
 
 // Interface para tipagem da view
 interface AdminAffiliate {
@@ -25,6 +26,7 @@ interface AdminAffiliate {
   plan_period: string;
   plan_status: string;
   referrals_count: number;
+  withdrawal_day: number | null;
 }
 import {
   Pagination,
@@ -54,6 +56,8 @@ const AdminAffiliates = () => {
   const [endDate, setEndDate] = useState("");
   const [sortColumn, setSortColumn] = useState<SortColumn>("created_at");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [selectedAffiliateId, setSelectedAffiliateId] = useState<string | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
@@ -137,6 +141,17 @@ const AdminAffiliates = () => {
 
   const getInitials = (name: string) => {
     return name?.substring(0, 2).toUpperCase() || "AF";
+  };
+
+  const getWeekdayLabel = (day: number | null) => {
+    if (!day) return "-";
+    const weekdays = ["", "Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
+    return weekdays[day] || "-";
+  };
+
+  const handleViewDetails = (affiliateId: string) => {
+    setSelectedAffiliateId(affiliateId);
+    setDetailsDialogOpen(true);
   };
 
   // Resetar para página 1 quando filtros mudam
@@ -327,6 +342,7 @@ const AdminAffiliates = () => {
                     <SortIcon column="created_at" />
                   </button>
                 </TableHead>
+                <TableHead>Dia de Saque</TableHead>
                 <TableHead>
                   <button 
                     onClick={() => handleSort("referrals_count")}
@@ -336,6 +352,7 @@ const AdminAffiliates = () => {
                     <SortIcon column="referrals_count" />
                   </button>
                 </TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -350,7 +367,9 @@ const AdminAffiliates = () => {
                       <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                       <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                      <TableCell><Skeleton className="h-8 w-20" /></TableCell>
                     </TableRow>
                   ))}
                 </>
@@ -390,14 +409,27 @@ const AdminAffiliates = () => {
                     <TableCell>
                       {affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}
                     </TableCell>
+                    <TableCell className="font-medium">
+                      {getWeekdayLabel(affiliate.withdrawal_day)}
+                    </TableCell>
                     <TableCell className="text-center font-medium">
                       {affiliate.referrals_count}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewDetails(affiliate.id)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Ver
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                     Nenhum afiliado encontrado
                   </TableCell>
                 </TableRow>
@@ -465,6 +497,12 @@ const AdminAffiliates = () => {
           )}
         </CardContent>
       </Card>
+      
+      <AffiliateDetailsDialog
+        affiliateId={selectedAffiliateId}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+      />
     </div>
   );
 };
