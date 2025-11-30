@@ -84,9 +84,10 @@ const Withdrawals = () => {
       
       const available = data?.filter(c => c.status === 'available').reduce((sum, c) => sum + c.amount, 0) || 0;
       const pending = data?.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.amount, 0) || 0;
+      const requested = data?.filter(c => c.status === 'requested').reduce((sum, c) => sum + c.amount, 0) || 0;
       const paid = data?.filter(c => c.status === 'paid').reduce((sum, c) => sum + c.amount, 0) || 0;
       
-      return { available, pending, paid };
+      return { available, pending, requested, paid };
     },
     enabled: !!userId
   });
@@ -140,6 +141,7 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
 
       const commissionIds = availableCommissions?.map(c => c.id) || [];
 
+      // Criar o saque
       const { data, error } = await supabase
         .from('withdrawals')
         .insert([{
@@ -153,6 +155,20 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
         .single();
 
       if (error) throw error;
+
+      // Atualizar as comissões com o withdrawal_id e mudar status para 'requested'
+      if (commissionIds.length > 0) {
+        const { error: updateError } = await supabase
+          .from('commissions')
+          .update({ 
+            withdrawal_id: data.id,
+            status: 'requested' 
+          })
+          .in('id', commissionIds);
+
+        if (updateError) throw updateError;
+      }
+
       return data;
     },
     onSuccess: () => {
