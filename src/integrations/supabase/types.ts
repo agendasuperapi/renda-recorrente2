@@ -2471,7 +2471,7 @@ export type Database = {
           created_at: string | null
           id: string
           paid_date: string | null
-          payment_proof_url: string | null
+          payment_proof_url: Json | null
           pix_key: string
           pix_type: string
           rejected_reason: string | null
@@ -2488,7 +2488,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           paid_date?: string | null
-          payment_proof_url?: string | null
+          payment_proof_url?: Json | null
           pix_key: string
           pix_type: string
           rejected_reason?: string | null
@@ -2505,7 +2505,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           paid_date?: string | null
-          payment_proof_url?: string | null
+          payment_proof_url?: Json | null
           pix_key?: string
           pix_type?: string
           rejected_reason?: string | null

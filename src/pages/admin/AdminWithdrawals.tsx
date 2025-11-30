@@ -176,21 +176,40 @@ export default function AdminWithdrawals() {
             .in("id", withdrawal.commission_ids);
         }
       }
+
+      return { status };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
       toast({
         title: "Saque atualizado",
         description: "O status do saque foi atualizado com sucesso.",
       });
-      setDialogOpen(false);
+      
+      // Não fechar o dialog se foi aprovado (para permitir adicionar comprovantes)
+      if (data.status !== "approved") {
+        setDialogOpen(false);
+      } else {
+        // Atualizar o selectedWithdrawal com o novo status
+        if (selectedWithdrawal) {
+          setSelectedWithdrawal({
+            ...selectedWithdrawal,
+            status: "approved",
+            approved_date: new Date().toISOString()
+          });
+        }
+      }
+      
       setRejectReason("");
-      // Cleanup all preview URLs
-      paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
-      setPaymentProofs([]);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
+      
+      // Cleanup preview URLs apenas se o dialog for fechar
+      if (data.status !== "approved") {
+        paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
+        setPaymentProofs([]);
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setPreviewUrl(null);
+        }
       }
     },
     onError: (error: any) => {
