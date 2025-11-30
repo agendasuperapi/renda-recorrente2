@@ -91,6 +91,17 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
   const hasMinimumAmount = (commissionsData?.available || 0) >= (settings?.minWithdrawal || 50);
   const canWithdraw = isWithdrawalDay && hasMinimumAmount;
 
+  // Determinar se usa "no próximo" ou "na próxima" baseado no dia da semana
+  const getWithdrawalDayPrefix = () => {
+    const day = profile?.withdrawal_day ?? 1;
+    // Sábado (6) e Domingo (0) usam "no próximo"
+    if (day === 0 || day === 6) {
+      return "no próximo";
+    }
+    // Segunda a Sexta usam "na próxima"
+    return "na próxima";
+  };
+
 // Calcular próximo dia de saque
 const getNextWithdrawalDate = () => {
   if (profile?.withdrawal_day === null || profile?.withdrawal_day === undefined) return null;
@@ -260,7 +271,7 @@ const getNextWithdrawalDate = () => {
                   Hoje é seu dia de saque!
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  ⚠️ Se o saque não for solicitado hoje, só poderá solicitar novamente no(a) próximo(a) {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
+                  ⚠️ Se o saque não for solicitado hoje, só poderá solicitar novamente {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </p>
               </>
             ) : (
