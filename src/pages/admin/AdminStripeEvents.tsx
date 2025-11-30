@@ -554,19 +554,18 @@ const AdminStripeEvents = () => {
       <Card>
         <CardHeader>
           <div className="space-y-4">
-            <form onSubmit={(e) => e.preventDefault()} className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por ID do evento, Subscription ID, tipo, email..."
-                className="pl-9"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                type="text"
-                autoComplete="off"
-              />
-            </form>
-
             <div className="flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[280px]">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por ID do evento, Subscription ID, tipo, email..."
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  type="text"
+                  autoComplete="off"
+                />
+              </div>
             
               <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
                 <SelectTrigger className="w-[180px]">
