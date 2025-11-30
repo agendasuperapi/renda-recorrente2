@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -56,9 +56,13 @@ const SubAffiliates = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Ordenação
+  const [sortColumn, setSortColumn] = useState<string>("created_at");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
   useEffect(() => {
     loadSubAffiliates();
-  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
+  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter, sortColumn, sortDirection]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -117,7 +121,7 @@ const SubAffiliates = () => {
 
       // Buscar dados com paginação
       const { data, error, count } = await query
-        .order('created_at', { ascending: false })
+        .order(sortColumn, { ascending: sortDirection === "asc" })
         .range(from, to);
 
       if (error) throw error;
@@ -162,6 +166,24 @@ const SubAffiliates = () => {
     setLevelFilter("all");
     setStartDateFilter("");
     setEndDateFilter("");
+  };
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const getSortIcon = (column: string) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />;
+    }
+    return sortDirection === "asc" 
+      ? <ArrowUp className="ml-2 h-4 w-4" />
+      : <ArrowDown className="ml-2 h-4 w-4" />;
   };
 
   const getStatusBadge = (status: string) => {
@@ -430,15 +452,87 @@ const SubAffiliates = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome/Username</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Plano</TableHead>
-                <TableHead>Nível</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data Cadastro</TableHead>
-                <TableHead className="text-center">Indicações</TableHead>
-                <TableHead className="text-left">Comissão do Sub</TableHead>
-                <TableHead className="text-left">Minha Comissão</TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center">
+                    Nome/Username
+                    {getSortIcon("name")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("email")}
+                >
+                  <div className="flex items-center">
+                    Email
+                    {getSortIcon("email")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("plan_name")}
+                >
+                  <div className="flex items-center">
+                    Plano
+                    {getSortIcon("plan_name")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("level")}
+                >
+                  <div className="flex items-center">
+                    Nível
+                    {getSortIcon("level")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("status")}
+                >
+                  <div className="flex items-center">
+                    Status
+                    {getSortIcon("status")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("created_at")}
+                >
+                  <div className="flex items-center">
+                    Data Cadastro
+                    {getSortIcon("created_at")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("referrals_count")}
+                >
+                  <div className="flex items-center justify-center">
+                    Indicações
+                    {getSortIcon("referrals_count")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("total_commission")}
+                >
+                  <div className="flex items-center">
+                    Comissão do Sub
+                    {getSortIcon("total_commission")}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => handleSort("my_commission_from_sub")}
+                >
+                  <div className="flex items-center">
+                    Minha Comissão
+                    {getSortIcon("my_commission_from_sub")}
+                  </div>
+                </TableHead>
                 <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>
