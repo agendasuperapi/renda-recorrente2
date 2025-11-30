@@ -131,9 +131,7 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
           amount: commissionsData?.available || 0,
           pix_key: profile?.cpf || '',
           pix_type: 'cpf',
-          status: 'pending',
           commission_ids: commissionIds,
-          requested_date: new Date().toISOString(),
         }])
         .select()
         .single();
