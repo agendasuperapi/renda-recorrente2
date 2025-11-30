@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, Calendar, CircleDollarSign, TrendingUp, Loader2 } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -233,6 +233,46 @@ const getNextWithdrawalDate = () => {
         </div>
       </div>
 
+      {/* Card de Status de Saque */}
+      {!canWithdraw && (
+        <Alert variant={isWithdrawalDay ? "default" : "destructive"}>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Solicitação de Saque Indisponível</AlertTitle>
+          <AlertDescription className="space-y-2 mt-2">
+            <p>Para solicitar saque, você precisa:</p>
+            <ul className="space-y-1 ml-4">
+              <li className="flex items-center gap-2">
+                {isWithdrawalDay ? (
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-destructive" />
+                )}
+                <span>
+                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                {hasMinimumAmount ? (
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-destructive" />
+                )}
+                <span>
+                  Ter saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
+                  (Você tem: R$ {commissionsData?.available.toFixed(2)})
+                </span>
+              </li>
+            </ul>
+            {!isWithdrawalDay && (
+              <p className="mt-3 font-medium">
+                <Clock className="inline h-4 w-4 mr-1" />
+                Próximo dia de saque: {getNextWithdrawalDate()}
+              </p>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -244,19 +284,6 @@ const getNextWithdrawalDate = () => {
           <CardContent>
             <div className="text-2xl font-bold text-success">
               R$ {commissionsData?.available.toFixed(2) || '0,00'}
-            </div>
-            <div className="mt-3 pt-3 border-t border-border">
-              <div className="flex items-start gap-2">
-                {hasMinimumAmount ? (
-                  <CheckCircle2 className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                )}
-                <span className={`text-xs ${hasMinimumAmount ? 'text-success' : 'text-destructive'}`}>
-                  Saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
-                  {!hasMinimumAmount && ` (Você tem: R$ ${commissionsData?.available.toFixed(2)})`}
-                </span>
-              </div>
             </div>
           </CardContent>
         </Card>
