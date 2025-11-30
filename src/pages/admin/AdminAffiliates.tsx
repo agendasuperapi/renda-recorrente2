@@ -204,9 +204,9 @@ const AdminAffiliates = () => {
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="flex flex-wrap gap-4">
               <Select value={planFilter} onValueChange={handleFilterChange(setPlanFilter)}>
-                <SelectTrigger>
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Plano" />
                 </SelectTrigger>
                 <SelectContent>
@@ -218,7 +218,7 @@ const AdminAffiliates = () => {
               </Select>
 
               <Select value={periodFilter} onValueChange={handleFilterChange(setPeriodFilter)}>
-                <SelectTrigger>
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Período" />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,7 +230,7 @@ const AdminAffiliates = () => {
               </Select>
 
               <Select value={statusFilter} onValueChange={handleFilterChange(setStatusFilter)}>
-                <SelectTrigger>
+                <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -249,6 +249,7 @@ const AdminAffiliates = () => {
                   setStartDate(e.target.value);
                   setCurrentPage(1);
                 }}
+                className="w-[160px]"
               />
 
               <Input
@@ -259,10 +260,9 @@ const AdminAffiliates = () => {
                   setEndDate(e.target.value);
                   setCurrentPage(1);
                 }}
+                className="w-[160px]"
               />
-            </div>
 
-            <div className="flex gap-2">
               <Select 
                 value={itemsPerPage.toString()} 
                 onValueChange={(value) => {
@@ -280,10 +280,12 @@ const AdminAffiliates = () => {
                   <SelectItem value="100">100 por página</SelectItem>
                 </SelectContent>
               </Select>
+
               <Button variant="outline" size="sm" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Atualizar
               </Button>
+
               <Button variant="outline" size="sm" onClick={handleResetFilters}>
                 Limpar filtros
               </Button>
