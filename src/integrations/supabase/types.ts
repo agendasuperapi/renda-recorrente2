@@ -3098,6 +3098,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      reconfigure_commission_cron: { Args: never; Returns: Json }
       validate_coupon: {
         Args: { p_coupon_code: string; p_product_id: string }
         Returns: {

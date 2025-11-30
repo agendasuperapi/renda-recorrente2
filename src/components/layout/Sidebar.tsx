@@ -556,7 +556,13 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               variant="ghost"
               size="icon"
               className="h-9 w-9"
-              onClick={() => setShowAdminMenu(!showAdminMenu)}
+              onClick={() => {
+                const newAdminMenuState = !showAdminMenu;
+                setShowAdminMenu(newAdminMenuState);
+                // Navegar para o dashboard correspondente
+                navigate(newAdminMenuState ? '/admin/dashboard' : '/dashboard');
+                closeSidebar?.();
+              }}
               title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
               style={{ color: currentTextColor }}
             >
