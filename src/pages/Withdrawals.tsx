@@ -285,6 +285,16 @@ const getNextWithdrawalDate = () => {
             <div className="text-2xl font-bold text-success">
               R$ {commissionsData?.available.toFixed(2) || '0,00'}
             </div>
+            {!hasMinimumAmount && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="flex items-start gap-2">
+                  <XCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                  <span className="text-xs text-destructive">
+                    Saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} necessário para solicitar saque
+                  </span>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
