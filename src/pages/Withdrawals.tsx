@@ -143,13 +143,6 @@ const getNextWithdrawalDate = () => {
             Gerencie suas solicitações de saque
           </p>
         </div>
-        <Button 
-          className="gap-2" 
-          disabled={!canWithdraw}
-        >
-          <Plus className="h-4 w-4" />
-          Solicitar Saque
-        </Button>
       </div>
 
       {/* Card de Status de Saque */}
@@ -286,6 +279,17 @@ const getNextWithdrawalDate = () => {
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="flex justify-center">
+        <Button 
+          className="gap-2" 
+          disabled={!canWithdraw}
+          size="lg"
+        >
+          <Plus className="h-4 w-4" />
+          Solicitar Saque de R$ {commissionsData?.available.toFixed(2) || '0,00'}
+        </Button>
       </div>
 
       <Card>
