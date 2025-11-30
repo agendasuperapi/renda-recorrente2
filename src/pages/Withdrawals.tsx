@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp, Loader2 } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, Calendar, CircleDollarSign, TrendingUp, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -232,29 +232,6 @@ const getNextWithdrawalDate = () => {
           </p>
         </div>
       </div>
-
-      {/* Card de Status de Saque */}
-      {!isWithdrawalDay && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Solicitação de Saque Indisponível</AlertTitle>
-          <AlertDescription className="space-y-2 mt-2">
-            <p>Para solicitar saque, você precisa:</p>
-            <ul className="space-y-1 ml-4">
-              <li className="flex items-center gap-2">
-                <XCircle className="h-4 w-4 text-destructive" />
-                <span>
-                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
-                </span>
-              </li>
-            </ul>
-            <p className="mt-3 font-medium">
-              <Clock className="inline h-4 w-4 mr-1" />
-              Próximo dia de saque: {getNextWithdrawalDate()}
-            </p>
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
