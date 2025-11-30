@@ -22,13 +22,20 @@ const DAYS_OF_WEEK: Record<number, string> = {
 const Withdrawals = () => {
   const { userId } = useAuth();
 
+  const formatCpf = (cpf: string | null | undefined) => {
+    if (!cpf) return '';
+    const numbers = cpf.replace(/\D/g, '');
+    if (numbers.length !== 11) return cpf;
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
   // Buscar dados do perfil
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['profile', userId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('withdrawal_day, name')
+        .select('withdrawal_day, name, cpf')
         .eq('id', userId)
         .single();
       
@@ -255,7 +262,7 @@ const getNextWithdrawalDate = () => {
           <p>• O valor mínimo para saque é R$ {settings?.minWithdrawal.toFixed(2)}</p>
           <p>• Seu dia de saque é: {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}</p>
           <p>• Comissões ficam disponíveis após {settings?.daysToAvailable} dias do pagamento</p>
-          <p>• Certifique-se de que seus dados PIX estão corretos no seu perfil</p>
+          <p>• Certifique-se de ter PIX cadastrado no seu CPF {formatCpf(profile?.cpf)}</p>
         </CardContent>
       </Card>
     </div>
