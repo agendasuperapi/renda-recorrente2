@@ -74,7 +74,7 @@ const AdminCommissionLevels = () => {
         .select("id, name, price, billing_period")
         .eq("product_id", "bb582482-b006-47b8-b6ea-a6944d8cfdfd")
         .eq("is_active", true)
-        .order("name");
+        .order("price");
 
       if (error) throw error;
       
