@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { SubAffiliateCommissionsDialog } from "@/components/SubAffiliateCommissionsDialog";
 
 interface SubAffiliate {
   id: string;
@@ -38,6 +39,9 @@ const SubAffiliates = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, commissions: 0 });
   const { toast } = useToast();
+  const [selectedSubAffiliate, setSelectedSubAffiliate] = useState<SubAffiliate | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Filtros
   const [nameFilter, setNameFilter] = useState("");
@@ -69,6 +73,8 @@ const SubAffiliates = () => {
         });
         return;
       }
+      
+      setCurrentUserId(user.id);
 
       // Construir query base
       let query = supabase
@@ -433,6 +439,7 @@ const SubAffiliates = () => {
                 <TableHead className="text-center">Indicações</TableHead>
                 <TableHead className="text-left">Comissão do Sub</TableHead>
                 <TableHead className="text-left">Minha Comissão</TableHead>
+                <TableHead className="text-center">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -486,6 +493,19 @@ const SubAffiliates = () => {
                         style: 'currency',
                         currency: 'BRL'
                       }).format(Number(sub.my_commission_from_sub) || 0)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedSubAffiliate(sub);
+                          setDialogOpen(true);
+                        }}
+                        title="Ver detalhes das comissões"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -554,6 +574,16 @@ const SubAffiliates = () => {
           </div>
         </CardContent>
       </Card>
+
+      {selectedSubAffiliate && currentUserId && (
+        <SubAffiliateCommissionsDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          subAffiliateName={selectedSubAffiliate.name || 'N/A'}
+          subAffiliateId={selectedSubAffiliate.external_user_id}
+          parentAffiliateId={currentUserId}
+        />
+      )}
     </div>
   );
 };
