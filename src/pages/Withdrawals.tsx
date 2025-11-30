@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CreditCard } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -224,6 +224,55 @@ const getNextWithdrawalDate = () => {
             <div className="text-2xl font-bold">
               R$ {commissionsData?.paid.toFixed(2) || '0,00'}
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">
+              Chave PIX (CPF)
+            </CardTitle>
+            <CreditCard className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatCpf(profile?.cpf) || 'Não cadastrado'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Pagamentos serão feitos nesta chave
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className={isWithdrawalDay ? "border-success/20 bg-success/5" : "border-muted"}>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">
+              Dia de Saque
+            </CardTitle>
+            <Calendar className={isWithdrawalDay ? "h-5 w-5 text-success" : "h-5 w-5 text-muted-foreground"} />
+          </CardHeader>
+          <CardContent>
+            {isWithdrawalDay ? (
+              <>
+                <div className="text-xl font-bold text-success mb-2">
+                  Hoje é seu dia de saque!
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  ⚠️ Se o saque não for solicitado hoje, só poderá solicitar novamente no(a) próximo(a) {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Próximo saque: {getNextWithdrawalDate()}
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
