@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CreditCard } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, Key } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -238,7 +238,7 @@ const getNextWithdrawalDate = () => {
             <CardTitle className="text-sm font-medium">
               Chave PIX (CPF)
             </CardTitle>
-            <CreditCard className="h-5 w-5 text-primary" />
+            <Key className="h-5 w-5 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
