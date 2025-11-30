@@ -53,6 +53,9 @@ BEGIN
     WHERE sa.sub_affiliate_id = v_external_user_id
     ORDER BY sa.level ASC
   LOOP
+    -- Log do plan_id e level para debug
+    RAISE NOTICE 'Buscando comissão - Plan ID: %, Level: %', NEW.plan_id, v_affiliate_record.level;
+    
     -- Buscar percentual de comissão para o nível e plano específico
     SELECT percentage INTO v_level_percentage
     FROM public.plan_commission_levels
@@ -60,6 +63,9 @@ BEGIN
       AND level = v_affiliate_record.level
       AND is_active = true
     LIMIT 1;
+    
+    -- Log do resultado da busca
+    RAISE NOTICE 'Percentual encontrado: %', v_level_percentage;
     
     -- Se não encontrou percentual para este nível, pula
     IF v_level_percentage IS NULL OR v_level_percentage = 0 THEN
