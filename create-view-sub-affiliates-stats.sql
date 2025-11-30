@@ -1,6 +1,7 @@
 -- Create view for sub-affiliates statistics aggregated by parent affiliate
-CREATE OR REPLACE VIEW view_sub_affiliates_stats AS
-SELECT 
+CREATE OR REPLACE VIEW view_sub_affiliates_stats
+WITH (security_invoker = on) AS
+SELECT
   sa.parent_affiliate_id,
   COUNT(DISTINCT sa.sub_affiliate_id) as total_sub_affiliates,
   COALESCE(
