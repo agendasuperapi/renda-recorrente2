@@ -234,41 +234,24 @@ const getNextWithdrawalDate = () => {
       </div>
 
       {/* Card de Status de Saque */}
-      {!canWithdraw && (
-        <Alert variant={isWithdrawalDay ? "default" : "destructive"}>
+      {!isWithdrawalDay && (
+        <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Solicitação de Saque Indisponível</AlertTitle>
           <AlertDescription className="space-y-2 mt-2">
             <p>Para solicitar saque, você precisa:</p>
             <ul className="space-y-1 ml-4">
               <li className="flex items-center gap-2">
-                {isWithdrawalDay ? (
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
+                <XCircle className="h-4 w-4 text-destructive" />
                 <span>
                   Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
                 </span>
               </li>
-              <li className="flex items-center gap-2">
-                {hasMinimumAmount ? (
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-                <span>
-                  Ter saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
-                  (Você tem: R$ {commissionsData?.available.toFixed(2)})
-                </span>
-              </li>
             </ul>
-            {!isWithdrawalDay && (
-              <p className="mt-3 font-medium">
-                <Clock className="inline h-4 w-4 mr-1" />
-                Próximo dia de saque: {getNextWithdrawalDate()}
-              </p>
-            )}
+            <p className="mt-3 font-medium">
+              <Clock className="inline h-4 w-4 mr-1" />
+              Próximo dia de saque: {getNextWithdrawalDate()}
+            </p>
           </AlertDescription>
         </Alert>
       )}
@@ -284,6 +267,19 @@ const getNextWithdrawalDate = () => {
           <CardContent>
             <div className="text-2xl font-bold text-success">
               R$ {commissionsData?.available.toFixed(2) || '0,00'}
+            </div>
+            <div className="mt-3 pt-3 border-t border-border">
+              <div className="flex items-start gap-2">
+                {hasMinimumAmount ? (
+                  <CheckCircle2 className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                )}
+                <span className={`text-xs ${hasMinimumAmount ? 'text-success' : 'text-destructive'}`}>
+                  Saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
+                  {!hasMinimumAmount && ` (Você tem: R$ ${commissionsData?.available.toFixed(2)})`}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
