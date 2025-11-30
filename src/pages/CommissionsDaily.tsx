@@ -260,6 +260,7 @@ const CommissionsDaily = () => {
       available: { label: "Disponível", className: "bg-green-500/10 text-green-500" },
       withdrawn: { label: "Sacado", className: "bg-blue-500/10 text-blue-500" },
       cancelled: { label: "Cancelado", className: "bg-red-500/10 text-red-500" },
+      requested: { label: "Solicitado", className: "bg-orange-500/10 text-orange-500" },
     };
     
     const config = statusMap[status] || { label: status, className: "bg-muted text-muted-foreground" };

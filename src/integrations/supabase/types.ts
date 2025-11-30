@@ -385,6 +385,7 @@ export type Database = {
           unified_payment_id: string | null
           unified_user_id: string | null
           updated_at: string | null
+          withdrawal_id: string | null
         }
         Insert: {
           affiliate_id: string
@@ -404,6 +405,7 @@ export type Database = {
           unified_payment_id?: string | null
           unified_user_id?: string | null
           updated_at?: string | null
+          withdrawal_id?: string | null
         }
         Update: {
           affiliate_id?: string
@@ -423,6 +425,7 @@ export type Database = {
           unified_payment_id?: string | null
           unified_user_id?: string | null
           updated_at?: string | null
+          withdrawal_id?: string | null
         }
         Relationships: [
           {
@@ -514,6 +517,13 @@ export type Database = {
             columns: ["unified_user_id"]
             isOneToOne: false
             referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_commissions_withdrawal_id"
+            columns: ["withdrawal_id"]
+            isOneToOne: false
+            referencedRelation: "withdrawals"
             referencedColumns: ["id"]
           },
         ]
@@ -3129,6 +3139,7 @@ export type Database = {
         | "withdrawn"
         | "cancelled"
         | "paid"
+        | "requested"
       coupon_type: "percentage" | "days" | "free_trial"
       withdrawal_status: "pending" | "approved" | "paid" | "rejected"
     }
@@ -3265,6 +3276,7 @@ export const Constants = {
         "withdrawn",
         "cancelled",
         "paid",
+        "requested",
       ],
       coupon_type: ["percentage", "days", "free_trial"],
       withdrawal_status: ["pending", "approved", "paid", "rejected"],
