@@ -47,6 +47,7 @@ export default function AdminWithdrawals() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -177,6 +178,10 @@ export default function AdminWithdrawals() {
       setDialogOpen(false);
       setRejectReason("");
       setPaymentProof(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
     },
     onError: (error: any) => {
       toast({
@@ -188,8 +193,27 @@ export default function AdminWithdrawals() {
   });
 
   const handleViewDetails = (withdrawal: Withdrawal) => {
+    // Cleanup previous preview URL if exists
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setPaymentProof(null);
     setSelectedWithdrawal(withdrawal);
     setDialogOpen(true);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      // Cleanup when dialog closes
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      setPaymentProof(null);
+      setRejectReason("");
+    }
   };
 
   const handleApprove = (id: string) => {
@@ -443,7 +467,7 @@ export default function AdminWithdrawals() {
       </Card>
 
       {/* Dialog de Detalhes */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalhes do Saque</DialogTitle>
@@ -542,13 +566,42 @@ export default function AdminWithdrawals() {
                       id="payment-proof"
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setPaymentProof(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setPaymentProof(file);
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setPreviewUrl(url);
+                        } else {
+                          setPreviewUrl(null);
+                        }
+                      }}
                       disabled={selectedWithdrawal.status === "paid"}
                     />
                     {paymentProof && (
                       <p className="text-xs text-muted-foreground">
                         Arquivo selecionado: {paymentProof.name}
                       </p>
+                    )}
+                    {previewUrl && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium mb-2">Pré-visualização:</p>
+                        <img 
+                          src={previewUrl} 
+                          alt="Pré-visualização do comprovante" 
+                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border"
+                        />
+                      </div>
+                    )}
+                    {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium mb-2">Comprovante de pagamento:</p>
+                        <img 
+                          src={selectedWithdrawal.payment_proof_url} 
+                          alt="Comprovante de pagamento" 
+                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border"
+                        />
+                      </div>
                     )}
                     {selectedWithdrawal.status === "paid" && !selectedWithdrawal.payment_proof_url && (
                       <p className="text-xs text-muted-foreground">
