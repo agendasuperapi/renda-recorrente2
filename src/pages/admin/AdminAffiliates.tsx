@@ -144,8 +144,8 @@ const AdminAffiliates = () => {
   };
 
   const getWeekdayLabel = (day: number | null) => {
-    if (!day) return "-";
-    const weekdays = ["", "Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
+    if (day === null || day === undefined) return "-";
+    const weekdays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     return weekdays[day] || "-";
   };
 
