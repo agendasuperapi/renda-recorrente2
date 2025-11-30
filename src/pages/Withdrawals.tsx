@@ -13,7 +13,6 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import pixIcon from "@/assets/pix-icon.png";
-
 const DAYS_OF_WEEK: Record<number, string> = {
   0: "Domingo",
   1: "Segunda-feira",
@@ -21,15 +20,17 @@ const DAYS_OF_WEEK: Record<number, string> = {
   3: "Quarta-feira",
   4: "Quinta-feira",
   5: "Sexta-feira",
-  6: "Sábado",
+  6: "Sábado"
 };
-
 const Withdrawals = () => {
-  const { userId } = useAuth();
-  const { toast } = useToast();
+  const {
+    userId
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const queryClient = useQueryClient();
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
-
   const formatCpf = (cpf: string | null | undefined) => {
     if (!cpf) return '';
     const numbers = cpf.replace(/\D/g, '');
@@ -38,15 +39,16 @@ const Withdrawals = () => {
   };
 
   // Buscar dados do perfil
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const {
+    data: profile,
+    isLoading: profileLoading
+  } = useQuery({
     queryKey: ['profile', userId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('withdrawal_day, name, cpf')
-        .eq('id', userId)
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('withdrawal_day, name, cpf').eq('id', userId).single();
       if (error) throw error;
       return data;
     },
@@ -54,16 +56,16 @@ const Withdrawals = () => {
   });
 
   // Buscar configurações
-  const { data: settings } = useQuery({
+  const {
+    data: settings
+  } = useQuery({
     queryKey: ['withdrawal-settings'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('key, value')
-        .in('key', ['commission_min_withdrawal', 'commission_days_to_available']);
-      
+      const {
+        data,
+        error
+      } = await supabase.from('app_settings').select('key, value').in('key', ['commission_min_withdrawal', 'commission_days_to_available']);
       if (error) throw error;
-      
       return {
         minWithdrawal: parseFloat(data?.find(s => s.key === 'commission_min_withdrawal')?.value || '50'),
         daysToAvailable: parseInt(data?.find(s => s.key === 'commission_days_to_available')?.value || '7')
@@ -72,45 +74,53 @@ const Withdrawals = () => {
   });
 
   // Buscar comissões disponíveis
-  const { data: commissionsData, isLoading: commissionsLoading } = useQuery({
+  const {
+    data: commissionsData,
+    isLoading: commissionsLoading
+  } = useQuery({
     queryKey: ['commissions-summary', userId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('commissions')
-        .select('status, amount')
-        .eq('affiliate_id', userId);
-      
+      const {
+        data,
+        error
+      } = await supabase.from('commissions').select('status, amount').eq('affiliate_id', userId);
       if (error) throw error;
-      
       const available = data?.filter(c => c.status === 'available').reduce((sum, c) => sum + c.amount, 0) || 0;
       const pending = data?.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.amount, 0) || 0;
       const requested = data?.filter(c => c.status === 'requested').reduce((sum, c) => sum + c.amount, 0) || 0;
       const paid = data?.filter(c => c.status === 'paid').reduce((sum, c) => sum + c.amount, 0) || 0;
-      
-      return { available, pending, requested, paid };
+      return {
+        available,
+        pending,
+        requested,
+        paid
+      };
     },
     enabled: !!userId
   });
 
   // Buscar histórico de saques
-  const { data: withdrawals, isLoading: withdrawalsLoading } = useQuery({
+  const {
+    data: withdrawals,
+    isLoading: withdrawalsLoading
+  } = useQuery({
     queryKey: ['withdrawals', userId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('withdrawals')
-        .select('*')
-        .eq('affiliate_id', userId)
-        .order('requested_date', { ascending: false });
-      
+      const {
+        data,
+        error
+      } = await supabase.from('withdrawals').select('*').eq('affiliate_id', userId).order('requested_date', {
+        ascending: false
+      });
       if (error) throw error;
       return data;
     },
     enabled: !!userId
   });
 
-// Verificar se hoje é o dia de saque
-const today = new Date();
-const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
+  // Verificar se hoje é o dia de saque
+  const today = new Date();
+  const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
 
   const isWithdrawalDay = profile?.withdrawal_day === currentDayOfWeek;
   const hasMinimumAmount = (commissionsData?.available || 0) >= (settings?.minWithdrawal || 50);
@@ -131,99 +141,87 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
   const createWithdrawalMutation = useMutation({
     mutationFn: async () => {
       // Buscar todas as comissões disponíveis para incluir no saque
-      const { data: availableCommissions, error: commissionsError } = await supabase
-        .from('commissions')
-        .select('id')
-        .eq('affiliate_id', userId)
-        .eq('status', 'available');
-
+      const {
+        data: availableCommissions,
+        error: commissionsError
+      } = await supabase.from('commissions').select('id').eq('affiliate_id', userId).eq('status', 'available');
       if (commissionsError) throw commissionsError;
-
       const commissionIds = availableCommissions?.map(c => c.id) || [];
 
       // Criar o saque
-      const { data, error } = await supabase
-        .from('withdrawals')
-        .insert([{
-          affiliate_id: userId!,
-          amount: commissionsData?.available || 0,
-          pix_key: profile?.cpf || '',
-          pix_type: 'cpf',
-          commission_ids: commissionIds,
-        }])
-        .select()
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('withdrawals').insert([{
+        affiliate_id: userId!,
+        amount: commissionsData?.available || 0,
+        pix_key: profile?.cpf || '',
+        pix_type: 'cpf',
+        commission_ids: commissionIds
+      }]).select().single();
       if (error) throw error;
 
       // Atualizar as comissões com o withdrawal_id e mudar status para 'requested'
       if (commissionIds.length > 0) {
-        const { error: updateError } = await supabase
-          .from('commissions')
-          .update({ 
-            withdrawal_id: data.id,
-            status: 'requested' 
-          })
-          .in('id', commissionIds);
-
+        const {
+          error: updateError
+        } = await supabase.from('commissions').update({
+          withdrawal_id: data.id,
+          status: 'requested'
+        }).in('id', commissionIds);
         if (updateError) throw updateError;
       }
-
       return data;
     },
     onSuccess: () => {
       toast({
         title: "Saque solicitado!",
-        description: "Sua solicitação foi enviada e será processada em até 24 horas.",
+        description: "Sua solicitação foi enviada e será processada em até 24 horas."
       });
       setWithdrawalDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['commissions-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['withdrawals'] });
+      queryClient.invalidateQueries({
+        queryKey: ['commissions-summary']
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['withdrawals']
+      });
     },
     onError: (error: any) => {
       console.error('Erro ao solicitar saque:', error);
       toast({
         title: "Erro ao solicitar saque",
         description: error.message || "Não foi possível processar sua solicitação. Tente novamente.",
-        variant: "destructive",
+        variant: "destructive"
       });
-    },
+    }
   });
 
-// Calcular próximo dia de saque
-const getNextWithdrawalDate = () => {
-  if (profile?.withdrawal_day === null || profile?.withdrawal_day === undefined) return null;
-  const withdrawalDay = profile.withdrawal_day as number;
-
-  const daysUntil = withdrawalDay - currentDayOfWeek;
-  const daysToAdd = daysUntil > 0 ? daysUntil : 7 + daysUntil;
-
-  const nextDate = new Date();
-  nextDate.setDate(today.getDate() + daysToAdd);
-
-  return nextDate.toLocaleDateString("pt-BR", {
-    weekday: "long",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-};
-
+  // Calcular próximo dia de saque
+  const getNextWithdrawalDate = () => {
+    if (profile?.withdrawal_day === null || profile?.withdrawal_day === undefined) return null;
+    const withdrawalDay = profile.withdrawal_day as number;
+    const daysUntil = withdrawalDay - currentDayOfWeek;
+    const daysToAdd = daysUntil > 0 ? daysUntil : 7 + daysUntil;
+    const nextDate = new Date();
+    nextDate.setDate(today.getDate() + daysToAdd);
+    return nextDate.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  };
   if (profileLoading || commissionsLoading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <Skeleton className="h-20 w-full" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
           <Skeleton className="h-32" />
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold mb-2">Saques</h1>
@@ -234,44 +232,7 @@ const getNextWithdrawalDate = () => {
       </div>
 
       {/* Card de Status de Saque */}
-      {!canWithdraw && (
-        <Alert variant={isWithdrawalDay ? "default" : "destructive"}>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Solicitação de Saque Indisponível</AlertTitle>
-          <AlertDescription className="space-y-2 mt-2">
-            <p>Para solicitar saque, você precisa:</p>
-            <ul className="space-y-1 ml-4">
-              <li className="flex items-center gap-2">
-                {isWithdrawalDay ? (
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-                <span>
-                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                {hasMinimumAmount ? (
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-                <span>
-                  Ter saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
-                  (Você tem: R$ {commissionsData?.available.toFixed(2)})
-                </span>
-              </li>
-            </ul>
-            {!isWithdrawalDay && (
-              <p className="mt-3 font-medium">
-                <Clock className="inline h-4 w-4 mr-1" />
-                Próximo dia de saque: {getNextWithdrawalDate()}
-              </p>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
+      {!canWithdraw}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
@@ -320,15 +281,13 @@ const getNextWithdrawalDate = () => {
         </Card>
       </div>
 
-      {!hasMinimumAmount && (
-        <Alert variant="destructive">
+      {!hasMinimumAmount && <Alert variant="destructive">
           <XCircle className="h-4 w-4" />
           <AlertTitle>Saldo insuficiente</AlertTitle>
           <AlertDescription>
             Saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} necessário para solicitar saque
           </AlertDescription>
-        </Alert>
-      )}
+        </Alert>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="border-primary/20 bg-primary/5">
@@ -356,36 +315,27 @@ const getNextWithdrawalDate = () => {
             <Calendar className={isWithdrawalDay ? "h-5 w-5 text-success" : "h-5 w-5 text-muted-foreground"} />
           </CardHeader>
           <CardContent>
-            {isWithdrawalDay ? (
-              <>
+            {isWithdrawalDay ? <>
                 <div className="text-xl font-bold text-success mb-2">
                   Hoje é seu dia de saque!
                 </div>
                 <p className="text-xs text-muted-foreground">
                   ⚠️ Se o saque não for solicitado hoje, só poderá solicitar novamente {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </p>
-              </>
-            ) : (
-              <>
+              </> : <>
                 <div className="text-2xl font-bold">
                   {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Sua solicitação de saque ficará disponível somente nesse dia
                 </p>
-              </>
-            )}
+              </>}
           </CardContent>
         </Card>
       </div>
 
       <div className="flex justify-center">
-        <Button 
-          className="gap-2" 
-          disabled={!canWithdraw}
-          size="lg"
-          onClick={() => setWithdrawalDialogOpen(true)}
-        >
+        <Button className="gap-2" disabled={!canWithdraw} size="lg" onClick={() => setWithdrawalDialogOpen(true)}>
           <Plus className="h-4 w-4" />
           Solicitar Saque de R$ {commissionsData?.available.toFixed(2) || '0,00'}
         </Button>
@@ -448,29 +398,17 @@ const getNextWithdrawalDate = () => {
           </div>
 
           <DialogFooter className="flex gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setWithdrawalDialogOpen(false)}
-              disabled={createWithdrawalMutation.isPending}
-            >
+            <Button variant="outline" onClick={() => setWithdrawalDialogOpen(false)} disabled={createWithdrawalMutation.isPending}>
               Cancelar
             </Button>
-            <Button
-              onClick={() => createWithdrawalMutation.mutate()}
-              disabled={createWithdrawalMutation.isPending}
-              className="gap-2"
-            >
-              {createWithdrawalMutation.isPending ? (
-                <>
+            <Button onClick={() => createWithdrawalMutation.mutate()} disabled={createWithdrawalMutation.isPending} className="gap-2">
+              {createWithdrawalMutation.isPending ? <>
                   <Clock className="h-4 w-4 animate-spin" />
                   Processando...
-                </>
-              ) : (
-                <>
+                </> : <>
                   <CheckCircle2 className="h-4 w-4" />
                   Confirmar Saque
-                </>
-              )}
+                </>}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -492,23 +430,19 @@ const getNextWithdrawalDate = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {withdrawalsLoading ? (
-                <TableRow>
+              {withdrawalsLoading ? <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                   </TableCell>
-                </TableRow>
-              ) : withdrawals && withdrawals.length > 0 ? (
-                withdrawals.map((withdrawal) => (
-                  <TableRow key={withdrawal.id}>
+                </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
                     <TableCell>
                       {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
                     </TableCell>
                     <TableCell className="font-medium">
                       R$ {withdrawal.amount.toFixed(2)}
@@ -517,37 +451,22 @@ const getNextWithdrawalDate = () => {
                       {formatCpf(withdrawal.pix_key)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={
-                        withdrawal.status === 'paid' ? 'default' :
-                        withdrawal.status === 'approved' ? 'secondary' :
-                        withdrawal.status === 'rejected' ? 'destructive' :
-                        'outline'
-                      }>
-                        {withdrawal.status === 'pending' ? 'Pendente' :
-                         withdrawal.status === 'approved' ? 'Aprovado' :
-                         withdrawal.status === 'paid' ? 'Pago' :
-                         withdrawal.status === 'rejected' ? 'Rejeitado' :
-                         withdrawal.status}
+                      <Badge variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}>
+                        {withdrawal.status === 'pending' ? 'Pendente' : withdrawal.status === 'approved' ? 'Aprovado' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeitado' : withdrawal.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {withdrawal.paid_date 
-                        ? new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          })
-                        : '-'}
+                      {withdrawal.paid_date ? new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }) : '-'}
                     </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
+                  </TableRow>) : <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                     Nenhum saque solicitado
                   </TableCell>
-                </TableRow>
-              )}
+                </TableRow>}
             </TableBody>
           </Table>
         </CardContent>
@@ -564,8 +483,6 @@ const getNextWithdrawalDate = () => {
           <p>• Certifique-se de ter PIX cadastrado no seu CPF {formatCpf(profile?.cpf)}</p>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default Withdrawals;
