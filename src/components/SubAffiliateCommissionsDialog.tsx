@@ -13,6 +13,7 @@ interface CommissionDetail {
   amount: number;
   created_at: string;
   level: number;
+  percentage: number;
   unified_user_name: string;
   unified_user_email: string;
   plan_name: string;
@@ -54,6 +55,7 @@ export function SubAffiliateCommissionsDialog({
           amount,
           created_at,
           level,
+          percentage,
           unified_user_id,
           unified_users!fk_commissions_unified_user_id (
             external_user_id,
@@ -89,6 +91,7 @@ export function SubAffiliateCommissionsDialog({
         amount: c.amount,
         created_at: c.created_at,
         level: c.level || 1,
+        percentage: c.percentage || 0,
         unified_user_name: c.unified_users?.name || 'N/A',
         unified_user_email: c.unified_users?.email || 'N/A',
         plan_name: c.unified_users?.plans?.name || 'N/A',
@@ -153,6 +156,7 @@ export function SubAffiliateCommissionsDialog({
                 <TableHead>Nome</TableHead>
                 <TableHead>Plano</TableHead>
                 <TableHead>Nível</TableHead>
+                <TableHead className="text-center">% Comissão</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead className="text-right">Valor Comissão</TableHead>
               </TableRow>
@@ -168,6 +172,9 @@ export function SubAffiliateCommissionsDialog({
                   </TableCell>
                   <TableCell>{commission.plan_name}</TableCell>
                   <TableCell>{getLevelBadge(commission.level)}</TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="outline">{commission.percentage}%</Badge>
+                  </TableCell>
                   <TableCell>
                     {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                   </TableCell>
