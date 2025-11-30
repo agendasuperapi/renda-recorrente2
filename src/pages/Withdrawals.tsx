@@ -9,12 +9,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const DAYS_OF_WEEK = {
+const DAYS_OF_WEEK: Record<number, string> = {
+  0: "Domingo",
   1: "Segunda-feira",
   2: "Terça-feira",
   3: "Quarta-feira",
   4: "Quinta-feira",
-  5: "Sexta-feira"
+  5: "Sexta-feira",
+  6: "Sábado",
 };
 
 const Withdrawals = () => {
@@ -74,34 +76,32 @@ const Withdrawals = () => {
     enabled: !!userId
   });
 
-  // Verificar se hoje é o dia de saque
-  const today = new Date();
-  let currentDayOfWeek = today.getDay();
-  if (currentDayOfWeek === 0 || currentDayOfWeek === 6) {
-    currentDayOfWeek = 1; // Dom/Sáb = Segunda
-  }
+// Verificar se hoje é o dia de saque
+const today = new Date();
+const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
 
   const isWithdrawalDay = profile?.withdrawal_day === currentDayOfWeek;
   const hasMinimumAmount = (commissionsData?.available || 0) >= (settings?.minWithdrawal || 50);
   const canWithdraw = isWithdrawalDay && hasMinimumAmount;
 
-  // Calcular próximo dia de saque
-  const getNextWithdrawalDate = () => {
-    if (!profile?.withdrawal_day) return null;
-    
-    const daysUntil = profile.withdrawal_day - currentDayOfWeek;
-    const daysToAdd = daysUntil > 0 ? daysUntil : (7 + daysUntil);
-    
-    const nextDate = new Date();
-    nextDate.setDate(today.getDate() + daysToAdd);
-    
-    return nextDate.toLocaleDateString('pt-BR', { 
-      weekday: 'long', 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric' 
-    });
-  };
+// Calcular próximo dia de saque
+const getNextWithdrawalDate = () => {
+  if (profile?.withdrawal_day === null || profile?.withdrawal_day === undefined) return null;
+  const withdrawalDay = profile.withdrawal_day as number;
+
+  const daysUntil = withdrawalDay - currentDayOfWeek;
+  const daysToAdd = daysUntil > 0 ? daysUntil : 7 + daysUntil;
+
+  const nextDate = new Date();
+  nextDate.setDate(today.getDate() + daysToAdd);
+
+  return nextDate.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
   if (profileLoading || commissionsLoading) {
     return (
@@ -149,7 +149,7 @@ const Withdrawals = () => {
                   <XCircle className="h-4 w-4 text-destructive" />
                 )}
                 <span>
-                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day || 1]})
+                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
                 </span>
               </li>
               <li className="flex items-center gap-2">
@@ -253,7 +253,7 @@ const Withdrawals = () => {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>• O valor mínimo para saque é R$ {settings?.minWithdrawal.toFixed(2)}</p>
-          <p>• Seu dia de saque é: {DAYS_OF_WEEK[profile?.withdrawal_day || 1]}</p>
+          <p>• Seu dia de saque é: {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}</p>
           <p>• Comissões ficam disponíveis após {settings?.daysToAvailable} dias do pagamento</p>
           <p>• Certifique-se de que seus dados PIX estão corretos no seu perfil</p>
         </CardContent>
