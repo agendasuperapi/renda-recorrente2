@@ -2,7 +2,7 @@
 -- Este script busca a configuração do banco e cria o cron job automaticamente
 -- Execute este script sempre que mudar a configuração em Admin Settings
 
-DO $$ 
+DO $OUTER$ 
 DECLARE
   v_schedule_config TEXT;
   v_cron_schedule TEXT;
@@ -38,18 +38,18 @@ BEGIN
   PERFORM cron.schedule(
     'process-commission-status-hourly',
     v_cron_schedule,
-    $$
+    $INNER$
     SELECT
       net.http_post(
           url:='https://adpnzkvzvjbervzrqhhx.supabase.co/functions/v1/process-commission-status',
           headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkcG56a3Z6dmpiZXJ2enJxaGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MDAzODYsImV4cCI6MjA3OTA3NjM4Nn0.N7gETUDWj95yDCYdZTYWPoMJQcdx_Yjl51jxK-O1vrE"}'::jsonb,
           body:=concat('{"triggered_at": "', now(), '"}')::jsonb
       ) as request_id;
-    $$
+    $INNER$
   );
   
   RAISE NOTICE '✅ Cron job criado com sucesso!';
-END $$;
+END $OUTER$;
 
 -- Verificar o job criado
 SELECT 
