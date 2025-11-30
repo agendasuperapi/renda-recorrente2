@@ -156,9 +156,9 @@ export function SubAffiliateCommissionsDialog({
                 <TableHead>Nome</TableHead>
                 <TableHead>Plano</TableHead>
                 <TableHead>Nível</TableHead>
-                <TableHead className="text-center">% Comissão</TableHead>
+                <TableHead>% Comissão</TableHead>
                 <TableHead>Data</TableHead>
-                <TableHead className="text-right">Valor Comissão</TableHead>
+                <TableHead>Valor Comissão</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -172,13 +172,13 @@ export function SubAffiliateCommissionsDialog({
                   </TableCell>
                   <TableCell>{commission.plan_name}</TableCell>
                   <TableCell>{getLevelBadge(commission.level)}</TableCell>
-                  <TableCell className="text-center">
+                  <TableCell>
                     <Badge variant="outline">{commission.percentage}%</Badge>
                   </TableCell>
                   <TableCell>
                     {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                   </TableCell>
-                  <TableCell className="text-right font-semibold text-success">
+                  <TableCell className="font-semibold text-success">
                     {new Intl.NumberFormat('pt-BR', {
                       style: 'currency',
                       currency: 'BRL'
