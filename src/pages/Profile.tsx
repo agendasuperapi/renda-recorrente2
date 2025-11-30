@@ -916,9 +916,6 @@ const Profile = () => {
                     disabled
                     className="bg-muted"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Sincronizado automaticamente com o CPF
-                  </p>
                 </div>
               </div>
 
