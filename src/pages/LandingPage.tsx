@@ -697,6 +697,15 @@ const LandingPage = () => {
     return (LucideIcons as any)[iconName] || CheckCircle2;
   };
 
+  const navigateToDashboard = () => {
+    // Verifica se o usuário tem preferência salva de visualização admin
+    const savedAdminView = localStorage.getItem('sidebar_admin_view');
+    const showAdminMenu = savedAdminView ? JSON.parse(savedAdminView) : true;
+    
+    // Navega para o dashboard correspondente
+    navigate(showAdminMenu && isAdmin ? '/admin/dashboard' : '/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -769,7 +778,7 @@ const LandingPage = () => {
                 <>
                   {isAdmin && (
                     <>
-                      <Button onClick={() => navigate("/admin/landing-page")} variant="outline" size="sm">
+                      <Button onClick={navigateToDashboard} variant="outline" size="sm">
                         Painel
                       </Button>
                       <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
@@ -862,7 +871,7 @@ const LandingPage = () => {
                         {isAdmin && (
                           <Button 
                             onClick={() => {
-                              navigate("/admin/landing-page");
+                              navigateToDashboard();
                               setMobileMenuOpen(false);
                             }} 
                             variant="outline" 
