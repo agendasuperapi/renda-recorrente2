@@ -4,10 +4,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import pixIcon from "@/assets/pix-icon.png";
 
 const DAYS_OF_WEEK: Record<number, string> = {
@@ -22,6 +26,9 @@ const DAYS_OF_WEEK: Record<number, string> = {
 
 const Withdrawals = () => {
   const { userId } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
 
   const formatCpf = (cpf: string | null | undefined) => {
     if (!cpf) return '';
@@ -102,6 +109,55 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
     // Segunda a Sexta usam "na próxima"
     return "na próxima";
   };
+
+  // Mutation para criar solicitação de saque  
+  const createWithdrawalMutation = useMutation({
+    mutationFn: async () => {
+      // Buscar todas as comissões disponíveis para incluir no saque
+      const { data: availableCommissions, error: commissionsError } = await supabase
+        .from('commissions')
+        .select('id')
+        .eq('affiliate_id', userId)
+        .eq('status', 'available');
+
+      if (commissionsError) throw commissionsError;
+
+      const commissionIds = availableCommissions?.map(c => c.id) || [];
+
+      const { data, error } = await supabase
+        .from('withdrawals')
+        .insert([{
+          affiliate_id: userId!,
+          amount: commissionsData?.available || 0,
+          pix_key: profile?.cpf || '',
+          pix_type: 'cpf',
+          status: 'pending',
+          commission_ids: commissionIds,
+          requested_date: new Date().toISOString(),
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Saque solicitado!",
+        description: "Sua solicitação foi enviada e será processada em até 24 horas.",
+      });
+      setWithdrawalDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['commissions-summary'] });
+    },
+    onError: (error: any) => {
+      console.error('Erro ao solicitar saque:', error);
+      toast({
+        title: "Erro ao solicitar saque",
+        description: error.message || "Não foi possível processar sua solicitação. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
 
 // Calcular próximo dia de saque
 const getNextWithdrawalDate = () => {
@@ -287,11 +343,97 @@ const getNextWithdrawalDate = () => {
           className="gap-2" 
           disabled={!canWithdraw}
           size="lg"
+          onClick={() => setWithdrawalDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
           Solicitar Saque de R$ {commissionsData?.available.toFixed(2) || '0,00'}
         </Button>
       </div>
+
+      {/* Modal de Solicitação de Saque */}
+      <Dialog open={withdrawalDialogOpen} onOpenChange={setWithdrawalDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Solicitar Saque</DialogTitle>
+            <DialogDescription>
+              Confirme os dados abaixo para solicitar seu saque
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Nome do Afiliado</p>
+                  <p className="font-semibold text-lg">{profile?.name}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <img src={pixIcon} alt="PIX" className="h-4 w-4" />
+                    Chave PIX (CPF)
+                  </p>
+                  <p className="font-semibold text-lg font-mono">{formatCpf(profile?.cpf)}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-success/10 border border-success/20 rounded-lg">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Valor do Saque</p>
+                  <p className="font-bold text-2xl text-success">
+                    R$ {commissionsData?.available.toFixed(2) || '0,00'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <Alert>
+              <Clock className="h-4 w-4" />
+              <AlertTitle>Prazo de Transferência</AlertTitle>
+              <AlertDescription>
+                A transferência será processada em até 24 horas após a solicitação, apenas em dias úteis.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>ℹ️ O valor será depositado via PIX na chave cadastrada</p>
+              <p>ℹ️ Certifique-se de que sua chave PIX está ativa e correta</p>
+              <p>ℹ️ Após a solicitação, o valor ficará bloqueado até a confirmação do pagamento</p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setWithdrawalDialogOpen(false)}
+              disabled={createWithdrawalMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => createWithdrawalMutation.mutate()}
+              disabled={createWithdrawalMutation.isPending}
+              className="gap-2"
+            >
+              {createWithdrawalMutation.isPending ? (
+                <>
+                  <Clock className="h-4 w-4 animate-spin" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Confirmar Saque
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardHeader>
