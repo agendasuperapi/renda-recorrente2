@@ -113,7 +113,8 @@ const currentDayOfWeek = today.getDay(); // 0=Domingo, 1=Segunda, ..., 6=Sábado
 
   const isWithdrawalDay = profile?.withdrawal_day === currentDayOfWeek;
   const hasMinimumAmount = (commissionsData?.available || 0) >= (settings?.minWithdrawal || 50);
-  const canWithdraw = isWithdrawalDay && hasMinimumAmount;
+  const hasPendingWithdrawal = withdrawals?.some(w => w.status === 'pending' || w.status === 'approved');
+  const canWithdraw = isWithdrawalDay && hasMinimumAmount && !hasPendingWithdrawal;
 
   // Determinar se usa "no próximo" ou "na próxima" baseado no dia da semana
   const getWithdrawalDayPrefix = () => {
@@ -225,29 +226,40 @@ const getNextWithdrawalDate = () => {
           <AlertDescription className="space-y-2 mt-2">
             <p>Para solicitar saque, você precisa:</p>
             <ul className="space-y-1 ml-4">
-              <li className="flex items-center gap-2">
-                {isWithdrawalDay ? (
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-                <span>
-                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                {hasMinimumAmount ? (
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-                <span>
-                  Ter saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
-                  (Você tem: R$ {commissionsData?.available.toFixed(2)})
-                </span>
-              </li>
+              {hasPendingWithdrawal ? (
+                <li className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-warning" />
+                  <span>
+                    Aguardar o processamento do saque pendente
+                  </span>
+                </li>
+              ) : (
+                <>
+                  <li className="flex items-center gap-2">
+                    {isWithdrawalDay ? (
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-destructive" />
+                    )}
+                    <span>
+                      Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]})
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {hasMinimumAmount ? (
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-destructive" />
+                    )}
+                    <span>
+                      Ter saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
+                      (Você tem: R$ {commissionsData?.available.toFixed(2)})
+                    </span>
+                  </li>
+                </>
+              )}
             </ul>
-            {!isWithdrawalDay && (
+            {!isWithdrawalDay && !hasPendingWithdrawal && (
               <p className="mt-3 font-medium">
                 <Clock className="inline h-4 w-4 mr-1" />
                 Próximo dia de saque: {getNextWithdrawalDate()}
@@ -258,17 +270,29 @@ const getNextWithdrawalDate = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className={hasPendingWithdrawal ? "border-warning/50 bg-warning/5" : ""}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Disponível para Saque
+              {hasPendingWithdrawal ? "Saque Solicitado" : "Disponível para Saque"}
             </CardTitle>
-            <CircleDollarSign className="h-4 w-4 text-success" />
+            <CircleDollarSign className={`h-4 w-4 ${hasPendingWithdrawal ? "text-warning" : "text-success"}`} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">
-              R$ {commissionsData?.available.toFixed(2) || '0,00'}
-            </div>
+            {hasPendingWithdrawal ? (
+              <>
+                <div className="text-2xl font-bold text-warning mb-2">
+                  Aguardando Pagamento
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  <Clock className="inline h-3 w-3 mr-1" />
+                  Seu saque está sendo processado
+                </p>
+              </>
+            ) : (
+              <div className="text-2xl font-bold text-success">
+                R$ {commissionsData?.available.toFixed(2) || '0,00'}
+              </div>
+            )}
           </CardContent>
         </Card>
 
