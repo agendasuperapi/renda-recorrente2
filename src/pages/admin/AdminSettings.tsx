@@ -133,11 +133,33 @@ export default function AdminSettings() {
         min: commissionMin,
         schedule: scheduleValue,
       });
-      
-      toast({
-        title: "Configurações salvas",
-        description: "Configurações de comissão atualizadas com sucesso. Atualize o cron job no SQL Editor.",
-      });
+
+      // Reconfigurar cron job automaticamente
+      try {
+        const { error: cronError } = await supabase.functions.invoke('setup-commission-cron');
+        
+        if (cronError) {
+          console.error('Erro ao reconfigurar cron:', cronError);
+          toast({
+            title: "Configurações salvas com aviso",
+            description: "Configurações salvas, mas houve um erro ao reconfigurar o cron job. Execute o script manualmente no SQL Editor.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Configurações salvas",
+          description: "Configurações de comissão atualizadas e cron job reconfigurado automaticamente!",
+        });
+      } catch (cronError) {
+        console.error('Erro ao chamar edge function:', cronError);
+        toast({
+          title: "Configurações salvas com aviso",
+          description: "Configurações salvas, mas houve um erro ao reconfigurar o cron job. Execute o script manualmente no SQL Editor.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       toast({
         title: "Erro ao salvar",
