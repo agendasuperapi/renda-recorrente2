@@ -343,10 +343,10 @@ const AdminAffiliates = () => {
                   </button>
                 </TableHead>
                 <TableHead>Dia de Saque</TableHead>
-                <TableHead>
+                <TableHead className="text-center">
                   <button 
                     onClick={() => handleSort("referrals_count")}
-                    className="flex items-center hover:text-foreground transition-colors font-medium"
+                    className="flex items-center justify-center hover:text-foreground transition-colors font-medium w-full"
                   >
                     Indicações
                     <SortIcon column="referrals_count" />

@@ -2560,6 +2560,7 @@ export type Database = {
           plan_status: string | null
           referrals_count: number | null
           username: string | null
+          withdrawal_day: number | null
         }
         Relationships: []
       }
