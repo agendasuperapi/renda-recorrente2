@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -102,6 +102,32 @@ export default function AdminSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['app-settings'] });
+    },
+  });
+
+  // Mutation para processar comissões manualmente
+  const processCommissionsMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('process-commission-status', {
+        body: { triggered_at: new Date().toISOString(), manual: true }
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Processamento iniciado",
+        description: "As comissões estão sendo verificadas. Isso pode levar alguns instantes.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['commissions'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao processar",
+        description: error.message || "Não foi possível processar as comissões",
+        variant: "destructive",
+      });
     },
   });
 
@@ -289,6 +315,24 @@ export default function AdminSettings() {
               <p className="text-sm text-muted-foreground">
                 Escolha com que frequência o sistema verificará as comissões pendentes
               </p>
+              <div className="mt-3 pt-3 border-t">
+                <Button 
+                  variant="outline"
+                  onClick={() => processCommissionsMutation.mutate()}
+                  disabled={processCommissionsMutation.isPending}
+                  className="w-full sm:w-auto"
+                >
+                  {processCommissionsMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                  )}
+                  Processar Comissões Agora
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Clique para verificar e atualizar o status das comissões manualmente
+                </p>
+              </div>
             </div>
 
             <div className="pt-2">
