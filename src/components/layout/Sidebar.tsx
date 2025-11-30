@@ -538,7 +538,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               closeSidebar?.();
               handleLogout();
             }}
-            className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm border border-border/50"
+            className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
             style={{ color: currentTextColor }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = `${accentColor}30`;
@@ -553,7 +553,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
           
           {isAdmin && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               className="h-9 w-9"
               onClick={() => setShowAdminMenu(!showAdminMenu)}
