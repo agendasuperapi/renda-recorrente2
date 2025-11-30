@@ -306,6 +306,34 @@ const AdminCommissionLevels = () => {
       </div>
 
       <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Layers className="h-5 w-5" />
+            Limite Máximo de Níveis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-end gap-4">
+            <div className="flex-1">
+              <Label htmlFor="maxLevels">Níveis Permitidos (configuração global)</Label>
+              <Input
+                id="maxLevels"
+                type="number"
+                min="1"
+                max="10"
+                value={maxLevels}
+                onChange={(e) => setMaxLevels(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleSaveMaxLevels} disabled={isSaving}>
+              <Save className="h-4 w-4 mr-2" />
+              {isSaving ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg">Selecione o Plano</CardTitle>
         </CardHeader>
@@ -324,34 +352,6 @@ const AdminCommissionLevels = () => {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Layers className="h-5 w-5" />
-            Limite Máximo de Níveis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <Label htmlFor="maxLevels">Níveis Permitidos</Label>
-              <Input
-                id="maxLevels"
-                type="number"
-                min="1"
-                max="10"
-                value={maxLevels}
-                onChange={(e) => setMaxLevels(e.target.value)}
-              />
-            </div>
-            <Button onClick={handleSaveMaxLevels} disabled={isSaving}>
-              <Save className="h-4 w-4 mr-2" />
-              {isSaving ? "Salvando..." : "Salvar"}
-            </Button>
           </div>
         </CardContent>
       </Card>

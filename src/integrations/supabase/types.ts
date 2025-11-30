@@ -1149,6 +1149,75 @@ export type Database = {
           },
         ]
       }
+      plan_commission_levels: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          level: number
+          percentage: number
+          plan_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level: number
+          percentage: number
+          plan_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number
+          percentage?: number
+          plan_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_commission_levels_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_commission_levels_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "plan_commission_levels_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "plan_commission_levels_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "plan_commission_levels_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+        ]
+      }
       plan_features: {
         Row: {
           created_at: string | null
