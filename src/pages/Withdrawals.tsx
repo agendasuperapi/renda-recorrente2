@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -192,7 +192,7 @@ const getNextWithdrawalDate = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Disponível para Saque
             </CardTitle>
-            <Wallet className="h-4 w-4 text-success" />
+            <CircleDollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">
@@ -206,7 +206,7 @@ const getNextWithdrawalDate = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Em Análise (Pendente)
             </CardTitle>
-            <Wallet className="h-4 w-4 text-info" />
+            <Clock className="h-4 w-4 text-info" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-info">
@@ -223,7 +223,7 @@ const getNextWithdrawalDate = () => {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Sacado
             </CardTitle>
-            <Wallet className="h-4 w-4 text-primary" />
+            <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
