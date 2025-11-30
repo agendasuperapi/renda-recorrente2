@@ -169,11 +169,11 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
     },
   });
 
-  const handleSaveWithdrawalDay = () => {
-    if (withdrawalDay) {
-      updateWithdrawalDayMutation.mutate(withdrawalDay);
-    }
-  };
+   const handleSaveWithdrawalDay = () => {
+     if (withdrawalDay !== null && withdrawalDay !== undefined) {
+       updateWithdrawalDayMutation.mutate(withdrawalDay);
+     }
+   };
 
   if (!affiliateId) return null;
 
