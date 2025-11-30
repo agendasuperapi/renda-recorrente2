@@ -27,6 +27,8 @@ import {
   ChevronDown,
   PlusSquare,
   Coins,
+  Zap,
+  Star,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -109,6 +111,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   });
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userPlan, setUserPlan] = useState<{ is_free: boolean; plan_name: string | null } | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
@@ -204,6 +207,26 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
         if (data) {
           setAvatarUrl(data.avatar_url);
           setUserName(data.name);
+        }
+
+        // Buscar plano do usuário através de subscriptions
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('plan_id, plans(name, is_free)')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (subscription && subscription.plans) {
+          setUserPlan({
+            is_free: (subscription.plans as any).is_free || false,
+            plan_name: (subscription.plans as any).name || null,
+          });
+        } else {
+          // Usuário sem plano ativo = FREE
+          setUserPlan({ is_free: true, plan_name: null });
         }
       }
     };
@@ -468,13 +491,40 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
 
       <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex flex-col items-center gap-3 px-3 py-2">
-          <div className="flex items-center gap-2">
-            <Avatar className="w-16 h-16">
-              {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-              <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Avatar className="w-16 h-16">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
+                <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+              
+              {/* Badge FREE/PRO */}
+              {userPlan && (
+                <div 
+                  className={cn(
+                    "absolute -top-1 -right-1 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg border",
+                    userPlan.is_free 
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" 
+                      : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500"
+                  )}
+                >
+                  {userPlan.is_free ? (
+                    <>
+                      <Zap className="w-2.5 h-2.5" />
+                      <span>FREE</span>
+                    </>
+                  ) : (
+                    <>
+                      <Star className="w-2.5 h-2.5" />
+                      <span>PRO</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
             {isAdmin && (
               <Button
                 variant="ghost"
