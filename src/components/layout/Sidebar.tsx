@@ -520,12 +520,12 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                 {userPlan.is_free ? (
                   <>
                     <Zap className="w-3.5 h-3.5" />
-                    <span>FREE</span>
+                    <span>PLANO FREE</span>
                   </>
                 ) : (
                   <>
                     <Star className="w-3.5 h-3.5" />
-                    <span>PRO</span>
+                    <span>PLANO PRO</span>
                   </>
                 )}
               </div>
