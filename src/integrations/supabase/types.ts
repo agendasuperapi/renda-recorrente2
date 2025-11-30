@@ -1540,6 +1540,7 @@ export type Database = {
           tiktok: string | null
           updated_at: string | null
           username: string | null
+          withdrawal_day: number | null
         }
         Insert: {
           affiliate_code?: string | null
@@ -1572,6 +1573,7 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string | null
           username?: string | null
+          withdrawal_day?: number | null
         }
         Update: {
           affiliate_code?: string | null
@@ -1604,6 +1606,7 @@ export type Database = {
           tiktok?: string | null
           updated_at?: string | null
           username?: string | null
+          withdrawal_day?: number | null
         }
         Relationships: [
           {

@@ -21,7 +21,7 @@ export default function AdminSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('*')
-        .in('key', ['environment_mode', 'commission_days_to_available', 'commission_min_withdrawal']);
+        .in('key', ['environment_mode', 'commission_days_to_available', 'commission_min_withdrawal', 'commission_check_schedule']);
 
       if (error) {
         console.error('Error fetching settings:', error);
@@ -35,14 +35,26 @@ export default function AdminSettings() {
   const settingData = settingsData?.find(s => s.key === 'environment_mode');
   const commissionDaysData = settingsData?.find(s => s.key === 'commission_days_to_available');
   const commissionMinData = settingsData?.find(s => s.key === 'commission_min_withdrawal');
+  const commissionScheduleData = settingsData?.find(s => s.key === 'commission_check_schedule');
   
   const [commissionDays, setCommissionDays] = useState('7');
   const [commissionMin, setCommissionMin] = useState('50.00');
+  const [scheduleType, setScheduleType] = useState<'hourly' | 'specific'>('hourly');
+  const [scheduleTime, setScheduleTime] = useState('00:00');
 
   useEffect(() => {
     if (commissionDaysData) setCommissionDays(commissionDaysData.value);
     if (commissionMinData) setCommissionMin(commissionMinData.value);
-  }, [commissionDaysData, commissionMinData]);
+    if (commissionScheduleData) {
+      const value = commissionScheduleData.value;
+      if (value === 'hourly') {
+        setScheduleType('hourly');
+      } else {
+        setScheduleType('specific');
+        setScheduleTime(value);
+      }
+    }
+  }, [commissionDaysData, commissionMinData, commissionScheduleData]);
 
   const isProduction = settingData?.value === 'production';
 
@@ -63,7 +75,7 @@ export default function AdminSettings() {
 
   // Mutation para atualizar configurações de comissão
   const updateCommissionSettingsMutation = useMutation({
-    mutationFn: async ({ days, min }: { days: string; min: string }) => {
+    mutationFn: async ({ days, min, schedule }: { days: string; min: string; schedule: string }) => {
       const updates = [
         supabase
           .from('app_settings')
@@ -73,6 +85,15 @@ export default function AdminSettings() {
           .from('app_settings')
           .update({ value: min })
           .eq('key', 'commission_min_withdrawal'),
+        supabase
+          .from('app_settings')
+          .upsert({
+            key: 'commission_check_schedule',
+            value: schedule,
+            description: 'Frequência de verificação das comissões'
+          }, {
+            onConflict: 'key'
+          })
       ];
 
       const results = await Promise.all(updates);
@@ -105,14 +126,17 @@ export default function AdminSettings() {
 
   const handleSaveCommissionSettings = async () => {
     try {
+      const scheduleValue = scheduleType === 'hourly' ? 'hourly' : scheduleTime;
+      
       await updateCommissionSettingsMutation.mutateAsync({
         days: commissionDays,
         min: commissionMin,
+        schedule: scheduleValue,
       });
       
       toast({
         title: "Configurações salvas",
-        description: "Configurações de comissão atualizadas com sucesso",
+        description: "Configurações de comissão atualizadas com sucesso. Atualize o cron job no SQL Editor.",
       });
     } catch (error) {
       toast({
@@ -205,6 +229,46 @@ export default function AdminSettings() {
               </p>
             </div>
 
+            <div className="space-y-2">
+              <Label>Frequência de Verificação</Label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="schedule-hourly"
+                    checked={scheduleType === 'hourly'}
+                    onChange={() => setScheduleType('hourly')}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="schedule-hourly" className="font-normal cursor-pointer">
+                    A cada hora (recomendado)
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="schedule-specific"
+                    checked={scheduleType === 'specific'}
+                    onChange={() => setScheduleType('specific')}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="schedule-specific" className="font-normal cursor-pointer">
+                    Horário específico:
+                  </Label>
+                  <Input
+                    type="time"
+                    value={scheduleTime}
+                    onChange={(e) => setScheduleTime(e.target.value)}
+                    disabled={scheduleType !== 'specific'}
+                    className="max-w-[150px]"
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Escolha com que frequência o sistema verificará as comissões pendentes
+              </p>
+            </div>
+
             <div className="pt-2">
               <Button 
                 onClick={handleSaveCommissionSettings}
@@ -223,11 +287,13 @@ export default function AdminSettings() {
             <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
               <li>Comissões são criadas automaticamente quando um pagamento é processado</li>
               <li>Status inicial: <strong>Pendente</strong></li>
-              <li>Após {commissionDays} dias do pagamento, o sistema verifica se é o dia de saque do afiliado</li>
-              <li>Cada afiliado tem um dia específico baseado no dia da semana do cadastro</li>
-              <li>O sistema verifica se o total pendente é maior ou igual a R$ {commissionMin}</li>
-              <li>Se todas as condições forem atendidas, o status muda para <strong>Disponível</strong></li>
-              <li>A verificação é executada automaticamente a cada hora</li>
+              <li>Após {commissionDays} dias do pagamento, o status muda para <strong>Disponível</strong></li>
+              <li>Na tela de Saques, o afiliado só pode solicitar saque se:</li>
+              <ul className="ml-6 space-y-1">
+                <li>• For o dia de saque dele (baseado no dia da semana do cadastro)</li>
+                <li>• Tiver saldo disponível maior ou igual a R$ {commissionMin}</li>
+              </ul>
+              <li>A verificação automática é executada {scheduleType === 'hourly' ? 'a cada hora' : `diariamente às ${scheduleTime}`}</li>
             </ul>
           </div>
         </CardContent>

@@ -1,13 +1,21 @@
--- Configurar cron job para processar comissões a cada hora
+-- Configurar cron job para processar comissões
 -- Este script usa pg_cron para agendar a execução da edge function
+-- IMPORTANTE: Ajuste o cron schedule de acordo com a configuração em app_settings.commission_check_schedule
 
 -- Remover job existente se houver
-SELECT cron.unschedule('process-commission-status-hourly');
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'process-commission-status-hourly') THEN
+    PERFORM cron.unschedule('process-commission-status-hourly');
+  END IF;
+END $$;
 
--- Criar novo job para executar a cada hora
+-- Criar novo job
+-- Para HOURLY use: '0 * * * *' (a cada hora no minuto 0)
+-- Para horário específico use: '0 HH * * *' (ex: '0 0 * * *' para meia-noite, '0 6 * * *' para 6h)
 SELECT cron.schedule(
   'process-commission-status-hourly',
-  '0 * * * *', -- A cada hora no minuto 0
+  '0 * * * *', -- ⚠️ AJUSTE AQUI conforme app_settings.commission_check_schedule
   $$
   SELECT
     net.http_post(
@@ -19,4 +27,4 @@ SELECT cron.schedule(
 );
 
 -- Verificar se o job foi criado
-SELECT * FROM cron.job WHERE jobname = 'process-commission-status-hourly';
+SELECT jobname, schedule, command FROM cron.job WHERE jobname = 'process-commission-status-hourly';

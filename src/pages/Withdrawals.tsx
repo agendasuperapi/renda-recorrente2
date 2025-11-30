@@ -2,99 +2,263 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, Plus } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const DAYS_OF_WEEK = {
+  1: "Segunda-feira",
+  2: "Terça-feira",
+  3: "Quarta-feira",
+  4: "Quinta-feira",
+  5: "Sexta-feira"
+};
 
 const Withdrawals = () => {
+  const { userId } = useAuth();
+
+  // Buscar dados do perfil
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ['profile', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('withdrawal_day, name')
+        .eq('id', userId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId
+  });
+
+  // Buscar configurações
+  const { data: settings } = useQuery({
+    queryKey: ['withdrawal-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('key, value')
+        .in('key', ['commission_min_withdrawal', 'commission_days_to_available']);
+      
+      if (error) throw error;
+      
+      return {
+        minWithdrawal: parseFloat(data?.find(s => s.key === 'commission_min_withdrawal')?.value || '50'),
+        daysToAvailable: parseInt(data?.find(s => s.key === 'commission_days_to_available')?.value || '7')
+      };
+    }
+  });
+
+  // Buscar comissões disponíveis
+  const { data: commissionsData, isLoading: commissionsLoading } = useQuery({
+    queryKey: ['commissions-summary', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('commissions')
+        .select('status, amount')
+        .eq('affiliate_id', userId);
+      
+      if (error) throw error;
+      
+      const available = data?.filter(c => c.status === 'available').reduce((sum, c) => sum + c.amount, 0) || 0;
+      const pending = data?.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.amount, 0) || 0;
+      const paid = data?.filter(c => c.status === 'paid').reduce((sum, c) => sum + c.amount, 0) || 0;
+      
+      return { available, pending, paid };
+    },
+    enabled: !!userId
+  });
+
+  // Verificar se hoje é o dia de saque
+  const today = new Date();
+  let currentDayOfWeek = today.getDay();
+  if (currentDayOfWeek === 0 || currentDayOfWeek === 6) {
+    currentDayOfWeek = 1; // Dom/Sáb = Segunda
+  }
+
+  const isWithdrawalDay = profile?.withdrawal_day === currentDayOfWeek;
+  const hasMinimumAmount = (commissionsData?.available || 0) >= (settings?.minWithdrawal || 50);
+  const canWithdraw = isWithdrawalDay && hasMinimumAmount;
+
+  // Calcular próximo dia de saque
+  const getNextWithdrawalDate = () => {
+    if (!profile?.withdrawal_day) return null;
+    
+    const daysUntil = profile.withdrawal_day - currentDayOfWeek;
+    const daysToAdd = daysUntil > 0 ? daysUntil : (7 + daysUntil);
+    
+    const nextDate = new Date();
+    nextDate.setDate(today.getDate() + daysToAdd);
+    
+    return nextDate.toLocaleDateString('pt-BR', { 
+      weekday: 'long', 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+  };
+
+  if (profileLoading || commissionsLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-20 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Saques</h1>
-            <p className="text-muted-foreground">
-              Gerencie suas solicitações de saque
-            </p>
-          </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Solicitar Saque
-          </Button>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Saques</h1>
+          <p className="text-muted-foreground">
+            Gerencie suas solicitações de saque
+          </p>
         </div>
+        <Button 
+          className="gap-2" 
+          disabled={!canWithdraw}
+        >
+          <Plus className="h-4 w-4" />
+          Solicitar Saque
+        </Button>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Disponível para Saque
-              </CardTitle>
-              <Wallet className="h-4 w-4 text-success" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">R$ 0,00</div>
-            </CardContent>
-          </Card>
+      {/* Card de Status de Saque */}
+      {!canWithdraw && (
+        <Alert variant={isWithdrawalDay ? "default" : "destructive"}>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Solicitação de Saque Indisponível</AlertTitle>
+          <AlertDescription className="space-y-2 mt-2">
+            <p>Para solicitar saque, você precisa:</p>
+            <ul className="space-y-1 ml-4">
+              <li className="flex items-center gap-2">
+                {isWithdrawalDay ? (
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-destructive" />
+                )}
+                <span>
+                  Aguardar seu dia de saque ({DAYS_OF_WEEK[profile?.withdrawal_day || 1]})
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                {hasMinimumAmount ? (
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                ) : (
+                  <XCircle className="h-4 w-4 text-destructive" />
+                )}
+                <span>
+                  Ter saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} 
+                  (Você tem: R$ {commissionsData?.available.toFixed(2)})
+                </span>
+              </li>
+            </ul>
+            {!isWithdrawalDay && (
+              <p className="mt-3 font-medium">
+                <Clock className="inline h-4 w-4 mr-1" />
+                Próximo dia de saque: {getNextWithdrawalDate()}
+              </p>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Em Análise
-              </CardTitle>
-              <Wallet className="h-4 w-4 text-info" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-info">R$ 0,00</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Sacado
-              </CardTitle>
-              <Wallet className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">R$ 0,00</div>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Histórico de Saques</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Disponível para Saque
+            </CardTitle>
+            <Wallet className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data Solicitação</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Chave PIX</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data Pagamento</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    Nenhum saque solicitado
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <div className="text-2xl font-bold text-success">
+              R$ {commissionsData?.available.toFixed(2) || '0,00'}
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-info/5 border-info/20">
-          <CardHeader>
-            <CardTitle className="text-sm">Informações Importantes</CardTitle>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Em Análise (Pendente)
+            </CardTitle>
+            <Wallet className="h-4 w-4 text-info" />
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>• O valor mínimo para saque é R$ 50,00</p>
-            <p>• Saques são processados toda segunda-feira</p>
-            <p>• Certifique-se de que seus dados PIX estão corretos no seu perfil</p>
+          <CardContent>
+            <div className="text-2xl font-bold text-info">
+              R$ {commissionsData?.pending.toFixed(2) || '0,00'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Disponível em até {settings?.daysToAvailable} dias após o pagamento
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Sacado
+            </CardTitle>
+            <Wallet className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              R$ {commissionsData?.paid.toFixed(2) || '0,00'}
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Histórico de Saques</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data Solicitação</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead>Chave PIX</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Data Pagamento</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  Nenhum saque solicitado
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-info/5 border-info/20">
+        <CardHeader>
+          <CardTitle className="text-sm">Informações Importantes</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground space-y-2">
+          <p>• O valor mínimo para saque é R$ {settings?.minWithdrawal.toFixed(2)}</p>
+          <p>• Seu dia de saque é: {DAYS_OF_WEEK[profile?.withdrawal_day || 1]}</p>
+          <p>• Comissões ficam disponíveis após {settings?.daysToAvailable} dias do pagamento</p>
+          <p>• Certifique-se de que seus dados PIX estão corretos no seu perfil</p>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
