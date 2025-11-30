@@ -31,7 +31,7 @@ type Withdrawal = {
   rejected_reason: string | null;
   approved_by: string | null;
   commission_ids: string[];
-  payment_proof_url: string | null;
+  payment_proof_url: string[];
   created_at: string;
   profiles?: {
     name: string;
@@ -40,13 +40,19 @@ type Withdrawal = {
   };
 };
 
+type PaymentProofFile = {
+  file: File;
+  previewUrl: string;
+  id: string;
+};
+
 export default function AdminWithdrawals() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofs, setPaymentProofs] = useState<PaymentProofFile[]>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
@@ -134,7 +140,7 @@ export default function AdminWithdrawals() {
       id: string; 
       status: string; 
       rejectedReason?: string;
-      paymentProofUrl?: string | null;
+      paymentProofUrl?: string[] | null;
     }) => {
       const updateData: any = { status };
       
@@ -179,7 +185,9 @@ export default function AdminWithdrawals() {
       });
       setDialogOpen(false);
       setRejectReason("");
-      setPaymentProof(null);
+      // Cleanup all preview URLs
+      paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
+      setPaymentProofs([]);
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
@@ -195,12 +203,13 @@ export default function AdminWithdrawals() {
   });
 
   const handleViewDetails = (withdrawal: Withdrawal) => {
-    // Cleanup previous preview URL if exists
+    // Cleanup previous preview URLs if exist
+    paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
+    setPaymentProofs([]);
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
-    setPaymentProof(null);
     setSelectedWithdrawal(withdrawal);
     setDialogOpen(true);
   };
@@ -209,13 +218,37 @@ export default function AdminWithdrawals() {
     setDialogOpen(open);
     if (!open) {
       // Cleanup when dialog closes
+      paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
+      setPaymentProofs([]);
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
       }
-      setPaymentProof(null);
       setRejectReason("");
     }
+  };
+
+  const handleAddProof = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newProofs: PaymentProofFile[] = Array.from(files).map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      id: crypto.randomUUID()
+    }));
+
+    setPaymentProofs(prev => [...prev, ...newProofs]);
+  };
+
+  const handleRemoveProof = (id: string) => {
+    setPaymentProofs(prev => {
+      const proofToRemove = prev.find(p => p.id === id);
+      if (proofToRemove) {
+        URL.revokeObjectURL(proofToRemove.previewUrl);
+      }
+      return prev.filter(p => p.id !== id);
+    });
   };
 
   const handleApprove = (id: string) => {
@@ -223,25 +256,28 @@ export default function AdminWithdrawals() {
   };
 
   const handlePaid = async (id: string) => {
-    let proofUrl = null;
+    const proofUrls: string[] = [];
     
-    if (paymentProof) {
+    if (paymentProofs.length > 0) {
       try {
-        const fileExt = paymentProof.name.split('.').pop();
-        const fileName = `${id}-${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        // Upload all files
+        for (const proof of paymentProofs) {
+          const fileExt = proof.file.name.split('.').pop();
+          const fileName = `${id}-${Date.now()}-${proof.id}.${fileExt}`;
+          const filePath = `${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('payment-proofs')
-          .upload(filePath, paymentProof);
+          const { error: uploadError } = await supabase.storage
+            .from('payment-proofs')
+            .upload(filePath, proof.file);
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('payment-proofs')
-          .getPublicUrl(filePath);
+          const { data: { publicUrl } } = supabase.storage
+            .from('payment-proofs')
+            .getPublicUrl(filePath);
 
-        proofUrl = publicUrl;
+          proofUrls.push(publicUrl);
+        }
       } catch (error: any) {
         toast({
           title: "Erro ao fazer upload",
@@ -254,8 +290,8 @@ export default function AdminWithdrawals() {
 
     updateWithdrawalMutation.mutate({ 
       id, 
-      status: "paid", 
-      paymentProofUrl: proofUrl 
+      status: "paid",
+      paymentProofUrl: proofUrls.length > 0 ? proofUrls : null
     });
   };
 
@@ -536,14 +572,23 @@ export default function AdminWithdrawals() {
                       <p className="text-red-600">{selectedWithdrawal.rejected_reason}</p>
                     </div>
                   )}
-                  {selectedWithdrawal.payment_proof_url && (
+                  {selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.length > 0 && (
                     <div className="col-span-2">
-                      <p className="text-sm text-muted-foreground mb-2">Comprovante de Pagamento</p>
-                      <img 
-                        src={selectedWithdrawal.payment_proof_url} 
-                        alt="Comprovante de pagamento" 
-                        className="max-w-md rounded-lg border"
-                      />
+                      <p className="text-sm text-muted-foreground mb-2">Comprovantes de Pagamento ({selectedWithdrawal.payment_proof_url.length})</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        {selectedWithdrawal.payment_proof_url.map((url, index) => (
+                          <img 
+                            key={index}
+                            src={url} 
+                            alt={`Comprovante de pagamento ${index + 1}`} 
+                            className="max-w-full rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => {
+                              setViewerImageUrl(url);
+                              setImageViewerOpen(true);
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -560,60 +605,78 @@ export default function AdminWithdrawals() {
                 )}
 
                 {(selectedWithdrawal.status === "approved" || selectedWithdrawal.status === "paid") && (
-                  <div className="space-y-2 pt-4 border-t">
-                    <Label htmlFor="payment-proof">
-                      {selectedWithdrawal.status === "paid" ? "Comprovante anexado" : "Anexar Comprovante de Pagamento PIX"}
-                    </Label>
-                    <Input
-                      id="payment-proof"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        setPaymentProof(file);
-                        if (file) {
-                          const url = URL.createObjectURL(file);
-                          setPreviewUrl(url);
-                        } else {
-                          setPreviewUrl(null);
-                        }
-                      }}
-                      disabled={selectedWithdrawal.status === "paid"}
-                    />
-                    {paymentProof && (
-                      <p className="text-xs text-muted-foreground">
-                        Arquivo selecionado: {paymentProof.name}
-                      </p>
-                    )}
-                    {previewUrl && (
-                      <div className="mt-4">
-                        <p className="text-sm font-medium mb-2">Pré-visualização:</p>
-                        <img 
-                          src={previewUrl} 
-                          alt="Pré-visualização do comprovante" 
-                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => {
-                            setViewerImageUrl(previewUrl);
-                            setImageViewerOpen(true);
-                          }}
+                  <div className="space-y-4 pt-4 border-t">
+                    <div>
+                      <Label htmlFor="payment-proof">
+                        {selectedWithdrawal.status === "paid" ? "Comprovantes anexados" : "Anexar Comprovantes de Pagamento PIX"}
+                      </Label>
+                      {selectedWithdrawal.status !== "paid" && (
+                        <Input
+                          id="payment-proof"
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleAddProof}
+                          className="mt-2"
                         />
+                      )}
+                    </div>
+                    
+                    {/* Preview de novos comprovantes sendo adicionados */}
+                    {paymentProofs.length > 0 && selectedWithdrawal.status !== "paid" && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Comprovantes para upload ({paymentProofs.length}):</p>
+                        <div className="grid grid-cols-2 gap-4">
+                          {paymentProofs.map((proof) => (
+                            <div key={proof.id} className="relative group">
+                              <img 
+                                src={proof.previewUrl} 
+                                alt="Pré-visualização do comprovante" 
+                                className="w-full h-auto max-h-[200px] object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => {
+                                  setViewerImageUrl(proof.previewUrl);
+                                  setImageViewerOpen(true);
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => handleRemoveProof(proof.id)}
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                              <p className="text-xs text-muted-foreground mt-1 truncate">{proof.file.name}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
-                    {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && (
-                      <div className="mt-4">
-                        <p className="text-sm font-medium mb-2">Comprovante de pagamento:</p>
-                        <img 
-                          src={selectedWithdrawal.payment_proof_url} 
-                          alt="Comprovante de pagamento" 
-                          className="max-w-full h-auto max-h-[400px] rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => {
-                            setViewerImageUrl(selectedWithdrawal.payment_proof_url);
-                            setImageViewerOpen(true);
-                          }}
-                        />
+
+                    {/* Comprovantes salvos (quando o saque está pago) */}
+                    {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Comprovantes de pagamento ({selectedWithdrawal.payment_proof_url.length}):</p>
+                        <div className="grid grid-cols-2 gap-4">
+                          {selectedWithdrawal.payment_proof_url.map((url, index) => (
+                            <div key={index} className="relative">
+                              <img 
+                                src={url} 
+                                alt={`Comprovante de pagamento ${index + 1}`} 
+                                className="w-full h-auto max-h-[200px] object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => {
+                                  setViewerImageUrl(url);
+                                  setImageViewerOpen(true);
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
-                    {selectedWithdrawal.status === "paid" && !selectedWithdrawal.payment_proof_url && (
+                    
+                    {selectedWithdrawal.status === "paid" && (!selectedWithdrawal.payment_proof_url || selectedWithdrawal.payment_proof_url.length === 0) && (
                       <p className="text-xs text-muted-foreground">
                         Nenhum comprovante anexado
                       </p>
@@ -646,7 +709,7 @@ export default function AdminWithdrawals() {
                     <Button
                       variant="default"
                       onClick={() => handlePaid(selectedWithdrawal.id)}
-                      disabled={updateWithdrawalMutation.isPending || !paymentProof}
+                      disabled={updateWithdrawalMutation.isPending || paymentProofs.length === 0}
                     >
                       <DollarSign className="h-4 w-4 mr-2" />
                       Marcar como Pago
