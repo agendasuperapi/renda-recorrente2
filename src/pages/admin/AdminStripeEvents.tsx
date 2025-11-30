@@ -388,13 +388,12 @@ const AdminStripeEvents = () => {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
-  const [subscriptionIdFilter, setSubscriptionIdFilter] = useState<string>("");
   const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
   const [sortColumn, setSortColumn] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const { data: eventsData, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, subscriptionIdFilter, environmentFilter, sortColumn, sortDirection],
+    queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, environmentFilter, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
@@ -407,16 +406,12 @@ const AdminStripeEvents = () => {
 
       if (debouncedSearch) {
         query = query.or(
-          `event_id.ilike.%${debouncedSearch}%,event_type.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,user_name.ilike.%${debouncedSearch}%`
+          `event_id.ilike.%${debouncedSearch}%,event_type.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,user_name.ilike.%${debouncedSearch}%,stripe_subscription_id.ilike.%${debouncedSearch}%`
         );
       }
 
       if (eventTypeFilter && eventTypeFilter !== "all") {
         query = query.eq("event_type", eventTypeFilter);
-      }
-
-      if (subscriptionIdFilter) {
-        query = query.eq("stripe_subscription_id", subscriptionIdFilter);
       }
 
       if (environmentFilter && environmentFilter !== "all") {
@@ -562,7 +557,7 @@ const AdminStripeEvents = () => {
             <form onSubmit={(e) => e.preventDefault()} className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por ID do evento, tipo ou email..."
+                placeholder="Buscar por ID do evento, Subscription ID, tipo, email..."
                 className="pl-9"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -572,14 +567,6 @@ const AdminStripeEvents = () => {
             </form>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Input
-                placeholder="Filtrar por Subscription ID..."
-                className="w-[280px]"
-                value={subscriptionIdFilter}
-                onChange={(e) => setSubscriptionIdFilter(e.target.value)}
-                type="text"
-                autoComplete="off"
-              />
             
               <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
                 <SelectTrigger className="w-[180px]">
@@ -644,7 +631,7 @@ const AdminStripeEvents = () => {
                 </PopoverContent>
               </Popover>
 
-              {(dateFrom || dateTo || eventTypeFilter !== "all" || subscriptionIdFilter || environmentFilter !== "all") && (
+              {(dateFrom || dateTo || eventTypeFilter !== "all" || environmentFilter !== "all") && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -652,7 +639,6 @@ const AdminStripeEvents = () => {
                     setDateFrom(undefined);
                     setDateTo(undefined);
                     setEventTypeFilter("all");
-                    setSubscriptionIdFilter("");
                     setEnvironmentFilter("all");
                   }}
                 >
