@@ -361,7 +361,7 @@ const getNextWithdrawalDate = () => {
                   {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Próximo saque: {getNextWithdrawalDate()}
+                  Sua solicitação de saque ficará disponível somente nesse dia
                 </p>
               </>
             )}
