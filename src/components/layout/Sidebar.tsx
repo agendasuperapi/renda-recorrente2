@@ -499,11 +499,32 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
               </AvatarFallback>
             </Avatar>
 
-            {/* Badge FREE/PRO */}
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setShowAdminMenu(!showAdminMenu)}
+                title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
+                style={{ color: currentTextColor }}
+              >
+                {showAdminMenu ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-col items-center text-center w-full gap-1">
+            <p className="text-sm font-medium truncate w-full" style={{ color: currentTextColor }}>
+              {userName || user.user_metadata?.name || "Usuário"}
+            </p>
+            <p className="text-xs truncate w-full" style={{ color: `${currentTextColor}70` }}>
+              {user.email}
+            </p>
+            
+            {/* Badge FREE/PRO abaixo do email */}
             {userPlan && (
               <div 
                 className={cn(
-                  "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold shadow-lg border",
+                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold shadow-lg border mt-1",
                   userPlan.is_free 
                     ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" 
                     : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500"
@@ -522,27 +543,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
                 )}
               </div>
             )}
-
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setShowAdminMenu(!showAdminMenu)}
-                title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
-                style={{ color: currentTextColor }}
-              >
-                {showAdminMenu ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
-              </Button>
-            )}
-          </div>
-          <div className="flex flex-col items-center text-center w-full">
-            <p className="text-sm font-medium truncate w-full" style={{ color: currentTextColor }}>
-              {userName || user.user_metadata?.name || "Usuário"}
-            </p>
-            <p className="text-xs truncate w-full" style={{ color: `${currentTextColor}70` }}>
-              {user.email}
-            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
