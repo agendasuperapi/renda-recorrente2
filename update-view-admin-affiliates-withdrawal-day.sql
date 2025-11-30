@@ -1,4 +1,4 @@
--- Atualizar view para incluir withdrawal_day
+-- Atualizar view para incluir withdrawal_day e contar indicações corretamente
 CREATE OR REPLACE VIEW view_admin_affiliates AS
 SELECT 
   p.id,
@@ -14,8 +14,8 @@ SELECT
   COALESCE(s.status, 'inactive') as plan_status,
   COALESCE((
     SELECT COUNT(*)::integer 
-    FROM referrals r 
-    WHERE r.referrer_id = p.id
+    FROM unified_users uu 
+    WHERE uu.affiliate_id = p.id
   ), 0) as referrals_count
 FROM profiles p
 LEFT JOIN LATERAL (
