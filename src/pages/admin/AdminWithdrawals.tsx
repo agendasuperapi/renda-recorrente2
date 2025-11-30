@@ -96,7 +96,21 @@ export default function AdminWithdrawals() {
       
       const { data, error } = await supabase
         .from("commissions")
-        .select("*")
+        .select(`
+          *,
+          products:product_id (
+            nome
+          ),
+          unified_users:unified_user_id (
+            name,
+            email
+          ),
+          subscriptions:subscription_id (
+            plans:plan_id (
+              name
+            )
+          )
+        `)
         .in("id", selectedWithdrawal.commission_ids)
         .order("created_at", { ascending: false });
       
@@ -529,29 +543,44 @@ export default function AdminWithdrawals() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Data</TableHead>
-                          <TableHead>Tipo</TableHead>
+                          <TableHead>Produto</TableHead>
+                          <TableHead>Cliente</TableHead>
+                          <TableHead>Plano</TableHead>
+                          <TableHead>Nível</TableHead>
+                          <TableHead>Percentual</TableHead>
                           <TableHead>Valor</TableHead>
-                          <TableHead>Porcentagem</TableHead>
-                          <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {commissions.map((commission: any) => (
                           <TableRow key={commission.id}>
-                            <TableCell className="text-xs">
-                              {format(new Date(commission.created_at), "dd/MM/yy", { locale: ptBR })}
+                            <TableCell className="text-xs whitespace-nowrap">
+                              {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                             </TableCell>
-                            <TableCell className="text-xs capitalize">
-                              {commission.commission_type}
+                            <TableCell className="text-sm">
+                              {commission.products?.nome || "N/A"}
                             </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium">
+                                  {commission.unified_users?.name || "N/A"}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {commission.unified_users?.email || "N/A"}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {commission.subscriptions?.plans?.name || "N/A"}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary" className="text-xs">
+                                N{commission.level || 1}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm">{commission.percentage}%</TableCell>
                             <TableCell className="font-semibold">
                               {Number(commission.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                            </TableCell>
-                            <TableCell>{commission.percentage}%</TableCell>
-                            <TableCell>
-                              <Badge variant={commission.status === "paid" ? "default" : "secondary"}>
-                                {commission.status}
-                              </Badge>
                             </TableCell>
                           </TableRow>
                         ))}
