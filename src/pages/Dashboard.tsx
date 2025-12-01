@@ -33,7 +33,6 @@ interface PrimaryCoupon {
   custom_code: string | null;
   affiliate_coupon_id: string | null;
 }
-
 interface RecentCommission {
   id: string;
   amount: number;
@@ -47,7 +46,6 @@ interface RecentCommission {
   level?: number;
   percentage?: number;
 }
-
 interface DailyChartData {
   date: string;
   comissoes: number;
@@ -124,9 +122,9 @@ const Dashboard = () => {
         }
 
         // Buscar últimas 10 comissões
-        const { data: commissions } = await supabase
-          .from('commissions')
-          .select(`
+        const {
+          data: commissions
+        } = await supabase.from('commissions').select(`
             id,
             amount,
             status,
@@ -141,11 +139,9 @@ const Dashboard = () => {
               plan_id,
               plans (name)
             )
-          `)
-          .eq('affiliate_id', session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
+          `).eq('affiliate_id', session.user.id).order('created_at', {
+          ascending: false
+        }).limit(10);
         if (commissions) {
           const formattedCommissions = commissions.map((c: any) => ({
             id: c.id,
@@ -166,20 +162,19 @@ const Dashboard = () => {
         // Buscar dados para o gráfico diário (últimos 30 dias)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const { data: dailyData, error: dailyError } = await supabase
-          .from('view_commissions_daily')
-          .select('data, valor')
-          .eq('affiliate_id', session.user.id)
-          .gte('data', thirtyDaysAgo.toISOString().split('T')[0])
-          .order('data', { ascending: true });
-
-        console.log('[Dashboard] Dados diários:', { dailyData, dailyError });
-
+        const {
+          data: dailyData,
+          error: dailyError
+        } = await supabase.from('view_commissions_daily').select('data, valor').eq('affiliate_id', session.user.id).gte('data', thirtyDaysAgo.toISOString().split('T')[0]).order('data', {
+          ascending: true
+        });
+        console.log('[Dashboard] Dados diários:', {
+          dailyData,
+          dailyError
+        });
         if (dailyData && dailyData.length > 0) {
           // Agregar por dia: valor total das comissões
           const aggregateByDate = new Map<string, number>();
-
           dailyData.forEach((d: any) => {
             const dateObj = new Date(d.data);
             if (isNaN(dateObj.getTime())) return;
@@ -187,30 +182,33 @@ const Dashboard = () => {
             const existing = aggregateByDate.get(dateKey) || 0;
             aggregateByDate.set(dateKey, existing + (Number(d.valor) || 0));
           });
-
-          const chartData: DailyChartData[] = Array.from(aggregateByDate.entries())
-            .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-            .map(([dateKey, value]) => ({
-              date: new Date(dateKey).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-              comissoes: value,
-            }));
-
+          const chartData: DailyChartData[] = Array.from(aggregateByDate.entries()).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([dateKey, value]) => ({
+            date: new Date(dateKey).toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit'
+            }),
+            comissoes: value
+          }));
           console.log('[Dashboard] Chart data formatado:', chartData);
           setDailyChartData(chartData);
         } else {
           console.log('[Dashboard] Nenhum dado diário encontrado ou erro na query');
           // Se não houver dados, criar dados de exemplo para visualização
-          const exampleData = Array.from({ length: 7 }, (_, i) => {
+          const exampleData = Array.from({
+            length: 7
+          }, (_, i) => {
             const date = new Date();
             date.setDate(date.getDate() - (6 - i));
             return {
-              date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+              date: date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit'
+              }),
               comissoes: 0
             };
           });
           setDailyChartData(exampleData);
         }
-
         setLoading(false);
         if (profile) {
           setUserName(profile.name);
@@ -541,42 +539,30 @@ const Dashboard = () => {
               </p>
             </CardHeader>
             <CardContent>
-              {dailyChartData.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+              {dailyChartData.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   Nenhum dado disponível
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
+                </div> : <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={dailyChartData}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis 
-                      dataKey="date" 
-                      className="text-xs"
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                    />
-                    <YAxis 
-                      className="text-xs"
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      label={{ value: 'Comissões (R$)', angle: -90, position: 'insideLeft' }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--popover))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                      formatter={(value: any) => [formatCurrency(value), 'Comissões']}
-                    />
+                    <XAxis dataKey="date" className="text-xs" tick={{
+                fill: 'hsl(var(--muted-foreground))'
+              }} />
+                    <YAxis className="text-xs" tick={{
+                fill: 'hsl(var(--muted-foreground))'
+              }} label={{
+                value: 'Comissões (R$)',
+                angle: -90,
+                position: 'insideLeft'
+              }} />
+                    <Tooltip contentStyle={{
+                backgroundColor: 'hsl(var(--popover))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '8px'
+              }} formatter={(value: any) => [formatCurrency(value), 'Comissões']} />
                     <Legend />
-                    <Bar 
-                      dataKey="comissoes" 
-                      fill="hsl(var(--success))" 
-                      name="Comissões"
-                      radius={[4, 4, 0, 0]}
-                    />
+                    <Bar dataKey="comissoes" fill="hsl(var(--success))" name="Comissões" radius={[4, 4, 0, 0]} />
                   </BarChart>
-                </ResponsiveContainer>
-              )}
+                </ResponsiveContainer>}
             </CardContent>
           </Card>
 
@@ -642,28 +628,16 @@ const Dashboard = () => {
               Veja aqui suas últimas comissões
             </p>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate('/commissions-daily')}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate('/commissions-daily')} className="gap-2">
             Ver todas
             <ArrowRight className="w-4 h-4" />
           </Button>
         </CardHeader>
         <CardContent>
-          {recentCommissions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+          {recentCommissions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
               Nenhum registro encontrado...
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentCommissions.map((commission) => (
-                <div 
-                  key={commission.id} 
-                  className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                >
+            </div> : <div className="space-y-3">
+              {recentCommissions.map(commission => <div key={commission.id} className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                   <div className="flex-1 space-y-1">
                     <div className="font-semibold text-sm">
                       {commission.product_nome || 'Produto'}
@@ -686,38 +660,16 @@ const Dashboard = () => {
                     <div className="font-bold text-base">
                       {formatCurrency(commission.amount)}
                     </div>
-                    <div className={`text-xs mt-1 ${
-                      commission.status === 'available' ? 'text-success' :
-                      commission.status === 'pending' ? 'text-destructive' :
-                      commission.status === 'paid' ? 'text-primary' :
-                      'text-muted-foreground'
-                    }`}>
-                      {commission.status === 'available' ? 'Disponível' :
-                       commission.status === 'pending' ? 'Pendente' :
-                       commission.status === 'paid' ? 'Pago' :
-                       commission.status}
+                    <div className={`text-xs mt-1 ${commission.status === 'available' ? 'text-success' : commission.status === 'pending' ? 'text-destructive' : commission.status === 'paid' ? 'text-primary' : 'text-muted-foreground'}`}>
+                      {commission.status === 'available' ? 'Disponível' : commission.status === 'pending' ? 'Pendente' : commission.status === 'paid' ? 'Pago' : commission.status}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                </div>)}
+            </div>}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Comissões diárias</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Veja suas comissões diárias do mês atual
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum registro encontrado...
-          </div>
-        </CardContent>
-      </Card>
+      
 
       <Card className="bg-gradient-to-br from-primary/10 to-success/10 border-primary/20">
         <CardHeader>
