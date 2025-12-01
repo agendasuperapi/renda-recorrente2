@@ -74,6 +74,20 @@ export default function AdminWithdrawals() {
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
+  // Buscar estatísticas de saques
+  const { data: stats } = useQuery({
+    queryKey: ["withdrawals-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("view_withdrawals_stats")
+        .select("*")
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Buscar total de registros
   const { data: totalCount } = useQuery({
     queryKey: ["admin-withdrawals-count", debouncedSearch, statusFilter],
@@ -402,10 +416,11 @@ export default function AdminWithdrawals() {
   };
 
   const statsData = {
-    totalPending: withdrawals?.filter(w => w.status === "pending").reduce((sum, w) => sum + Number(w.amount), 0) || 0,
-    totalApproved: withdrawals?.filter(w => w.status === "approved").reduce((sum, w) => sum + Number(w.amount), 0) || 0,
-    totalPaid: withdrawals?.filter(w => w.status === "paid").reduce((sum, w) => sum + Number(w.amount), 0) || 0,
-    totalRejected: withdrawals?.filter(w => w.status === "rejected").length || 0,
+    totalPending: stats?.total_pending || 0,
+    totalApproved: stats?.total_approved || 0,
+    totalPaid: stats?.total_paid || 0,
+    totalRejected: stats?.total_rejected_count || 0,
+    totalAwaitingRelease: stats?.total_awaiting_release || 0,
   };
 
   const getStatusBadge = (status: string) => {
@@ -435,7 +450,7 @@ export default function AdminWithdrawals() {
       </div>
 
       {/* Cards de Resumo */}
-      <div className="grid gap-3 grid-cols-2 sm:gap-4 sm:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 sm:gap-4 sm:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
@@ -477,6 +492,21 @@ export default function AdminWithdrawals() {
             </div>
             <p className="text-xs text-muted-foreground">
               Total pago aos afiliados
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Aguardando</CardTitle>
+            <Calendar className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {statsData.totalAwaitingRelease.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Comissões a liberar
             </p>
           </CardContent>
         </Card>
