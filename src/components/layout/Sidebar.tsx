@@ -443,6 +443,34 @@ export const Sidebar = ({
           <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-12 w-auto" />
         </div>
         
+        {/* Version Info */}
+        <div className="mt-3">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center justify-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity">
+                  <span>v{APP_VERSION}</span>
+                  {versionInfo.hasUpdate && (
+                    <Badge 
+                      variant="default" 
+                      className="text-[10px] px-1 py-0 h-4 cursor-pointer"
+                      onClick={() => window.location.reload()}
+                    >
+                      <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
+                      Atualizar
+                    </Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              {versionInfo.hasUpdate && (
+                <TooltipContent>
+                  <p>Nova versão disponível: v{versionInfo.newVersion}</p>
+                  <p className="text-xs">Clique para atualizar</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -772,35 +800,6 @@ export const Sidebar = ({
           <div className="flex flex-col items-center text-center w-full gap-1 px-3">
             
           </div>
-        </div>
-
-        {/* Version Info */}
-        <div className="px-4 py-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity">
-                  <span>v{APP_VERSION}</span>
-                  {versionInfo.hasUpdate && (
-                    <Badge 
-                      variant="default" 
-                      className="text-[10px] px-1 py-0 h-4 cursor-pointer"
-                      onClick={() => window.location.reload()}
-                    >
-                      <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
-                      Atualizar
-                    </Badge>
-                  )}
-                </div>
-              </TooltipTrigger>
-              {versionInfo.hasUpdate && (
-                <TooltipContent>
-                  <p>Nova versão disponível: v{versionInfo.newVersion}</p>
-                  <p className="text-xs">Clique para atualizar</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
         </div>
 
         <div className="flex items-center gap-2">
