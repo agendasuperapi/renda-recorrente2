@@ -65,6 +65,7 @@ interface SidebarProps {
 }
 
 const affiliateMenuItems = [
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: Users, label: "Sub Afiliados", path: "/sub-affiliates" },
   { icon: UserPlus, label: "Meus Indicados", path: "/referrals" },
   { icon: Ticket, label: "Meus Cupons", path: "/coupons" },
