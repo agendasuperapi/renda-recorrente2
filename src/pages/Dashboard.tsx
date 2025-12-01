@@ -468,32 +468,7 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Sub Afiliados</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Nenhum registro encontrado...
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividades recentes</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Veja aqui as últimas atividades do seu painel de afiliado
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Nenhum registro encontrado...
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       <Card>
         <CardHeader>
