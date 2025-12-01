@@ -7,8 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check } from "lucide-react";
+import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { APP_VERSION } from "@/config/version";
 
 interface Version {
@@ -35,6 +45,9 @@ export default function AdminVersions() {
   const [editChangeInput, setEditChangeInput] = useState("");
   const [editingChangeIndex, setEditingChangeIndex] = useState<number | null>(null);
   const [editingChangeText, setEditingChangeText] = useState("");
+  
+  // Delete confirmation
+  const [deletingVersionId, setDeletingVersionId] = useState<string | null>(null);
 
   const { data: versions, isLoading } = useQuery({
     queryKey: ["app_versions"],
@@ -216,6 +229,22 @@ export default function AdminVersions() {
   const handleCancelEditChange = () => {
     setEditingChangeIndex(null);
     setEditingChangeText("");
+  };
+
+  const handleDuplicate = (v: Version) => {
+    setVersion(v.version);
+    setDescription(v.description || "");
+    setChanges(v.changes || []);
+    toast.info("Versão duplicada! Altere os dados e salve.");
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingVersionId) {
+      deleteVersionMutation.mutate(deletingVersionId);
+      setDeletingVersionId(null);
+    }
   };
 
   const latestDbVersion = versions?.[0]?.version;
@@ -479,16 +508,27 @@ export default function AdminVersions() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleDuplicate(v)}
+                            disabled={editingVersionId !== null}
+                            title="Duplicar versão"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleStartEdit(v)}
                             disabled={editingVersionId !== null}
+                            title="Editar versão"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteVersionMutation.mutate(v.id)}
+                            onClick={() => setDeletingVersionId(v.id)}
                             disabled={deleteVersionMutation.isPending || editingVersionId !== null}
+                            title="Excluir versão"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -516,6 +556,24 @@ export default function AdminVersions() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deletingVersionId !== null} onOpenChange={(open) => !open && setDeletingVersionId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta versão? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
