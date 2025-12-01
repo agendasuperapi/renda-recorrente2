@@ -453,8 +453,9 @@ const CommissionsDaily = () => {
                 Limpar filtros
               </Button>
 
-              <Button variant="outline" size="icon" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering}>
+              <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2">
                 <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
+                Atualizar
               </Button>
             </div>
           </div>
