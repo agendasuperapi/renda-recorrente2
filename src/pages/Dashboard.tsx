@@ -8,6 +8,7 @@ import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOp
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 interface DashboardStats {
   affiliate_id: string;
   comissao_hoje: number;
@@ -46,6 +47,12 @@ interface RecentCommission {
   level?: number;
   percentage?: number;
 }
+
+interface DailyChartData {
+  date: string;
+  vendas: number;
+  comissoes: number;
+}
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
@@ -55,6 +62,7 @@ const Dashboard = () => {
   const [primaryCoupons, setPrimaryCoupons] = useState<PrimaryCoupon[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [recentCommissions, setRecentCommissions] = useState<RecentCommission[]>([]);
+  const [dailyChartData, setDailyChartData] = useState<DailyChartData[]>([]);
   const navigate = useNavigate();
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -154,6 +162,26 @@ const Dashboard = () => {
             percentage: c.percentage
           }));
           setRecentCommissions(formattedCommissions);
+        }
+
+        // Buscar dados para o gráfico diário (últimos 30 dias)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const { data: dailyData } = await supabase
+          .from('view_commissions_daily')
+          .select('data, total_amount, total_commissions')
+          .eq('affiliate_id', session.user.id)
+          .gte('data', thirtyDaysAgo.toISOString().split('T')[0])
+          .order('data', { ascending: true });
+
+        if (dailyData) {
+          const chartData = dailyData.map((d: any) => ({
+            date: new Date(d.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            vendas: d.total_commissions || 0,
+            comissoes: parseFloat(d.total_amount || 0)
+          }));
+          setDailyChartData(chartData);
         }
 
         setLoading(false);
@@ -477,6 +505,74 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Vendas e Comissões (Últimos 30 dias)</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Acompanhe seu desempenho diário
+              </p>
+            </CardHeader>
+            <CardContent>
+              {dailyChartData.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Nenhum dado disponível
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={dailyChartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="date" 
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis 
+                      yAxisId="left"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      label={{ value: 'Vendas', angle: -90, position: 'insideLeft' }}
+                    />
+                    <YAxis 
+                      yAxisId="right"
+                      orientation="right"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      label={{ value: 'Comissões (R$)', angle: 90, position: 'insideRight' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                      formatter={(value: any, name: string) => {
+                        if (name === 'comissoes') {
+                          return [formatCurrency(value), 'Comissões'];
+                        }
+                        return [value, 'Vendas'];
+                      }}
+                    />
+                    <Legend />
+                    <Bar 
+                      yAxisId="left"
+                      dataKey="vendas" 
+                      fill="hsl(var(--primary))" 
+                      name="Vendas"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar 
+                      yAxisId="right"
+                      dataKey="comissoes" 
+                      fill="hsl(var(--success))" 
+                      name="Comissões"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
