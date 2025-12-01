@@ -1616,22 +1616,12 @@ const LandingPage = () => {
           </p>
           
           {/* Card de Cupom */}
-          <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0 relative rounded-lg" style={getGradientStyle('cupom-card')}>
-            <Card className="border-0 bg-transparent"  style={{ color: getTextColor('cupom-card') }}>
+          <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0">
+            <Card className="border-2 border-primary/20">
               <CardHeader>
-                <div className="flex items-center justify-center gap-3 relative">
+                <div className="flex items-center justify-center gap-3">
                   <Ticket className="h-6 w-6 text-primary" />
                   <CardTitle className="text-center">Possui um cupom?</CardTitle>
-                  {isAdmin && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="absolute -right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => setEditingBlock(editingBlock === 'cupom-card' ? null : 'cupom-card')}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1680,17 +1670,7 @@ const LandingPage = () => {
                 </div>
 
                 {validatedCoupon && (
-                  <div className="border rounded-lg p-4 animate-fade-in relative" style={getGradientStyle('cupom-card-validado')}>
-                    {isAdmin && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="absolute right-2 top-2"
-                        onClick={() => setEditingBlock(editingBlock === 'cupom-card-validado' ? null : 'cupom-card-validado')}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    )}
+                  <div className="border rounded-lg p-4 bg-muted/50 animate-fade-in">
                     {/* Layout Mobile */}
                     <div className="flex flex-col md:hidden items-center gap-4">
                       {validatedCoupon.affiliate && (
