@@ -116,8 +116,9 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
-  /* Previne flash branco durante navegação */
+  /* Previne flash branco durante navegação e garante altura total */
   html, body, #root {
+    @apply h-full;
     background-color: hsl(var(--background));
   }
 }
