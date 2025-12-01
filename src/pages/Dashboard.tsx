@@ -170,7 +170,7 @@ const Dashboard = () => {
         
         const { data: dailyData, error: dailyError } = await supabase
           .from('view_commissions_daily')
-          .select('data, total_amount, total_commissions')
+          .select('data, valor')
           .eq('affiliate_id', session.user.id)
           .gte('data', thirtyDaysAgo.toISOString().split('T')[0])
           .order('data', { ascending: true });
@@ -178,11 +178,27 @@ const Dashboard = () => {
         console.log('[Dashboard] Dados diários:', { dailyData, dailyError });
 
         if (dailyData && dailyData.length > 0) {
-          const chartData = dailyData.map((d: any) => ({
-            date: new Date(d.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-            vendas: d.total_commissions || 0,
-            comissoes: parseFloat(d.total_amount || 0)
-          }));
+          // Agregar por dia: quantidade de comissões (vendas) e valor total das comissões
+          const aggregateByDate = new Map<string, { vendas: number; comissoes: number }>();
+
+          dailyData.forEach((d: any) => {
+            const dateObj = new Date(d.data);
+            if (isNaN(dateObj.getTime())) return;
+            const dateKey = dateObj.toISOString().split('T')[0];
+            const existing = aggregateByDate.get(dateKey) || { vendas: 0, comissoes: 0 };
+            existing.vendas += 1;
+            existing.comissoes += Number(d.valor) || 0;
+            aggregateByDate.set(dateKey, existing);
+          });
+
+          const chartData: DailyChartData[] = Array.from(aggregateByDate.entries())
+            .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+            .map(([dateKey, values]) => ({
+              date: new Date(dateKey).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+              vendas: values.vendas,
+              comissoes: values.comissoes,
+            }));
+
           console.log('[Dashboard] Chart data formatado:', chartData);
           setDailyChartData(chartData);
         } else {
