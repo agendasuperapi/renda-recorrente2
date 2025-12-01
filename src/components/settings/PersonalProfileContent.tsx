@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, User, MapPin, Share2 } from "lucide-react";
+import { Loader2, User, MapPin, Share2, Instagram, Facebook, Music } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 
 export const PersonalProfileContent = () => {
@@ -539,7 +539,10 @@ export const PersonalProfileContent = () => {
 
               <TabsContent value="social" className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram</Label>
+                  <Label htmlFor="instagram" className="flex items-center gap-2">
+                    <Instagram className="h-4 w-4" />
+                    Instagram
+                  </Label>
                   <Input
                     id="instagram"
                     value={formData.instagram}
@@ -549,7 +552,10 @@ export const PersonalProfileContent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook</Label>
+                  <Label htmlFor="facebook" className="flex items-center gap-2">
+                    <Facebook className="h-4 w-4" />
+                    Facebook
+                  </Label>
                   <Input
                     id="facebook"
                     value={formData.facebook}
@@ -559,7 +565,10 @@ export const PersonalProfileContent = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Label htmlFor="tiktok" className="flex items-center gap-2">
+                    <Music className="h-4 w-4" />
+                    TikTok
+                  </Label>
                   <Input
                     id="tiktok"
                     value={formData.tiktok}
