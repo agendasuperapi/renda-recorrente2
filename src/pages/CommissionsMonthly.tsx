@@ -387,30 +387,31 @@ const CommissionsMonthly = () => {
                 onChange={(e) => setFilters(f => ({ ...f, mes_fim: e.target.value }))}
               />
 
-              <div className="flex gap-2 md:col-span-2">
-                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
-                }}>
-                  <SelectTrigger className="flex-1 h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10 por página</SelectItem>
-                    <SelectItem value="20">20 por página</SelectItem>
-                    <SelectItem value="50">50 por página</SelectItem>
-                    <SelectItem value="100">100 por página</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" onClick={clearFilters} className="h-10 flex-1">
-                  <X className="h-4 w-4 mr-2" />
-                  Limpar filtros
-                </Button>
-                <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2 h-10 flex-1">
-                  <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
-                  Atualizar
-                </Button>
-              </div>
+
+              <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                setItemsPerPage(Number(value));
+                setCurrentPage(1);
+              }}>
+                <SelectTrigger className="h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                  <SelectItem value="100">100 por página</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button variant="outline" onClick={clearFilters} className="h-10">
+                <X className="h-4 w-4 mr-2" />
+                Limpar filtros
+              </Button>
+
+              <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2 h-10">
+                <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
+                Atualizar
+              </Button>
             </div>
           </div>
         </CardHeader>
