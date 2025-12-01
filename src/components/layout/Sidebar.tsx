@@ -616,17 +616,6 @@ export const Sidebar = ({
       borderColor: `${colorEnd}40`
     }}>
         <div className="flex flex-col items-center gap-3 px-3 py-2">
-          <div className="flex items-center gap-2">
-            <Avatar className="w-16 h-16">
-              {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-              <AvatarFallback style={{
-              backgroundColor: accentColor,
-              color: currentTextColor
-            }} className="text-lg">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
           <div className="flex flex-col items-center text-center w-full gap-1">
             <p className="text-sm font-medium truncate w-full" style={{
             color: currentTextColor
@@ -638,18 +627,29 @@ export const Sidebar = ({
           }}>
               {user.email}
             </p>
-            
-            {/* Badge FREE/PRO abaixo do email */}
-            {userPlan && <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold shadow-lg border mt-1", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500")}>
+          </div>
+          
+          {/* Card com Avatar e Badge */}
+          {userPlan && <div className={cn("flex items-center gap-3 px-4 py-3 rounded-xl w-full shadow-lg border", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}>
+              <Avatar className="w-12 h-12 flex-shrink-0">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
+                <AvatarFallback style={{
+                backgroundColor: accentColor,
+                color: currentTextColor
+              }} className="text-sm">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div className={cn("flex items-center gap-1.5 text-sm font-bold", userPlan.is_free ? "text-slate-700 dark:text-slate-300" : "text-white")}>
                 {userPlan.is_free ? <>
-                    <Zap className="w-3.5 h-3.5" />
+                    <Zap className="w-4 h-4" />
                     <span>PLANO FREE</span>
                   </> : <>
-                    <Star className="w-3.5 h-3.5" />
+                    <Star className="w-4 h-4" />
                     <span>PLANO PRO</span>
                   </>}
-              </div>}
-          </div>
+              </div>
+            </div>}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => {
