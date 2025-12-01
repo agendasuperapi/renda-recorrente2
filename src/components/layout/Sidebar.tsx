@@ -865,8 +865,8 @@ export const Sidebar = ({
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0" style={{
-        ...gradientStyle,
+        <SheetContent side="left" className="w-64 p-0 bg-background" style={{
+        backgroundImage: gradientStyle.background,
         color: currentTextColor
       }}>
           <VisuallyHidden>
