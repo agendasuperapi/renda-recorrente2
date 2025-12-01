@@ -49,7 +49,7 @@ const Dashboard = () => {
           .from("view_affiliate_dashboard_stats" as any)
           .select("*")
           .eq("affiliate_id", session.user.id)
-          .single();
+          .maybeSingle();
 
         console.log("[Dashboard] Estatísticas:", { dashboardStats, statsError });
         
