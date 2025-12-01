@@ -256,7 +256,9 @@ const CommissionsMonthly = () => {
   const formatMonth = (dateString: string) => {
     if (!dateString) return "-";
     try {
-      return format(new Date(dateString), "MMMM/yyyy", { locale: ptBR });
+      // Adiciona o dia e hora para evitar problemas de timezone
+      const dateWithTime = dateString.length === 7 ? `${dateString}-01T12:00:00` : dateString;
+      return format(new Date(dateWithTime), "MMMM/yyyy", { locale: ptBR });
     } catch {
       return "-";
     }
