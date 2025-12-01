@@ -66,13 +66,16 @@ const affiliateMenuItems = [
   { icon: GraduationCap, label: "Treinamento", path: "/training" },
   { icon: Target, label: "Indicações", path: "/referrals" },
   { icon: Users, label: "Sub Afiliados", path: "/sub-affiliates" },
-  { icon: Coins, label: "Comissões Diárias", path: "/commissions-daily" },
-  { icon: Calendar, label: "Comissões Mensais", path: "/commissions-monthly" },
   { icon: Calendar, label: "Atividades", path: "/activities" },
   { icon: Ticket, label: "Cupons e Links", path: "/coupons" },
-  { icon: Wallet, label: "Saques", path: "/withdrawals" },
   { icon: CreditCard, label: "Plano Afiliação", path: "/plan" },
   { icon: MapPin, label: "Empresas Google", path: "/google-business" },
+];
+
+const commissionsMenuItems = [
+  { icon: Coins, label: "Comissões Diárias", path: "/commissions-daily" },
+  { icon: Calendar, label: "Comissões Mensais", path: "/commissions-monthly" },
+  { icon: Wallet, label: "Saques", path: "/withdrawals" },
 ];
 
 const adminMenuItems = [
@@ -116,6 +119,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
+  const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
 
   // Salvar preferência de menu no localStorage
   useEffect(() => {
@@ -372,6 +376,64 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             </Link>
           );
         })}
+
+        {!isAdmin && (
+          <Collapsible open={commissionsMenuOpen} onOpenChange={setCommissionsMenuOpen}>
+            <CollapsibleTrigger
+              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
+              style={{ color: currentTextColor }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `${accentColor}30`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Coins size={18} />
+              <span className="flex-1 text-left">Comissões</span>
+              <ChevronDown
+                size={16}
+                className="transition-transform"
+                style={{
+                  transform: commissionsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                }}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pl-4 space-y-1 mt-1">
+              {commissionsMenuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
+                    )}
+                    style={{
+                      backgroundColor: isActive ? accentColor : 'transparent',
+                      color: currentTextColor,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    <Icon size={18} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         {isAdmin && showAdminMenu && (
           <>
