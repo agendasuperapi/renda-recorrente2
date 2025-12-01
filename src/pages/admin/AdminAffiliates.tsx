@@ -532,21 +532,22 @@ const AdminAffiliates = () => {
           )}
 
           {totalCount > 0 && (
-            <div className="flex items-center justify-between mt-4 flex-wrap gap-4">
-              <p className="text-sm text-muted-foreground whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
+              <p className="text-sm text-muted-foreground order-2 sm:order-1">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} afiliados
               </p>
-              <Pagination>
-                <PaginationContent>
+              <Pagination className="order-1 sm:order-2">
+                <PaginationContent className="gap-1">
                   <PaginationItem>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
+                      className="h-8 px-2 lg:px-3"
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Anterior
+                      <span className="hidden sm:inline ml-1">Anterior</span>
                     </Button>
                   </PaginationItem>
                   
@@ -562,11 +563,12 @@ const AdminAffiliates = () => {
                       page = currentPage - 2 + i;
                     }
                     return (
-                      <PaginationItem key={page}>
+                      <PaginationItem key={page} className="hidden sm:block">
                         <Button
                           variant={currentPage === page ? "default" : "outline"}
                           size="sm"
                           onClick={() => handlePageChange(page)}
+                          className="h-8 w-8 p-0"
                         >
                           {page}
                         </Button>
@@ -574,14 +576,21 @@ const AdminAffiliates = () => {
                     );
                   })}
 
+                  <PaginationItem className="sm:hidden">
+                    <span className="text-sm px-2">
+                      {currentPage} / {totalPages}
+                    </span>
+                  </PaginationItem>
+
                   <PaginationItem>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
+                      className="h-8 px-2 lg:px-3"
                     >
-                      Próxima
+                      <span className="hidden sm:inline mr-1">Próxima</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </PaginationItem>
