@@ -468,12 +468,15 @@ const Withdrawals = () => {
                       <TableCell className="text-xs md:text-sm">
                         {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
                     day: '2-digit',
-                    month: '2-digit'
+                    month: '2-digit',
+                    year: 'numeric'
                   })}
-                        <span className="hidden md:inline">
-                          {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
-                      year: 'numeric'
-                    }).slice(5)}
+                        <br className="md:hidden" />
+                        <span className="text-muted-foreground">
+                          {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleTimeString('pt-BR', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                         </span>
                       </TableCell>
                       <TableCell className="font-medium text-xs md:text-sm whitespace-nowrap">
@@ -491,10 +494,22 @@ const Withdrawals = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-xs md:text-sm">
-                        {withdrawal.paid_date ? new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit'
-                  }) : '-'}
+                        {withdrawal.paid_date ? (
+                          <>
+                            {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })}
+                            <br className="md:hidden" />
+                            <span className="text-muted-foreground">
+                              {new Date(withdrawal.paid_date).toLocaleTimeString('pt-BR', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </>
+                        ) : '-'}
                       </TableCell>
                     </TableRow>) : <TableRow>
                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8 text-xs md:text-sm">
