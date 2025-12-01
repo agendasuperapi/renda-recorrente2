@@ -370,8 +370,8 @@ const AdminBankAccounts = () => {
   };
 
   return (
-    <div className="min-h-screen p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-3 sm:p-4">
+        <div className="max-w-7xl mx-auto space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Banco e Contas</h1>
           </div>
