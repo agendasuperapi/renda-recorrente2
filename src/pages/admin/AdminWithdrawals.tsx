@@ -454,7 +454,7 @@ export default function AdminWithdrawals() {
         {config.label}
       </Badge>;
   };
-  return <div className="space-y-4 sm:space-y-6 sm:p-6">
+  return <div className="space-y-4 sm:space-y-6 md:p-4 lg:p-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold">Saques</h1>
         <p className="text-sm text-muted-foreground">Gerenciamento de solicitações de saque</p>
