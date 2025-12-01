@@ -1680,7 +1680,17 @@ const LandingPage = () => {
                 </div>
 
                 {validatedCoupon && (
-                  <div className="border rounded-lg p-4 animate-fade-in" style={getGradientStyle('cupom-card-validado')}>
+                  <div className="border rounded-lg p-4 animate-fade-in relative" style={getGradientStyle('cupom-card-validado')}>
+                    {isAdmin && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="absolute right-2 top-2"
+                        onClick={() => setEditingBlock(editingBlock === 'cupom-card-validado' ? null : 'cupom-card-validado')}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
                     {/* Layout Mobile */}
                     <div className="flex flex-col md:hidden items-center gap-4">
                       {validatedCoupon.affiliate && (
