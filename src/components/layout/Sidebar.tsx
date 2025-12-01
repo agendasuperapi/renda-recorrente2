@@ -617,17 +617,17 @@ export const Sidebar = ({
     }}>
         <div className="flex flex-col items-center gap-3 py-2">
           {/* Card com Avatar e Badge */}
-          {userPlan && <div className={cn("flex flex-col gap-3 px-4 py-3 rounded-xl w-full shadow-lg border mx-2", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}>
-              <div className="flex items-center gap-3">
-                <Avatar className="w-12 h-12 flex-shrink-0">
-                  {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-                  <AvatarFallback style={{
-                  backgroundColor: accentColor,
-                  color: currentTextColor
-                }} className="text-sm">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
+          {userPlan && <div className={cn("flex items-center gap-3 px-4 py-3 rounded-xl w-full shadow-lg border mx-2", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}>
+              <Avatar className="w-12 h-12 flex-shrink-0">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
+                <AvatarFallback style={{
+                backgroundColor: accentColor,
+                color: currentTextColor
+              }} className="text-sm">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col gap-1 flex-1 min-w-0">
                 <div className={cn("flex items-center gap-1.5 text-sm font-bold", userPlan.is_free ? "text-slate-700 dark:text-slate-300" : "text-white")}>
                   {userPlan.is_free ? <>
                       <Zap className="w-4 h-4" />
@@ -637,10 +637,10 @@ export const Sidebar = ({
                       <span>PLANO PRO</span>
                     </>}
                 </div>
+                <p className={cn("text-xs truncate", userPlan.is_free ? "text-slate-600 dark:text-slate-400" : "text-white/90")}>
+                  {user.email}
+                </p>
               </div>
-              <p className={cn("text-xs truncate w-full", userPlan.is_free ? "text-slate-600 dark:text-slate-400" : "text-white/90")}>
-                {user.email}
-              </p>
             </div>}
           
           <div className="flex flex-col items-center text-center w-full gap-1 px-3">
