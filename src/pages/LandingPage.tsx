@@ -1617,7 +1617,7 @@ const LandingPage = () => {
           
           {/* Card de Cupom */}
           <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0 relative p-6 rounded-lg" style={getGradientStyle('cupom-card')}>
-            <Card className="border-2 border-primary/20 bg-transparent"  style={{ color: getTextColor('cupom-card') }}>
+            <Card className="border-0 bg-transparent"  style={{ color: getTextColor('cupom-card') }}>
               <CardHeader>
                 <div className="flex items-center justify-center gap-3 relative">
                   <Ticket className="h-6 w-6 text-primary" />
