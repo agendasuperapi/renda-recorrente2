@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, User, MapPin, Share2, Instagram, Facebook, Music } from "lucide-react";
+import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 
 export const PersonalProfileContent = () => {
@@ -566,7 +566,7 @@ export const PersonalProfileContent = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="tiktok" className="flex items-center gap-2">
-                    <Music className="h-4 w-4" />
+                    <Video className="h-4 w-4" />
                     TikTok
                   </Label>
                   <Input
