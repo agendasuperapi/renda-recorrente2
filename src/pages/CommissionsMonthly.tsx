@@ -392,7 +392,7 @@ const CommissionsMonthly = () => {
                   setItemsPerPage(Number(value));
                   setCurrentPage(1);
                 }}>
-                  <SelectTrigger className="w-[150px]">
+                  <SelectTrigger className="w-[150px] h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -402,11 +402,11 @@ const CommissionsMonthly = () => {
                     <SelectItem value="100">100 por página</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" onClick={clearFilters}>
+                <Button variant="outline" onClick={clearFilters} className="h-10">
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
                 </Button>
-                <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2">
+                <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2 h-10">
                   <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
                   Atualizar
                 </Button>
