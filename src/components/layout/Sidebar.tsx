@@ -63,6 +63,7 @@ interface SidebarProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   isLoading?: boolean;
+  initialized?: boolean;
 }
 
 const affiliateMenuItems = [
@@ -104,7 +105,7 @@ const configMenuItems = [
   { icon: FileText, label: "Termos e Privacidade", path: "/admin/legal-documents" },
 ];
 
-export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }: SidebarProps) => {
+export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, initialized = false }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -118,6 +119,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
   const [userName, setUserName] = useState<string | null>(null);
   const [userPlan, setUserPlan] = useState<{ is_free: boolean; plan_name: string | null } | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
+  const [sidebarTimeout, setSidebarTimeout] = useState(false);
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
   const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
@@ -332,10 +334,28 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     ? (showAdminMenu ? adminMenuItems : affiliateMenuItems)
     : affiliateMenuItems;
 
+  // Timeout de 15 segundos específico para o sidebar
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!user) {
+        setSidebarTimeout(true);
+      }
+    }, 15000);
+    
+    return () => clearTimeout(timer);
+  }, [user]);
+
+  // Resetar timeout quando user carregar
+  useEffect(() => {
+    if (user) {
+      setSidebarTimeout(false);
+    }
+  }, [user]);
+
   // Componente de loading ou erro para o sidebar
   const SidebarLoadingContent = () => {
-    // Se passou do timeout e ainda não tem user, mostrar erro
-    if (!isLoading && !user) {
+    // Mostrar erro apenas se passou muito tempo (15s) E ainda não tem user
+    if (sidebarTimeout && !user) {
       return (
         <div className="flex flex-col items-center justify-center h-full p-6 text-center">
           <div className="mb-4">
@@ -356,7 +376,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       );
     }
 
-    // Mostra skeletons enquanto está carregando
+    // Mostra skeletons enquanto não tem user (ainda carregando)
     return (
       <>
         <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>

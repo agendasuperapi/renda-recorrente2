@@ -156,11 +156,11 @@ export const DashboardLayout = () => {
     };
   }, [navigate]);
 
-  // Timeout de segurança para evitar loading infinito
+  // Timeout de segurança para evitar loading infinito (aumentado para 10s)
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoadingTimeout(true);
-    }, 5000);
+    }, 10000);
     
     return () => clearTimeout(timer);
   }, []);
@@ -172,7 +172,7 @@ export const DashboardLayout = () => {
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex h-screen bg-background overflow-hidden">
-          <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} />
+          <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
           <main className={`flex-1 overflow-y-auto ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
             {isLoading ? (
               <div className="space-y-4">
