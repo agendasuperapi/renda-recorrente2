@@ -24,7 +24,18 @@ export const useVersionCheck = () => {
         .limit(1)
         .maybeSingle();
 
-      if (error || !data) {
+      if (error) {
+        console.error("Error fetching version:", error);
+        return;
+      }
+
+      // Se não há dados no banco, precisa registrar a versão atual
+      if (!data) {
+        setVersionInfo({
+          hasUpdate: true,
+          newVersion: null,
+          currentVersion: APP_VERSION,
+        });
         return;
       }
 
