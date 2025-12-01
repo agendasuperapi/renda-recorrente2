@@ -198,6 +198,31 @@ const Withdrawals = () => {
     }
   });
 
+  const handleWithdrawalClick = () => {
+    // Verificar se não é o dia de saque
+    if (!isWithdrawalDay) {
+      toast({
+        title: "Dia de saque incorreto",
+        description: `Você só pode solicitar saques ${getWithdrawalDayPrefix()} ${DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Verificar se não tem saldo mínimo
+    if (!hasMinimumAmount) {
+      toast({
+        title: "Saldo insuficiente",
+        description: `Saldo mínimo de R$ ${settings?.minWithdrawal.toFixed(2)} necessário para solicitar saque. Seu saldo atual é R$ ${commissionsData?.available.toFixed(2)}.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Se passar todas as validações, abre o modal
+    setWithdrawalDialogOpen(true);
+  };
+
   // Calcular próximo dia de saque
   const getNextWithdrawalDate = () => {
     if (profile?.withdrawal_day === null || profile?.withdrawal_day === undefined) return null;
@@ -338,7 +363,7 @@ const Withdrawals = () => {
       </div>
 
       <div className="flex justify-center">
-        <Button className="gap-2" disabled={!canWithdraw} size="lg" onClick={() => setWithdrawalDialogOpen(true)}>
+        <Button className="gap-2" size="lg" onClick={handleWithdrawalClick}>
           <Plus className="h-4 w-4" />
           Solicitar Saque de R$ {commissionsData?.available.toFixed(2) || '0,00'}
         </Button>
