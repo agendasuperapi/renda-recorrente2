@@ -210,7 +210,7 @@ const AdminAffiliates = () => {
         <CardHeader>
           <div className="space-y-4">
             <div className="flex flex-wrap gap-4">
-              <div className="relative flex-1 min-w-[280px]">
+              <div className="relative flex-1 min-w-[280px] md:min-w-0">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por nome, email ou username..."
@@ -221,7 +221,7 @@ const AdminAffiliates = () => {
               </div>
 
               <Select value={planFilter} onValueChange={handleFilterChange(setPlanFilter)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] md:flex-1 md:min-w-[140px]">
                   <SelectValue placeholder="Plano" />
                 </SelectTrigger>
                 <SelectContent>
@@ -233,7 +233,7 @@ const AdminAffiliates = () => {
               </Select>
 
               <Select value={periodFilter} onValueChange={handleFilterChange(setPeriodFilter)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] md:flex-1 md:min-w-[140px]">
                   <SelectValue placeholder="Período" />
                 </SelectTrigger>
                 <SelectContent>
@@ -245,7 +245,7 @@ const AdminAffiliates = () => {
               </Select>
 
               <Select value={statusFilter} onValueChange={handleFilterChange(setStatusFilter)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] md:flex-1 md:min-w-[140px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -264,7 +264,7 @@ const AdminAffiliates = () => {
                   setStartDate(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-[160px]"
+                className="w-[160px] md:flex-1 md:min-w-[120px]"
               />
 
               <Input
@@ -275,7 +275,7 @@ const AdminAffiliates = () => {
                   setEndDate(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-[160px]"
+                className="w-[160px] md:flex-1 md:min-w-[120px]"
               />
 
               <Select 
@@ -285,7 +285,7 @@ const AdminAffiliates = () => {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-[140px] md:flex-1 md:min-w-[120px]">
                   <SelectValue placeholder="Itens por página" />
                 </SelectTrigger>
                 <SelectContent>
@@ -296,12 +296,12 @@ const AdminAffiliates = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" size="sm" onClick={handleRefresh}>
+              <Button variant="outline" size="sm" onClick={handleRefresh} className="md:flex-1 md:min-w-[120px]">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Atualizar
               </Button>
 
-              <Button variant="outline" size="sm" onClick={handleResetFilters}>
+              <Button variant="outline" size="sm" onClick={handleResetFilters} className="md:flex-1 md:min-w-[120px]">
                 Limpar filtros
               </Button>
             </div>
