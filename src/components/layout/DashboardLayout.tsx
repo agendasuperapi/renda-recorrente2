@@ -172,9 +172,7 @@ export const DashboardLayout = () => {
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex h-screen bg-background overflow-hidden">
-          <div className="h-full flex-shrink-0">
-            <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
-          </div>
+          <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
           <main className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
             {isLoading ? (
               <div className="space-y-4">
