@@ -256,10 +256,6 @@ const AdminAffiliates = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
-                Limpar filtros
-              </Button>
-
               <Input
                 type="date"
                 placeholder="Data início"
@@ -303,6 +299,10 @@ const AdminAffiliates = () => {
               <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full lg:w-auto">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Atualizar
+              </Button>
+
+              <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
+                Limpar filtros
               </Button>
             </div>
           </div>
