@@ -11,11 +11,9 @@ const Settings = () => {
       tab: value
     });
   };
-  return <div className="space-y-6">
-      
-
-      <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+  return <div className="h-full flex flex-col">
+      <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full h-full flex flex-col">
+        <TabsList className="grid w-full max-w-md grid-cols-2 flex-shrink-0">
           <TabsTrigger value="profile">
             <User className="mr-2 h-4 w-4" />
             Perfil
@@ -26,11 +24,11 @@ const Settings = () => {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="profile" className="mt-6">
+        <TabsContent value="profile" className="mt-6 flex-1 overflow-y-auto">
           <ProfileContent />
         </TabsContent>
         
-        <TabsContent value="plan" className="mt-6">
+        <TabsContent value="plan" className="mt-6 flex-1 overflow-y-auto">
           <PlanContent />
         </TabsContent>
       </Tabs>
