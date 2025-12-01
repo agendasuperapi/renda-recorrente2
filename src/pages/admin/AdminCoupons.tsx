@@ -352,10 +352,10 @@ const AdminCoupons = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Gestão de Cupons</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Gestão de Cupons</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Crie e gerencie cupons de desconto para afiliados
           </p>
         </div>
@@ -368,7 +368,7 @@ const AdminCoupons = () => {
         }}>
           <DialogTrigger asChild>
             <Button 
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               onClick={() => {
                 setEditingCoupon(null);
                 form.reset({
@@ -721,11 +721,11 @@ const AdminCoupons = () => {
 
       <Card>
         <CardHeader>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="relative sm:col-span-2 lg:col-span-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar cupom por código ou nome..."
+                placeholder="Buscar cupom..."
                 className="pl-9"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -782,169 +782,341 @@ const AdminCoupons = () => {
                       {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
                     </Badge>
                   </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Código</TableHead>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Valor</TableHead>
-                        <TableHead>Usos</TableHead>
-                        <TableHead>Validade</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Principal</TableHead>
-                        <TableHead>Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {productData.coupons.map((coupon: any) => (
-                        <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
-                          <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{coupon.name}</div>
-                              {coupon.description && (
-                                <div className="text-sm text-muted-foreground mt-1">
-                                  {coupon.description}
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
-                          <TableCell>{coupon.value}</TableCell>
-                          <TableCell>
-                            {coupon.current_uses || 0}
-                            {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
-                          </TableCell>
-                          <TableCell>
-                            {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
-                          </TableCell>
-                          <TableCell>
-                            <Badge 
-                              variant={coupon.is_active ? "default" : "secondary"}
-                              className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900" : ""}
-                            >
-                              {coupon.is_active ? "Ativo" : "Inativo"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {coupon.is_primary && (
-                              <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                                Principal
-                              </Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEdit(coupon)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDelete(coupon.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                   {/* Desktop Table */}
+                   <div className="hidden lg:block overflow-x-auto">
+                     <Table>
+                       <TableHeader>
+                         <TableRow>
+                           <TableHead>Código</TableHead>
+                           <TableHead>Nome</TableHead>
+                           <TableHead>Tipo</TableHead>
+                           <TableHead>Valor</TableHead>
+                           <TableHead>Usos</TableHead>
+                           <TableHead>Validade</TableHead>
+                           <TableHead>Status</TableHead>
+                           <TableHead>Principal</TableHead>
+                           <TableHead>Ações</TableHead>
+                         </TableRow>
+                       </TableHeader>
+                       <TableBody>
+                         {productData.coupons.map((coupon: any) => (
+                           <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
+                             <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
+                             <TableCell>
+                               <div>
+                                 <div className="font-medium">{coupon.name}</div>
+                                 {coupon.description && (
+                                   <div className="text-sm text-muted-foreground mt-1">
+                                     {coupon.description}
+                                   </div>
+                                 )}
+                               </div>
+                             </TableCell>
+                             <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
+                             <TableCell>{coupon.value}</TableCell>
+                             <TableCell>
+                               {coupon.current_uses || 0}
+                               {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                             </TableCell>
+                             <TableCell>
+                               {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                             </TableCell>
+                             <TableCell>
+                               <Badge 
+                                 variant={coupon.is_active ? "default" : "secondary"}
+                                 className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900" : ""}
+                               >
+                                 {coupon.is_active ? "Ativo" : "Inativo"}
+                               </Badge>
+                             </TableCell>
+                             <TableCell>
+                               {coupon.is_primary && (
+                                 <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                                   Principal
+                                 </Badge>
+                               )}
+                             </TableCell>
+                             <TableCell>
+                               <div className="flex gap-2">
+                                 <Button
+                                   variant="ghost"
+                                   size="icon"
+                                   onClick={() => handleEdit(coupon)}
+                                 >
+                                   <Edit className="h-4 w-4" />
+                                 </Button>
+                                 <Button
+                                   variant="ghost"
+                                   size="icon"
+                                   onClick={() => handleDelete(coupon.id)}
+                                 >
+                                   <Trash2 className="h-4 w-4" />
+                                 </Button>
+                               </div>
+                             </TableCell>
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                     </Table>
+                   </div>
+
+                   {/* Mobile/Tablet Cards */}
+                   <div className="lg:hidden space-y-4">
+                     {productData.coupons.map((coupon: any) => (
+                       <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
+                         <CardContent className="pt-6">
+                           <div className="space-y-3">
+                             <div className="flex items-start justify-between gap-3">
+                               <div className="flex-1 min-w-0">
+                                 <div className="font-mono font-bold text-lg mb-1 truncate">{coupon.code}</div>
+                                 <div className="font-medium text-sm">{coupon.name}</div>
+                                 {coupon.description && (
+                                   <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                     {coupon.description}
+                                   </div>
+                                 )}
+                               </div>
+                               <div className="flex gap-2 flex-shrink-0">
+                                 <Button
+                                   variant="ghost"
+                                   size="icon"
+                                   onClick={() => handleEdit(coupon)}
+                                   className="h-8 w-8"
+                                 >
+                                   <Edit className="h-4 w-4" />
+                                 </Button>
+                                 <Button
+                                   variant="ghost"
+                                   size="icon"
+                                   onClick={() => handleDelete(coupon.id)}
+                                   className="h-8 w-8"
+                                 >
+                                   <Trash2 className="h-4 w-4" />
+                                 </Button>
+                               </div>
+                             </div>
+                             
+                             <div className="grid grid-cols-2 gap-2 text-sm">
+                               <div>
+                                 <span className="text-muted-foreground">Tipo:</span>
+                                 <div className="font-medium">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</div>
+                               </div>
+                               <div>
+                                 <span className="text-muted-foreground">Valor:</span>
+                                 <div className="font-medium">{coupon.value}</div>
+                               </div>
+                               <div>
+                                 <span className="text-muted-foreground">Usos:</span>
+                                 <div className="font-medium">
+                                   {coupon.current_uses || 0}
+                                   {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                                 </div>
+                               </div>
+                               <div>
+                                 <span className="text-muted-foreground">Validade:</span>
+                                 <div className="font-medium text-xs">
+                                   {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                                 </div>
+                               </div>
+                             </div>
+                             
+                             <div className="flex gap-2 flex-wrap">
+                               <Badge 
+                                 variant={coupon.is_active ? "default" : "secondary"}
+                                 className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}
+                               >
+                                 {coupon.is_active ? "Ativo" : "Inativo"}
+                               </Badge>
+                               {coupon.is_primary && (
+                                 <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                                   Principal
+                                 </Badge>
+                               )}
+                             </div>
+                           </div>
+                         </CardContent>
+                       </Card>
+                     ))}
+                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Código</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Produto</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead>Usos</TableHead>
-                  <TableHead>Validade</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Principal</TableHead>
-                  <TableHead>Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCoupons.map((coupon: any) => (
-                  <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
-                    <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{coupon.name}</div>
-                        {coupon.description && (
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {coupon.description}
+            <>
+              {/* Desktop Table */}
+              <div className="hidden lg:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Código</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Produto</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Usos</TableHead>
+                      <TableHead>Validade</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Principal</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredCoupons.map((coupon: any) => (
+                      <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
+                        <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{coupon.name}</div>
+                            {coupon.description && (
+                              <div className="text-sm text-muted-foreground mt-1">
+                                {coupon.description}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </TableCell>
+                        <TableCell>
+                          {coupon.products?.nome || (
+                            <span className="text-muted-foreground">Todos</span>
+                          )}
+                        </TableCell>
+                        <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
+                        <TableCell>{coupon.value}</TableCell>
+                        <TableCell>
+                          {coupon.current_uses || 0}
+                          {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                        </TableCell>
+                        <TableCell>
+                          {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={coupon.is_active ? "default" : "secondary"}
+                            className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900" : ""}
+                          >
+                            {coupon.is_active ? "Ativo" : "Inativo"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {coupon.is_primary && (
+                            <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                              Principal
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(coupon)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(coupon.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile/Tablet Cards */}
+              <div className="lg:hidden space-y-4">
+                {filteredCoupons.map((coupon: any) => (
+                  <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
+                    <CardContent className="pt-6">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-mono font-bold text-lg mb-1 truncate">{coupon.code}</div>
+                            <div className="font-medium text-sm">{coupon.name}</div>
+                            {coupon.description && (
+                              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {coupon.description}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(coupon)}
+                              className="h-8 w-8"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(coupon.id)}
+                              className="h-8 w-8"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Produto:</span>
+                            <div className="font-medium text-xs truncate">
+                              {coupon.products?.nome || <span className="text-muted-foreground">Todos</span>}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Tipo:</span>
+                            <div className="font-medium text-xs">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</div>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Valor:</span>
+                            <div className="font-medium">{coupon.value}</div>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Usos:</span>
+                            <div className="font-medium">
+                              {coupon.current_uses || 0}
+                              {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                            </div>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-muted-foreground">Validade:</span>
+                            <div className="font-medium text-xs">
+                              {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge 
+                            variant={coupon.is_active ? "default" : "secondary"}
+                            className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}
+                          >
+                            {coupon.is_active ? "Ativo" : "Inativo"}
+                          </Badge>
+                          {coupon.is_primary && (
+                            <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                              Principal
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      {coupon.products?.nome || (
-                        <span className="text-muted-foreground">Todos</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</TableCell>
-                    <TableCell>{coupon.value}</TableCell>
-                    <TableCell>
-                      {coupon.current_uses || 0}
-                      {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
-                    </TableCell>
-                    <TableCell>
-                      {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={coupon.is_active ? "default" : "secondary"}
-                        className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900" : ""}
-                      >
-                        {coupon.is_active ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {coupon.is_primary && (
-                        <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                          Principal
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(coupon)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(coupon.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -967,7 +1139,7 @@ const AdminCoupons = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="sm:col-span-2 lg:col-span-1">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Total de Usos
