@@ -255,35 +255,35 @@ export default function AdminPayments() {
       <Card>
         <CardHeader>
           <CardTitle>Todos os Pagamentos</CardTitle>
-          <div className="flex gap-4 mt-4 flex-wrap">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4 mt-4">
             <Input
               placeholder="Buscar por invoice, usuário ou plano..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="w-full lg:max-w-sm"
             />
             <Input
               placeholder="Filtrar por afiliado/cupom..."
               value={affiliateFilter}
               onChange={(e) => setAffiliateFilter(e.target.value)}
-              className="max-w-sm"
+              className="w-full lg:max-w-sm"
             />
             <Input
               type="date"
               placeholder="Data inicial"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-[160px]"
+              className="w-full lg:w-[160px]"
             />
             <Input
               type="date"
               placeholder="Data final"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-[160px]"
+              className="w-full lg:w-[160px]"
             />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -294,7 +294,7 @@ export default function AdminPayments() {
               </SelectContent>
             </Select>
             <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Ambiente" />
               </SelectTrigger>
               <SelectContent>
@@ -310,7 +310,7 @@ export default function AdminPayments() {
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full lg:w-[140px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -320,11 +320,11 @@ export default function AdminPayments() {
                 <SelectItem value="100">100 por página</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" onClick={handleRefresh}>
+            <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full lg:w-auto">
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar
             </Button>
-            <Button variant="outline" size="sm" onClick={handleResetFilters}>
+            <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
               <FilterX className="h-4 w-4 mr-2" />
               Limpar filtros
             </Button>
