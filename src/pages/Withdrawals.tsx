@@ -309,12 +309,12 @@ const Withdrawals = () => {
           </CardContent>
         </Card>
 
-        <Card className={isWithdrawalDay ? "border-success/20 bg-success/5" : "border-muted"}>
+        <Card className={isWithdrawalDay ? "border-success/20 bg-success/5" : "border-destructive/20 bg-destructive/5"}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">
               Dia de Saque
             </CardTitle>
-            <Calendar className={isWithdrawalDay ? "h-5 w-5 text-success" : "h-5 w-5 text-muted-foreground"} />
+            <Calendar className={isWithdrawalDay ? "h-5 w-5 text-success" : "h-5 w-5 text-destructive"} />
           </CardHeader>
           <CardContent>
             {isWithdrawalDay ? <>
