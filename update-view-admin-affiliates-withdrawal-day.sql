@@ -1,6 +1,7 @@
 -- Atualizar view para incluir withdrawal_day e contar indicações corretamente
-CREATE OR REPLACE VIEW view_admin_affiliates AS
-SELECT 
+CREATE OR REPLACE VIEW public.view_admin_affiliates
+WITH (security_invoker = true) AS
+SELECT
   p.id,
   p.name,
   p.email,
