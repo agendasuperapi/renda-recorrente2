@@ -50,7 +50,6 @@ interface RecentCommission {
 
 interface DailyChartData {
   date: string;
-  vendas: number;
   comissoes: number;
 }
 const Dashboard = () => {
@@ -178,25 +177,22 @@ const Dashboard = () => {
         console.log('[Dashboard] Dados diários:', { dailyData, dailyError });
 
         if (dailyData && dailyData.length > 0) {
-          // Agregar por dia: quantidade de comissões (vendas) e valor total das comissões
-          const aggregateByDate = new Map<string, { vendas: number; comissoes: number }>();
+          // Agregar por dia: valor total das comissões
+          const aggregateByDate = new Map<string, number>();
 
           dailyData.forEach((d: any) => {
             const dateObj = new Date(d.data);
             if (isNaN(dateObj.getTime())) return;
             const dateKey = dateObj.toISOString().split('T')[0];
-            const existing = aggregateByDate.get(dateKey) || { vendas: 0, comissoes: 0 };
-            existing.vendas += 1;
-            existing.comissoes += Number(d.valor) || 0;
-            aggregateByDate.set(dateKey, existing);
+            const existing = aggregateByDate.get(dateKey) || 0;
+            aggregateByDate.set(dateKey, existing + (Number(d.valor) || 0));
           });
 
           const chartData: DailyChartData[] = Array.from(aggregateByDate.entries())
             .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-            .map(([dateKey, values]) => ({
+            .map(([dateKey, value]) => ({
               date: new Date(dateKey).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-              vendas: values.vendas,
-              comissoes: values.comissoes,
+              comissoes: value,
             }));
 
           console.log('[Dashboard] Chart data formatado:', chartData);
@@ -209,7 +205,6 @@ const Dashboard = () => {
             date.setDate(date.getDate() - (6 - i));
             return {
               date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-              vendas: 0,
               comissoes: 0
             };
           });
@@ -540,9 +535,9 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Vendas e Comissões (Últimos 30 dias)</CardTitle>
+              <CardTitle>Comissões Diárias (Últimos 30 dias)</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Acompanhe seu desempenho diário
+                Acompanhe suas comissões diárias
               </p>
             </CardHeader>
             <CardContent>
@@ -560,17 +555,9 @@ const Dashboard = () => {
                       tick={{ fill: 'hsl(var(--muted-foreground))' }}
                     />
                     <YAxis 
-                      yAxisId="left"
                       className="text-xs"
                       tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      label={{ value: 'Vendas', angle: -90, position: 'insideLeft' }}
-                    />
-                    <YAxis 
-                      yAxisId="right"
-                      orientation="right"
-                      className="text-xs"
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      label={{ value: 'Comissões (R$)', angle: 90, position: 'insideRight' }}
+                      label={{ value: 'Comissões (R$)', angle: -90, position: 'insideLeft' }}
                     />
                     <Tooltip 
                       contentStyle={{ 
@@ -578,23 +565,10 @@ const Dashboard = () => {
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px'
                       }}
-                      formatter={(value: any, name: string) => {
-                        if (name === 'comissoes') {
-                          return [formatCurrency(value), 'Comissões'];
-                        }
-                        return [value, 'Vendas'];
-                      }}
+                      formatter={(value: any) => [formatCurrency(value), 'Comissões']}
                     />
                     <Legend />
                     <Bar 
-                      yAxisId="left"
-                      dataKey="vendas" 
-                      fill="hsl(var(--primary))" 
-                      name="Vendas"
-                      radius={[4, 4, 0, 0]}
-                    />
-                    <Bar 
-                      yAxisId="right"
                       dataKey="comissoes" 
                       fill="hsl(var(--success))" 
                       name="Comissões"
