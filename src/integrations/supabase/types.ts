@@ -2851,6 +2851,7 @@ export type Database = {
           tiktok: string | null
           updated_at: string | null
           username: string | null
+          withdrawal_day: number | null
         }
         Relationships: [
           {
