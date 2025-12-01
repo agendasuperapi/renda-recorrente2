@@ -671,14 +671,16 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     </>
   );
 
-  if (isMobile) {
-    return (
+  // Sempre renderizar o botão hamburger em telas pequenas E o sidebar em telas grandes
+  return (
+    <>
+      {/* Botão hamburger para mobile e tablet - sempre visível em telas < 1024px */}
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="fixed top-4 left-4 z-50 lg:hidden"
+            className="fixed top-4 left-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md hover:bg-background"
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -692,12 +694,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
           </div>
         </SheetContent>
       </Sheet>
-    );
-  }
-
-  return (
-    <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
-      <SidebarContent />
-    </aside>
+      
+      {/* Sidebar fixo para desktop - visível apenas em telas >= 1024px */}
+      <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
+        <SidebarContent />
+      </aside>
+    </>
   );
 };
