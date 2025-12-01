@@ -591,25 +591,6 @@ export default function AdminWithdrawals() {
                       <p className="text-red-600">{selectedWithdrawal.rejected_reason}</p>
                     </div>
                   )}
-                  {selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.length > 0 && (
-                    <div className="col-span-2">
-                      <p className="text-sm text-muted-foreground mb-2">Comprovantes de Pagamento ({selectedWithdrawal.payment_proof_url.length})</p>
-                      <div className="grid grid-cols-2 gap-4">
-                        {selectedWithdrawal.payment_proof_url.map((url, index) => (
-                          <img 
-                            key={index}
-                            src={url} 
-                            alt={`Comprovante de pagamento ${index + 1}`} 
-                            className="max-w-full rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => {
-                              setViewerImageUrl(url);
-                              setImageViewerOpen(true);
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {selectedWithdrawal.status === "pending" && (
@@ -641,17 +622,21 @@ export default function AdminWithdrawals() {
                       )}
                     </div>
                     
-                    {/* Preview de novos comprovantes sendo adicionados */}
-                    {paymentProofs.length > 0 && selectedWithdrawal.status !== "paid" && (
+                    {/* Comprovantes - Unificado */}
+                    {((paymentProofs.length > 0 && selectedWithdrawal.status !== "paid") || 
+                      (selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.length > 0)) && (
                       <div className="space-y-2">
-                        <p className="text-sm font-medium">Comprovantes para upload ({paymentProofs.length}):</p>
-                        <div className="grid grid-cols-2 gap-4">
-                          {paymentProofs.map((proof) => (
+                        <p className="text-sm font-medium">
+                          Comprovantes de Pagamento ({paymentProofs.length > 0 ? paymentProofs.length : selectedWithdrawal.payment_proof_url?.length || 0})
+                        </p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {/* Novos comprovantes para upload */}
+                          {paymentProofs.length > 0 && selectedWithdrawal.status !== "paid" && paymentProofs.map((proof) => (
                             <div key={proof.id} className="relative group">
                               <img 
                                 src={proof.previewUrl} 
                                 alt="Pré-visualização do comprovante" 
-                                className="w-full h-auto max-h-[200px] object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                                className="w-full h-24 object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={() => {
                                   setViewerImageUrl(proof.previewUrl);
                                   setImageViewerOpen(true);
@@ -661,29 +646,21 @@ export default function AdminWithdrawals() {
                                 type="button"
                                 variant="destructive"
                                 size="icon"
-                                className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                                 onClick={() => handleRemoveProof(proof.id)}
                               >
-                                <XCircle className="h-4 w-4" />
+                                <XCircle className="h-3 w-3" />
                               </Button>
-                              <p className="text-xs text-muted-foreground mt-1 truncate">{proof.file.name}</p>
                             </div>
                           ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Comprovantes salvos (quando o saque está pago) */}
-                    {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium">Comprovantes de pagamento ({selectedWithdrawal.payment_proof_url.length}):</p>
-                        <div className="grid grid-cols-2 gap-4">
-                          {selectedWithdrawal.payment_proof_url.map((url, index) => (
+                          
+                          {/* Comprovantes salvos */}
+                          {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.map((url, index) => (
                             <div key={index} className="relative">
                               <img 
                                 src={url} 
-                                alt={`Comprovante de pagamento ${index + 1}`} 
-                                className="w-full h-auto max-h-[200px] object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                                alt={`Comprovante ${index + 1}`} 
+                                className="w-full h-24 object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity"
                                 onClick={() => {
                                   setViewerImageUrl(url);
                                   setImageViewerOpen(true);
