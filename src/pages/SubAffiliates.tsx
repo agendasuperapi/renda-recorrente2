@@ -472,10 +472,9 @@ const SubAffiliates = () => {
 
             <Button
               variant="outline"
-              size="sm"
               onClick={clearFilters}
               title="Limpar filtros"
-              className="h-9 sm:h-10"
+              className="h-10 text-xs sm:text-sm"
             >
               <X className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
               Limpar filtros
@@ -483,10 +482,9 @@ const SubAffiliates = () => {
 
             <Button
               variant="outline"
-              size="sm"
               onClick={loadSubAffiliates}
               title="Atualizar"
-              className="h-9 sm:h-10"
+              className="h-10 text-xs sm:text-sm"
             >
               <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
               Atualizar
