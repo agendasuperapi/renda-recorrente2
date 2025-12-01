@@ -367,7 +367,7 @@ const CommissionsDaily = () => {
             <CardTitle>Histórico Diário</CardTitle>
             
             {/* Filtros */}
-            <div className="grid grid-cols-1 md:grid-cols-9 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-4">
               <Select 
                 value={filters.product_id} 
                 onValueChange={(value) => {
