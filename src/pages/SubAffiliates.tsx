@@ -360,6 +360,15 @@ const SubAffiliates = () => {
           {/* Filtros */}
           <div className="flex flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
             <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+              <Input
+                placeholder="Nome/Username/Email"
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+                className="text-xs sm:text-sm"
+              />
+            </div>
+
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Select value={planFilter} onValueChange={setPlanFilter}>
                 <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Plano" />
@@ -389,15 +398,6 @@ const SubAffiliates = () => {
                 type="date"
                 value={endDateFilter}
                 onChange={(e) => setEndDateFilter(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
-
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
-              <Input
-                placeholder="Nome/Username/Email"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
                 className="text-xs sm:text-sm"
               />
             </div>
