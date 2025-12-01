@@ -1616,143 +1616,27 @@ const LandingPage = () => {
           </p>
           
           {/* Card de Cupom */}
-          <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0 relative p-6 rounded-lg" style={getGradientStyle('cupom-card')}>
-            <Card className="border-2 border-primary/20 bg-transparent"  style={{ color: getTextColor('cupom-card') }}>
-              <CardHeader>
-                <div className="flex items-center justify-center gap-3 relative">
-                  <Ticket className="h-6 w-6 text-primary" />
-                  <CardTitle className="text-center">Possui um cupom?</CardTitle>
-                  {isAdmin && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="absolute -right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => setEditingBlock(editingBlock === 'cupom-card' ? null : 'cupom-card')}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      placeholder="Digite o código do cupom"
-                      value={couponCode}
-                      onChange={(e) => {
-                        setCouponCode(e.target.value.toUpperCase());
-                        setValidatedCoupon(null);
-                        if (!e.target.value.trim()) {
-                          localStorage.removeItem('lastUsedCoupon');
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleApplyCoupon();
-                        }
-                      }}
-                      className="pr-10"
-                    />
-                    {couponCode && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                        onClick={() => {
-                          setCouponCode("");
-                          setValidatedCoupon(null);
-                          localStorage.removeItem('lastUsedCoupon');
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                  <Button 
-                    onClick={handleApplyCoupon}
-                    disabled={loadingCoupon || !couponCode.trim()}
-                    className="w-full sm:w-auto"
+          <Card className="max-w-7xl mx-auto mb-8 px-3 md:px-0 relative p-6 rounded-lg" style={getGradientStyle('cupom-card')}>
+            <CardHeader>
+              <div className="flex items-center justify-center gap-3 relative" style={{ color: getTextColor('cupom-card') }}>
+                <Ticket className="h-6 w-6 text-primary" />
+                <CardTitle className="text-center">Possui um cupom?</CardTitle>
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="absolute -right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setEditingBlock(editingBlock === 'cupom-card' ? null : 'cupom-card')}
                   >
-                    {loadingCoupon ? "Validando..." : "Aplicar cupom"}
+                    <Edit className="h-4 w-4" />
                   </Button>
-                </div>
-
-                {validatedCoupon && (
-                  <div className="border rounded-lg p-4 bg-muted/50 animate-fade-in">
-                    {/* Layout Mobile */}
-                    <div className="flex flex-col md:hidden items-center gap-4">
-                      {validatedCoupon.affiliate && (
-                        <div className="flex flex-col items-center gap-3">
-                          <Avatar>
-                            <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
-                            <AvatarFallback>
-                              {validatedCoupon.affiliate.name?.charAt(0) || "A"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="text-center">
-                            <p className="font-semibold">{validatedCoupon.affiliate.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              @{validatedCoupon.affiliate.username}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div className="flex flex-col items-center gap-3 text-center w-full">
-                        <Badge variant="outline" className="text-base w-fit">
-                          {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
-                          {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
-                          {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
-                        </Badge>
-                        
-                        {validatedCoupon.description && (
-                          <p className="text-lg text-muted-foreground">
-                            {validatedCoupon.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Layout Desktop/Tablet */}
-                    {validatedCoupon.affiliate && (
-                      <div className="hidden md:flex items-start gap-4">
-                        <Avatar>
-                          <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
-                          <AvatarFallback>
-                            {validatedCoupon.affiliate.name?.charAt(0) || "A"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-3">
-                          <div>
-                            <p className="font-semibold text-lg">{validatedCoupon.affiliate.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              @{validatedCoupon.affiliate.username}
-                            </p>
-                          </div>
-                          
-                          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-                            <Badge variant="outline" className="text-base w-fit">
-                              {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% de desconto`}
-                              {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
-                              {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
-                            </Badge>
-                            
-                            {validatedCoupon.description && (
-                              <p className="text-lg text-muted-foreground">
-                                {validatedCoupon.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4" style={{ color: getTextColor('cupom-card') }}>
+...
+            </CardContent>
+          </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0 max-w-7xl mx-auto">
             {plans.map((plan, index) => {
