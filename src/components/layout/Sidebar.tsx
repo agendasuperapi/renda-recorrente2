@@ -621,9 +621,9 @@ export const Sidebar = ({
               <Avatar className="w-12 h-12 flex-shrink-0">
                 {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
                 <AvatarFallback style={{
-                backgroundColor: accentColor,
-                color: currentTextColor
-              }} className="text-sm">
+              backgroundColor: accentColor,
+              color: currentTextColor
+            }} className="text-sm">
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
@@ -644,11 +644,7 @@ export const Sidebar = ({
             </div>}
           
           <div className="flex flex-col items-center text-center w-full gap-1 px-3">
-            <p className="text-sm font-medium truncate w-full" style={{
-            color: currentTextColor
-          }}>
-              {userName || user.user_metadata?.name || "Usuário"}
-            </p>
+            
           </div>
         </div>
         <div className="flex items-center gap-2">
