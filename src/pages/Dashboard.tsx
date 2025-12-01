@@ -168,20 +168,36 @@ const Dashboard = () => {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
-        const { data: dailyData } = await supabase
+        const { data: dailyData, error: dailyError } = await supabase
           .from('view_commissions_daily')
           .select('data, total_amount, total_commissions')
           .eq('affiliate_id', session.user.id)
           .gte('data', thirtyDaysAgo.toISOString().split('T')[0])
           .order('data', { ascending: true });
 
-        if (dailyData) {
+        console.log('[Dashboard] Dados diários:', { dailyData, dailyError });
+
+        if (dailyData && dailyData.length > 0) {
           const chartData = dailyData.map((d: any) => ({
             date: new Date(d.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
             vendas: d.total_commissions || 0,
             comissoes: parseFloat(d.total_amount || 0)
           }));
+          console.log('[Dashboard] Chart data formatado:', chartData);
           setDailyChartData(chartData);
+        } else {
+          console.log('[Dashboard] Nenhum dado diário encontrado ou erro na query');
+          // Se não houver dados, criar dados de exemplo para visualização
+          const exampleData = Array.from({ length: 7 }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - (6 - i));
+            return {
+              date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+              vendas: 0,
+              comissoes: 0
+            };
+          });
+          setDailyChartData(exampleData);
         }
 
         setLoading(false);
