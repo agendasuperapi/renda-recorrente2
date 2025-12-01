@@ -19,6 +19,14 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type Withdrawal = {
   id: string;
@@ -58,15 +66,53 @@ export default function AdminWithdrawals() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const { data: withdrawals, isLoading, refetch } = useQuery({
-    queryKey: ["admin-withdrawals", debouncedSearch, statusFilter],
+  // Buscar total de registros
+  const { data: totalCount } = useQuery({
+    queryKey: ["admin-withdrawals-count", debouncedSearch, statusFilter],
     queryFn: async () => {
+      let query = supabase
+        .from("withdrawals")
+        .select("id", { count: 'exact', head: true });
+
+      if (debouncedSearch) {
+        const { data: profilesData } = await supabase
+          .from("profiles")
+          .select("id")
+          .or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+        
+        if (profilesData && profilesData.length > 0) {
+          const profileIds = profilesData.map(p => p.id);
+          query = query.in("affiliate_id", profileIds);
+        } else {
+          return 0;
+        }
+      }
+      
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter as any);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      
+      return count || 0;
+    },
+  });
+
+  const { data: withdrawals, isLoading, refetch } = useQuery({
+    queryKey: ["admin-withdrawals", debouncedSearch, statusFilter, currentPage, pageSize],
+    queryFn: async () => {
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
+
       let query = supabase
         .from("withdrawals")
         .select(`
@@ -77,10 +123,10 @@ export default function AdminWithdrawals() {
             username
           )
         `)
-        .order("requested_date", { ascending: false });
+        .order("requested_date", { ascending: false })
+        .range(from, to);
 
       if (debouncedSearch) {
-        // Buscar por nome, email ou username através de uma subconsulta
         const { data: profilesData } = await supabase
           .from("profiles")
           .select("id")
@@ -89,8 +135,11 @@ export default function AdminWithdrawals() {
         if (profilesData && profilesData.length > 0) {
           const profileIds = profilesData.map(p => p.id);
           query = query.in("affiliate_id", profileIds);
+        } else {
+          return [];
         }
       }
+      
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter as any);
       }
@@ -101,6 +150,8 @@ export default function AdminWithdrawals() {
       return (data || []) as unknown as Withdrawal[];
     },
   });
+
+  const totalPages = Math.ceil((totalCount || 0) / pageSize);
 
   const { data: commissions } = useQuery({
     queryKey: ["withdrawal-commissions", selectedWithdrawal?.id],
@@ -454,10 +505,19 @@ export default function AdminWithdrawals() {
             <Input
               placeholder="Buscar por afiliado..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full sm:max-w-sm"
             />
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select 
+              value={statusFilter} 
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -467,6 +527,23 @@ export default function AdminWithdrawals() {
                 <SelectItem value="approved">Aprovado</SelectItem>
                 <SelectItem value="paid">Pago</SelectItem>
                 <SelectItem value="rejected">Rejeitado</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select 
+              value={pageSize.toString()} 
+              onValueChange={(value) => {
+                setPageSize(Number(value));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-[120px]">
+                <SelectValue placeholder="Por página" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 por página</SelectItem>
+                <SelectItem value="20">20 por página</SelectItem>
+                <SelectItem value="50">50 por página</SelectItem>
+                <SelectItem value="100">100 por página</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={() => refetch()} className="w-full sm:w-auto">
@@ -613,6 +690,57 @@ export default function AdminWithdrawals() {
                 )}
               </div>
             </>
+          )}
+          
+          {/* Paginação */}
+          {!isLoading && withdrawals && withdrawals.length > 0 && totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-3 sm:px-6 py-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Mostrando {((currentPage - 1) * pageSize) + 1} a {Math.min(currentPage * pageSize, totalCount || 0)} de {totalCount || 0} registros
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  
+                  {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = idx + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = idx + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + idx;
+                    } else {
+                      pageNumber = currentPage - 2 + idx;
+                    }
+                    
+                    return (
+                      <PaginationItem key={pageNumber}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(pageNumber)}
+                          isActive={currentPage === pageNumber}
+                          className="cursor-pointer"
+                        >
+                          {pageNumber}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
         </CardContent>
       </Card>
