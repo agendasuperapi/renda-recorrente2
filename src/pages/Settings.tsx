@@ -2,23 +2,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileContent } from "@/components/settings/ProfileContent";
 import { PlanContent } from "@/components/settings/PlanContent";
 import { useSearchParams } from "react-router-dom";
-
 const Settings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab") || "profile";
-
   const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value });
+    setSearchParams({
+      tab: value
+    });
   };
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Configurações</h1>
-        <p className="text-muted-foreground">
-          Gerencie seu perfil e plano de assinatura
-        </p>
-      </div>
+  return <div className="space-y-6">
+      
 
       <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -34,8 +27,6 @@ const Settings = () => {
           <PlanContent />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
-
 export default Settings;
