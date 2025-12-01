@@ -22,6 +22,8 @@ import Withdrawals from "./pages/Withdrawals";
 import Plan from "./pages/Plan";
 import GoogleBusiness from "./pages/GoogleBusiness";
 import Settings from "./pages/Settings";
+import ProfileSettings from "./pages/settings/ProfileSettings";
+import PlanSettings from "./pages/settings/PlanSettings";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPlans from "./pages/admin/AdminPlans";
@@ -86,6 +88,8 @@ const App = () => (
               <Route path="/plan" element={<Plan />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/profile" element={<ProfileSettings />} />
+              <Route path="/settings/plan" element={<PlanSettings />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
