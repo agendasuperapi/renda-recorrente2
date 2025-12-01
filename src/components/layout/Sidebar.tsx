@@ -412,8 +412,8 @@ export const Sidebar = ({
       <div className="p-6 border-b" style={{
       borderColor: `${colorEnd}40`
     }}>
-        <div className="flex items-center justify-center mb-4">
-          <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-16 w-auto" />
+        <div className="flex items-center justify-center mb-2">
+          <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-12 w-auto" />
         </div>
         
       </div>
