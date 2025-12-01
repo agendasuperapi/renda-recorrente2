@@ -409,7 +409,7 @@ export const Sidebar = ({
   }: {
     closeSidebar?: () => void;
   }) => <div className="flex flex-col h-full">
-      <div className="p-6 border-b" style={{
+      <div className="px-6 pt-6 pb-3 border-b" style={{
       borderColor: `${colorEnd}40`
     }}>
         <div className="flex items-center justify-center mb-2">
