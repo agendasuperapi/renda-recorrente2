@@ -158,9 +158,10 @@ const AdminUsers = () => {
       
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, newDay) => {
       toast.success("Dia de saque atualizado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setSelectedUser({ ...selectedUser, withdrawal_day: newDay });
       setIsEditingWithdrawal(false);
     },
     onError: (error) => {
