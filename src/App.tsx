@@ -21,6 +21,7 @@ import Coupons from "./pages/Coupons";
 import Withdrawals from "./pages/Withdrawals";
 import Plan from "./pages/Plan";
 import GoogleBusiness from "./pages/GoogleBusiness";
+import Settings from "./pages/Settings";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPlans from "./pages/admin/AdminPlans";
@@ -81,7 +82,10 @@ const App = () => (
               <Route path="/coupons" element={<Coupons />} />
               <Route path="/withdrawals" element={<Withdrawals />} />
               <Route path="/payments" element={<Payments />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/plan" element={<Plan />} />
+              <Route path="/google-business" element={<GoogleBusiness />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />

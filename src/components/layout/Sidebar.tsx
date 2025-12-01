@@ -31,6 +31,8 @@ import {
   Star,
   TrendingUp,
   Banknote,
+  LineChart,
+  UserPlus,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,15 +65,10 @@ interface SidebarProps {
 }
 
 const affiliateMenuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: User, label: "Cadastro Afiliado", path: "/profile" },
-  { icon: GraduationCap, label: "Treinamento", path: "/training" },
-  { icon: Target, label: "Indicações", path: "/referrals" },
   { icon: Users, label: "Sub Afiliados", path: "/sub-affiliates" },
-  { icon: Calendar, label: "Atividades", path: "/activities" },
-  { icon: Ticket, label: "Cupons e Links", path: "/coupons" },
-  { icon: CreditCard, label: "Plano Afiliação", path: "/plan" },
-  { icon: MapPin, label: "Empresas Google", path: "/google-business" },
+  { icon: UserPlus, label: "Meus Indicados", path: "/referrals" },
+  { icon: Ticket, label: "Meus Cupons", path: "/coupons" },
+  { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
 const commissionsMenuItems = [
