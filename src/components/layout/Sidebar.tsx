@@ -18,6 +18,8 @@ import { APP_VERSION } from "@/config/version";
 import logo from "@/assets/logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 interface SidebarProps {
   user: SupabaseUser | null;
   isAdmin: boolean;
@@ -157,6 +159,13 @@ export const Sidebar = ({
     is_free: boolean;
     plan_name: string | null;
   } | null>(null);
+  const [userSubscription, setUserSubscription] = useState<{
+    current_period_start: string;
+    current_period_end: string;
+    status: string;
+    commission_percentage: number;
+    cancel_at_period_end: boolean | null;
+  } | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
   const [sidebarTimeout, setSidebarTimeout] = useState(false);
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
@@ -242,7 +251,7 @@ export const Sidebar = ({
         // Buscar plano do usuário através de subscriptions
         const {
           data: subscription
-        } = await supabase.from('subscriptions').select('plan_id, plans(name, is_free)').eq('user_id', user.id).eq('status', 'active').order('created_at', {
+        } = await supabase.from('subscriptions').select('plan_id, current_period_start, current_period_end, status, cancel_at_period_end, plans(name, is_free, commission_percentage)').eq('user_id', user.id).eq('status', 'active').order('created_at', {
           ascending: false
         }).limit(1).maybeSingle();
         if (subscription && subscription.plans) {
@@ -250,12 +259,20 @@ export const Sidebar = ({
             is_free: (subscription.plans as any).is_free || false,
             plan_name: (subscription.plans as any).name || null
           });
+          setUserSubscription({
+            current_period_start: subscription.current_period_start,
+            current_period_end: subscription.current_period_end,
+            status: subscription.status,
+            commission_percentage: (subscription.plans as any).commission_percentage || 0,
+            cancel_at_period_end: subscription.cancel_at_period_end
+          });
         } else {
           // Usuário sem plano ativo = FREE
           setUserPlan({
             is_free: true,
             plan_name: null
           });
+          setUserSubscription(null);
         }
       }
     };
@@ -700,16 +717,45 @@ export const Sidebar = ({
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground">Plano</p>
                     <p className="text-sm font-medium">
-                      {userPlan?.is_free ? "Gratuito" : userPlan?.plan_name || "Pro"}
+                      {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "Pro")}
                     </p>
                   </div>
                   
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Validade</p>
-                    <p className="text-sm font-medium">
-                      {userPlan?.is_free ? "Ilimitado" : "Ativo"}
-                    </p>
-                  </div>
+                  {userSubscription ? (
+                    <>
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Período</p>
+                        <p className="text-sm font-medium">
+                          {format(new Date(userSubscription.current_period_start), "dd/MM/yyyy", { locale: ptBR })} - {format(new Date(userSubscription.current_period_end), "dd/MM/yyyy", { locale: ptBR })}
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Situação</p>
+                        <div className="flex items-center gap-2">
+                          <div className={`px-2 py-1 rounded text-xs font-semibold ${
+                            userSubscription.cancel_at_period_end 
+                              ? "bg-destructive text-destructive-foreground" 
+                              : userSubscription.status === "active" 
+                              ? "bg-green-500 text-white" 
+                              : "bg-secondary text-secondary-foreground"
+                          }`}>
+                            {userSubscription.cancel_at_period_end ? "Cancelamento solicitado" : userSubscription.status === "active" ? "Ativo" : userSubscription.status}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Comissão</p>
+                        <p className="text-lg font-semibold text-primary">{userSubscription.commission_percentage}%</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Validade</p>
+                      <p className="text-sm font-medium">Ilimitado</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </DialogContent>
