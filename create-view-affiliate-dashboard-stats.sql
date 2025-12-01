@@ -83,12 +83,7 @@ SELECT
         0
     ) as total_sacado
 
-FROM public.profiles p
-WHERE EXISTS (
-    SELECT 1 FROM public.user_roles ur 
-    WHERE ur.user_id = p.id 
-    AND ur.role = 'afiliado'
-);
+FROM public.profiles p;
 
 -- Grant para usuários autenticados
 GRANT SELECT ON public.view_affiliate_dashboard_stats TO authenticated;
