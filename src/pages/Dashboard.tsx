@@ -31,6 +31,8 @@ interface PrimaryCoupon {
   product_icone_light: string | null;
   product_icone_dark: string | null;
   product_site_landingpage: string | null;
+  custom_code: string | null;
+  affiliate_coupon_id: string | null;
 }
 
 const Dashboard = () => {
@@ -72,7 +74,7 @@ const Dashboard = () => {
           setStats(dashboardStats as unknown as DashboardStats);
         }
 
-        // Buscar cupons principais
+        // Buscar cupons principais com códigos customizados do afiliado
         const { data: coupons } = await supabase
           .rpc('get_available_coupons_for_affiliates' as any);
 
@@ -81,7 +83,29 @@ const Dashboard = () => {
         if (coupons && Array.isArray(coupons)) {
           // Filtrar apenas cupons marcados como principais
           const mainCoupons = coupons.filter((c: any) => c.is_primary === true);
-          setPrimaryCoupons(mainCoupons as PrimaryCoupon[]);
+          
+          // Buscar códigos customizados do afiliado para esses cupons
+          const { data: affiliateCoupons } = await supabase
+            .from('affiliate_coupons')
+            .select('id, coupon_id, custom_code, product_id')
+            .eq('affiliate_id', session.user.id)
+            .eq('is_active', true);
+
+          console.log("[Dashboard] Cupons do afiliado:", affiliateCoupons);
+
+          // Combinar cupons principais com códigos customizados
+          const couponsWithCustomCode = mainCoupons.map((coupon: any) => {
+            const affiliateCoupon = affiliateCoupons?.find(
+              (ac: any) => ac.coupon_id === coupon.id && ac.product_id === coupon.product_id
+            );
+            return {
+              ...coupon,
+              custom_code: affiliateCoupon?.custom_code || null,
+              affiliate_coupon_id: affiliateCoupon?.id || null
+            };
+          });
+
+          setPrimaryCoupons(couponsWithCustomCode as PrimaryCoupon[]);
         }
         
         setLoading(false);
@@ -147,24 +171,32 @@ const Dashboard = () => {
     }).format(value);
   };
 
-  const handleCopyCoupon = async (code: string) => {
+  const handleCopyCoupon = async (coupon: PrimaryCoupon) => {
+    const linkToCopy = coupon.product_site_landingpage && (coupon.custom_code || coupon.code)
+      ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}`
+      : (coupon.custom_code || coupon.code);
+    
     try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCode(code);
-      toast.success("Código copiado!");
+      await navigator.clipboard.writeText(linkToCopy);
+      setCopiedCode(coupon.id);
+      toast.success("Link copiado!");
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (error) {
-      toast.error("Erro ao copiar código");
+      toast.error("Erro ao copiar link");
     }
   };
 
   const handleShareCoupon = async (coupon: PrimaryCoupon) => {
-    const text = `🎁 Use o cupom ${coupon.code} no ${coupon.product_nome}!\n${coupon.description || ''}\n\n${coupon.product_site_landingpage || ''}`;
+    const couponLink = coupon.product_site_landingpage && (coupon.custom_code || coupon.code)
+      ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}`
+      : (coupon.custom_code || coupon.code);
+    
+    const text = `🎁 ${coupon.product_nome} - ${coupon.name}\n${coupon.description || ''}\n\n${couponLink}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Cupom ${coupon.code}`,
+          title: `${coupon.product_nome} - ${coupon.name}`,
           text: text
         });
       } catch (error) {
@@ -468,8 +500,11 @@ const Dashboard = () => {
                         <div className="text-xs text-muted-foreground truncate">
                           {coupon.name}
                         </div>
-                        <div className="inline-flex items-center gap-2 mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono font-bold">
-                          {coupon.code}
+                        <div className="mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono break-all">
+                          {coupon.product_site_landingpage && (coupon.custom_code || coupon.code)
+                            ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}`
+                            : (coupon.custom_code || coupon.code)
+                          }
                         </div>
                       </div>
 
@@ -478,10 +513,10 @@ const Dashboard = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleCopyCoupon(coupon.code)}
+                          onClick={() => handleCopyCoupon(coupon)}
                           className="gap-2"
                         >
-                          {copiedCode === coupon.code ? (
+                          {copiedCode === coupon.id ? (
                             <Check className="w-4 h-4" />
                           ) : (
                             <Copy className="w-4 h-4" />
