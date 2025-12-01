@@ -36,6 +36,10 @@ const affiliateMenuItems = [{
   label: "Dashboard",
   path: "/dashboard"
 }, {
+  icon: LineChart,
+  label: "Desempenho",
+  path: "/performance"
+}, {
   icon: Users,
   label: "Sub Afiliados",
   path: "/sub-affiliates"

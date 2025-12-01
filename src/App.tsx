@@ -10,6 +10,7 @@ import LandingTestimonials from "./pages/LandingTestimonials";
 import SignupFunnel from "./pages/SignupFunnel";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Performance from "./pages/Performance";
 import Profile from "./pages/Profile";
 import Training from "./pages/Training";
 import Referrals from "./pages/Referrals";
@@ -76,6 +77,7 @@ const App = () => (
             {/* Protected Routes with DashboardLayout */}
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/performance" element={<Performance />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/training" element={<Training />} />
               <Route path="/referrals" element={<Referrals />} />
