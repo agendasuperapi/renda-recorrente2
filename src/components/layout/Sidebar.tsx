@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -60,7 +60,11 @@ const commissionsMenuItems = [{
 }];
 const settingsMenuItems = [{
   icon: User,
-  label: "Perfil",
+  label: "Meu Perfil",
+  path: "/settings/personal"
+}, {
+  icon: UserCog,
+  label: "Perfil Completo",
   path: "/settings/profile"
 }, {
   icon: Crown,
