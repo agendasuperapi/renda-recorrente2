@@ -1426,7 +1426,7 @@ const LandingPage = () => {
                             {validatedCoupon.affiliate.name?.charAt(0) || "A"}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 space-y-3">
+                        <div className="flex-1 flex flex-col justify-between h-full gap-1">
                           <div>
                             <p className="font-semibold text-lg">{validatedCoupon.affiliate.name}</p>
                             <p className="text-sm text-muted-foreground">
