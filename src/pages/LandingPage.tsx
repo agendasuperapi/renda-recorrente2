@@ -1420,7 +1420,7 @@ const LandingPage = () => {
 
                     {/* Layout Desktop/Tablet */}
                     {validatedCoupon.affiliate && <div className="hidden md:flex items-stretch gap-4">
-                        <Avatar className="h-full w-auto aspect-square">
+                        <Avatar className="h-auto">
                           <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
                           <AvatarFallback>
                             {validatedCoupon.affiliate.name?.charAt(0) || "A"}
