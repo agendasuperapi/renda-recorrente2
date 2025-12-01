@@ -466,21 +466,18 @@ const Withdrawals = () => {
                     </TableCell>
                   </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
                       <TableCell className="text-xs md:text-sm">
-                        <div className="flex flex-col gap-0.5">
-                          <span>
-                            {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric'
-                            })}
-                          </span>
-                          <span className="text-muted-foreground">
-                            {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleTimeString('pt-BR', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
-                        </div>
+                        {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        })}
+                        {' '}
+                        <span className="text-muted-foreground">
+                          {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
                       </TableCell>
                       <TableCell className="font-medium text-xs md:text-sm whitespace-nowrap">
                         R$ {withdrawal.amount.toFixed(2)}
@@ -498,21 +495,20 @@ const Withdrawals = () => {
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-xs md:text-sm">
                         {withdrawal.paid_date ? (
-                          <div className="flex flex-col gap-0.5">
-                            <span>
-                              {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                              })}
-                            </span>
+                          <>
+                            {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })}
+                            {' '}
                             <span className="text-muted-foreground">
                               {new Date(withdrawal.paid_date).toLocaleTimeString('pt-BR', {
                                 hour: '2-digit',
                                 minute: '2-digit'
                               })}
                             </span>
-                          </div>
+                          </>
                         ) : '-'}
                       </TableCell>
                     </TableRow>) : <TableRow>
