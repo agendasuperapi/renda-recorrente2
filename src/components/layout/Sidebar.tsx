@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw, Check, X } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -449,6 +449,11 @@ export const Sidebar = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center justify-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity">
+                  {versionInfo.hasUpdate ? (
+                    <X className="h-3.5 w-3.5 text-red-500" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  )}
                   <span>v{APP_VERSION}</span>
                   {versionInfo.hasUpdate && (
                     <Badge 
@@ -462,10 +467,14 @@ export const Sidebar = ({
                   )}
                 </div>
               </TooltipTrigger>
-              {versionInfo.hasUpdate && (
+              {versionInfo.hasUpdate ? (
                 <TooltipContent>
                   <p>Nova versão disponível: v{versionInfo.newVersion}</p>
                   <p className="text-xs">Clique para atualizar</p>
+                </TooltipContent>
+              ) : (
+                <TooltipContent>
+                  <p>Versão atualizada</p>
                 </TooltipContent>
               )}
             </Tooltip>
