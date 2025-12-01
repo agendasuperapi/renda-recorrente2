@@ -8,7 +8,6 @@ import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOp
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
-
 interface DashboardStats {
   affiliate_id: string;
   comissao_hoje: number;
@@ -20,7 +19,6 @@ interface DashboardStats {
   total_sub_afiliados: number;
   total_sacado: number;
 }
-
 interface PrimaryCoupon {
   id: string;
   code: string;
@@ -34,7 +32,6 @@ interface PrimaryCoupon {
   custom_code: string | null;
   affiliate_coupon_id: string | null;
 }
-
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
@@ -44,95 +41,87 @@ const Dashboard = () => {
   const [primaryCoupons, setPrimaryCoupons] = useState<PrimaryCoupon[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const navigate = useNavigate();
-
   useEffect(() => {
     const loadDashboardData = async () => {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       console.log("[Dashboard] Sessão atual:", session);
-      
       if (session) {
         // Buscar perfil do usuário
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("name, has_seen_welcome_dashboard")
-          .eq("id", session.user.id)
-          .single() as any;
-
-        console.log("[Dashboard] Resultado perfil:", { profile, profileError });
+        const {
+          data: profile,
+          error: profileError
+        } = (await supabase.from("profiles").select("name, has_seen_welcome_dashboard").eq("id", session.user.id).single()) as any;
+        console.log("[Dashboard] Resultado perfil:", {
+          profile,
+          profileError
+        });
 
         // Buscar estatísticas do dashboard
-        const { data: dashboardStats, error: statsError } = await supabase
-          .from("view_affiliate_dashboard_stats" as any)
-          .select("*")
-          .eq("affiliate_id", session.user.id)
-          .maybeSingle();
-
-        console.log("[Dashboard] Estatísticas:", { dashboardStats, statsError });
-        
+        const {
+          data: dashboardStats,
+          error: statsError
+        } = await supabase.from("view_affiliate_dashboard_stats" as any).select("*").eq("affiliate_id", session.user.id).maybeSingle();
+        console.log("[Dashboard] Estatísticas:", {
+          dashboardStats,
+          statsError
+        });
         if (dashboardStats) {
           setStats(dashboardStats as unknown as DashboardStats);
         }
 
         // Buscar cupons principais com códigos customizados do afiliado
-        const { data: coupons } = await supabase
-          .rpc('get_available_coupons_for_affiliates' as any);
-
+        const {
+          data: coupons
+        } = await supabase.rpc('get_available_coupons_for_affiliates' as any);
         console.log("[Dashboard] Cupons principais:", coupons);
-        
         if (coupons && Array.isArray(coupons)) {
           // Filtrar apenas cupons marcados como principais
           const mainCoupons = coupons.filter((c: any) => c.is_primary === true);
-          
-          // Buscar códigos customizados do afiliado para esses cupons
-          const { data: affiliateCoupons } = await supabase
-            .from('affiliate_coupons')
-            .select('id, coupon_id, custom_code, product_id')
-            .eq('affiliate_id', session.user.id)
-            .eq('is_active', true);
 
+          // Buscar códigos customizados do afiliado para esses cupons
+          const {
+            data: affiliateCoupons
+          } = await supabase.from('affiliate_coupons').select('id, coupon_id, custom_code, product_id').eq('affiliate_id', session.user.id).eq('is_active', true);
           console.log("[Dashboard] Cupons do afiliado:", affiliateCoupons);
 
           // Combinar cupons principais com códigos customizados
           const couponsWithCustomCode = mainCoupons.map((coupon: any) => {
-            const affiliateCoupon = affiliateCoupons?.find(
-              (ac: any) => ac.coupon_id === coupon.id && ac.product_id === coupon.product_id
-            );
+            const affiliateCoupon = affiliateCoupons?.find((ac: any) => ac.coupon_id === coupon.id && ac.product_id === coupon.product_id);
             return {
               ...coupon,
               custom_code: affiliateCoupon?.custom_code || null,
               affiliate_coupon_id: affiliateCoupon?.id || null
             };
           });
-
           setPrimaryCoupons(couponsWithCustomCode as PrimaryCoupon[]);
         }
-        
         setLoading(false);
-
         if (profile) {
           setUserName(profile.name);
-          
+
           // Se ainda não viu o modal de boas-vindas
           console.log("[Dashboard] has_seen_welcome_dashboard:", profile.has_seen_welcome_dashboard);
           if (!profile.has_seen_welcome_dashboard) {
             // PRIMEIRO: Verificar se existe QUALQUER assinatura (para debug)
-            const { data: allSubscriptions } = await supabase
-              .from("subscriptions")
-              .select("*")
-              .eq("user_id", session.user.id);
-            
+            const {
+              data: allSubscriptions
+            } = await supabase.from("subscriptions").select("*").eq("user_id", session.user.id);
             console.log("[Dashboard] TODAS assinaturas do usuário:", allSubscriptions);
 
             // Verificar se tem assinatura ativa
-            const { data: subscription, error: subscriptionError } = await supabase
-              .from("subscriptions")
-              .select("created_at, status")
-              .eq("user_id", session.user.id)
-              .in("status", ["active", "trialing"])
-              .maybeSingle();
-
-            console.log("[Dashboard] Assinatura encontrada:", { subscription, subscriptionError });
+            const {
+              data: subscription,
+              error: subscriptionError
+            } = await supabase.from("subscriptions").select("created_at, status").eq("user_id", session.user.id).in("status", ["active", "trialing"]).maybeSingle();
+            console.log("[Dashboard] Assinatura encontrada:", {
+              subscription,
+              subscriptionError
+            });
 
             // Mostrar modal se tiver assinatura ativa
             if (subscription) {
@@ -150,32 +139,28 @@ const Dashboard = () => {
       } else {
         console.log("[Dashboard] Nenhuma sessão encontrada");
       }
-      
+
       // Remover parâmetro success da URL se existir
       const successParam = searchParams.get("success");
       console.log("[Dashboard] success param na URL:", successParam);
       if (successParam === "true") {
         searchParams.delete("success");
-        setSearchParams(searchParams, { replace: true });
+        setSearchParams(searchParams, {
+          replace: true
+        });
         console.log("[Dashboard] Parâmetro success removido da URL");
       }
     };
-
     loadDashboardData();
   }, [searchParams, setSearchParams]);
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
   };
-
   const handleCopyCoupon = async (coupon: PrimaryCoupon) => {
-    const linkToCopy = coupon.product_site_landingpage && (coupon.custom_code || coupon.code)
-      ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}`
-      : (coupon.custom_code || coupon.code);
-    
+    const linkToCopy = coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code;
     try {
       await navigator.clipboard.writeText(linkToCopy);
       setCopiedCode(coupon.id);
@@ -185,14 +170,9 @@ const Dashboard = () => {
       toast.error("Erro ao copiar link");
     }
   };
-
   const handleShareCoupon = async (coupon: PrimaryCoupon) => {
-    const couponLink = coupon.product_site_landingpage && (coupon.custom_code || coupon.code)
-      ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}`
-      : (coupon.custom_code || coupon.code);
-    
+    const couponLink = coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code;
     const text = `🎁 ${coupon.product_nome} - ${coupon.name}\n${coupon.description || ''}\n\n${couponLink}`;
-    
     if (navigator.share) {
       try {
         await navigator.share({
@@ -207,25 +187,27 @@ const Dashboard = () => {
       toast.success("Texto copiado para compartilhar!");
     }
   };
-
   const handleCloseWelcome = async () => {
     console.log("[Dashboard] Fechando modal de boas-vindas");
     setShowWelcome(false);
-    
+
     // Atualizar no banco de dados que o usuário já viu o modal
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: {
+        session
+      }
+    } = await supabase.auth.getSession();
     console.log("[Dashboard] Sessão ao fechar modal:", session);
     if (session) {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ has_seen_welcome_dashboard: true } as any)
-        .eq("id", session.user.id);
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        has_seen_welcome_dashboard: true
+      } as any).eq("id", session.user.id);
       console.log("[Dashboard] Resultado update has_seen_welcome_dashboard:", error);
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Modal de Boas-vindas */}
       <Dialog open={showWelcome} onOpenChange={handleCloseWelcome}>
         <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
@@ -288,24 +270,15 @@ const Dashboard = () => {
             </div>
 
             <div className="space-y-3">
-              <Button 
-                onClick={handleCloseWelcome} 
-                className="w-full h-12 text-base font-semibold group"
-                size="lg"
-              >
+              <Button onClick={handleCloseWelcome} className="w-full h-12 text-base font-semibold group" size="lg">
                 Começar agora
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
-              <Button 
-                onClick={() => {
-                  handleCloseWelcome();
-                  navigate("/profile");
-                }} 
-                variant="outline"
-                className="w-full h-12 text-base"
-                size="lg"
-              >
+              <Button onClick={() => {
+              handleCloseWelcome();
+              navigate("/profile");
+            }} variant="outline" className="w-full h-12 text-base" size="lg">
                 Completar Perfil
               </Button>
             </div>
@@ -318,10 +291,7 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Dashboard Content */}
-      {loading ? (
-        <DashboardSkeleton />
-      ) : (
-        <>
+      {loading ? <DashboardSkeleton /> : <>
           <div>
             <h1 className="text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
             <p className="text-muted-foreground">
@@ -460,83 +430,41 @@ const Dashboard = () => {
               </p>
             </CardHeader>
             <CardContent>
-              {primaryCoupons.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+              {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   Nenhum cupom disponível no momento
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {primaryCoupons.map((coupon) => (
-                    <div 
-                      key={coupon.id}
-                      className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                    >
+                </div> : <div className="space-y-3">
+                  {primaryCoupons.map(coupon => <div key={coupon.id} className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                       {/* Ícone do App */}
-                      {coupon.product_icone_light ? (
-                        <img 
-                          src={coupon.product_icone_light}
-                          alt={coupon.product_nome}
-                          className="flex-shrink-0 w-12 h-12 rounded-full object-cover dark:hidden"
-                        />
-                      ) : null}
-                      {coupon.product_icone_dark ? (
-                        <img 
-                          src={coupon.product_icone_dark}
-                          alt={coupon.product_nome}
-                          className="flex-shrink-0 w-12 h-12 rounded-full object-cover hidden dark:block"
-                        />
-                      ) : null}
-                      {!coupon.product_icone_light && !coupon.product_icone_dark && (
-                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className="flex-shrink-0 w-12 h-12 rounded-full object-cover dark:hidden" /> : null}
+                      {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className="flex-shrink-0 w-12 h-12 rounded-full object-cover hidden dark:block" /> : null}
+                      {!coupon.product_icone_light && !coupon.product_icone_dark && <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
                           {coupon.product_nome.charAt(0)}
-                        </div>
-                      )}
+                        </div>}
 
                       {/* Info do Cupom */}
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-sm text-foreground">
                           {coupon.product_nome}
                         </div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {coupon.name}
-                        </div>
+                        
                         <div className="mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono break-all">
-                          {coupon.product_site_landingpage && (coupon.custom_code || coupon.code)
-                            ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}`
-                            : (coupon.custom_code || coupon.code)
-                          }
+                          {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
                         </div>
                       </div>
 
                       {/* Botões de Ação */}
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCopyCoupon(coupon)}
-                          className="gap-2"
-                        >
-                          {copiedCode === coupon.id ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
+                        <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2">
+                          {copiedCode === coupon.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           Copiar
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="default"
-                          onClick={() => handleShareCoupon(coupon)}
-                          className="gap-2"
-                        >
+                        <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="gap-2">
                           <Share2 className="w-4 h-4" />
                           Compartilhar
                         </Button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    </div>)}
+                </div>}
             </CardContent>
           </Card>
 
@@ -604,10 +532,9 @@ const Dashboard = () => {
             <div className="text-3xl font-bold">R$0,00</div>
             <div className="text-sm text-muted-foreground">0%</div>
             <div className="w-full bg-muted rounded-full h-2">
-              <div
-                className="bg-primary h-2 rounded-full"
-                style={{ width: "0%" }}
-              />
+              <div className="bg-primary h-2 rounded-full" style={{
+                width: "0%"
+              }} />
             </div>
             <p className="text-xs text-muted-foreground">
               Projeção de comissão do mês: R$0,00
@@ -615,10 +542,7 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
-        </>
-      )}
-    </div>
-  );
+        </>}
+    </div>;
 };
-
 export default Dashboard;
