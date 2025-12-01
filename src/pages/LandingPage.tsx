@@ -1419,14 +1419,14 @@ const LandingPage = () => {
                     </div>
 
                     {/* Layout Desktop/Tablet */}
-                    {validatedCoupon.affiliate && <div className="hidden md:flex items-stretch gap-4">
+                    {validatedCoupon.affiliate && <div className="hidden md:flex items-center gap-4">
                         <Avatar className="h-auto">
                           <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
                           <AvatarFallback>
                             {validatedCoupon.affiliate.name?.charAt(0) || "A"}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 flex flex-col justify-between h-full gap-1">
+                        <div className="flex-1 flex flex-col gap-1">
                           <div>
                             <p className="font-semibold text-lg">{validatedCoupon.affiliate.name}</p>
                             <p className="text-sm text-muted-foreground">
