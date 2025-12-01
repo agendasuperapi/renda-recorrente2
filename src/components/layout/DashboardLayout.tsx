@@ -173,16 +173,16 @@ export const DashboardLayout = () => {
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex h-screen bg-background overflow-hidden">
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
-          <main className={`flex-1 min-h-0 overflow-auto ${isMobile ? 'px-4 pt-20' : 'px-8 pt-8'}`}>
+          <main className={`flex-1 min-h-0 overflow-auto ${isMobile ? 'px-3 pt-20 pb-6' : 'px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}>
             {isLoading ? (
-              <div className="space-y-4">
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-96" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                  <Skeleton className="h-32" />
-                  <Skeleton className="h-32" />
-                  <Skeleton className="h-32" />
-                  <Skeleton className="h-32" />
+              <div className="space-y-3 sm:space-y-4">
+                <Skeleton className="h-6 sm:h-8 w-48 sm:w-64" />
+                <Skeleton className="h-3 sm:h-4 w-64 sm:w-96" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
+                  <Skeleton className="h-24 sm:h-32" />
+                  <Skeleton className="h-24 sm:h-32" />
+                  <Skeleton className="h-24 sm:h-32" />
+                  <Skeleton className="h-24 sm:h-32" />
                 </div>
               </div>
             ) : (
