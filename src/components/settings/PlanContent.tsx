@@ -268,24 +268,25 @@ export const PlanContent = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       {user && !subscription && pendingCheckout && (
         <Alert className="border-2 border-primary bg-primary/5">
-          <AlertCircle className="h-5 w-5 text-primary" />
+          <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           <AlertDescription>
-            <div className="space-y-3">
-              <p className="font-semibold text-foreground">Checkout Pendente</p>
-              <p className="text-muted-foreground">
+            <div className="space-y-2 sm:space-y-3">
+              <p className="text-sm sm:text-base font-semibold text-foreground">Checkout Pendente</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Você iniciou o processo de assinatura do plano <strong>{pendingCheckout.plans?.name}</strong> ({pendingCheckout.plans?.billing_period === 'monthly' ? 'Mensal' : 'Anual'}).
                 Deseja continuar com este plano?
               </p>
               <Button 
                 onClick={handleContinuePendingCheckout}
-                className="w-full sm:w-auto"
+                className="w-full text-sm sm:text-base"
+                size="sm"
               >
                 Pagar Plano ({new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(pendingCheckout.plans?.price || 0)})
               </Button>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                 Ou escolha um novo plano abaixo
               </p>
             </div>
@@ -386,12 +387,12 @@ export const PlanContent = () => {
       )}
 
       <div>
-        <h2 className="text-2xl font-bold mb-2">Planos Disponíveis</h2>
-        <p className="text-muted-foreground mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">Planos Disponíveis</h2>
+        <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
           {subscription ? "Altere seu plano quando quiser" : "Escolha o plano ideal para maximizar seus ganhos"}
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {plans.map((plan) => {
             const isCurrent = subscription?.plan_id === plan.id;
             const isFree = plan.is_free;
@@ -400,21 +401,21 @@ export const PlanContent = () => {
             return (
               <div
                 key={plan.id}
-                className={`relative bg-card rounded-2xl p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl flex flex-col mt-8 ${
+                className={`relative bg-card rounded-2xl p-4 sm:p-6 md:p-8 border-2 transition-all duration-300 hover:scale-105 hover:shadow-2xl flex flex-col mt-6 sm:mt-8 ${
                   isCurrent ? "border-primary shadow-lg" : "border-border"
                 }`}
               >
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+                <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2">
                   <Badge className={
                     isCurrent 
-                      ? "bg-primary text-primary-foreground px-4 py-2 text-sm font-bold shadow-lg border-2 border-primary whitespace-nowrap" 
-                      : "bg-secondary text-secondary-foreground px-4 py-2 text-sm font-semibold whitespace-nowrap"
+                      ? "bg-primary text-primary-foreground px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold shadow-lg border-2 border-primary whitespace-nowrap" 
+                      : "bg-secondary text-secondary-foreground px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold whitespace-nowrap"
                   }>
                     {isCurrent ? "Plano Atual" : isFree ? "Para conhecer" : "Mais lucrativo"}
                   </Badge>
                 </div>
 
-                <h3 className="text-primary text-2xl font-bold text-center mb-6 mt-8">
+                <h3 className="text-primary text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 mt-6 sm:mt-8">
                   {plan.name}
                 </h3>
 

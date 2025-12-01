@@ -329,40 +329,43 @@ export const PersonalProfileContent = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Meu Perfil</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg sm:text-xl">Meu Perfil</CardTitle>
+            <CardDescription className="text-sm">
               Gerencie suas informações pessoais
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="personal" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Dados Pessoais
+              <TabsList className="grid w-full grid-cols-3 h-auto">
+                <TabsTrigger value="personal" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Dados Pessoais</span>
+                  <span className="sm:hidden">Dados</span>
                 </TabsTrigger>
-                <TabsTrigger value="address" className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
+                <TabsTrigger value="address" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                   Endereço
                 </TabsTrigger>
-                <TabsTrigger value="social" className="flex items-center gap-2">
-                  <Share2 className="h-4 w-4" />
-                  Redes Sociais
+                <TabsTrigger value="social" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Redes Sociais</span>
+                  <span className="sm:hidden">Redes</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="personal" className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo *</Label>
+              <TabsContent value="personal" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="name" className="text-sm">Nome Completo *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Seu nome completo"
                     required
+                    className="text-sm sm:text-base"
                   />
                 </div>
 
