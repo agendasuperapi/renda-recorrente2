@@ -349,8 +349,9 @@ const Referrals = () => {
             Limpar filtros
           </Button>
 
-          <Button variant="outline" size="icon" onClick={handleRefresh}>
+          <Button variant="outline" onClick={handleRefresh} className="gap-2">
             <RefreshCw className="h-4 w-4" />
+            Atualizar
           </Button>
         </div>
       </div>
