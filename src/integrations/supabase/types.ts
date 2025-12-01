@@ -264,6 +264,58 @@ export type Database = {
         }
         Relationships: []
       }
+      app_versions: {
+        Row: {
+          changes: string[] | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          released_at: string | null
+          version: string
+        }
+        Insert: {
+          changes?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          released_at?: string | null
+          version: string
+        }
+        Update: {
+          changes?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          released_at?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       banks: {
         Row: {
           created_at: string | null
