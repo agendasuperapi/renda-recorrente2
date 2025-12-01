@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,9 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
 import { APP_VERSION } from "@/config/version";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -118,6 +121,10 @@ const configMenuItems = [{
   label: "Configurações",
   path: "/admin/settings"
 }, {
+  icon: GitBranch,
+  label: "Versões",
+  path: "/admin/versions"
+}, {
   icon: Users,
   label: "Usuários",
   path: "/admin/users"
@@ -173,6 +180,7 @@ export const Sidebar = ({
   const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const versionInfo = useVersionCheck();
 
   // Salvar preferência de menu no localStorage
   useEffect(() => {
@@ -765,6 +773,36 @@ export const Sidebar = ({
             
           </div>
         </div>
+
+        {/* Version Info */}
+        <div className="px-4 py-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity">
+                  <span>v{APP_VERSION}</span>
+                  {versionInfo.hasUpdate && (
+                    <Badge 
+                      variant="default" 
+                      className="text-[10px] px-1 py-0 h-4 cursor-pointer"
+                      onClick={() => window.location.reload()}
+                    >
+                      <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
+                      Atualizar
+                    </Badge>
+                  )}
+                </div>
+              </TooltipTrigger>
+              {versionInfo.hasUpdate && (
+                <TooltipContent>
+                  <p>Nova versão disponível: v{versionInfo.newVersion}</p>
+                  <p className="text-xs">Clique para atualizar</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
         <div className="flex items-center gap-2">
           <button onClick={() => {
           closeSidebar?.();
