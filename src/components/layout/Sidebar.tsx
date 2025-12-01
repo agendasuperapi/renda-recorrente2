@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { APP_VERSION } from "@/config/version";
 import logo from "@/assets/logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 interface SidebarProps {
   user: SupabaseUser | null;
   isAdmin: boolean;
@@ -162,6 +163,7 @@ export const Sidebar = ({
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
   const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   // Salvar preferência de menu no localStorage
   useEffect(() => {
@@ -617,7 +619,10 @@ export const Sidebar = ({
     }}>
         <div className="flex flex-col items-center gap-1 pb-2">
           {/* Card com Avatar e Badge */}
-          {userPlan && <div className={cn("flex items-center gap-3 px-4 py-3 rounded-xl w-full shadow-lg border mx-2", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}>
+          {userPlan && <div 
+              onClick={() => setProfileDialogOpen(true)}
+              className={cn("flex items-center gap-3 px-4 py-3 rounded-xl w-full shadow-lg border mx-2 cursor-pointer transition-transform hover:scale-[1.02]", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}
+            >
               <Avatar className="w-12 h-12 flex-shrink-0">
                 {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
                 <AvatarFallback style={{
@@ -642,6 +647,73 @@ export const Sidebar = ({
                 </p>
               </div>
             </div>}
+          
+          {/* Dialog de Detalhes do Perfil */}
+          <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Meu Perfil</DialogTitle>
+              </DialogHeader>
+              
+              <div className="flex flex-col items-center gap-6 py-4">
+                {/* Avatar Grande */}
+                <Avatar className="w-32 h-32">
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
+                  <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                
+                {/* Card de Plano em Destaque */}
+                {userPlan && (
+                  <div className={cn(
+                    "w-full p-6 rounded-2xl border-2 text-center space-y-2 shadow-xl",
+                    userPlan.is_free 
+                      ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" 
+                      : "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-500"
+                  )}>
+                    <div className={cn(
+                      "flex items-center justify-center gap-2 text-2xl font-bold",
+                      userPlan.is_free ? "text-slate-700 dark:text-slate-300" : "text-white"
+                    )}>
+                      {userPlan.is_free ? <Zap className="w-6 h-6" /> : <Star className="w-6 h-6" />}
+                      <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
+                    </div>
+                    {!userPlan.is_free && userPlan.plan_name && (
+                      <p className="text-white/90 text-sm">{userPlan.plan_name}</p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Informações */}
+                <div className="w-full space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Nome Completo</p>
+                    <p className="text-sm font-medium">{userName || user.user_metadata?.name || "Não informado"}</p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium break-all">{user.email}</p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Plano</p>
+                    <p className="text-sm font-medium">
+                      {userPlan?.is_free ? "Gratuito" : userPlan?.plan_name || "Pro"}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Validade</p>
+                    <p className="text-sm font-medium">
+                      {userPlan?.is_free ? "Ilimitado" : "Ativo"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
           
           <div className="flex flex-col items-center text-center w-full gap-1 px-3">
             
