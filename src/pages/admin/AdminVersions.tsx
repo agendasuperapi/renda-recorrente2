@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { APP_VERSION } from "@/config/version";
 
@@ -26,6 +26,15 @@ export default function AdminVersions() {
   const [description, setDescription] = useState("");
   const [changeInput, setChangeInput] = useState("");
   const [changes, setChanges] = useState<string[]>([]);
+  
+  // Edit mode states
+  const [editingVersionId, setEditingVersionId] = useState<string | null>(null);
+  const [editVersion, setEditVersion] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editChanges, setEditChanges] = useState<string[]>([]);
+  const [editChangeInput, setEditChangeInput] = useState("");
+  const [editingChangeIndex, setEditingChangeIndex] = useState<number | null>(null);
+  const [editingChangeText, setEditingChangeText] = useState("");
 
   const { data: versions, isLoading } = useQuery({
     queryKey: ["app_versions"],
@@ -71,6 +80,40 @@ export default function AdminVersions() {
     },
   });
 
+  const updateVersionMutation = useMutation({
+    mutationFn: async (updatedVersion: {
+      id: string;
+      version: string;
+      description: string;
+      changes: string[];
+    }) => {
+      const { error } = await (supabase as any)
+        .from("app_versions")
+        .update({
+          version: updatedVersion.version,
+          description: updatedVersion.description,
+          changes: updatedVersion.changes,
+        })
+        .eq("id", updatedVersion.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["app_versions"] });
+      toast.success("Versão atualizada com sucesso!");
+      setEditingVersionId(null);
+      setEditVersion("");
+      setEditDescription("");
+      setEditChanges([]);
+      setEditChangeInput("");
+      setEditingChangeIndex(null);
+      setEditingChangeText("");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar versão");
+    },
+  });
+
   const deleteVersionMutation = useMutation({
     mutationFn: async (versionId: string) => {
       const { error } = await (supabase as any)
@@ -107,6 +150,72 @@ export default function AdminVersions() {
       return;
     }
     createVersionMutation.mutate({ version, description, changes });
+  };
+
+  const handleStartEdit = (v: Version) => {
+    setEditingVersionId(v.id);
+    setEditVersion(v.version);
+    setEditDescription(v.description || "");
+    setEditChanges(v.changes || []);
+    setEditChangeInput("");
+    setEditingChangeIndex(null);
+    setEditingChangeText("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingVersionId(null);
+    setEditVersion("");
+    setEditDescription("");
+    setEditChanges([]);
+    setEditChangeInput("");
+    setEditingChangeIndex(null);
+    setEditingChangeText("");
+  };
+
+  const handleSaveEdit = () => {
+    if (!editVersion.trim()) {
+      toast.error("Número da versão é obrigatório");
+      return;
+    }
+    if (editingVersionId) {
+      updateVersionMutation.mutate({
+        id: editingVersionId,
+        version: editVersion,
+        description: editDescription,
+        changes: editChanges,
+      });
+    }
+  };
+
+  const handleAddEditChange = () => {
+    if (editChangeInput.trim()) {
+      setEditChanges([...editChanges, editChangeInput.trim()]);
+      setEditChangeInput("");
+    }
+  };
+
+  const handleRemoveEditChange = (index: number) => {
+    setEditChanges(editChanges.filter((_, i) => i !== index));
+  };
+
+  const handleStartEditChange = (index: number) => {
+    setEditingChangeIndex(index);
+    setEditingChangeText(editChanges[index]);
+  };
+
+  const handleSaveEditChange = (index: number) => {
+    if (editingChangeText.trim()) {
+      const updatedChanges = [...editChanges];
+      updatedChanges[index] = editingChangeText.trim();
+      setEditChanges(updatedChanges);
+      setEditingChangeIndex(null);
+      setEditingChangeText("");
+    }
+  };
+
+  const handleCancelEditChange = () => {
+    setEditingChangeIndex(null);
+    setEditingChangeText("");
   };
 
   const latestDbVersion = versions?.[0]?.version;
@@ -241,33 +350,161 @@ export default function AdminVersions() {
               {versions.map((v) => (
                 <div
                   key={v.id}
-                  className="border rounded-lg p-4 space-y-2"
+                  className={`border rounded-lg p-4 space-y-2 ${
+                    editingVersionId === v.id ? "bg-accent/50" : ""
+                  }`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg">v{v.version}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(v.released_at).toLocaleDateString("pt-BR")}
-                      </p>
+                  {editingVersionId === v.id ? (
+                    // Edit Mode
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-version-${v.id}`}>Número da Versão *</Label>
+                        <Input
+                          id={`edit-version-${v.id}`}
+                          value={editVersion}
+                          onChange={(e) => setEditVersion(e.target.value)}
+                          placeholder="Ex: 4.1.71"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-description-${v.id}`}>Descrição</Label>
+                        <Textarea
+                          id={`edit-description-${v.id}`}
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Lista de Mudanças</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            value={editChangeInput}
+                            onChange={(e) => setEditChangeInput(e.target.value)}
+                            placeholder="Adicionar nova mudança"
+                            onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddEditChange())}
+                          />
+                          <Button type="button" onClick={handleAddEditChange} variant="outline" size="sm">
+                            Adicionar
+                          </Button>
+                        </div>
+                        {editChanges.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {editChanges.map((change, index) => (
+                              <li key={index} className="flex items-center gap-2 text-sm">
+                                {editingChangeIndex === index ? (
+                                  <>
+                                    <Input
+                                      value={editingChangeText}
+                                      onChange={(e) => setEditingChangeText(e.target.value)}
+                                      className="flex-1"
+                                      onKeyPress={(e) => e.key === "Enter" && handleSaveEditChange(index)}
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleSaveEditChange(index)}
+                                    >
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={handleCancelEditChange}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span className="flex-1">• {change}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleStartEditChange(index)}
+                                    >
+                                      <Pencil className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleRemoveEditChange(index)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleSaveEdit}
+                          disabled={updateVersionMutation.isPending}
+                          size="sm"
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          {updateVersionMutation.isPending ? "Salvando..." : "Salvar"}
+                        </Button>
+                        <Button
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Cancelar
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteVersionMutation.mutate(v.id)}
-                      disabled={deleteVersionMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {v.description && (
-                    <p className="text-sm">{v.description}</p>
-                  )}
-                  {v.changes && v.changes.length > 0 && (
-                    <ul className="text-sm space-y-1">
-                      {v.changes.map((change, idx) => (
-                        <li key={idx}>• {change}</li>
-                      ))}
-                    </ul>
+                  ) : (
+                    // View Mode
+                    <>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-lg">v{v.version}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(v.released_at).toLocaleDateString("pt-BR")}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStartEdit(v)}
+                            disabled={editingVersionId !== null}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteVersionMutation.mutate(v.id)}
+                            disabled={deleteVersionMutation.isPending || editingVersionId !== null}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {v.description && (
+                        <p className="text-sm">{v.description}</p>
+                      )}
+                      {v.changes && v.changes.length > 0 && (
+                        <ul className="text-sm space-y-1">
+                          {v.changes.map((change, idx) => (
+                            <li key={idx}>• {change}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
                   )}
                 </div>
               ))}
