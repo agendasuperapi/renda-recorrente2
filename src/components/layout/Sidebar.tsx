@@ -469,8 +469,17 @@ export const Sidebar = ({
               </TooltipTrigger>
               {versionInfo.hasUpdate ? (
                 <TooltipContent>
-                  <p>Nova versão disponível: v{versionInfo.newVersion}</p>
-                  <p className="text-xs">Clique para atualizar</p>
+                  {versionInfo.newVersion ? (
+                    <>
+                      <p>Nova versão disponível: v{versionInfo.newVersion}</p>
+                      <p className="text-xs">Clique para atualizar</p>
+                    </>
+                  ) : (
+                    <>
+                      <p>Nenhuma versão registrada no banco</p>
+                      <p className="text-xs">Registre a versão atual em Admin → Versões</p>
+                    </>
+                  )}
                 </TooltipContent>
               ) : (
                 <TooltipContent>
