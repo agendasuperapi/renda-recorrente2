@@ -558,24 +558,20 @@ const Dashboard = () => {
                 >
                   <div className="flex-1 space-y-1">
                     <div className="font-semibold text-sm">
-                      {commission.client_name || 'Cliente'}
+                      {commission.product_nome || 'Produto'}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {commission.client_email}
+                      {commission.client_name || 'Cliente'} • {commission.client_email}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{commission.plan_name || 'Plano'}</span>
                       <span>•</span>
-                      <span>{commission.product_nome || 'Produto'}</span>
+                      <span>Nível {commission.level || 1}</span>
+                      <span>•</span>
+                      <span>{commission.percentage || 0}%</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground">
-                        Nível {commission.level || 1} • {commission.percentage || 0}%
-                      </span>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">
-                        {new Date(commission.created_at).toLocaleDateString('pt-BR')}
-                      </span>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(commission.created_at).toLocaleDateString('pt-BR')}
                     </div>
                   </div>
                   <div className="text-right">
