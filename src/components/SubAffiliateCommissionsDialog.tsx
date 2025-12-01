@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import { ptBR } from "date-fns/locale";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CommissionDetail {
   id: string;
@@ -37,6 +39,7 @@ export function SubAffiliateCommissionsDialog({
   const [commissions, setCommissions] = useState<CommissionDetail[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (open) {
@@ -120,75 +123,95 @@ export function SubAffiliateCommissionsDialog({
     );
   };
 
+  const content = (
+    <>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle className="text-lg">Total das Minhas Comissões</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-3xl font-bold text-success">
+            {new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            }).format(total)}
+          </p>
+        </CardContent>
+      </Card>
+
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : commissions.length === 0 ? (
+        <p className="text-center text-muted-foreground py-8">
+          Nenhuma comissão encontrada.
+        </p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nome</TableHead>
+              <TableHead>Plano</TableHead>
+              <TableHead>Nível</TableHead>
+              <TableHead>% Comissão</TableHead>
+              <TableHead>Data</TableHead>
+              <TableHead>Valor Comissão</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {commissions.map((commission) => (
+              <TableRow key={commission.id}>
+                <TableCell>
+                  <div>
+                    <p className="font-medium">{commission.unified_user_name}</p>
+                    <p className="text-sm text-muted-foreground">{commission.unified_user_email}</p>
+                  </div>
+                </TableCell>
+                <TableCell>{commission.plan_name}</TableCell>
+                <TableCell>{getLevelBadge(commission.level)}</TableCell>
+                <TableCell>
+                  <Badge variant="outline">{commission.percentage}%</Badge>
+                </TableCell>
+                <TableCell>
+                  {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                </TableCell>
+                <TableCell className="font-semibold text-success">
+                  {new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                  }).format(Number(commission.amount))}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="max-h-[85vh] rounded-t-[20px]">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Detalhes das Comissões - {subAffiliateName}</DrawerTitle>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 pb-4">
+            {content}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Detalhes das Comissões - {subAffiliateName}</DialogTitle>
         </DialogHeader>
-
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle className="text-lg">Total das Minhas Comissões</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-success">
-              {new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(total)}
-            </p>
-          </CardContent>
-        </Card>
-
-        {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : commissions.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Nenhuma comissão encontrada.
-          </p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Plano</TableHead>
-                <TableHead>Nível</TableHead>
-                <TableHead>% Comissão</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Valor Comissão</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {commissions.map((commission) => (
-                <TableRow key={commission.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{commission.unified_user_name}</p>
-                      <p className="text-sm text-muted-foreground">{commission.unified_user_email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{commission.plan_name}</TableCell>
-                  <TableCell>{getLevelBadge(commission.level)}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{commission.percentage}%</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                  </TableCell>
-                  <TableCell className="font-semibold text-success">
-                    {new Intl.NumberFormat('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL'
-                    }).format(Number(commission.amount))}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+        {content}
       </DialogContent>
     </Dialog>
   );
