@@ -94,8 +94,13 @@ export default function AdminWithdrawals() {
         .select("value")
         .eq("key", "commission_release_days")
         .single();
-      if (error) throw error;
-      return parseInt(data.value);
+      if (error) {
+        console.error("Erro ao buscar commission_release_days:", error);
+        return 30; // fallback
+      }
+      const days = parseInt(data?.value || "30");
+      console.log("Commission release days:", days);
+      return days;
     }
   });
 
@@ -523,7 +528,7 @@ export default function AdminWithdrawals() {
             })}
             </div>
             <p className="text-xs text-muted-foreground">
-              Comissões à liberar depois de {commissionDays || 30} dias do pagamento
+              Comissões à liberar depois de {commissionDays ?? 30} dias do pagamento
             </p>
           </CardContent>
         </Card>
