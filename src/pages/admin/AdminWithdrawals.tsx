@@ -554,16 +554,16 @@ export default function AdminWithdrawals() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">Todos os Saques</CardTitle>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-2 sm:gap-4 mt-4">
             <Input placeholder="Buscar por afiliado..." value={searchTerm} onChange={e => {
             setSearchTerm(e.target.value);
             setCurrentPage(1);
-          }} className="w-full sm:max-w-sm" />
+          }} className="w-full lg:max-w-sm" />
             <Select value={statusFilter} onValueChange={value => {
             setStatusFilter(value);
             setCurrentPage(1);
           }}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -578,7 +578,7 @@ export default function AdminWithdrawals() {
             setPageSize(Number(value));
             setCurrentPage(1);
           }}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Por página" />
               </SelectTrigger>
               <SelectContent>
@@ -588,7 +588,7 @@ export default function AdminWithdrawals() {
                 <SelectItem value="100">100 por página</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="sm" onClick={() => refetch()} className="w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={() => refetch()} className="w-full lg:w-auto">
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar
             </Button>
