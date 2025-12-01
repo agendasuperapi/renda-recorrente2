@@ -17,12 +17,12 @@ export const useVersionCheck = () => {
 
   const checkVersion = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("app_versions")
         .select("version")
         .order("released_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         return;
