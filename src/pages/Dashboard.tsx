@@ -32,6 +32,15 @@ interface PrimaryCoupon {
   custom_code: string | null;
   affiliate_coupon_id: string | null;
 }
+
+interface RecentCommission {
+  id: string;
+  amount: number;
+  status: string;
+  commission_type: string;
+  created_at: string;
+  product_nome?: string;
+}
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
@@ -40,6 +49,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [primaryCoupons, setPrimaryCoupons] = useState<PrimaryCoupon[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [recentCommissions, setRecentCommissions] = useState<RecentCommission[]>([]);
   const navigate = useNavigate();
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -100,6 +110,35 @@ const Dashboard = () => {
           });
           setPrimaryCoupons(couponsWithCustomCode as PrimaryCoupon[]);
         }
+
+        // Buscar últimas 10 comissões
+        const { data: commissions } = await supabase
+          .from('commissions')
+          .select(`
+            id,
+            amount,
+            status,
+            commission_type,
+            created_at,
+            product_id,
+            products (nome)
+          `)
+          .eq('affiliate_id', session.user.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (commissions) {
+          const formattedCommissions = commissions.map((c: any) => ({
+            id: c.id,
+            amount: c.amount,
+            status: c.status,
+            commission_type: c.commission_type,
+            created_at: c.created_at,
+            product_nome: c.products?.nome
+          }));
+          setRecentCommissions(formattedCommissions);
+        }
+
         setLoading(false);
         if (profile) {
           setUserName(profile.name);
@@ -471,16 +510,63 @@ const Dashboard = () => {
       
 
       <Card>
-        <CardHeader>
-          <CardTitle>Comissões recentes</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Veja aqui suas últimas comissões
-          </p>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Comissões recentes</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Veja aqui suas últimas comissões
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/commissions-daily')}
+            className="gap-2"
+          >
+            Ver todas
+            <ArrowRight className="w-4 h-4" />
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum registro encontrado...
-          </div>
+          {recentCommissions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Nenhum registro encontrado...
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentCommissions.map((commission) => (
+                <div 
+                  key={commission.id} 
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">
+                      {commission.product_nome || 'Produto'}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {commission.commission_type} • {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-sm">
+                      {formatCurrency(commission.amount)}
+                    </div>
+                    <div className={`text-xs ${
+                      commission.status === 'available' ? 'text-success' :
+                      commission.status === 'pending' ? 'text-destructive' :
+                      commission.status === 'paid' ? 'text-primary' :
+                      'text-muted-foreground'
+                    }`}>
+                      {commission.status === 'available' ? 'Disponível' :
+                       commission.status === 'pending' ? 'Pendente' :
+                       commission.status === 'paid' ? 'Pago' :
+                       commission.status}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
