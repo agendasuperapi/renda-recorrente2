@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -48,6 +49,7 @@ interface Plan {
 }
 
 const Referrals = () => {
+  const isMobile = useIsMobile();
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, conversionRate: 0 });
   const [loading, setLoading] = useState(true);
@@ -353,64 +355,65 @@ const Referrals = () => {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data Cadastro</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>Plano</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Cancelamento</TableHead>
-                <TableHead>Período Atual</TableHead>
-                <TableHead>Trial</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {referrals.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                    Nenhuma indicação encontrada
-                  </TableCell>
-                </TableRow>
-              ) : (
-                referrals.map((referral) => (
-                  <TableRow key={referral.id}>
-                    <TableCell>{formatDate(referral.created_at)}</TableCell>
-                    <TableCell>{referral.name || "-"}</TableCell>
-                    <TableCell>{referral.email}</TableCell>
-                    <TableCell>{referral.product_name || "-"}</TableCell>
-                    <TableCell>{referral.plan_name || "-"}</TableCell>
-                    <TableCell>{getStatusBadge(referral.status)}</TableCell>
-                    <TableCell>
-                      {referral.cancel_at_period_end ? (
-                        <Badge variant="destructive">Sim</Badge>
-                      ) : (
-                        <Badge variant="secondary">Não</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {referral.current_period_start && referral.current_period_end ? (
-                        <div className="text-xs">
-                          <div>{formatDate(referral.current_period_start)}</div>
-                          <div>{formatDate(referral.current_period_end)}</div>
-                        </div>
-                      ) : "-"}
-                    </TableCell>
-                    <TableCell>{formatDate(referral.trial_end)}</TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+      {isMobile ? (
+        <div className="space-y-3">
+          {referrals.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                Nenhuma indicação encontrada
+              </CardContent>
+            </Card>
+          ) : (
+            referrals.map((referral) => (
+              <Card key={referral.id}>
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{referral.name || "Sem nome"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{referral.email}</p>
+                    </div>
+                    {getStatusBadge(referral.status)}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Produto:</span>
+                      <p className="font-medium truncate">{referral.product_name || "-"}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Plano:</span>
+                      <p className="font-medium truncate">{referral.plan_name || "-"}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 items-center text-xs">
+                    <span className="text-muted-foreground">Cancelamento:</span>
+                    {referral.cancel_at_period_end ? (
+                      <Badge variant="destructive" className="text-xs">Sim</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">Não</Badge>
+                    )}
+                  </div>
+
+                  {referral.trial_end && (
+                    <div className="text-xs">
+                      <span className="text-muted-foreground">Trial até: </span>
+                      <span className="font-medium">{formatDate(referral.trial_end)}</span>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-muted-foreground">
+                    Cadastrado em {formatDate(referral.created_at)}
+                  </p>
+                </CardContent>
+              </Card>
+            ))
+          )}
 
           {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground whitespace-nowrap">
-                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
+            <div className="mt-4 space-y-3">
+              <p className="text-xs text-muted-foreground text-center">
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total}
               </p>
               <Pagination>
                 <PaginationContent>
@@ -421,17 +424,29 @@ const Referrals = () => {
                     />
                   </PaginationItem>
                   
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => setCurrentPage(page)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
 
                   <PaginationItem>
                     <PaginationNext 
@@ -443,8 +458,101 @@ const Referrals = () => {
               </Pagination>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="pt-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data Cadastro</TableHead>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Produto</TableHead>
+                  <TableHead>Plano</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Cancelamento</TableHead>
+                  <TableHead>Período Atual</TableHead>
+                  <TableHead>Trial</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {referrals.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                      Nenhuma indicação encontrada
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  referrals.map((referral) => (
+                    <TableRow key={referral.id}>
+                      <TableCell>{formatDate(referral.created_at)}</TableCell>
+                      <TableCell>{referral.name || "-"}</TableCell>
+                      <TableCell>{referral.email}</TableCell>
+                      <TableCell>{referral.product_name || "-"}</TableCell>
+                      <TableCell>{referral.plan_name || "-"}</TableCell>
+                      <TableCell>{getStatusBadge(referral.status)}</TableCell>
+                      <TableCell>
+                        {referral.cancel_at_period_end ? (
+                          <Badge variant="destructive">Sim</Badge>
+                        ) : (
+                          <Badge variant="secondary">Não</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {referral.current_period_start && referral.current_period_end ? (
+                          <div className="text-xs">
+                            <div>{formatDate(referral.current_period_start)}</div>
+                            <div>{formatDate(referral.current_period_end)}</div>
+                          </div>
+                        ) : "-"}
+                      </TableCell>
+                      <TableCell>{formatDate(referral.trial_end)}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+
+            {totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-sm text-muted-foreground whitespace-nowrap">
+                  Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
+                </p>
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
