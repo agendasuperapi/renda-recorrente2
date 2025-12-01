@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X, Save, Calendar } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -29,6 +29,16 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
+const WEEKDAYS = [
+  { value: 1, label: "Segunda-feira" },
+  { value: 2, label: "Terça-feira" },
+  { value: 3, label: "Quarta-feira" },
+  { value: 4, label: "Quinta-feira" },
+  { value: 5, label: "Sexta-feira" },
+  { value: 6, label: "Sábado" },
+  { value: 0, label: "Domingo" },
+];
+
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
@@ -41,6 +51,8 @@ const AdminUsers = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortColumn, setSortColumn] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [withdrawalDay, setWithdrawalDay] = useState<number | null>(null);
+  const [isEditingWithdrawal, setIsEditingWithdrawal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: usersData, isLoading } = useQuery({
@@ -104,6 +116,8 @@ const AdminUsers = () => {
     setSelectedUser(user);
     setIsBlocked(user.is_blocked || false);
     setEditedBlockMessage(user.blocked_message || "");
+    setWithdrawalDay(user.withdrawal_day);
+    setIsEditingWithdrawal(false);
     setIsDetailsOpen(true);
   };
 
@@ -133,6 +147,28 @@ const AdminUsers = () => {
     },
   });
 
+  const updateWithdrawalDayMutation = useMutation({
+    mutationFn: async (newDay: number) => {
+      if (!selectedUser) throw new Error("User ID not found");
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({ withdrawal_day: newDay })
+        .eq("id", selectedUser.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Dia de saque atualizado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setIsEditingWithdrawal(false);
+    },
+    onError: (error) => {
+      console.error("Error updating withdrawal day:", error);
+      toast.error("Erro ao atualizar dia de saque");
+    },
+  });
+
   const handleSaveBlockStatus = () => {
     if (!selectedUser) return;
     
@@ -146,6 +182,17 @@ const AdminUsers = () => {
       isBlocked: isBlocked,
       message: editedBlockMessage,
     });
+  };
+
+  const handleSaveWithdrawalDay = () => {
+    if (withdrawalDay !== null && withdrawalDay !== undefined) {
+      updateWithdrawalDayMutation.mutate(withdrawalDay);
+    }
+  };
+
+  const getWeekdayLabel = (day: number | null) => {
+    if (day === null || day === undefined) return "-";
+    return WEEKDAYS.find(w => w.value === day)?.label || "-";
   };
 
   const handleSort = (column: string) => {
@@ -471,7 +518,7 @@ const AdminUsers = () => {
 
                   {/* PIX */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Informações PIX</h3>
+                    <h3 className="text-lg font-semibold mb-3">Informações PIX e Saque</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Tipo de Chave</p>
@@ -480,6 +527,53 @@ const AdminUsers = () => {
                       <div>
                         <p className="text-sm text-muted-foreground">Chave PIX</p>
                         <p className="font-medium">{selectedUser.pix_key || "-"}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
+                        {isEditingWithdrawal ? (
+                          <div className="flex gap-2">
+                            <select
+                              value={withdrawalDay ?? ""}
+                              onChange={(e) => setWithdrawalDay(Number(e.target.value))}
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            >
+                              <option value="">Selecione...</option>
+                              {WEEKDAYS.map((day) => (
+                                <option key={day.value} value={day.value}>
+                                  {day.label}
+                                </option>
+                              ))}
+                            </select>
+                            <Button
+                              size="sm"
+                              onClick={handleSaveWithdrawalDay}
+                              disabled={updateWithdrawalDayMutation.isPending}
+                            >
+                              Salvar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setIsEditingWithdrawal(false);
+                                setWithdrawalDay(selectedUser.withdrawal_day);
+                              }}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{getWeekdayLabel(selectedUser.withdrawal_day)}</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setIsEditingWithdrawal(true)}
+                            >
+                              Editar
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
