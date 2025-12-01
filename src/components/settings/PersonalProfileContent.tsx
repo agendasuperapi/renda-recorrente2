@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
@@ -23,6 +24,16 @@ export const PersonalProfileContent = () => {
     phone: "",
     birth_date: "",
     gender: "",
+    cep: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    instagram: "",
+    facebook: "",
+    tiktok: "",
   });
 
   const [cpfStatus, setCpfStatus] = useState<{
@@ -54,7 +65,7 @@ export const PersonalProfileContent = () => {
       setLoadingProfile(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("name, username, cpf, phone, birth_date, gender")
+        .select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok")
         .eq("id", userId)
         .single();
 
@@ -68,6 +79,16 @@ export const PersonalProfileContent = () => {
           phone: formatPhone(data.phone || ""),
           birth_date: data.birth_date || "",
           gender: data.gender || "",
+          cep: formatCEP(data.cep || ""),
+          street: data.street || "",
+          number: data.number || "",
+          complement: data.complement || "",
+          neighborhood: data.neighborhood || "",
+          city: data.city || "",
+          state: data.state || "",
+          instagram: data.instagram || "",
+          facebook: data.facebook || "",
+          tiktok: data.tiktok || "",
         });
       }
     } catch (error: any) {
@@ -84,6 +105,12 @@ export const PersonalProfileContent = () => {
       return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     }
     return value;
+  };
+
+  const formatCEP = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 5) return numbers;
+    return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
   };
 
   const formatPhone = (value: string) => {
@@ -161,6 +188,31 @@ export const PersonalProfileContent = () => {
     }
   };
 
+  const handleCepChange = async (value: string) => {
+    const formatted = formatCEP(value);
+    setFormData({ ...formData, cep: formatted });
+
+    const cleanCep = formatted.replace(/\D/g, "");
+    if (cleanCep.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const data = await response.json();
+
+        if (!data.erro) {
+          setFormData(prev => ({
+            ...prev,
+            street: data.logradouro || "",
+            neighborhood: data.bairro || "",
+            city: data.localidade || "",
+            state: data.uf || "",
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar CEP:", error);
+      }
+    }
+  };
+
   const handleUsernameChange = (value: string) => {
     const cleaned = value.toLowerCase().replace(/[^a-z0-9_]/g, "");
     setFormData({ ...formData, username: cleaned });
@@ -190,6 +242,7 @@ export const PersonalProfileContent = () => {
     try {
       const cleanCpf = formData.cpf.replace(/\D/g, "");
       const cleanPhone = formData.phone.replace(/\D/g, "");
+      const cleanCep = formData.cep.replace(/\D/g, "");
 
       const { error } = await supabase
         .from("profiles")
@@ -200,15 +253,25 @@ export const PersonalProfileContent = () => {
           phone: cleanPhone || null,
           birth_date: formData.birth_date || null,
           gender: formData.gender || null,
+          cep: cleanCep || null,
+          street: formData.street || null,
+          number: formData.number || null,
+          complement: formData.complement || null,
+          neighborhood: formData.neighborhood || null,
+          city: formData.city || null,
+          state: formData.state || null,
+          instagram: formData.instagram || null,
+          facebook: formData.facebook || null,
+          tiktok: formData.tiktok || null,
         })
         .eq("id", userId);
 
       if (error) throw error;
 
-      toast.success("Dados pessoais atualizados com sucesso!");
+      toast.success("Dados atualizados com sucesso!");
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      toast.error("Erro ao atualizar dados pessoais");
+      toast.error("Erro ao atualizar dados");
     } finally {
       setLoading(false);
     }
@@ -227,114 +290,234 @@ export const PersonalProfileContent = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Dados Pessoais</CardTitle>
+            <CardTitle>Meu Perfil</CardTitle>
             <CardDescription>
-              Atualize suas informações pessoais
+              Gerencie suas informações pessoais
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome Completo *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Seu nome completo"
-                required
-              />
-            </div>
+          <CardContent>
+            <Tabs defaultValue="personal" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="personal">Dados Pessoais</TabsTrigger>
+                <TabsTrigger value="address">Endereço</TabsTrigger>
+                <TabsTrigger value="social">Redes Sociais</TabsTrigger>
+              </TabsList>
 
-            <div className="space-y-2">
-              <Label htmlFor="username">Username *</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="username"
-                  value={formData.username}
-                  onChange={(e) => handleUsernameChange(e.target.value)}
-                  placeholder="seu_username"
-                  required
-                  disabled
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowUsernameDialog(true)}
-                >
-                  Editar
-                </Button>
-              </div>
-              {usernameStatus.checking && (
-                <p className="text-sm text-muted-foreground">Verificando...</p>
-              )}
-              {usernameStatus.available === true && (
-                <p className="text-sm text-green-600">Username disponível</p>
-              )}
-              {usernameStatus.available === false && (
-                <p className="text-sm text-destructive">Username já está em uso</p>
-              )}
-            </div>
+              <TabsContent value="personal" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Seu nome completo"
+                    required
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="cpf">CPF</Label>
-              <Input
-                id="cpf"
-                value={formData.cpf}
-                onChange={(e) => handleCpfChange(e.target.value)}
-                placeholder="000.000.000-00"
-                maxLength={14}
-              />
-              {cpfStatus.checking && (
-                <p className="text-sm text-muted-foreground">Verificando CPF...</p>
-              )}
-              {cpfStatus.available === false && cpfStatus.existingUser && (
-                <p className="text-sm text-destructive">
-                  CPF já cadastrado por {cpfStatus.existingUser}
-                </p>
-              )}
-              {cpfStatus.available === true && (
-                <p className="text-sm text-green-600">CPF disponível</p>
-              )}
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username *</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="username"
+                      value={formData.username}
+                      onChange={(e) => handleUsernameChange(e.target.value)}
+                      placeholder="seu_username"
+                      required
+                      disabled
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowUsernameDialog(true)}
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                  {usernameStatus.checking && (
+                    <p className="text-sm text-muted-foreground">Verificando...</p>
+                  )}
+                  {usernameStatus.available === true && (
+                    <p className="text-sm text-green-600">Username disponível</p>
+                  )}
+                  {usernameStatus.available === false && (
+                    <p className="text-sm text-destructive">Username já está em uso</p>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
-                placeholder="(00) 00000-0000"
-                maxLength={15}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cpf">CPF</Label>
+                  <Input
+                    id="cpf"
+                    value={formData.cpf}
+                    onChange={(e) => handleCpfChange(e.target.value)}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                  />
+                  {cpfStatus.checking && (
+                    <p className="text-sm text-muted-foreground">Verificando CPF...</p>
+                  )}
+                  {cpfStatus.available === false && cpfStatus.existingUser && (
+                    <p className="text-sm text-destructive">
+                      CPF já cadastrado por {cpfStatus.existingUser}
+                    </p>
+                  )}
+                  {cpfStatus.available === true && (
+                    <p className="text-sm text-green-600">CPF disponível</p>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="birth_date">Data de Nascimento</Label>
-              <Input
-                id="birth_date"
-                type="date"
-                value={formData.birth_date}
-                onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="gender">Gênero</Label>
-              <Select
-                value={formData.gender}
-                onValueChange={(value) => setFormData({ ...formData, gender: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione seu gênero" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Masculino</SelectItem>
-                  <SelectItem value="female">Feminino</SelectItem>
-                  <SelectItem value="other">Outro</SelectItem>
-                  <SelectItem value="prefer_not_say">Prefiro não informar</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birth_date">Data de Nascimento</Label>
+                  <Input
+                    id="birth_date"
+                    type="date"
+                    value={formData.birth_date}
+                    onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gênero</Label>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione seu gênero" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Masculino</SelectItem>
+                      <SelectItem value="female">Feminino</SelectItem>
+                      <SelectItem value="other">Outro</SelectItem>
+                      <SelectItem value="prefer_not_say">Prefiro não informar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="address" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cep">CEP</Label>
+                  <Input
+                    id="cep"
+                    value={formData.cep}
+                    onChange={(e) => handleCepChange(e.target.value)}
+                    placeholder="00000-000"
+                    maxLength={9}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="street">Rua</Label>
+                  <Input
+                    id="street"
+                    value={formData.street}
+                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                    placeholder="Nome da rua"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="number">Número</Label>
+                    <Input
+                      id="number"
+                      value={formData.number}
+                      onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                      placeholder="123"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="complement">Complemento</Label>
+                    <Input
+                      id="complement"
+                      value={formData.complement}
+                      onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
+                      placeholder="Apto, bloco, etc"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input
+                    id="neighborhood"
+                    value={formData.neighborhood}
+                    onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                    placeholder="Nome do bairro"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Cidade</Label>
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="Cidade"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="state">Estado</Label>
+                    <Input
+                      id="state"
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value.toUpperCase() })}
+                      placeholder="UF"
+                      maxLength={2}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="social" className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <Input
+                    id="instagram"
+                    value={formData.instagram}
+                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    placeholder="@seuusuario"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="facebook">Facebook</Label>
+                  <Input
+                    id="facebook"
+                    value={formData.facebook}
+                    onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                    placeholder="facebook.com/seuusuario"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Input
+                    id="tiktok"
+                    value={formData.tiktok}
+                    onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
+                    placeholder="@seuusuario"
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
