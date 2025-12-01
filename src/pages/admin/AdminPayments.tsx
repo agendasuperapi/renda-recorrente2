@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +17,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Payment = {
   id: string;
@@ -41,6 +44,7 @@ type SortColumn = "payment_date" | "amount" | "user_name" | "plan_name" | null;
 type SortDirection = "asc" | "desc";
 
 export default function AdminPayments() {
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
@@ -320,15 +324,99 @@ export default function AdminPayments() {
               Atualizar
             </Button>
             <Button variant="outline" size="sm" onClick={handleResetFilters}>
+              <FilterX className="h-4 w-4 mr-2" />
               Limpar filtros
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <TableSkeleton columns={8} rows={10} />
+            isMobile ? (
+              <div className="space-y-3">
+                {[...Array(10)].map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-4">
+                      <Skeleton className="h-24 w-full" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <TableSkeleton columns={8} rows={10} />
+            )
+          ) : isMobile ? (
+            <div className="space-y-3">
+              {paginatedPayments && paginatedPayments.length > 0 ? (
+                paginatedPayments.map((payment) => (
+                  <Card key={payment.id}>
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{payment.user_name || "N/A"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{payment.user_email || "N/A"}</p>
+                        </div>
+                        <Badge variant={payment.status === "paid" ? "default" : "destructive"} className="flex-shrink-0">
+                          {payment.status === "paid" ? "Pago" : payment.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Plano:</span>
+                          <p className="font-medium truncate">{payment.plan_name || "N/A"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Valor:</span>
+                          <p className="font-bold text-sm">{Number(payment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Data:</span>
+                          <p className="font-medium">{format(new Date(payment.payment_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Ambiente:</span>
+                          <Badge variant={payment.environment === "production" ? "default" : "secondary"} className="text-xs">
+                            {payment.environment === "production" ? "Prod" : "Test"}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {(payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code) && (
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">Afiliado/Cupom: </span>
+                          <span className="font-medium">{payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center pt-2 border-t">
+                        <Badge variant="outline" className="text-xs">
+                          {payment.billing_reason === "subscription_create" ? "Nova" :
+                           payment.billing_reason === "subscription_cycle" ? "Renovação" :
+                           payment.billing_reason === "subscription_update" ? "Atualização" :
+                           payment.billing_reason || "N/A"}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDetails(payment)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Ver
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    Nenhum pagamento encontrado
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -450,18 +538,25 @@ export default function AdminPayments() {
           )}
           
           {totalCount > 0 && (
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-muted-foreground whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
+              <p className="text-sm text-muted-foreground order-2 sm:order-1">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} pagamentos
               </p>
-              <Pagination>
-                <PaginationContent>
+              <Pagination className="order-1 sm:order-2">
+                <PaginationContent className="gap-1">
                   <PaginationItem>
-                    <PaginationPrevious 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
+                      disabled={currentPage === 1}
+                      className="h-8 px-2 lg:px-3"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="hidden sm:inline ml-1">Anterior</span>
+                    </Button>
                   </PaginationItem>
+                  
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let page;
                     if (totalPages <= 5) {
@@ -474,22 +569,36 @@ export default function AdminPayments() {
                       page = currentPage - 2 + i;
                     }
                     return (
-                      <PaginationItem key={page}>
-                        <PaginationLink
+                      <PaginationItem key={page} className="hidden sm:block">
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
                           onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className="cursor-pointer"
+                          className="h-8 w-8 p-0"
                         >
                           {page}
-                        </PaginationLink>
+                        </Button>
                       </PaginationItem>
                     );
                   })}
+
+                  <PaginationItem className="sm:hidden">
+                    <span className="text-sm px-2">
+                      {currentPage} / {totalPages}
+                    </span>
+                  </PaginationItem>
+
                   <PaginationItem>
-                    <PaginationNext 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
+                      disabled={currentPage === totalPages}
+                      className="h-8 px-2 lg:px-3"
+                    >
+                      <span className="hidden sm:inline mr-1">Próxima</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
