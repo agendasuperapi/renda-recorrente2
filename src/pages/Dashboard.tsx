@@ -591,33 +591,39 @@ const Dashboard = () => {
               {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   Nenhum cupom disponível no momento
                 </div> : <div className="space-y-3">
-                  {primaryCoupons.map(coupon => <div key={coupon.id} className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                      {/* Ícone do App */}
-                      {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className="flex-shrink-0 w-12 h-12 rounded-full object-cover dark:hidden" /> : null}
-                      {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className="flex-shrink-0 w-12 h-12 rounded-full object-cover hidden dark:block" /> : null}
-                      {!coupon.product_icone_light && !coupon.product_icone_dark && <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                          {coupon.product_nome.charAt(0)}
-                        </div>}
-
-                      {/* Info do Cupom */}
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm text-foreground">
-                          {coupon.product_nome}
-                        </div>
+                  {primaryCoupons.map(coupon => <div key={coupon.id} className="flex flex-col gap-3 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                      {/* Header com ícone e nome */}
+                      <div className="flex items-center gap-3">
+                        {/* Ícone do App */}
+                        {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover dark:hidden" /> : null}
+                        {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover hidden dark:block" /> : null}
+                        {!coupon.product_icone_light && !coupon.product_icone_dark && <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm sm:text-base">
+                            {coupon.product_nome.charAt(0)}
+                          </div>}
                         
-                        <div className="mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono overflow-hidden text-ellipsis whitespace-nowrap sm:whitespace-normal sm:break-words">
-                          {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm sm:text-base text-foreground">
+                            {coupon.product_nome}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {coupon.name}
+                          </div>
                         </div>
+                      </div>
+
+                      {/* URL do Cupom */}
+                      <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
+                        {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
                       </div>
 
                       {/* Botões de Ação */}
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2">
-                          {copiedCode === coupon.id ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
+                          {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                           Copiar
                         </Button>
-                        <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="gap-2">
-                          <Share2 className="w-4 h-4" />
+                        <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
+                          <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           Compartilhar
                         </Button>
                       </div>
