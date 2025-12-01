@@ -176,13 +176,55 @@ export const PersonalProfileContent = () => {
     }
   };
 
-  const handleCpfChange = (value: string) => {
+  const handleCpfChange = async (value: string) => {
     const formatted = formatCPF(value);
     setFormData({ ...formData, cpf: formatted });
     
     const cleanCpf = formatted.replace(/\D/g, "");
     if (cleanCpf.length === 11) {
-      checkCpfAvailability(formatted);
+      await checkCpfAvailability(formatted);
+      
+      // Após verificar disponibilidade, consultar dados do CPF
+      try {
+        const { data, error } = await supabase.functions.invoke('consultar-cpf', {
+          body: { 
+            cpf: cleanCpf,
+            birthDate: formData.birth_date || undefined
+          },
+        });
+
+        if (error) throw error;
+
+        if (!data.error) {
+          const updates: any = {};
+          
+          if (data.name) {
+            updates.name = data.name;
+          }
+          
+          if (data.birthDate && data.birthDate !== '****-**-**') {
+            updates.birth_date = data.birthDate;
+          }
+          
+          if (data.gender) {
+            const genderMap: { [key: string]: string } = {
+              'm': 'masculino',
+              'f': 'feminino',
+              'male': 'masculino',
+              'female': 'feminino'
+            };
+            updates.gender = genderMap[data.gender.toLowerCase()] || data.gender;
+          }
+
+          if (Object.keys(updates).length > 0) {
+            setFormData(prev => ({ ...prev, ...updates }));
+            toast.success("Dados encontrados e preenchidos automaticamente!");
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao consultar CPF:', error);
+        // Não mostra erro para o usuário, apenas não preenche automaticamente
+      }
     } else {
       setCpfStatus({ checking: false, available: null, existingUser: null });
     }
