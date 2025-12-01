@@ -13,11 +13,11 @@ SELECT
     COALESCE(SUM(CASE WHEN w.status = 'paid' THEN w.amount ELSE 0 END), 0) as total_paid,
     -- Contagem de saques rejeitados
     COALESCE(COUNT(CASE WHEN w.status = 'rejected' THEN 1 END), 0) as total_rejected_count,
-    -- Total de comissões aguardando liberação (available mas available_date ainda não chegou)
+    -- Total de comissões aguardando liberação (pending com available_date ainda não chegou)
     COALESCE(
         (SELECT SUM(c.amount) 
          FROM public.commissions c 
-         WHERE c.status = 'available' 
+         WHERE c.status = 'pending' 
          AND c.available_date > NOW()),
         0
     ) as total_awaiting_release

@@ -3348,6 +3348,16 @@ export type Database = {
           },
         ]
       }
+      view_withdrawals_stats: {
+        Row: {
+          total_approved: number | null
+          total_awaiting_release: number | null
+          total_paid: number | null
+          total_pending: number | null
+          total_rejected_count: number | null
+        }
+        Relationships: []
+      }
       view_withdrawals_summary: {
         Row: {
           affiliate_id: string | null
