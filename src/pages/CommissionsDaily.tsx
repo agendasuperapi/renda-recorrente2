@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/contexts/UserContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, DollarSign, RefreshCw, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -46,6 +48,7 @@ interface Stats {
 }
 
 const CommissionsDaily = () => {
+  const isMobile = useIsMobile();
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [stats, setStats] = useState<Stats>({ 
@@ -463,47 +466,94 @@ const CommissionsDaily = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             )}
-            <Table className={isFiltering ? "pointer-events-none" : ""}>
-              <TableHeader>
-              <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Produto</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Plano</TableHead>
-                <TableHead>Nível</TableHead>
-                <TableHead>Percentual</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {commissions.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Nenhuma comissão registrada
-                  </TableCell>
-                </TableRow>
-              ) : (
-                commissions.map((commission) => (
-                  <TableRow key={commission.id}>
-                    <TableCell>{formatDate(commission.data)}</TableCell>
-                    <TableCell>{commission.produto || "-"}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{commission.cliente || "-"}</div>
-                        <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{commission.plano || "-"}</TableCell>
-                    <TableCell>{getLevelBadge(commission.level)}</TableCell>
-                    <TableCell>{commission.percentual}%</TableCell>
-                    <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
-                    <TableCell>{getStatusBadge(commission.status)}</TableCell>
+            {isMobile ? (
+              <div className="space-y-3">
+                {commissions.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-8 text-center text-muted-foreground">
+                      Nenhuma comissão registrada
+                    </CardContent>
+                  </Card>
+                ) : (
+                  commissions.map((commission) => (
+                    <Card key={commission.id}>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
+                            <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
+                          </div>
+                          {getStatusBadge(commission.status)}
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
+                          {getLevelBadge(commission.level)}
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Produto:</span>
+                            <p className="font-medium truncate">{commission.produto || "-"}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Plano:</span>
+                            <p className="font-medium truncate">{commission.plano || "-"}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
+                          <span className="text-muted-foreground">{formatDate(commission.data)}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            ) : (
+              <Table className={isFiltering ? "pointer-events-none" : ""}>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Plano</TableHead>
+                    <TableHead>Nível</TableHead>
+                    <TableHead>Percentual</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {commissions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                        Nenhuma comissão registrada
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    commissions.map((commission) => (
+                      <TableRow key={commission.id}>
+                        <TableCell>{formatDate(commission.data)}</TableCell>
+                        <TableCell>{commission.produto || "-"}</TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{commission.cliente || "-"}</div>
+                            <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{commission.plano || "-"}</TableCell>
+                        <TableCell>{getLevelBadge(commission.level)}</TableCell>
+                        <TableCell>{commission.percentual}%</TableCell>
+                        <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
+                        <TableCell>{getStatusBadge(commission.status)}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </div>
 
           {/* Total Filtrado */}
@@ -518,9 +568,9 @@ const CommissionsDaily = () => {
 
           {/* Paginação */}
           {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground whitespace-nowrap">
-                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} comissões
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount}
               </p>
               <Pagination>
                 <PaginationContent>
@@ -531,13 +581,19 @@ const CommissionsDaily = () => {
                     />
                   </PaginationItem>
                   
-                  {[...Array(totalPages)].map((_, i) => {
-                    const page = i + 1;
-                    if (
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-                    ) {
+                  {isMobile ? (
+                    // Versão mobile - mostra apenas 3 páginas
+                    Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+                      let page;
+                      if (totalPages <= 3) {
+                        page = i + 1;
+                      } else if (currentPage <= 2) {
+                        page = i + 1;
+                      } else if (currentPage >= totalPages - 1) {
+                        page = totalPages - 2 + i;
+                      } else {
+                        page = currentPage - 1 + i;
+                      }
                       return (
                         <PaginationItem key={page}>
                           <PaginationLink
@@ -549,9 +605,31 @@ const CommissionsDaily = () => {
                           </PaginationLink>
                         </PaginationItem>
                       );
-                    }
-                    return null;
-                  })}
+                    })
+                  ) : (
+                    // Versão desktop - mostra mais páginas
+                    [...Array(totalPages)].map((_, i) => {
+                      const page = i + 1;
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      }
+                      return null;
+                    })
+                  )}
                   
                   <PaginationItem>
                     <PaginationNext 
