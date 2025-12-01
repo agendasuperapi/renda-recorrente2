@@ -79,12 +79,18 @@ export default function AdminWithdrawals() {
     queryKey: ["withdrawals-stats"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("view_withdrawals_stats")
+        .from("view_withdrawals_stats" as any)
         .select("*")
         .single();
       
       if (error) throw error;
-      return data;
+      return data as unknown as {
+        total_pending: number;
+        total_approved: number;
+        total_paid: number;
+        total_rejected_count: number;
+        total_awaiting_release: number;
+      };
     },
   });
 
