@@ -496,10 +496,10 @@ export const Sidebar = ({
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.slice(0, 4).map(item => {
+      {menuItems.slice(0, 4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
-        return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+        return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : 'transparent',
           color: currentTextColor
         }} onMouseEnter={e => {
@@ -519,7 +519,7 @@ export const Sidebar = ({
         {(!isAdmin || !showAdminMenu) && menuItems.slice(4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
-        return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+        return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : 'transparent',
           color: currentTextColor
         }} onMouseEnter={e => {
@@ -555,7 +555,7 @@ export const Sidebar = ({
                 {commissionsMenuItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+              return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
                 backgroundColor: isActive ? accentColor : 'transparent',
                 color: currentTextColor
               }} onMouseEnter={e => {
@@ -592,7 +592,7 @@ export const Sidebar = ({
                 {settingsMenuItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+              return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
                 backgroundColor: isActive ? accentColor : 'transparent',
                 color: currentTextColor
               }} onMouseEnter={e => {
@@ -631,7 +631,7 @@ export const Sidebar = ({
                 {cadastrosMenuItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+              return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
                 backgroundColor: isActive ? accentColor : 'transparent',
                 color: currentTextColor
               }} onMouseEnter={e => {
@@ -668,7 +668,7 @@ export const Sidebar = ({
                 {configMenuItems.map(item => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+              return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
                 backgroundColor: isActive ? accentColor : 'transparent',
                 color: currentTextColor
               }} onMouseEnter={e => {
