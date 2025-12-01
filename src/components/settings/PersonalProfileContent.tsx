@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2 } from "lucide-react";
+import { Loader2, User, MapPin, Share2 } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 
 export const PersonalProfileContent = () => {
@@ -340,9 +340,18 @@ export const PersonalProfileContent = () => {
           <CardContent>
             <Tabs defaultValue="personal" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="personal">Dados Pessoais</TabsTrigger>
-                <TabsTrigger value="address">Endereço</TabsTrigger>
-                <TabsTrigger value="social">Redes Sociais</TabsTrigger>
+                <TabsTrigger value="personal" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Dados Pessoais
+                </TabsTrigger>
+                <TabsTrigger value="address" className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Endereço
+                </TabsTrigger>
+                <TabsTrigger value="social" className="flex items-center gap-2">
+                  <Share2 className="h-4 w-4" />
+                  Redes Sociais
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="personal" className="space-y-4 mt-4">
