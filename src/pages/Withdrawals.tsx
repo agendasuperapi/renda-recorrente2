@@ -88,12 +88,12 @@ const Withdrawals = () => {
       const available = data?.filter(c => c.status === 'available').reduce((sum, c) => sum + c.amount, 0) || 0;
       const pending = data?.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.amount, 0) || 0;
       const requested = data?.filter(c => c.status === 'requested').reduce((sum, c) => sum + c.amount, 0) || 0;
-      const paid = data?.filter(c => c.status === 'paid').reduce((sum, c) => sum + c.amount, 0) || 0;
+      const withdrawn = data?.filter(c => c.status === 'withdrawn').reduce((sum, c) => sum + c.amount, 0) || 0;
       return {
         available,
         pending,
         requested,
-        paid
+        paid: withdrawn
       };
     },
     enabled: !!userId
