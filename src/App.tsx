@@ -11,6 +11,7 @@ import SignupFunnel from "./pages/SignupFunnel";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import Profile2 from "./pages/Profile2";
 import Training from "./pages/Training";
 import Referrals from "./pages/Referrals";
 import SubAffiliates from "./pages/SubAffiliates";
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/profile" element={<ProfileSettings />} />
+              <Route path="/settings/profile2" element={<Profile2 />} />
               <Route path="/settings/plan" element={<PlanSettings />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
