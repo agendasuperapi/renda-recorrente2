@@ -289,7 +289,7 @@ export default function AdminVersions() {
       </Alert>
 
       {/* Important Notice */}
-      <Alert>
+      <Alert variant="destructive">
         <FileCode className="h-4 w-4" />
         <AlertTitle>Importante: Atualize o arquivo de versão</AlertTitle>
         <AlertDescription>
