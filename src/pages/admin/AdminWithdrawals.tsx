@@ -536,7 +536,7 @@ export default function AdminWithdrawals() {
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="w-full sm:w-[120px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Por página" />
               </SelectTrigger>
               <SelectContent>
