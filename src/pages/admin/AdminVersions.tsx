@@ -30,7 +30,7 @@ export default function AdminVersions() {
   const { data: versions, isLoading } = useQuery({
     queryKey: ["app_versions"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("app_versions")
         .select("*")
         .order("released_at", { ascending: false });
@@ -49,7 +49,7 @@ export default function AdminVersions() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Usuário não autenticado");
 
-      const { error } = await supabase.from("app_versions").insert({
+      const { error } = await (supabase as any).from("app_versions").insert({
         version: newVersion.version,
         description: newVersion.description,
         changes: newVersion.changes,
@@ -73,7 +73,7 @@ export default function AdminVersions() {
 
   const deleteVersionMutation = useMutation({
     mutationFn: async (versionId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("app_versions")
         .delete()
         .eq("id", versionId);
