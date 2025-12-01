@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Eye, FilterX } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -302,6 +302,7 @@ const AdminAffiliates = () => {
               </Button>
 
               <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
+                <FilterX className="h-4 w-4 mr-2" />
                 Limpar filtros
               </Button>
             </div>
