@@ -123,7 +123,73 @@ export function SubAffiliateCommissionsDialog({
     );
   };
 
-  const content = (
+  const mobileContent = (
+    <>
+      <Card className="mb-3">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Total das Minhas Comissões</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-2xl font-bold text-success">
+            {new Intl.NumberFormat('pt-BR', {
+              style: 'currency',
+              currency: 'BRL'
+            }).format(total)}
+          </p>
+        </CardContent>
+      </Card>
+
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : commissions.length === 0 ? (
+        <p className="text-center text-muted-foreground py-8">
+          Nenhuma comissão encontrada.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {commissions.map((commission) => (
+            <Card key={commission.id}>
+              <CardContent className="p-3 space-y-2">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{commission.unified_user_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{commission.unified_user_email}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="font-semibold text-success text-sm">
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }).format(Number(commission.amount))}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Plano:</span>
+                    <span className="font-medium">{commission.plan_name}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {getLevelBadge(commission.level)}
+                  </div>
+                  <Badge variant="outline" className="text-xs">{commission.percentage}%</Badge>
+                </div>
+                
+                <p className="text-xs text-muted-foreground">
+                  {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  const desktopContent = (
     <>
       <Card className="mb-4">
         <CardHeader>
@@ -194,11 +260,11 @@ export function SubAffiliateCommissionsDialog({
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="max-h-[85vh] rounded-t-[20px]">
-          <DrawerHeader className="text-left">
-            <DrawerTitle>Detalhes das Comissões - {subAffiliateName}</DrawerTitle>
+          <DrawerHeader className="text-left pb-2">
+            <DrawerTitle className="text-base">Detalhes - {subAffiliateName}</DrawerTitle>
           </DrawerHeader>
           <div className="overflow-y-auto px-4 pb-4">
-            {content}
+            {mobileContent}
           </div>
         </DrawerContent>
       </Drawer>
@@ -211,7 +277,7 @@ export function SubAffiliateCommissionsDialog({
         <DialogHeader>
           <DialogTitle>Detalhes das Comissões - {subAffiliateName}</DialogTitle>
         </DialogHeader>
-        {content}
+        {desktopContent}
       </DialogContent>
     </Dialog>
   );
