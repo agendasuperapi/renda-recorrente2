@@ -440,27 +440,25 @@ const Dashboard = () => {
                       className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                     >
                       {/* Ícone do App */}
-                      <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-                        {coupon.product_icone_light ? (
-                          <img 
-                            src={coupon.product_icone_light}
-                            alt={coupon.product_nome}
-                            className="w-8 h-8 object-contain dark:hidden"
-                          />
-                        ) : null}
-                        {coupon.product_icone_dark ? (
-                          <img 
-                            src={coupon.product_icone_dark}
-                            alt={coupon.product_nome}
-                            className="w-8 h-8 object-contain hidden dark:block"
-                          />
-                        ) : null}
-                        {!coupon.product_icone_light && !coupon.product_icone_dark && (
-                          <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {coupon.product_nome.charAt(0)}
-                          </div>
-                        )}
-                      </div>
+                      {coupon.product_icone_light ? (
+                        <img 
+                          src={coupon.product_icone_light}
+                          alt={coupon.product_nome}
+                          className="flex-shrink-0 w-12 h-12 rounded-full object-cover dark:hidden"
+                        />
+                      ) : null}
+                      {coupon.product_icone_dark ? (
+                        <img 
+                          src={coupon.product_icone_dark}
+                          alt={coupon.product_nome}
+                          className="flex-shrink-0 w-12 h-12 rounded-full object-cover hidden dark:block"
+                        />
+                      ) : null}
+                      {!coupon.product_icone_light && !coupon.product_icone_dark && (
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                          {coupon.product_nome.charAt(0)}
+                        </div>
+                      )}
 
                       {/* Info do Cupom */}
                       <div className="flex-1 min-w-0">
