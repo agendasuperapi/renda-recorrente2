@@ -30,6 +30,7 @@ import {
   Zap,
   Star,
   TrendingUp,
+  Banknote,
 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,7 +77,7 @@ const affiliateMenuItems = [
 const commissionsMenuItems = [
   { icon: Coins, label: "Comissões Diárias", path: "/commissions-daily" },
   { icon: TrendingUp, label: "Comissões Mensais", path: "/commissions-monthly" },
-  { icon: Wallet, label: "Saques", path: "/withdrawals" },
+  { icon: Banknote, label: "Saques", path: "/withdrawals" },
 ];
 
 const adminMenuItems = [
