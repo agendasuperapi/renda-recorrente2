@@ -3,52 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  LayoutDashboard,
-  User,
-  GraduationCap,
-  Users,
-  Target,
-  Calendar,
-  Wallet,
-  Ticket,
-  CreditCard,
-  MapPin,
-  LogOut,
-  Crown,
-  Link2,
-  Menu,
-  Package,
-  Building2,
-  FileSearch,
-  FileText,
-  Home,
-  Settings,
-  ChevronDown,
-  PlusSquare,
-  Coins,
-  Zap,
-  Star,
-  TrendingUp,
-  Banknote,
-  LineChart,
-  UserPlus,
-} from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -56,7 +17,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { APP_VERSION } from "@/config/version";
 import logo from "@/assets/logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
-
 interface SidebarProps {
   user: SupabaseUser | null;
   isAdmin: boolean;
@@ -65,54 +25,125 @@ interface SidebarProps {
   isLoading?: boolean;
   initialized?: boolean;
 }
-
-const affiliateMenuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Users, label: "Sub Afiliados", path: "/sub-affiliates" },
-  { icon: UserPlus, label: "Meus Indicados", path: "/referrals" },
-  { icon: Ticket, label: "Meus Cupons", path: "/coupons" },
-];
-
-const commissionsMenuItems = [
-  { icon: Coins, label: "Comissões Diárias", path: "/commissions-daily" },
-  { icon: TrendingUp, label: "Comissões Mensais", path: "/commissions-monthly" },
-  { icon: Banknote, label: "Saques", path: "/withdrawals" },
-];
-
-const settingsMenuItems = [
-  { icon: User, label: "Perfil", path: "/settings/profile" },
-  { icon: Crown, label: "Plano", path: "/settings/plan" },
-];
-
-const adminMenuItems = [
-  { icon: LayoutDashboard, label: "Dashboard Admin", path: "/admin/dashboard" },
-  { icon: Target, label: "Afiliados", path: "/admin/affiliates" },
-  { icon: CreditCard, label: "Pagamentos", path: "/admin/payments" },
-  { icon: Wallet, label: "Saques", path: "/admin/withdrawals" },
-  { icon: Calendar, label: "Eventos Stripe", path: "/admin/stripe-events" },
-];
-
-const cadastrosMenuItems = [
-  { icon: Package, label: "Produtos", path: "/admin/products" },
-  { icon: Ticket, label: "Cupons", path: "/admin/coupons" },
-  { icon: Building2, label: "Banco e Contas", path: "/admin/bank-accounts" },
-  { icon: CreditCard, label: "Planos e Preços", path: "/admin/plans" },
-];
-
-const configMenuItems = [
-  { icon: Home, label: "Home Landing Page", path: "/" },
-  { icon: LayoutDashboard, label: "Landing Page", path: "/admin/landing-page" },
-  { icon: Settings, label: "Configurações", path: "/admin/settings" },
-  { icon: Users, label: "Usuários", path: "/admin/users" },
-  { icon: Coins, label: "Níveis de Comissão", path: "/admin/commission-levels" },
-  { icon: FileSearch, label: "API de CPF", path: "/admin/cpf-apis" },
-  { icon: FileText, label: "Termos e Privacidade", path: "/admin/legal-documents" },
-];
-
-export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, initialized = false }: SidebarProps) => {
+const affiliateMenuItems = [{
+  icon: LayoutDashboard,
+  label: "Dashboard",
+  path: "/dashboard"
+}, {
+  icon: Users,
+  label: "Sub Afiliados",
+  path: "/sub-affiliates"
+}, {
+  icon: UserPlus,
+  label: "Meus Indicados",
+  path: "/referrals"
+}, {
+  icon: Ticket,
+  label: "Meus Cupons",
+  path: "/coupons"
+}];
+const commissionsMenuItems = [{
+  icon: Coins,
+  label: "Comissões Diárias",
+  path: "/commissions-daily"
+}, {
+  icon: TrendingUp,
+  label: "Comissões Mensais",
+  path: "/commissions-monthly"
+}, {
+  icon: Banknote,
+  label: "Saques",
+  path: "/withdrawals"
+}];
+const settingsMenuItems = [{
+  icon: User,
+  label: "Perfil",
+  path: "/settings/profile"
+}, {
+  icon: Crown,
+  label: "Plano",
+  path: "/settings/plan"
+}];
+const adminMenuItems = [{
+  icon: LayoutDashboard,
+  label: "Dashboard Admin",
+  path: "/admin/dashboard"
+}, {
+  icon: Target,
+  label: "Afiliados",
+  path: "/admin/affiliates"
+}, {
+  icon: CreditCard,
+  label: "Pagamentos",
+  path: "/admin/payments"
+}, {
+  icon: Wallet,
+  label: "Saques",
+  path: "/admin/withdrawals"
+}, {
+  icon: Calendar,
+  label: "Eventos Stripe",
+  path: "/admin/stripe-events"
+}];
+const cadastrosMenuItems = [{
+  icon: Package,
+  label: "Produtos",
+  path: "/admin/products"
+}, {
+  icon: Ticket,
+  label: "Cupons",
+  path: "/admin/coupons"
+}, {
+  icon: Building2,
+  label: "Banco e Contas",
+  path: "/admin/bank-accounts"
+}, {
+  icon: CreditCard,
+  label: "Planos e Preços",
+  path: "/admin/plans"
+}];
+const configMenuItems = [{
+  icon: Home,
+  label: "Home Landing Page",
+  path: "/"
+}, {
+  icon: LayoutDashboard,
+  label: "Landing Page",
+  path: "/admin/landing-page"
+}, {
+  icon: Settings,
+  label: "Configurações",
+  path: "/admin/settings"
+}, {
+  icon: Users,
+  label: "Usuários",
+  path: "/admin/users"
+}, {
+  icon: Coins,
+  label: "Níveis de Comissão",
+  path: "/admin/commission-levels"
+}, {
+  icon: FileSearch,
+  label: "API de CPF",
+  path: "/admin/cpf-apis"
+}, {
+  icon: FileText,
+  label: "Termos e Privacidade",
+  path: "/admin/legal-documents"
+}];
+export const Sidebar = ({
+  user,
+  isAdmin,
+  open,
+  onOpenChange,
+  isLoading = false,
+  initialized = false
+}: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const [showAdminMenu, setShowAdminMenu] = useState(() => {
@@ -121,7 +152,10 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
   });
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const [userPlan, setUserPlan] = useState<{ is_free: boolean; plan_name: string | null } | null>(null);
+  const [userPlan, setUserPlan] = useState<{
+    is_free: boolean;
+    plan_name: string | null;
+  } | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
   const [sidebarTimeout, setSidebarTimeout] = useState(false);
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
@@ -136,55 +170,40 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
 
   // Observar mudanças de tema
   useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
         if (mutation.attributeName === 'class') {
           setIsDarkTheme(document.documentElement.classList.contains('dark'));
         }
       });
     });
-
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class'],
+      attributeFilter: ['class']
     });
-
     return () => observer.disconnect();
   }, []);
 
   // Carregar configurações do sidebar
-  const { data: sidebarConfig } = useQuery({
+  const {
+    data: sidebarConfig
+  } = useQuery({
     queryKey: ['sidebar-config'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('*')
-        .in('key', [
-          'sidebar_color_start',
-          'sidebar_color_end',
-          'sidebar_intensity_start',
-          'sidebar_intensity_end',
-          'sidebar_gradient_start_position',
-          'sidebar_text_color',
-          'sidebar_text_color_light',
-          'sidebar_text_color_dark',
-          'sidebar_accent_color',
-          'sidebar_logo_url_light',
-          'sidebar_logo_url_dark'
-        ]);
-
+      const {
+        data,
+        error
+      } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
       if (error) {
         console.error('Error loading sidebar config:', error);
         return null;
       }
-
       const config: Record<string, string> = {};
       data?.forEach(setting => {
         config[setting.key] = setting.value;
       });
-      
       return config;
-    },
+    }
   });
 
   // Extrair configurações
@@ -205,41 +224,36 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
 
   // Calcular gradiente com posição de início
   const gradientStyle = {
-    background: `linear-gradient(180deg, ${colorStart}${Math.round((intensityStart / 100) * 255).toString(16).padStart(2, '0')} ${gradientStartPos}%, ${colorEnd}${Math.round((intensityEnd / 100) * 255).toString(16).padStart(2, '0')} 100%)`
+    background: `linear-gradient(180deg, ${colorStart}${Math.round(intensityStart / 100 * 255).toString(16).padStart(2, '0')} ${gradientStartPos}%, ${colorEnd}${Math.round(intensityEnd / 100 * 255).toString(16).padStart(2, '0')} 100%)`
   };
-
   useEffect(() => {
     const fetchProfile = async () => {
       if (user?.id) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('avatar_url, name')
-          .eq('id', user.id)
-          .single();
-        
+        const {
+          data
+        } = await supabase.from('profiles').select('avatar_url, name').eq('id', user.id).single();
         if (data) {
           setAvatarUrl(data.avatar_url);
           setUserName(data.name);
         }
 
         // Buscar plano do usuário através de subscriptions
-        const { data: subscription } = await supabase
-          .from('subscriptions')
-          .select('plan_id, plans(name, is_free)')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
+        const {
+          data: subscription
+        } = await supabase.from('subscriptions').select('plan_id, plans(name, is_free)').eq('user_id', user.id).eq('status', 'active').order('created_at', {
+          ascending: false
+        }).limit(1).maybeSingle();
         if (subscription && subscription.plans) {
           setUserPlan({
             is_free: (subscription.plans as any).is_free || false,
-            plan_name: (subscription.plans as any).name || null,
+            plan_name: (subscription.plans as any).name || null
           });
         } else {
           // Usuário sem plano ativo = FREE
-          setUserPlan({ is_free: true, plan_name: null });
+          setUserPlan({
+            is_free: true,
+            plan_name: null
+          });
         }
       }
     };
@@ -247,52 +261,45 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
 
     // Subscription em tempo real para atualizar o avatar quando mudar
     if (user?.id) {
-      const channel = supabase
-        .channel('profile-avatar-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles',
-            filter: `id=eq.${user.id}`,
-          },
-          (payload) => {
-            console.log('🔄 Profile update received:', payload);
-            if (payload.new) {
-              const newData = payload.new as any;
-              if ('avatar_url' in newData) {
-                console.log('✅ Setting new avatar URL:', newData.avatar_url);
-                setAvatarUrl(newData.avatar_url);
-              }
-              if ('name' in newData) {
-                console.log('✅ Setting new name:', newData.name);
-                setUserName(newData.name);
-              }
-            }
+      const channel = supabase.channel('profile-avatar-changes').on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles',
+        filter: `id=eq.${user.id}`
+      }, payload => {
+        console.log('🔄 Profile update received:', payload);
+        if (payload.new) {
+          const newData = payload.new as any;
+          if ('avatar_url' in newData) {
+            console.log('✅ Setting new avatar URL:', newData.avatar_url);
+            setAvatarUrl(newData.avatar_url);
           }
-        )
-        .subscribe((status) => {
-          console.log('📡 Realtime subscription status:', status);
-        });
-
+          if ('name' in newData) {
+            console.log('✅ Setting new name:', newData.name);
+            setUserName(newData.name);
+          }
+        }
+      }).subscribe(status => {
+        console.log('📡 Realtime subscription status:', status);
+      });
       return () => {
         console.log('🔌 Unsubscribing from profile changes');
         supabase.removeChannel(channel);
       };
     }
   }, [user?.id]);
-
   const handleLogout = async () => {
     try {
       // Limpar cache de role ao fazer logout
       if (user?.id) {
         localStorage.removeItem(`user_role_${user.id}`);
       }
-      
+
       // Aguardar logout completar
-      const { error } = await supabase.auth.signOut();
-      
+      const {
+        error
+      } = await supabase.auth.signOut();
+
       // Se o erro for "session not found", fazer logout local e continuar
       if (error && error.message !== 'Auth session missing!') {
         if (import.meta.env.DEV) {
@@ -301,22 +308,21 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
         toast({
           title: "Erro ao sair",
           description: "Tente novamente mais tarde.",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
-      
+
       // Se a sessão não existe no servidor, fazer logout local
       if (error?.message === 'Auth session missing!') {
         localStorage.clear();
         queryClient.clear();
       }
-      
       toast({
         title: "Logout realizado",
-        description: "Até logo!",
+        description: "Até logo!"
       });
-      
+
       // Redirecionar sempre, mesmo se a sessão não existir
       navigate('/');
     } catch (error) {
@@ -329,15 +335,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
       navigate('/');
     }
   };
-
   const getInitials = () => {
     const name = userName || user?.user_metadata?.name || user?.email;
     return name?.substring(0, 2).toUpperCase() || "U";
   };
-
-  const menuItems = isAdmin 
-    ? (showAdminMenu ? adminMenuItems : affiliateMenuItems)
-    : affiliateMenuItems;
+  const menuItems = isAdmin ? showAdminMenu ? adminMenuItems : affiliateMenuItems : affiliateMenuItems;
 
   // Timeout de 15 segundos específico para o sidebar
   useEffect(() => {
@@ -346,7 +348,6 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
         setSidebarTimeout(true);
       }
     }, 15000);
-    
     return () => clearTimeout(timer);
   }, [user]);
 
@@ -361,30 +362,24 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
   const SidebarLoadingContent = () => {
     // Mostrar erro apenas se passou muito tempo (15s) E ainda não tem user
     if (sidebarTimeout && !user) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+      return <div className="flex flex-col items-center justify-center h-full p-6 text-center">
           <div className="mb-4">
             <svg className="w-16 h-16 mx-auto opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
           <p className="mb-4 text-sm opacity-80">Erro ao carregar o menu</p>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => window.location.reload()}
-            className="border-current hover:bg-white/10"
-          >
+          <Button variant="outline" size="sm" onClick={() => window.location.reload()} className="border-current hover:bg-white/10">
             Recarregar página
           </Button>
-        </div>
-      );
+        </div>;
     }
 
     // Mostra skeletons enquanto não tem user (ainda carregando)
-    return (
-      <>
-        <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
+    return <>
+        <div className="p-6 border-b" style={{
+        borderColor: `${colorEnd}40`
+      }}>
           <div className="flex items-center justify-center mb-4">
             <Skeleton className="h-16 w-32" />
           </div>
@@ -393,11 +388,11 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-10 w-full rounded-lg" />
-          ))}
+          {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-10 w-full rounded-lg" />)}
         </nav>
-        <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
+        <div className="p-4 border-t space-y-2" style={{
+        borderColor: `${colorEnd}40`
+      }}>
           <div className="flex flex-col items-center gap-3">
             <Skeleton className="h-16 w-16 rounded-full" />
             <div className="w-full space-y-2">
@@ -407,442 +402,315 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
           </div>
           <Skeleton className="h-10 w-full rounded-lg" />
         </div>
-      </>
-    );
+      </>;
   };
-
-  const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
-    <div className="flex flex-col h-full">
-      <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
+  const SidebarContent = ({
+    closeSidebar
+  }: {
+    closeSidebar?: () => void;
+  }) => <div className="flex flex-col h-full">
+      <div className="p-6 border-b" style={{
+      borderColor: `${colorEnd}40`
+    }}>
         <div className="flex items-center justify-center mb-4">
           <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-16 w-auto" />
         </div>
-        <div className="text-center text-xs" style={{ color: `${currentTextColor}80` }}>
-          Versão: {APP_VERSION}
-        </div>
+        
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.slice(0, 4).map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+        {menuItems.slice(0, 4).map(item => {
+        const Icon = item.icon;
+        const isActive = location.pathname === item.path;
+        return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+          backgroundColor: isActive ? accentColor : 'transparent',
+          color: currentTextColor
+        }} onMouseEnter={e => {
+          if (!isActive) {
+            e.currentTarget.style.backgroundColor = `${accentColor}30`;
+          }
+        }} onMouseLeave={e => {
+          if (!isActive) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}>
+              <Icon size={18} />
+              {item.label}
+            </Link>;
+      })}
 
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-              )}
-              style={{
+        {(!isAdmin || !showAdminMenu) && <>
+            <Collapsible open={commissionsMenuOpen} onOpenChange={setCommissionsMenuOpen}>
+              <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            color: currentTextColor
+          }} onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = `${accentColor}30`;
+          }} onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}>
+                <Coins size={18} />
+                <span className="flex-1 text-left">Comissões</span>
+                <ChevronDown size={16} className="transition-transform" style={{
+              transform: commissionsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+            }} />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                {commissionsMenuItems.map(item => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
                 backgroundColor: isActive ? accentColor : 'transparent',
-                color: currentTextColor,
-              }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                        }
-                      }}
-              onMouseLeave={(e) => {
+                color: currentTextColor
+              }} onMouseEnter={e => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }} onMouseLeave={e => {
                 if (!isActive) {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
-              }}
-            >
-              <Icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
-
-        {(!isAdmin || !showAdminMenu) && (
-          <>
-            <Collapsible open={commissionsMenuOpen} onOpenChange={setCommissionsMenuOpen}>
-              <CollapsibleTrigger
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
-                style={{ color: currentTextColor }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                <Coins size={18} />
-                <span className="flex-1 text-left">Comissões</span>
-                <ChevronDown
-                  size={16}
-                  className="transition-transform"
-                  style={{
-                    transform: commissionsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  }}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pl-4 space-y-1 mt-1">
-                {commissionsMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path;
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-                      )}
-                      style={{
-                        backgroundColor: isActive ? accentColor : 'transparent',
-                        color: currentTextColor,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
+              }}>
                       <Icon size={18} />
                       {item.label}
-                    </Link>
-                  );
-                })}
+                    </Link>;
+            })}
               </CollapsibleContent>
             </Collapsible>
 
             <Collapsible open={settingsMenuOpen} onOpenChange={setSettingsMenuOpen}>
-              <CollapsibleTrigger
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
-                style={{ color: currentTextColor }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
+              <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            color: currentTextColor
+          }} onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = `${accentColor}30`;
+          }} onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}>
                 <Settings size={18} />
                 <span className="flex-1 text-left">Configurações</span>
-                <ChevronDown
-                  size={16}
-                  className="transition-transform"
-                  style={{
-                    transform: settingsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  }}
-                />
+                <ChevronDown size={16} className="transition-transform" style={{
+              transform: settingsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+            }} />
               </CollapsibleTrigger>
               <CollapsibleContent className="pl-4 space-y-1 mt-1">
-                {settingsMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path;
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-                      )}
-                      style={{
-                        backgroundColor: isActive ? accentColor : 'transparent',
-                        color: currentTextColor,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
+                {settingsMenuItems.map(item => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+                backgroundColor: isActive ? accentColor : 'transparent',
+                color: currentTextColor
+              }} onMouseEnter={e => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }} onMouseLeave={e => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}>
                       <Icon size={18} />
                       {item.label}
-                    </Link>
-                  );
-                })}
+                    </Link>;
+            })}
               </CollapsibleContent>
             </Collapsible>
-          </>
-        )}
+          </>}
 
-        {menuItems.slice(4).map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-              )}
-              style={{
-                backgroundColor: isActive ? accentColor : 'transparent',
-                color: currentTextColor,
-              }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                        }
-                      }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }
-              }}
-            >
+        {menuItems.slice(4).map(item => {
+        const Icon = item.icon;
+        const isActive = location.pathname === item.path;
+        return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+          backgroundColor: isActive ? accentColor : 'transparent',
+          color: currentTextColor
+        }} onMouseEnter={e => {
+          if (!isActive) {
+            e.currentTarget.style.backgroundColor = `${accentColor}30`;
+          }
+        }} onMouseLeave={e => {
+          if (!isActive) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}>
               <Icon size={18} />
               {item.label}
-            </Link>
-          );
-        })}
+            </Link>;
+      })}
 
-        {isAdmin && showAdminMenu && (
-          <>
+        {isAdmin && showAdminMenu && <>
             <Collapsible open={cadastrosMenuOpen} onOpenChange={setCadastrosMenuOpen}>
-              <CollapsibleTrigger
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
-                style={{ color: currentTextColor }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
+              <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            color: currentTextColor
+          }} onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = `${accentColor}30`;
+          }} onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}>
                 <PlusSquare size={18} />
                 <span className="flex-1 text-left">Cadastros</span>
-                <ChevronDown
-                  size={16}
-                  className="transition-transform"
-                  style={{
-                    transform: cadastrosMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  }}
-                />
+                <ChevronDown size={16} className="transition-transform" style={{
+              transform: cadastrosMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+            }} />
               </CollapsibleTrigger>
               <CollapsibleContent className="pl-4 space-y-1 mt-1">
-                {cadastrosMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path;
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-                      )}
-                      style={{
-                        backgroundColor: isActive ? accentColor : 'transparent',
-                        color: currentTextColor,
-                      }}
-              onMouseEnter={(e) => {
+                {cadastrosMenuItems.map(item => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+                backgroundColor: isActive ? accentColor : 'transparent',
+                color: currentTextColor
+              }} onMouseEnter={e => {
                 if (!isActive) {
                   e.currentTarget.style.backgroundColor = `${accentColor}30`;
                 }
-              }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
+              }} onMouseLeave={e => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}>
                       <Icon size={18} />
                       {item.label}
-                    </Link>
-                  );
-                })}
+                    </Link>;
+            })}
               </CollapsibleContent>
             </Collapsible>
 
             <Collapsible open={configMenuOpen} onOpenChange={setConfigMenuOpen}>
-              <CollapsibleTrigger
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
-                style={{ color: currentTextColor }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
+              <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            color: currentTextColor
+          }} onMouseEnter={e => {
+            e.currentTarget.style.backgroundColor = `${accentColor}30`;
+          }} onMouseLeave={e => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}>
                 <Settings size={18} />
                 <span className="flex-1 text-left">Configurações</span>
-                <ChevronDown
-                  size={16}
-                  className="transition-transform"
-                  style={{
-                    transform: configMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  }}
-                />
+                <ChevronDown size={16} className="transition-transform" style={{
+              transform: configMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+            }} />
               </CollapsibleTrigger>
               <CollapsibleContent className="pl-4 space-y-1 mt-1">
-                {configMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path;
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-                      )}
-                      style={{
-                        backgroundColor: isActive ? accentColor : 'transparent',
-                        color: currentTextColor,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
+                {configMenuItems.map(item => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
+                backgroundColor: isActive ? accentColor : 'transparent',
+                color: currentTextColor
+              }} onMouseEnter={e => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }} onMouseLeave={e => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}>
                       <Icon size={18} />
                       {item.label}
-                    </Link>
-                  );
-                })}
+                    </Link>;
+            })}
               </CollapsibleContent>
             </Collapsible>
-          </>
-        )}
+          </>}
       </nav>
 
-      <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
+      <div className="p-4 border-t space-y-2" style={{
+      borderColor: `${colorEnd}40`
+    }}>
         <div className="flex flex-col items-center gap-3 px-3 py-2">
           <div className="flex items-center gap-2">
             <Avatar className="w-16 h-16">
               {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
-              <AvatarFallback style={{ backgroundColor: accentColor, color: currentTextColor }} className="text-lg">
+              <AvatarFallback style={{
+              backgroundColor: accentColor,
+              color: currentTextColor
+            }} className="text-lg">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
           </div>
           <div className="flex flex-col items-center text-center w-full gap-1">
-            <p className="text-sm font-medium truncate w-full" style={{ color: currentTextColor }}>
+            <p className="text-sm font-medium truncate w-full" style={{
+            color: currentTextColor
+          }}>
               {userName || user.user_metadata?.name || "Usuário"}
             </p>
-            <p className="text-xs truncate w-full" style={{ color: `${currentTextColor}70` }}>
+            <p className="text-xs truncate w-full" style={{
+            color: `${currentTextColor}70`
+          }}>
               {user.email}
             </p>
             
             {/* Badge FREE/PRO abaixo do email */}
-            {userPlan && (
-              <div 
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold shadow-lg border mt-1",
-                  userPlan.is_free 
-                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" 
-                    : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500"
-                )}
-              >
-                {userPlan.is_free ? (
-                  <>
+            {userPlan && <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold shadow-lg border mt-1", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-500")}>
+                {userPlan.is_free ? <>
                     <Zap className="w-3.5 h-3.5" />
                     <span>PLANO FREE</span>
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <Star className="w-3.5 h-3.5" />
                     <span>PLANO PRO</span>
-                  </>
-                )}
-              </div>
-            )}
+                  </>}
+              </div>}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              closeSidebar?.();
-              handleLogout();
-            }}
-            className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-            style={{ color: currentTextColor }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = `${accentColor}30`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
+          <button onClick={() => {
+          closeSidebar?.();
+          handleLogout();
+        }} className="flex-1 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm" style={{
+          color: currentTextColor
+        }} onMouseEnter={e => {
+          e.currentTarget.style.backgroundColor = `${accentColor}30`;
+        }} onMouseLeave={e => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}>
             <LogOut size={18} />
             Sair
           </button>
           
-          {isAdmin && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => {
-                const newAdminMenuState = !showAdminMenu;
-                setShowAdminMenu(newAdminMenuState);
-                // Navegar para o dashboard correspondente
-                navigate(newAdminMenuState ? '/admin/dashboard' : '/dashboard');
-                closeSidebar?.();
-              }}
-              title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"}
-              style={{ color: currentTextColor }}
-            >
+          {isAdmin && <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => {
+          const newAdminMenuState = !showAdminMenu;
+          setShowAdminMenu(newAdminMenuState);
+          // Navegar para o dashboard correspondente
+          navigate(newAdminMenuState ? '/admin/dashboard' : '/dashboard');
+          closeSidebar?.();
+        }} title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"} style={{
+          color: currentTextColor
+        }}>
               {showAdminMenu ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
-            </Button>
-          )}
+            </Button>}
           
           <ThemeToggle />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 
   // Sempre renderizar o botão hamburger em telas pequenas E o sidebar em telas grandes
-  return (
-    <>
+  return <>
       {/* Botão hamburger para mobile e tablet - sempre visível em telas < 1024px */}
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="fixed top-4 left-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md hover:bg-background"
-          >
+          <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md hover:bg-background">
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0" style={{ ...gradientStyle, color: currentTextColor }}>
+        <SheetContent side="left" className="w-64 p-0" style={{
+        ...gradientStyle,
+        color: currentTextColor
+      }}>
           <VisuallyHidden>
             <SheetTitle>Menu de navegação</SheetTitle>
           </VisuallyHidden>
           <div className="flex flex-col h-full">
-            {user ? (
-              <SidebarContent closeSidebar={() => onOpenChange?.(false)} />
-            ) : (
-              <SidebarLoadingContent />
-            )}
+            {user ? <SidebarContent closeSidebar={() => onOpenChange?.(false)} /> : <SidebarLoadingContent />}
           </div>
         </SheetContent>
       </Sheet>
       
       {/* Sidebar fixo para desktop - visível apenas em telas >= 1024px */}
-      <aside className="hidden lg:flex w-64 flex-col h-full flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
-        {user ? (
-          <SidebarContent />
-        ) : (
-          <SidebarLoadingContent />
-        )}
+      <aside className="hidden lg:flex w-64 flex-col h-full flex-shrink-0" style={{
+      ...gradientStyle,
+      color: currentTextColor
+    }}>
+        {user ? <SidebarContent /> : <SidebarLoadingContent />}
       </aside>
-    </>
-  );
+    </>;
 };
