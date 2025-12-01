@@ -248,11 +248,11 @@ const Withdrawals = () => {
         </div>
       </div>;
   }
-  return <div className="space-y-6">
+  return <div className="space-y-3 md:space-y-6 pb-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Saques</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Saques</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Gerencie suas solicitações de saque
           </p>
         </div>
@@ -261,101 +261,101 @@ const Withdrawals = () => {
       {/* Card de Status de Saque */}
       {!canWithdraw}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Disponível para Saque
+          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Disponível
             </CardTitle>
             <CircleDollarSign className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-2xl font-bold text-success">
               R$ {commissionsData?.available.toFixed(2) || '0,00'}
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Em Análise (Pendente)
+          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Pendente
             </CardTitle>
             <Clock className="h-4 w-4 text-info" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-2xl font-bold text-info">
               R$ {commissionsData?.pending.toFixed(2) || '0,00'}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Disponível em até {settings?.daysToAvailable} dias após o pagamento
+            <p className="text-xs text-muted-foreground mt-1 hidden md:block">
+              Disponível em até {settings?.daysToAvailable} dias
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Sacado
+          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+              Sacado
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+            <div className="text-xl md:text-2xl font-bold">
               R$ {commissionsData?.paid.toFixed(2) || '0,00'}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {!hasMinimumAmount && <Alert variant="destructive">
+      {!hasMinimumAmount && <Alert variant="destructive" className="py-3">
           <XCircle className="h-4 w-4" />
-          <AlertTitle>Saldo insuficiente</AlertTitle>
-          <AlertDescription>
-            Saldo mínimo de R$ {settings?.minWithdrawal.toFixed(2)} necessário para solicitar saque
+          <AlertTitle className="text-sm md:text-base">Saldo insuficiente</AlertTitle>
+          <AlertDescription className="text-xs md:text-sm">
+            Mínimo de R$ {settings?.minWithdrawal.toFixed(2)}
           </AlertDescription>
         </Alert>}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">
               Chave PIX (CPF)
             </CardTitle>
-            <img src={pixIcon} alt="PIX" className="h-5 w-5" />
+            <img src={pixIcon} alt="PIX" className="h-4 w-4 md:h-5 md:w-5" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+            <div className="text-lg md:text-2xl font-bold">
               {formatCpf(profile?.cpf) || 'Não cadastrado'}
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Pagamentos serão feitos nesta chave
+            <p className="text-xs text-muted-foreground mt-1 md:mt-2">
+              Pagamentos nesta chave
             </p>
           </CardContent>
         </Card>
 
         <Card className={isWithdrawalDay ? "border-success/20 bg-success/5" : "border-destructive/20 bg-destructive/5"}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+            <CardTitle className="text-xs md:text-sm font-medium">
               Dia de Saque
             </CardTitle>
-            <Calendar className={isWithdrawalDay ? "h-5 w-5 text-success" : "h-5 w-5 text-destructive"} />
+            <Calendar className={isWithdrawalDay ? "h-4 w-4 md:h-5 md:w-5 text-success" : "h-4 w-4 md:h-5 md:w-5 text-destructive"} />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
             {isWithdrawalDay ? <>
-                <div className="text-xl font-bold text-success mb-2">
-                  Hoje é seu dia de saque!
+                <div className="text-lg md:text-xl font-bold text-success mb-1 md:mb-2">
+                  Hoje é seu dia!
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  ⚠️ Se o saque não for solicitado hoje, só poderá solicitar novamente {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
+                  ⚠️ Solicite hoje, próximo apenas {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </p>
               </> : <>
-                <div className="text-2xl font-bold text-destructive">
+                <div className="text-lg md:text-2xl font-bold text-destructive">
                   {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </div>
-                <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+                <p className="text-xs text-destructive mt-1 md:mt-2 flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />
-                  Sua solicitação de saque ficará disponível somente nesse dia
+                  Disponível só nesse dia
                 </p>
               </>}
           </CardContent>
@@ -363,9 +363,10 @@ const Withdrawals = () => {
       </div>
 
       <div className="flex justify-center">
-        <Button className="gap-2" size="lg" onClick={handleWithdrawalClick}>
+        <Button className="gap-2 w-full md:w-auto" size="default" onClick={handleWithdrawalClick}>
           <Plus className="h-4 w-4" />
-          Solicitar Saque de R$ {commissionsData?.available.toFixed(2) || '0,00'}
+          <span className="hidden sm:inline">Solicitar Saque de</span>
+          <span className="sm:hidden">Solicitar</span> R$ {commissionsData?.available.toFixed(2) || '0,00'}
         </Button>
       </div>
 
@@ -443,72 +444,78 @@ const Withdrawals = () => {
       </Dialog>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Saques</CardTitle>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">Histórico de Saques</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Data Solicitação</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Chave PIX</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Data Pagamento</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {withdrawalsLoading ? <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                  </TableCell>
-                </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
-                    <TableCell>
-                      {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-xs md:text-sm">Data</TableHead>
+                  <TableHead className="text-xs md:text-sm">Valor</TableHead>
+                  <TableHead className="hidden md:table-cell text-xs md:text-sm">Chave PIX</TableHead>
+                  <TableHead className="text-xs md:text-sm">Status</TableHead>
+                  <TableHead className="hidden sm:table-cell text-xs md:text-sm">Pagamento</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withdrawalsLoading ? <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     </TableCell>
-                    <TableCell className="font-medium">
-                      R$ {withdrawal.amount.toFixed(2)}
+                  </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
+                      <TableCell className="text-xs md:text-sm">
+                        {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit'
+                  })}
+                        <span className="hidden md:inline">
+                          {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
+                      year: 'numeric'
+                    }).slice(5)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium text-xs md:text-sm whitespace-nowrap">
+                        R$ {withdrawal.amount.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell font-mono text-xs">
+                        {formatCpf(withdrawal.pix_key)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}
+                          className="text-xs"
+                        >
+                          {withdrawal.status === 'pending' ? 'Pend.' : withdrawal.status === 'approved' ? 'Aprov.' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeit.' : withdrawal.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs md:text-sm">
+                        {withdrawal.paid_date ? new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit'
+                  }) : '-'}
+                      </TableCell>
+                    </TableRow>) : <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8 text-xs md:text-sm">
+                      Nenhum saque solicitado
                     </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {formatCpf(withdrawal.pix_key)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}>
-                        {withdrawal.status === 'pending' ? 'Pendente' : withdrawal.status === 'approved' ? 'Aprovado' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeitado' : withdrawal.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {withdrawal.paid_date ? new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric'
-                }) : '-'}
-                    </TableCell>
-                  </TableRow>) : <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    Nenhum saque solicitado
-                  </TableCell>
-                </TableRow>}
-            </TableBody>
-          </Table>
+                  </TableRow>}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
       <Card className="bg-info/5 border-info/20">
-        <CardHeader>
-          <CardTitle className="text-sm">Informações Importantes</CardTitle>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-xs md:text-sm">Informações Importantes</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>• O valor mínimo para saque é R$ {settings?.minWithdrawal.toFixed(2)}</p>
-          <p>• Seu dia de saque é: {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}</p>
-          <p>• Comissões ficam disponíveis após {settings?.daysToAvailable} dias do pagamento</p>
-          <p>• Certifique-se de ter PIX cadastrado no seu CPF {formatCpf(profile?.cpf)}</p>
+        <CardContent className="text-xs md:text-sm text-muted-foreground space-y-1 md:space-y-2 p-4 pt-0 md:p-6 md:pt-0">
+          <p>• Mínimo: R$ {settings?.minWithdrawal.toFixed(2)}</p>
+          <p>• Dia: {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}</p>
+          <p>• Disponível após {settings?.daysToAvailable} dias</p>
+          <p className="hidden md:block">• Certifique-se de ter PIX no CPF {formatCpf(profile?.cpf)}</p>
         </CardContent>
       </Card>
     </div>;
