@@ -599,39 +599,39 @@ export default function AdminWithdrawals() {
               <TableSkeleton columns={7} rows={10} />
             </div> : <>
               {/* Desktop Table */}
-              <div className="hidden sm:block rounded-md border">
+              <div className="hidden sm:block rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Data Solicitação</TableHead>
+                      <TableHead className="whitespace-nowrap">Data Solicitação</TableHead>
                       <TableHead>Afiliado</TableHead>
-                      <TableHead>PIX</TableHead>
+                      <TableHead className="hidden lg:table-cell">PIX</TableHead>
                       <TableHead>Valor</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Data Pagamento</TableHead>
+                      <TableHead className="hidden xl:table-cell whitespace-nowrap">Data Pagamento</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
-                          <TableCell className="text-xs">
+                          <TableCell className="text-xs whitespace-nowrap">
                             {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", {
                       locale: ptBR
                     })}
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{withdrawal.profiles?.name || "N/A"}</span>
-                              <span className="text-xs text-muted-foreground">{withdrawal.profiles?.email || "N/A"}</span>
+                            <div className="flex flex-col min-w-[180px]">
+                              <span className="font-medium text-sm">{withdrawal.profiles?.name || "N/A"}</span>
+                              <span className="text-xs text-muted-foreground truncate max-w-[200px]">{withdrawal.profiles?.email || "N/A"}</span>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden lg:table-cell">
                             <div className="flex flex-col">
                               <span className="text-xs font-mono">{withdrawal.pix_key}</span>
                               <span className="text-xs text-muted-foreground uppercase">{withdrawal.pix_type}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="font-semibold">
+                          <TableCell className="font-semibold whitespace-nowrap">
                             {Number(withdrawal.amount).toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL"
@@ -640,7 +640,7 @@ export default function AdminWithdrawals() {
                           <TableCell>
                             {getStatusBadge(withdrawal.status)}
                           </TableCell>
-                          <TableCell className="text-xs">
+                          <TableCell className="hidden xl:table-cell text-xs whitespace-nowrap">
                             {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", {
                       locale: ptBR
                     }) : "-"}
