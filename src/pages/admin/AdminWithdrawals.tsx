@@ -86,6 +86,19 @@ export default function AdminWithdrawals() {
     }
   });
 
+  const { data: commissionDays } = useQuery({
+    queryKey: ["commission-release-days"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "commission_release_days")
+        .single();
+      if (error) throw error;
+      return parseInt(data.value);
+    }
+  });
+
   // Buscar total de registros
   const {
     data: totalCount
@@ -510,7 +523,7 @@ export default function AdminWithdrawals() {
             })}
             </div>
             <p className="text-xs text-muted-foreground">
-              Comissões a liberar
+              Comissões à liberar depois de {commissionDays || 30} dias do pagamento
             </p>
           </CardContent>
         </Card>
