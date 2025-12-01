@@ -3,12 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Menu, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw, Check, X } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw, Check, X } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
@@ -856,15 +856,9 @@ export const Sidebar = ({
       </div>
     </div>;
 
-  // Sempre renderizar o botão hamburger em telas pequenas E o sidebar em telas grandes
+  // Sheet do menu mobile (controlado pela BottomNav) e sidebar fixo para desktop
   return <>
-      {/* Botão hamburger para mobile e tablet - sempre visível em telas < 1024px */}
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm shadow-md hover:bg-background">
-            <Menu className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0 bg-background" style={{
         backgroundImage: gradientStyle.background,
         color: currentTextColor
