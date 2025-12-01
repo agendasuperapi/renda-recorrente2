@@ -92,15 +92,16 @@ export default function AdminWithdrawals() {
       const { data, error } = await supabase
         .from("app_settings")
         .select("value")
-        .eq("key", "commission_release_days")
+        .eq("key", "commission_days_to_available")
         .single();
+
       if (error) {
-        console.error("Erro ao buscar commission_release_days:", error);
-        return 30; // fallback
+        console.error("Erro ao buscar commission_days_to_available:", error);
+        return 30; // fallback apenas em caso de erro real na query
       }
-      const days = parseInt(data?.value || "30");
-      console.log("Commission release days:", days);
-      return days;
+
+      const parsed = parseInt(data?.value ?? "30", 10);
+      return Number.isNaN(parsed) ? 30 : parsed;
     }
   });
 
