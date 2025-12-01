@@ -7,7 +7,7 @@ import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CheckCircle, XCircle, Clock, Eye, RefreshCw, ImagePlus } from "lucide-react";
+import { DollarSign, Calendar, CheckCircle, XCircle, Clock, Eye, RefreshCw, ImagePlus, Undo2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -142,11 +142,18 @@ export default function AdminWithdrawals() {
       rejectedReason?: string;
       paymentProofUrl?: string[] | null;
     }) => {
+      const withdrawal = withdrawals?.find(w => w.id === id);
       const updateData: any = { status };
       
       if (status === "approved") {
-        updateData.approved_date = new Date().toISOString();
-        updateData.approved_by = (await supabase.auth.getUser()).data.user?.id;
+        // Se estava "paid" e está voltando para "approved", limpar dados de pagamento
+        if (withdrawal?.status === "paid") {
+          updateData.paid_date = null;
+          updateData.payment_proof_url = null;
+        } else {
+          updateData.approved_date = new Date().toISOString();
+          updateData.approved_by = (await supabase.auth.getUser()).data.user?.id;
+        }
       } else if (status === "paid") {
         updateData.paid_date = new Date().toISOString();
         if (paymentProofUrl) {
@@ -165,14 +172,24 @@ export default function AdminWithdrawals() {
 
       // Se foi aprovado ou pago, atualizar as comissões para 'withdrawn'
       if (status === "approved" || status === "paid") {
-        const withdrawal = withdrawals?.find(w => w.id === id);
         if (withdrawal?.commission_ids?.length) {
+          // Se está revertendo de "paid" para "approved", voltar comissões para "available"
+          const commissionStatus = (withdrawal.status === "paid" && status === "approved") 
+            ? "available" 
+            : "withdrawn";
+          
+          const commissionUpdate: any = { status: commissionStatus };
+          
+          // Se está revertendo, limpar o withdrawal_id
+          if (commissionStatus === "available") {
+            commissionUpdate.withdrawal_id = null;
+          } else {
+            commissionUpdate.withdrawal_id = id;
+          }
+          
           await supabase
             .from("commissions")
-            .update({ 
-              status: "withdrawn",
-              withdrawal_id: id
-            })
+            .update(commissionUpdate)
             .in("id", withdrawal.commission_ids);
         }
       }
@@ -324,6 +341,10 @@ export default function AdminWithdrawals() {
       return;
     }
     updateWithdrawalMutation.mutate({ id, status: "rejected", rejectedReason: rejectReason });
+  };
+
+  const handleRevert = (id: string) => {
+    updateWithdrawalMutation.mutate({ id, status: "approved" });
   };
 
   const statsData = {
@@ -720,6 +741,16 @@ export default function AdminWithdrawals() {
                     >
                       <DollarSign className="h-4 w-4 mr-2" />
                       Marcar como Pago
+                    </Button>
+                  )}
+                  {selectedWithdrawal.status === "paid" && (
+                    <Button
+                      variant="outline"
+                      onClick={() => handleRevert(selectedWithdrawal.id)}
+                      disabled={updateWithdrawalMutation.isPending}
+                    >
+                      <Undo2 className="h-4 w-4 mr-2" />
+                      Estornar Pagamento
                     </Button>
                   )}
                 </DialogFooter>
