@@ -21,6 +21,8 @@ const Performance = () => {
   const [periodType, setPeriodType] = useState<PeriodType>('day');
   const [startDate, setStartDate] = useState<Date>(new Date(new Date().setDate(new Date().getDate() - 30)));
   const [endDate, setEndDate] = useState<Date>(new Date());
+  const [commissionProductFilter, setCommissionProductFilter] = useState<string>('all');
+  const [salesProductFilter, setSalesProductFilter] = useState<string>('all');
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -50,56 +52,70 @@ const Performance = () => {
     enabled: !!userId,
   });
 
-  // Agregar dados para gráficos
-  const commissionChartData = commissionsData?.reduce((acc: any[], curr: any) => {
-    const paymentDate = new Date(curr.payment_date);
-    let dateKey: string;
-    
-    if (periodType === 'day') {
-      dateKey = paymentDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    } else {
-      // Agrupar por mês
-      const monthStart = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
-      dateKey = monthStart.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-    }
-    
-    const existing = acc.find(item => item.date === dateKey);
-    if (existing) {
-      existing.value += Number(curr.amount || 0);
-    } else {
-      acc.push({ date: dateKey, value: Number(curr.amount || 0) });
+  // Extrair lista única de produtos
+  const availableProducts = commissionsData?.reduce((acc: any[], curr: any) => {
+    const productId = curr.product_id;
+    const productName = curr.products?.nome || 'Sem produto';
+    if (!acc.find(p => p.id === productId)) {
+      acc.push({ id: productId, name: productName });
     }
     return acc;
   }, []) || [];
 
-  // Agrupar vendas únicas por data
-  const salesChartData = commissionsData?.reduce((acc: any[], curr: any) => {
-    const paymentDate = new Date(curr.payment_date);
-    let dateKey: string;
-    
-    if (periodType === 'day') {
-      dateKey = paymentDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-    } else {
-      const monthStart = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
-      dateKey = monthStart.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
-    }
-    
-    const existing = acc.find(item => item.date === dateKey);
-    if (existing) {
-      // Adicionar apenas se for um pagamento único
-      if (!existing.payments.includes(curr.unified_payment_id)) {
-        existing.value += 1;
-        existing.payments.push(curr.unified_payment_id);
+  // Agregar dados para gráficos
+  const commissionChartData = commissionsData
+    ?.filter(curr => commissionProductFilter === 'all' || curr.product_id === commissionProductFilter)
+    ?.reduce((acc: any[], curr: any) => {
+      const paymentDate = new Date(curr.payment_date);
+      let dateKey: string;
+      
+      if (periodType === 'day') {
+        dateKey = paymentDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      } else {
+        // Agrupar por mês
+        const monthStart = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
+        dateKey = monthStart.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
       }
-    } else {
-      acc.push({ 
-        date: dateKey, 
-        value: 1,
-        payments: [curr.unified_payment_id]
-      });
-    }
-    return acc;
-  }, []) || [];
+      
+      const existing = acc.find(item => item.date === dateKey);
+      if (existing) {
+        existing.value += Number(curr.amount || 0);
+      } else {
+        acc.push({ date: dateKey, value: Number(curr.amount || 0) });
+      }
+      return acc;
+    }, []) || [];
+
+  // Agrupar vendas únicas por data
+  const salesChartData = commissionsData
+    ?.filter(curr => salesProductFilter === 'all' || curr.product_id === salesProductFilter)
+    ?.reduce((acc: any[], curr: any) => {
+      const paymentDate = new Date(curr.payment_date);
+      let dateKey: string;
+      
+      if (periodType === 'day') {
+        dateKey = paymentDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      } else {
+        const monthStart = new Date(paymentDate.getFullYear(), paymentDate.getMonth(), 1);
+        dateKey = monthStart.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+      }
+      
+      const existing = acc.find(item => item.date === dateKey);
+      if (existing) {
+        // Adicionar apenas se for um pagamento único
+        if (!existing.payments.includes(curr.unified_payment_id)) {
+          existing.value += 1;
+          existing.payments.push(curr.unified_payment_id);
+        }
+      } else {
+        acc.push({ 
+          date: dateKey, 
+          value: 1,
+          payments: [curr.unified_payment_id]
+        });
+      }
+      return acc;
+    }, []) || [];
 
   // Remover array de payments do resultado final
   const salesChartDataClean = salesChartData.map(({ date, value }) => ({ date, value }));
@@ -207,7 +223,22 @@ const Performance = () => {
         {/* Comissões por período */}
         <Card>
           <CardHeader>
-            <CardTitle>Comissões {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Comissões {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+              <Select value={commissionProductFilter} onValueChange={setCommissionProductFilter}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Todos os produtos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os produtos</SelectItem>
+                  {availableProducts.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -238,7 +269,22 @@ const Performance = () => {
         {/* Quantidade de vendas por período */}
         <Card>
           <CardHeader>
-            <CardTitle>Vendas {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Vendas {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+              <Select value={salesProductFilter} onValueChange={setSalesProductFilter}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Todos os produtos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os produtos</SelectItem>
+                  {availableProducts.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
