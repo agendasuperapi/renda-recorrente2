@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SubAffiliateCommissionsDialog } from "@/components/SubAffiliateCommissionsDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SubAffiliate {
   id: string;
@@ -42,6 +43,7 @@ const SubAffiliates = () => {
   const [selectedSubAffiliate, setSelectedSubAffiliate] = useState<SubAffiliate | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   // Filtros
   const [nameFilter, setNameFilter] = useState("");
@@ -286,14 +288,14 @@ const SubAffiliates = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Sub Afiliados</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sub Afiliados</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Gerencie sua rede de sub-afiliados
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <Card>
             <CardHeader className="pb-2">
               <div className="h-4 w-32 bg-muted animate-pulse rounded" />
@@ -317,36 +319,36 @@ const SubAffiliates = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Sub Afiliados</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sub Afiliados</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Gerencie sua rede de sub-afiliados
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Total de Sub-Afiliados
             </CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Minhas Comissões (via Sub-Afiliados)
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">
+            <div className="text-xl sm:text-2xl font-bold text-success">
               {new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
@@ -358,14 +360,14 @@ const SubAffiliates = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Lista de Sub-Afiliados</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Lista de Sub-Afiliados</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Filtros */}
-          <div className="flex flex-wrap items-end gap-3 pb-4 border-b">
-            <div className="flex-1 min-w-[150px]">
+          <div className="flex flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Select value={planFilter} onValueChange={setPlanFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Plano" />
                 </SelectTrigger>
                 <SelectContent>
@@ -379,41 +381,45 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Input
                 type="date"
                 value={startDateFilter}
                 onChange={(e) => setStartDateFilter(e.target.value)}
+                className="text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Input
                 type="date"
                 value={endDateFilter}
                 onChange={(e) => setEndDateFilter(e.target.value)}
+                className="text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Input
                 placeholder="Nome/Username"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
+                className="text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Input
                 placeholder="Email"
                 value={emailFilter}
                 onChange={(e) => setEmailFilter(e.target.value)}
+                className="text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -427,9 +433,9 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[150px]">
+            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Select value={levelFilter} onValueChange={setLevelFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Nível" />
                 </SelectTrigger>
                 <SelectContent>
@@ -443,7 +449,7 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[120px]">
+            <div className="flex-1 min-w-[100px] sm:min-w-[120px]">
               <Select
                 value={itemsPerPage.toString()}
                 onValueChange={(value) => {
@@ -451,7 +457,7 @@ const SubAffiliates = () => {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -469,8 +475,9 @@ const SubAffiliates = () => {
               size="icon"
               onClick={clearFilters}
               title="Limpar filtros"
+              className="h-9 w-9 sm:h-10 sm:w-10"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
 
             <Button
@@ -478,172 +485,282 @@ const SubAffiliates = () => {
               size="icon"
               onClick={loadSubAffiliates}
               title="Atualizar"
+              className="h-9 w-9 sm:h-10 sm:w-10"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("name")}
-                >
-                  <div className="flex items-center">
-                    Nome/Username
-                    {getSortIcon("name")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("email")}
-                >
-                  <div className="flex items-center">
-                    Email
-                    {getSortIcon("email")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("plan_name")}
-                >
-                  <div className="flex items-center">
-                    Plano
-                    {getSortIcon("plan_name")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("level")}
-                >
-                  <div className="flex items-center">
-                    Nível
-                    {getSortIcon("level")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("status")}
-                >
-                  <div className="flex items-center">
-                    Status
-                    {getSortIcon("status")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("created_at")}
-                >
-                  <div className="flex items-center">
-                    Data Cadastro
-                    {getSortIcon("created_at")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("referrals_count")}
-                >
-                  <div className="flex items-center justify-center">
-                    Indicações
-                    {getSortIcon("referrals_count")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("total_commission")}
-                >
-                  <div className="flex items-center">
-                    Comissão do Sub
-                    {getSortIcon("total_commission")}
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleSort("my_commission_from_sub")}
-                >
-                  <div className="flex items-center">
-                    Minha Comissão
-                    {getSortIcon("my_commission_from_sub")}
-                  </div>
-                </TableHead>
-                <TableHead className="text-center">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData.length === 0 ? (
+          {/* Desktop - Tabela */}
+          {!isMobile && (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Nenhum sub-afiliado encontrado
-                  </TableCell>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("name")}
+                  >
+                    <div className="flex items-center">
+                      Nome/Username
+                      {getSortIcon("name")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("email")}
+                  >
+                    <div className="flex items-center">
+                      Email
+                      {getSortIcon("email")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("plan_name")}
+                  >
+                    <div className="flex items-center">
+                      Plano
+                      {getSortIcon("plan_name")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("level")}
+                  >
+                    <div className="flex items-center">
+                      Nível
+                      {getSortIcon("level")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("status")}
+                  >
+                    <div className="flex items-center">
+                      Status
+                      {getSortIcon("status")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("created_at")}
+                  >
+                    <div className="flex items-center">
+                      Data Cadastro
+                      {getSortIcon("created_at")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("referrals_count")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Indicações
+                      {getSortIcon("referrals_count")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("total_commission")}
+                  >
+                    <div className="flex items-center">
+                      Comissão do Sub
+                      {getSortIcon("total_commission")}
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleSort("my_commission_from_sub")}
+                  >
+                    <div className="flex items-center">
+                      Minha Comissão
+                      {getSortIcon("my_commission_from_sub")}
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
-              ) : (
-                filteredData.map((sub) => (
-                  <TableRow key={sub.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={sub.avatar_url || undefined} />
-                          <AvatarFallback>
-                            {sub.name?.charAt(0).toUpperCase() || '?'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{sub.name}</div>
-                          {sub.username && (
-                            <div className="text-xs text-muted-foreground">
-                              @{sub.username}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{sub.email}</TableCell>
-                    <TableCell>
-                      {sub.plan_name || <span className="text-muted-foreground">Sem plano</span>}
-                    </TableCell>
-                    <TableCell>
-                      {getLevelBadge(sub.level)}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(sub.status)}</TableCell>
-                    <TableCell>
-                      {format(new Date(sub.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                    </TableCell>
-                    <TableCell className="text-center">{sub.referrals_count}</TableCell>
-                    <TableCell className="text-left font-medium">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }).format(Number(sub.total_commission) || 0)}
-                    </TableCell>
-                    <TableCell className="text-left font-semibold text-success">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }).format(Number(sub.my_commission_from_sub) || 0)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedSubAffiliate(sub);
-                          setDialogOpen(true);
-                        }}
-                        title="Ver detalhes das comissões"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+              </TableHeader>
+              <TableBody>
+                {filteredData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                      Nenhum sub-afiliado encontrado
                     </TableCell>
                   </TableRow>
+                ) : (
+                  filteredData.map((sub) => (
+                    <TableRow key={sub.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={sub.avatar_url || undefined} />
+                            <AvatarFallback>
+                              {sub.name?.charAt(0).toUpperCase() || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{sub.name}</div>
+                            {sub.username && (
+                              <div className="text-xs text-muted-foreground">
+                                @{sub.username}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{sub.email}</TableCell>
+                      <TableCell>
+                        {sub.plan_name || <span className="text-muted-foreground">Sem plano</span>}
+                      </TableCell>
+                      <TableCell>
+                        {getLevelBadge(sub.level)}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(sub.status)}</TableCell>
+                      <TableCell>
+                        {format(new Date(sub.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                      </TableCell>
+                      <TableCell className="text-center">{sub.referrals_count}</TableCell>
+                      <TableCell className="text-left font-medium">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL'
+                        }).format(Number(sub.total_commission) || 0)}
+                      </TableCell>
+                      <TableCell className="text-left font-semibold text-success">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL'
+                        }).format(Number(sub.my_commission_from_sub) || 0)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedSubAffiliate(sub);
+                            setDialogOpen(true);
+                          }}
+                          title="Ver detalhes das comissões"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+
+          {/* Mobile - Cards */}
+          {isMobile && (
+            <div className="space-y-3">
+              {filteredData.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                  Nenhum sub-afiliado encontrado
+                </div>
+              ) : (
+                filteredData.map((sub) => (
+                  <Card key={sub.id} className="overflow-hidden">
+                    <CardContent className="p-4 space-y-3">
+                      {/* Header com Avatar e Nome */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <Avatar className="h-12 w-12 flex-shrink-0">
+                            <AvatarImage src={sub.avatar_url || undefined} />
+                            <AvatarFallback>
+                              {sub.name?.charAt(0).toUpperCase() || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm truncate">{sub.name}</div>
+                            {sub.username && (
+                              <div className="text-xs text-muted-foreground truncate">
+                                @{sub.username}
+                              </div>
+                            )}
+                            <div className="text-xs text-muted-foreground truncate mt-0.5">
+                              {sub.email}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="flex-shrink-0"
+                          onClick={() => {
+                            setSelectedSubAffiliate(sub);
+                            setDialogOpen(true);
+                          }}
+                          title="Ver detalhes das comissões"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      {/* Info Grid */}
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Plano:</span>
+                          <div className="font-medium mt-0.5">
+                            {sub.plan_name || <span className="text-muted-foreground">Sem plano</span>}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Nível:</span>
+                          <div className="mt-0.5">
+                            {getLevelBadge(sub.level)}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Status:</span>
+                          <div className="mt-0.5">
+                            {getStatusBadge(sub.status)}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Data Cadastro:</span>
+                          <div className="font-medium mt-0.5">
+                            {format(new Date(sub.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Indicações:</span>
+                          <div className="font-medium mt-0.5">
+                            {sub.referrals_count}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Comissão do Sub:</span>
+                          <div className="font-medium mt-0.5">
+                            {new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(Number(sub.total_commission) || 0)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Minha Comissão - Destaque */}
+                      <div className="pt-2 border-t">
+                        <span className="text-xs text-muted-foreground">Minha Comissão:</span>
+                        <div className="text-base font-bold text-success mt-0.5">
+                          {new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                          }).format(Number(sub.my_commission_from_sub) || 0)}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </div>
+          )}
 
           {/* Controles de paginação e informações */}
-          <div className="grid grid-cols-3 items-center mt-4">
-            <div className="text-sm text-muted-foreground">
+          <div className="flex flex-col sm:grid sm:grid-cols-3 items-center gap-3 sm:gap-0 mt-4">
+            <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
               Mostrando {startIndex + 1} a {endIndex} de {stats.total} resultados
             </div>
             
@@ -654,9 +771,10 @@ const SubAffiliates = () => {
                   size="sm"
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
+                  className="h-8 px-2 sm:px-3"
                 >
-                  <ChevronLeft className="h-4 w-4" />
-                  Anterior
+                  <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline ml-1">Anterior</span>
                 </Button>
                 
                 <div className="flex items-center gap-1">
@@ -678,7 +796,7 @@ const SubAffiliates = () => {
                         variant={currentPage === pageNumber ? "default" : "outline"}
                         size="sm"
                         onClick={() => setCurrentPage(pageNumber)}
-                        className="w-8 h-8 p-0"
+                        className="w-7 h-7 sm:w-8 sm:h-8 p-0 text-xs sm:text-sm"
                       >
                         {pageNumber}
                       </Button>
@@ -691,9 +809,10 @@ const SubAffiliates = () => {
                   size="sm"
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
+                  className="h-8 px-2 sm:px-3"
                 >
-                  Próxima
-                  <ChevronRight className="h-4 w-4" />
+                  <span className="hidden sm:inline mr-1">Próxima</span>
+                  <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
             )}
