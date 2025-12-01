@@ -407,7 +407,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
   };
 
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
-    <>
+    <div className="flex flex-col h-full">
       <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
         <div className="flex items-center justify-center mb-4">
           <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-16 w-auto" />
@@ -741,7 +741,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
           <ThemeToggle />
         </div>
       </div>
-    </>
+    </div>
   );
 
   // Sempre renderizar o botão hamburger em telas pequenas E o sidebar em telas grandes
@@ -773,7 +773,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
       </Sheet>
       
       {/* Sidebar fixo para desktop - visível apenas em telas >= 1024px */}
-      <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
+      <aside className="hidden lg:flex w-64 flex-col h-full flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
         {user ? (
           <SidebarContent />
         ) : (
