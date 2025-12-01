@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "./Sidebar";
+import { BottomNav } from "./BottomNav";
 import { User } from "@supabase/supabase-js";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -173,7 +174,7 @@ export const DashboardLayout = () => {
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex h-screen bg-background overflow-hidden">
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
-          <main className={`flex-1 min-h-0 overflow-auto ${isMobile ? 'px-3 pt-20 pb-6' : 'px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}>
+          <main className={`flex-1 min-h-0 overflow-auto ${isMobile ? 'px-3 pt-6 pb-20' : 'px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}>
             {isLoading ? (
               <div className="space-y-3 sm:space-y-4">
                 <Skeleton className="h-6 sm:h-8 w-48 sm:w-64" />
@@ -189,6 +190,7 @@ export const DashboardLayout = () => {
               <Outlet />
             )}
           </main>
+          <BottomNav onMenuClick={() => setSidebarOpen(true)} />
         </div>
       </UserProvider>
     </>
