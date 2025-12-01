@@ -1415,8 +1415,6 @@ const LandingPage = () => {
                           {validatedCoupon.type === "days" && `${validatedCoupon.value} dias grátis`}
                           {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} meses grátis`}
                         </Badge>
-                        
-                        {validatedCoupon.description}
                       </div>
                     </div>
 
