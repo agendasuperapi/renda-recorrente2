@@ -152,18 +152,18 @@ const Performance = () => {
   }));
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Desempenho</h1>
-        <p className="text-muted-foreground">Análise detalhada das suas comissões e vendas</p>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Desempenho</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Análise detalhada das suas comissões e vendas</p>
       </div>
 
       {/* Filtros */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-4 items-end">
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Período</label>
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex-1 min-w-0">
+              <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Período</label>
               <Select value={periodType} onValueChange={(value) => setPeriodType(value as PeriodType)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -175,12 +175,12 @@ const Performance = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Data Início</label>
+            <div className="flex-1 min-w-0">
+              <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Data Início</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                  <Button variant="outline" className="w-full justify-start text-left font-normal text-xs sm:text-sm">
+                    <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     {format(startDate, "dd/MM/yyyy", { locale: ptBR })}
                   </Button>
                 </PopoverTrigger>
@@ -195,12 +195,12 @@ const Performance = () => {
               </Popover>
             </div>
 
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium mb-2 block">Data Fim</label>
+            <div className="flex-1 min-w-0">
+              <label className="text-xs sm:text-sm font-medium mb-1.5 sm:mb-2 block">Data Fim</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                  <Button variant="outline" className="w-full justify-start text-left font-normal text-xs sm:text-sm">
+                    <CalendarIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     {format(endDate, "dd/MM/yyyy", { locale: ptBR })}
                   </Button>
                 </PopoverTrigger>
@@ -219,14 +219,14 @@ const Performance = () => {
       </Card>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
         {/* Comissões por período */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Comissões {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base sm:text-lg">Comissões {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+            <div className="pt-2">
               <Select value={commissionProductFilter} onValueChange={setCommissionProductFilter}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full text-xs sm:text-sm">
                   <SelectValue placeholder="Todos os produtos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,22 +241,23 @@ const Performance = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={commissionChartData}>
                 <XAxis 
                   dataKey="date" 
-                  className="text-xs"
+                  className="text-[10px] sm:text-xs"
                   tick={{ fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <YAxis 
-                  className="text-xs"
+                  className="text-[10px] sm:text-xs"
                   tick={{ fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    fontSize: '12px'
                   }}
                   formatter={(value: any) => [formatCurrency(value), 'Comissão']}
                 />
@@ -268,11 +269,11 @@ const Performance = () => {
 
         {/* Quantidade de vendas por período */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Vendas {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base sm:text-lg">Vendas {periodType === 'day' ? 'Diárias' : 'Mensais'}</CardTitle>
+            <div className="pt-2">
               <Select value={salesProductFilter} onValueChange={setSalesProductFilter}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full text-xs sm:text-sm">
                   <SelectValue placeholder="Todos os produtos" />
                 </SelectTrigger>
                 <SelectContent>
@@ -287,22 +288,23 @@ const Performance = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={salesChartDataClean}>
                 <XAxis 
                   dataKey="date" 
-                  className="text-xs"
+                  className="text-[10px] sm:text-xs"
                   tick={{ fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <YAxis 
-                  className="text-xs"
+                  className="text-[10px] sm:text-xs"
                   tick={{ fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))',
                     border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    fontSize: '12px'
                   }}
                   formatter={(value: any) => [value, 'Vendas']}
                 />
@@ -315,10 +317,10 @@ const Performance = () => {
         {/* Comissões por produto */}
         <Card>
           <CardHeader>
-            <CardTitle>Comissões por Produto</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Comissões por Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={commissionByProductData}
@@ -343,10 +345,10 @@ const Performance = () => {
         {/* Quantidade por produto */}
         <Card>
           <CardHeader>
-            <CardTitle>Vendas por Produto</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Vendas por Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={salesByProductData}
