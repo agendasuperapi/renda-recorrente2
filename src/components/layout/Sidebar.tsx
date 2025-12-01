@@ -657,9 +657,9 @@ export const Sidebar = ({
               
               <div className="flex flex-col items-center gap-6 py-4">
                 {/* Avatar Grande */}
-                <Avatar className="w-32 h-32">
+                <Avatar className="w-64 h-64">
                   {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
-                  <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
+                  <AvatarFallback className="text-6xl bg-primary text-primary-foreground">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -667,20 +667,20 @@ export const Sidebar = ({
                 {/* Card de Plano em Destaque */}
                 {userPlan && (
                   <div className={cn(
-                    "w-full p-6 rounded-2xl border-2 text-center space-y-2 shadow-xl",
+                    "w-full p-3 rounded-xl border text-center space-y-1 shadow-lg",
                     userPlan.is_free 
                       ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" 
                       : "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-500"
                   )}>
                     <div className={cn(
-                      "flex items-center justify-center gap-2 text-2xl font-bold",
+                      "flex items-center justify-center gap-1.5 text-base font-bold",
                       userPlan.is_free ? "text-slate-700 dark:text-slate-300" : "text-white"
                     )}>
-                      {userPlan.is_free ? <Zap className="w-6 h-6" /> : <Star className="w-6 h-6" />}
+                      {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Star className="w-4 h-4" />}
                       <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
                     </div>
                     {!userPlan.is_free && userPlan.plan_name && (
-                      <p className="text-white/90 text-sm">{userPlan.plan_name}</p>
+                      <p className="text-white/90 text-xs">{userPlan.plan_name}</p>
                     )}
                   </div>
                 )}
