@@ -320,15 +320,14 @@ const Performance = () => {
             <CardTitle className="text-base sm:text-lg">Comissões por Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={commissionByProductData}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   labelLine={false}
-                  label={({ name, percent, value }) => `${name}: ${formatCurrency(value)} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -337,6 +336,12 @@ const Performance = () => {
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: any) => formatCurrency(value)} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry: any) => `${value}: ${formatCurrency(entry.payload.value)}`}
+                  wrapperStyle={{ fontSize: '11px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -348,15 +353,14 @@ const Performance = () => {
             <CardTitle className="text-base sm:text-lg">Vendas por Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={salesByProductData}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   labelLine={false}
-                  label={({ name, percent, value }) => `${name}: ${value} vendas (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -365,6 +369,12 @@ const Performance = () => {
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry: any) => `${value}: ${entry.payload.value} vendas`}
+                  wrapperStyle={{ fontSize: '11px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
