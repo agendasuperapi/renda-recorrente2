@@ -63,10 +63,6 @@ const settingsMenuItems = [{
   label: "Meu Perfil",
   path: "/settings/personal"
 }, {
-  icon: UserCog,
-  label: "Perfil Completo",
-  path: "/settings/profile"
-}, {
   icon: Crown,
   label: "Plano",
   path: "/settings/plan"
