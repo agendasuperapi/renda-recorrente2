@@ -773,7 +773,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
       </Sheet>
       
       {/* Sidebar fixo para desktop - visível apenas em telas >= 1024px */}
-      <aside className="hidden lg:flex w-64 flex-col h-full flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
+      <aside className="hidden lg:flex w-64 flex-col h-screen flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
         {user ? (
           <SidebarContent />
         ) : (
