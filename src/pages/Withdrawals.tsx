@@ -73,7 +73,7 @@ const Withdrawals = () => {
     }
   });
 
-  // Buscar comissões disponíveis
+  // Buscar comissões disponíveis da view
   const {
     data: commissionsData,
     isLoading: commissionsLoading
@@ -83,17 +83,19 @@ const Withdrawals = () => {
       const {
         data,
         error
-      } = await supabase.from('commissions').select('status, amount').eq('affiliate_id', userId);
+      } = await supabase
+        .from('view_withdrawals_summary' as any)
+        .select('available, pending, requested, withdrawn')
+        .eq('affiliate_id', userId)
+        .single();
+      
       if (error) throw error;
-      const available = data?.filter(c => c.status === 'available').reduce((sum, c) => sum + c.amount, 0) || 0;
-      const pending = data?.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.amount, 0) || 0;
-      const requested = data?.filter(c => c.status === 'requested').reduce((sum, c) => sum + c.amount, 0) || 0;
-      const withdrawn = data?.filter(c => c.status === 'withdrawn').reduce((sum, c) => sum + c.amount, 0) || 0;
+      
       return {
-        available,
-        pending,
-        requested,
-        paid: withdrawn
+        available: (data as any)?.available || 0,
+        pending: (data as any)?.pending || 0,
+        requested: (data as any)?.requested || 0,
+        paid: (data as any)?.withdrawn || 0
       };
     },
     enabled: !!userId
