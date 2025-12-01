@@ -11,6 +11,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { AffiliateDetailsDialog } from "@/components/AffiliateDetailsDialog";
 
 // Interface para tipagem da view
@@ -46,6 +47,7 @@ type SortColumn = "name" | "email" | "created_at" | "referrals_count" | null;
 type SortDirection = "asc" | "desc";
 
 const AdminAffiliates = () => {
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
@@ -309,6 +311,94 @@ const AdminAffiliates = () => {
           </div>
         </CardHeader>
         <CardContent>
+          {isMobile ? (
+            <div className="space-y-3">
+              {isLoading ? (
+                <>
+                  {[...Array(10)].map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-4">
+                        <Skeleton className="h-20 w-full" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              ) : paginatedAffiliates && paginatedAffiliates.length > 0 ? (
+                paginatedAffiliates.map((affiliate) => (
+                  <Card key={affiliate.id}>
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <Avatar className="h-10 w-10 flex-shrink-0">
+                            {affiliate.avatar_url && (
+                              <AvatarImage src={affiliate.avatar_url} alt={affiliate.name} />
+                            )}
+                            <AvatarFallback className="bg-primary text-primary-foreground">
+                              {getInitials(affiliate.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{affiliate.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{affiliate.email || "-"}</p>
+                            <p className="text-xs text-muted-foreground truncate">@{affiliate.username || "-"}</p>
+                          </div>
+                        </div>
+                        <Badge variant={getStatusBadge(affiliate.plan_status)} className="flex-shrink-0">
+                          {affiliate.plan_status === "active" 
+                            ? "Ativo" 
+                            : affiliate.plan_status === "trialing" 
+                              ? "Em teste" 
+                              : "Inativo"}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Plano:</span>
+                          <p className="font-medium truncate">{affiliate.plan_name}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Período:</span>
+                          <p className="font-medium truncate">
+                            {affiliate.plan_period === "daily" ? "Diário" : affiliate.plan_period === "monthly" ? "Mensal" : affiliate.plan_period === "annual" ? "Anual" : affiliate.plan_period}
+                          </p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Cadastro:</span>
+                          <p className="font-medium">{affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Dia de Saque:</span>
+                          <p className="font-medium">{getWeekdayLabel(affiliate.withdrawal_day)}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t">
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">Indicações: </span>
+                          <span className="font-bold">{affiliate.referrals_count}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewDetails(affiliate.id)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    Nenhum afiliado encontrado
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <Table>
             <TableHeader>
@@ -439,9 +529,10 @@ const AdminAffiliates = () => {
             </TableBody>
           </Table>
           </div>
+          )}
 
           {totalCount > 0 && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-4 flex-wrap gap-4">
               <p className="text-sm text-muted-foreground whitespace-nowrap">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} afiliados
               </p>
