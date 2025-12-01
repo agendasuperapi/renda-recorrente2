@@ -309,7 +309,8 @@ const AdminAffiliates = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
+          <div className="overflow-x-auto">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>
@@ -437,6 +438,7 @@ const AdminAffiliates = () => {
               )}
             </TableBody>
           </Table>
+          </div>
 
           {totalCount > 0 && (
             <div className="flex items-center justify-between mt-4">
