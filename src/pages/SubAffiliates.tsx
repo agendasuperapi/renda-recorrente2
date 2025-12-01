@@ -358,8 +358,8 @@ const SubAffiliates = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Filtros */}
-          <div className="flex flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
+            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Input
                 placeholder="Nome/Username/Email"
                 value={nameFilter}
@@ -368,7 +368,7 @@ const SubAffiliates = () => {
               />
             </div>
 
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Select value={planFilter} onValueChange={setPlanFilter}>
                 <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Plano" />
@@ -384,7 +384,7 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Input
                 type="date"
                 value={startDateFilter}
@@ -393,7 +393,7 @@ const SubAffiliates = () => {
               />
             </div>
 
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Input
                 type="date"
                 value={endDateFilter}
@@ -402,7 +402,7 @@ const SubAffiliates = () => {
               />
             </div>
 
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Status" />
@@ -418,7 +418,7 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
+            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Select value={levelFilter} onValueChange={setLevelFilter}>
                 <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="Nível" />
@@ -434,7 +434,7 @@ const SubAffiliates = () => {
               </Select>
             </div>
 
-            <div className="flex-1 min-w-[100px] sm:min-w-[120px]">
+            <div className="w-full md:flex-1 md:min-w-[100px] sm:min-w-[120px]">
               <Select
                 value={itemsPerPage.toString()}
                 onValueChange={(value) => {
