@@ -605,7 +605,7 @@ const Dashboard = () => {
                           {coupon.product_nome}
                         </div>
                         
-                        <div className="mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono break-all">
+                        <div className="mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono overflow-hidden text-ellipsis whitespace-nowrap sm:whitespace-normal sm:break-words">
                           {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
                         </div>
                       </div>
