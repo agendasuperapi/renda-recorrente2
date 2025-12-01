@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+import { toast } from "sonner";
 
 interface DashboardStats {
   affiliate_id: string;
@@ -20,12 +21,26 @@ interface DashboardStats {
   total_sacado: number;
 }
 
+interface PrimaryCoupon {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  product_id: string;
+  product_nome: string;
+  product_icone_light: string | null;
+  product_icone_dark: string | null;
+  product_site_landingpage: string | null;
+}
+
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
   const [userName, setUserName] = useState<string>("");
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [primaryCoupons, setPrimaryCoupons] = useState<PrimaryCoupon[]>([]);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,6 +71,19 @@ const Dashboard = () => {
         if (dashboardStats) {
           setStats(dashboardStats as unknown as DashboardStats);
         }
+
+        // Buscar cupons principais
+        const { data: coupons } = await supabase
+          .rpc('get_available_coupons_for_affiliates' as any);
+
+        console.log("[Dashboard] Cupons principais:", coupons);
+        
+        if (coupons && Array.isArray(coupons)) {
+          // Filtrar apenas cupons marcados como principais
+          const mainCoupons = coupons.filter((c: any) => c.is_primary === true);
+          setPrimaryCoupons(mainCoupons as PrimaryCoupon[]);
+        }
+        
         setLoading(false);
 
         if (profile) {
@@ -117,6 +145,35 @@ const Dashboard = () => {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  const handleCopyCoupon = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      toast.success("Código copiado!");
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch (error) {
+      toast.error("Erro ao copiar código");
+    }
+  };
+
+  const handleShareCoupon = async (coupon: PrimaryCoupon) => {
+    const text = `🎁 Use o cupom ${coupon.code} no ${coupon.product_nome}!\n${coupon.description || ''}\n\n${coupon.product_site_landingpage || ''}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Cupom ${coupon.code}`,
+          text: text
+        });
+      } catch (error) {
+        console.log("Compartilhamento cancelado");
+      }
+    } else {
+      await navigator.clipboard.writeText(text);
+      toast.success("Texto copiado para compartilhar!");
+    }
   };
 
   const handleCloseWelcome = async () => {
@@ -363,19 +420,92 @@ const Dashboard = () => {
             </Card>
           </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Cupons principais</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Veja aqui seus cupons principais para compartilhar
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            Nenhum cupom disponível no momento
-          </div>
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cupons principais</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Veja aqui seus cupons principais para compartilhar
+              </p>
+            </CardHeader>
+            <CardContent>
+              {primaryCoupons.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Nenhum cupom disponível no momento
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {primaryCoupons.map((coupon) => (
+                    <div 
+                      key={coupon.id}
+                      className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    >
+                      {/* Ícone do App */}
+                      <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                        {coupon.product_icone_light ? (
+                          <img 
+                            src={coupon.product_icone_light}
+                            alt={coupon.product_nome}
+                            className="w-8 h-8 object-contain dark:hidden"
+                          />
+                        ) : null}
+                        {coupon.product_icone_dark ? (
+                          <img 
+                            src={coupon.product_icone_dark}
+                            alt={coupon.product_nome}
+                            className="w-8 h-8 object-contain hidden dark:block"
+                          />
+                        ) : null}
+                        {!coupon.product_icone_light && !coupon.product_icone_dark && (
+                          <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {coupon.product_nome.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info do Cupom */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm text-foreground">
+                          {coupon.product_nome}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {coupon.name}
+                        </div>
+                        <div className="inline-flex items-center gap-2 mt-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs font-mono font-bold">
+                          {coupon.code}
+                        </div>
+                      </div>
+
+                      {/* Botões de Ação */}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCopyCoupon(coupon.code)}
+                          className="gap-2"
+                        >
+                          {copiedCode === coupon.code ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                          Copiar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => handleShareCoupon(coupon)}
+                          className="gap-2"
+                        >
+                          <Share2 className="w-4 h-4" />
+                          Compartilhar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
