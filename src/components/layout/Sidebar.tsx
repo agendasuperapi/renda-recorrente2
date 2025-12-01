@@ -674,9 +674,9 @@ export const Sidebar = ({
               
               <div className="flex flex-col items-center gap-6 py-4">
                 {/* Avatar Grande */}
-                <Avatar className="w-128 h-128">
+                <Avatar className="w-[512px] h-[512px]">
                   {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
-                  <AvatarFallback className="text-9xl bg-primary text-primary-foreground">
+                  <AvatarFallback className="text-[150px] bg-primary text-primary-foreground">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
