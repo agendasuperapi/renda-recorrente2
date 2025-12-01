@@ -51,8 +51,8 @@ COMMENT ON VIEW public.view_commissions_monthly_stats IS 'Estatísticas de comis
 CREATE OR REPLACE VIEW public.view_commissions_monthly
 WITH (security_invoker = true) AS
 SELECT 
-    -- Agrupar por mês de referência
-    DATE_TRUNC('month', c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date as mes_referencia,
+    -- Agrupar por mês de referência (adiciona 15 dias para evitar problema de timezone)
+    (DATE_TRUNC('month', (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date) + INTERVAL '15 days')::date as mes_referencia,
     -- Afiliado
     c.affiliate_id,
     aff.name as affiliate_name,
@@ -83,7 +83,7 @@ WHERE
     c.unified_payment_id IS NOT NULL
     AND c.payment_date IS NOT NULL
 GROUP BY 
-    DATE_TRUNC('month', c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date,
+    (DATE_TRUNC('month', (c.payment_date AT TIME ZONE 'America/Sao_Paulo')::date) + INTERVAL '15 days')::date,
     c.affiliate_id,
     aff.name,
     p.id,
