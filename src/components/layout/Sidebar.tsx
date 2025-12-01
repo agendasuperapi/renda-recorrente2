@@ -638,7 +638,7 @@ export const Sidebar = ({
           {/* Card com Avatar e Badge */}
           {userPlan && <div 
               onClick={() => setProfileDialogOpen(true)}
-              className={cn("flex items-center gap-3 px-4 py-3 rounded-xl w-full shadow-lg border mx-2 cursor-pointer transition-transform hover:scale-[1.02]", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}
+              className={cn("flex items-center gap-3 px-2 py-2 rounded-xl w-full shadow-lg border mx-2 cursor-pointer transition-transform hover:scale-[1.02]", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}
             >
               <Avatar className="w-12 h-12 flex-shrink-0">
                 {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
