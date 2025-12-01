@@ -71,13 +71,17 @@ const affiliateMenuItems = [
   { icon: Users, label: "Sub Afiliados", path: "/sub-affiliates" },
   { icon: UserPlus, label: "Meus Indicados", path: "/referrals" },
   { icon: Ticket, label: "Meus Cupons", path: "/coupons" },
-  { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
 const commissionsMenuItems = [
   { icon: Coins, label: "Comissões Diárias", path: "/commissions-daily" },
   { icon: TrendingUp, label: "Comissões Mensais", path: "/commissions-monthly" },
   { icon: Banknote, label: "Saques", path: "/withdrawals" },
+];
+
+const settingsMenuItems = [
+  { icon: User, label: "Perfil", path: "/settings/profile" },
+  { icon: Crown, label: "Plano", path: "/settings/plan" },
 ];
 
 const adminMenuItems = [
@@ -123,6 +127,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
   const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
   const [configMenuOpen, setConfigMenuOpen] = useState(false);
   const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
 
   // Salvar preferência de menu no localStorage
   useEffect(() => {
@@ -451,61 +456,119 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false, 
         })}
 
         {(!isAdmin || !showAdminMenu) && (
-          <Collapsible open={commissionsMenuOpen} onOpenChange={setCommissionsMenuOpen}>
-            <CollapsibleTrigger
-              className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
-              style={{ color: currentTextColor }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = `${accentColor}30`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <Coins size={18} />
-              <span className="flex-1 text-left">Comissões</span>
-              <ChevronDown
-                size={16}
-                className="transition-transform"
-                style={{
-                  transform: commissionsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          <>
+            <Collapsible open={commissionsMenuOpen} onOpenChange={setCommissionsMenuOpen}>
+              <CollapsibleTrigger
+                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
+                style={{ color: currentTextColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
                 }}
-              />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pl-4 space-y-1 mt-1">
-              {commissionsMenuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Coins size={18} />
+                <span className="flex-1 text-left">Comissões</span>
+                <ChevronDown
+                  size={16}
+                  className="transition-transform"
+                  style={{
+                    transform: commissionsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                {commissionsMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
 
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
-                    )}
-                    style={{
-                      backgroundColor: isActive ? accentColor : 'transparent',
-                      color: currentTextColor,
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }
-                    }}
-                  >
-                    <Icon size={18} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </CollapsibleContent>
-          </Collapsible>
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
+                      )}
+                      style={{
+                        backgroundColor: isActive ? accentColor : 'transparent',
+                        color: currentTextColor,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }
+                      }}
+                    >
+                      <Icon size={18} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+
+            <Collapsible open={settingsMenuOpen} onOpenChange={setSettingsMenuOpen}>
+              <CollapsibleTrigger
+                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
+                style={{ color: currentTextColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Settings size={18} />
+                <span className="flex-1 text-left">Configurações</span>
+                <ChevronDown
+                  size={16}
+                  className="transition-transform"
+                  style={{
+                    transform: settingsMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                {settingsMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
+                      )}
+                      style={{
+                        backgroundColor: isActive ? accentColor : 'transparent',
+                        color: currentTextColor,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }
+                      }}
+                    >
+                      <Icon size={18} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </CollapsibleContent>
+            </Collapsible>
+          </>
         )}
 
         {menuItems.slice(4).map((item) => {
