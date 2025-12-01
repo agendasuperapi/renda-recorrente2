@@ -47,7 +47,6 @@ const SubAffiliates = () => {
 
   // Filtros
   const [nameFilter, setNameFilter] = useState("");
-  const [emailFilter, setEmailFilter] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [levelFilter, setLevelFilter] = useState("all");
@@ -64,7 +63,7 @@ const SubAffiliates = () => {
 
   useEffect(() => {
     loadSubAffiliates();
-  }, [currentPage, itemsPerPage, nameFilter, emailFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
+  }, [currentPage, itemsPerPage, nameFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -90,11 +89,7 @@ const SubAffiliates = () => {
 
       // Aplicar filtros
       if (nameFilter) {
-        query = query.or(`name.ilike.%${nameFilter}%,username.ilike.%${nameFilter}%`);
-      }
-
-      if (emailFilter) {
-        query = query.ilike('email', `%${emailFilter}%`);
+        query = query.or(`name.ilike.%${nameFilter}%,username.ilike.%${nameFilter}%,email.ilike.%${nameFilter}%`);
       }
 
       if (planFilter && planFilter !== "all") {
@@ -162,7 +157,6 @@ const SubAffiliates = () => {
 
   const clearFilters = () => {
     setNameFilter("");
-    setEmailFilter("");
     setPlanFilter("all");
     setStatusFilter("all");
     setLevelFilter("all");
@@ -401,18 +395,9 @@ const SubAffiliates = () => {
 
             <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
               <Input
-                placeholder="Nome/Username"
+                placeholder="Nome/Username/Email"
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
-
-            <div className="flex-1 min-w-[120px] sm:min-w-[150px]">
-              <Input
-                placeholder="Email"
-                value={emailFilter}
-                onChange={(e) => setEmailFilter(e.target.value)}
                 className="text-xs sm:text-sm"
               />
             </div>
