@@ -40,6 +40,11 @@ interface RecentCommission {
   commission_type: string;
   created_at: string;
   product_nome?: string;
+  client_name?: string;
+  client_email?: string;
+  plan_name?: string;
+  level?: number;
+  percentage?: number;
 }
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -120,8 +125,15 @@ const Dashboard = () => {
             status,
             commission_type,
             created_at,
+            level,
+            percentage,
             product_id,
-            products (nome)
+            products (nome),
+            unified_users (name, email),
+            subscriptions (
+              plan_id,
+              plans (name)
+            )
           `)
           .eq('affiliate_id', session.user.id)
           .order('created_at', { ascending: false })
@@ -134,7 +146,12 @@ const Dashboard = () => {
             status: c.status,
             commission_type: c.commission_type,
             created_at: c.created_at,
-            product_nome: c.products?.nome
+            product_nome: c.products?.nome,
+            client_name: c.unified_users?.name,
+            client_email: c.unified_users?.email,
+            plan_name: c.subscriptions?.plans?.name,
+            level: c.level,
+            percentage: c.percentage
           }));
           setRecentCommissions(formattedCommissions);
         }
@@ -537,21 +554,35 @@ const Dashboard = () => {
               {recentCommissions.map((commission) => (
                 <div 
                   key={commission.id} 
-                  className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                 >
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">
-                      {commission.product_nome || 'Produto'}
+                  <div className="flex-1 space-y-1">
+                    <div className="font-semibold text-sm">
+                      {commission.client_name || 'Cliente'}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {commission.commission_type} • {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                      {commission.client_email}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>{commission.plan_name || 'Plano'}</span>
+                      <span>•</span>
+                      <span>{commission.product_nome || 'Produto'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">
+                        Nível {commission.level || 1} • {commission.percentage || 0}%
+                      </span>
+                      <span className="text-muted-foreground">•</span>
+                      <span className="text-muted-foreground">
+                        {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                      </span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold text-sm">
+                    <div className="font-bold text-base">
                       {formatCurrency(commission.amount)}
                     </div>
-                    <div className={`text-xs ${
+                    <div className={`text-xs mt-1 ${
                       commission.status === 'available' ? 'text-success' :
                       commission.status === 'pending' ? 'text-destructive' :
                       commission.status === 'paid' ? 'text-primary' :
