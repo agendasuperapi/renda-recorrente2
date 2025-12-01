@@ -325,10 +325,11 @@ const Withdrawals = () => {
                   ⚠️ Se o saque não for solicitado hoje, só poderá solicitar novamente {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </p>
               </> : <>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-destructive">
                   {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" />
                   Sua solicitação de saque ficará disponível somente nesse dia
                 </p>
               </>}
