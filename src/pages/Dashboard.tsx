@@ -4,17 +4,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+
+interface DashboardStats {
+  affiliate_id: string;
+  comissao_hoje: number;
+  comissao_7_dias: number;
+  comissao_mes: number;
+  comissao_disponivel: number;
+  comissao_pendente: number;
+  total_indicacoes: number;
+  total_sub_afiliados: number;
+  total_sacado: number;
+}
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
   const [userName, setUserName] = useState<string>("");
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkFirstAccess = async () => {
+    const loadDashboardData = async () => {
+      setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       console.log("[Dashboard] Sessão atual:", session);
       
@@ -27,6 +43,20 @@ const Dashboard = () => {
           .single() as any;
 
         console.log("[Dashboard] Resultado perfil:", { profile, profileError });
+
+        // Buscar estatísticas do dashboard
+        const { data: dashboardStats, error: statsError } = await supabase
+          .from("view_affiliate_dashboard_stats" as any)
+          .select("*")
+          .eq("affiliate_id", session.user.id)
+          .single();
+
+        console.log("[Dashboard] Estatísticas:", { dashboardStats, statsError });
+        
+        if (dashboardStats) {
+          setStats(dashboardStats as unknown as DashboardStats);
+        }
+        setLoading(false);
 
         if (profile) {
           setUserName(profile.name);
@@ -79,8 +109,15 @@ const Dashboard = () => {
       }
     };
 
-    checkFirstAccess();
+    loadDashboardData();
   }, [searchParams, setSearchParams]);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
 
   const handleCloseWelcome = async () => {
     console.log("[Dashboard] Fechando modal de boas-vindas");
@@ -192,75 +229,103 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Dashboard Content */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
-        <p className="text-muted-foreground">
-          Tenha uma visão geral do seu desempenho
-        </p>
-      </div>
+      {loading ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
+            <p className="text-muted-foreground">
+              Tenha uma visão geral do seu desempenho
+            </p>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Comissão do dia
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">R$0,00</div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Comissão do dia
+                </CardTitle>
+                <TrendingUp className="h-4 w-4 text-success" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-success">
+                  {formatCurrency(stats?.comissao_hoje || 0)}
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Comissão últimos 7 dias
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-info" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-info">R$0,00</div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Comissão últimos 7 dias
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-info" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-info">
+                  {formatCurrency(stats?.comissao_7_dias || 0)}
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Comissão do mês
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">R$0,00</div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Comissão do mês
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(stats?.comissao_mes || 0)}
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Comissão disponível para saque
-            </CardTitle>
-            <Wallet className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">R$0,00</div>
-          </CardContent>
-        </Card>
-      </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Comissão disponível para saque
+                </CardTitle>
+                <Wallet className="h-4 w-4 text-success" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-success">
+                  {formatCurrency(stats?.comissao_disponivel || 0)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Comissão pendente
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">R$0,00</div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Comissão pendente
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-destructive" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-destructive">
+                  {formatCurrency(stats?.comissao_pendente || 0)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total já sacado
+                </CardTitle>
+                <Coins className="h-4 w-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(stats?.total_sacado || 0)}
+                </div>
+              </CardContent>
+            </Card>
 
         <Card>
           <CardHeader>
@@ -276,27 +341,27 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Quant. de Indicações</CardTitle>
-            <Users className="h-5 w-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">0</div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Quant. de Indicações</CardTitle>
+                <Users className="h-5 w-5 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold">{stats?.total_indicacoes || 0}</div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Quant. de Sub-Afiliados</CardTitle>
-            <Users className="h-5 w-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold">0</div>
-          </CardContent>
-        </Card>
-      </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Quant. de Sub-Afiliados</CardTitle>
+                <Users className="h-5 w-5 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold">{stats?.total_sub_afiliados || 0}</div>
+              </CardContent>
+            </Card>
+          </div>
 
       <Card>
         <CardHeader>
@@ -387,6 +452,8 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   );
 };
