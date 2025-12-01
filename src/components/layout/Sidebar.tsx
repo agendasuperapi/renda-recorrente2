@@ -345,7 +345,7 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
+        {menuItems.slice(0, 4).map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
 
@@ -434,6 +434,38 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             </CollapsibleContent>
           </Collapsible>
         )}
+
+        {menuItems.slice(4).map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm"
+              )}
+              style={{
+                backgroundColor: isActive ? accentColor : 'transparent',
+                color: currentTextColor,
+              }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                        }
+                      }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <Icon size={18} />
+              {item.label}
+            </Link>
+          );
+        })}
 
         {isAdmin && showAdminMenu && (
           <>
