@@ -173,7 +173,7 @@ export const DashboardLayout = () => {
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex h-screen bg-background overflow-hidden">
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
-          <main className={`flex-1 min-h-0 overflow-hidden flex flex-col ${isMobile ? 'p-4 pt-20' : 'p-8'}`}>
+          <main className={`flex-1 min-h-0 overflow-hidden flex flex-col ${isMobile ? 'px-4 pt-20' : 'px-8 pt-8'}`}>
             {isLoading ? (
               <div className="space-y-4">
                 <Skeleton className="h-8 w-64" />
