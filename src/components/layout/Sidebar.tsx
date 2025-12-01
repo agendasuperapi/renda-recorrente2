@@ -449,12 +449,12 @@ export const Sidebar = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center justify-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity">
+                  <span>v{APP_VERSION}</span>
                   {versionInfo.hasUpdate ? (
                     <X className="h-3.5 w-3.5 text-red-500" />
                   ) : (
                     <Check className="h-3.5 w-3.5 text-green-500" />
                   )}
-                  <span>v{APP_VERSION}</span>
                   {versionInfo.hasUpdate && (
                     <Badge 
                       variant="default" 
