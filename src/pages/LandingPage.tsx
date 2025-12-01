@@ -1680,7 +1680,7 @@ const LandingPage = () => {
                 </div>
 
                 {validatedCoupon && (
-                  <div className="border rounded-lg p-4 bg-muted/50 animate-fade-in">
+                  <div className="border rounded-lg p-4 animate-fade-in" style={getGradientStyle('cupom-card-validado')}>
                     {/* Layout Mobile */}
                     <div className="flex flex-col md:hidden items-center gap-4">
                       {validatedCoupon.affiliate && (
