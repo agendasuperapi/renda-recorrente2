@@ -55,6 +55,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
 import { APP_VERSION } from "@/config/version";
 import logo from "@/assets/logo.png";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -326,12 +327,39 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     const name = userName || user?.user_metadata?.name || user?.email;
     return name?.substring(0, 2).toUpperCase() || "U";
   };
-  
-  if (!user) return null;
 
   const menuItems = isAdmin 
     ? (showAdminMenu ? adminMenuItems : affiliateMenuItems)
     : affiliateMenuItems;
+
+  // Componente de loading para o sidebar
+  const SidebarLoadingContent = () => (
+    <>
+      <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
+        <div className="flex items-center justify-center mb-4">
+          <Skeleton className="h-16 w-32" />
+        </div>
+        <div className="text-center">
+          <Skeleton className="h-3 w-20 mx-auto" />
+        </div>
+      </div>
+      <nav className="flex-1 p-4 space-y-2">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Skeleton key={i} className="h-10 w-full rounded-lg" />
+        ))}
+      </nav>
+      <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
+        <div className="flex flex-col items-center gap-3">
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <div className="w-full space-y-2">
+            <Skeleton className="h-4 w-32 mx-auto" />
+            <Skeleton className="h-3 w-40 mx-auto" />
+          </div>
+        </div>
+        <Skeleton className="h-10 w-full rounded-lg" />
+      </div>
+    </>
+  );
 
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
@@ -690,14 +718,22 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
             <SheetTitle>Menu de navegação</SheetTitle>
           </VisuallyHidden>
           <div className="flex flex-col h-full">
-            <SidebarContent closeSidebar={() => onOpenChange?.(false)} />
+            {user ? (
+              <SidebarContent closeSidebar={() => onOpenChange?.(false)} />
+            ) : (
+              <SidebarLoadingContent />
+            )}
           </div>
         </SheetContent>
       </Sheet>
       
       {/* Sidebar fixo para desktop - visível apenas em telas >= 1024px */}
       <aside className="hidden lg:flex w-64 flex-col h-screen sticky top-0 flex-shrink-0" style={{ ...gradientStyle, color: currentTextColor }}>
-        <SidebarContent />
+        {user ? (
+          <SidebarContent />
+        ) : (
+          <SidebarLoadingContent />
+        )}
       </aside>
     </>
   );
