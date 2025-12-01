@@ -615,7 +615,7 @@ export const Sidebar = ({
       <div className="p-4 border-t space-y-2" style={{
       borderColor: `${colorEnd}40`
     }}>
-        <div className="flex flex-col items-center gap-1 py-2">
+        <div className="flex flex-col items-center gap-1 pb-2">
           {/* Card com Avatar e Badge */}
           {userPlan && <div className={cn("flex items-center gap-3 px-4 py-3 rounded-xl w-full shadow-lg border mx-2", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}>
               <Avatar className="w-12 h-12 flex-shrink-0">
