@@ -5,8 +5,8 @@ const Settings = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirecionar para a aba de perfil por padrão
-    navigate("/settings/profile", { replace: true });
+    // Redirecionar para Meu Perfil por padrão
+    navigate("/settings/personal", { replace: true });
   }, [navigate]);
 
   return null;

@@ -23,6 +23,7 @@ import Plan from "./pages/Plan";
 import GoogleBusiness from "./pages/GoogleBusiness";
 import Settings from "./pages/Settings";
 import ProfileSettings from "./pages/settings/ProfileSettings";
+import PersonalProfileSettings from "./pages/settings/PersonalProfileSettings";
 import PlanSettings from "./pages/settings/PlanSettings";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/profile" element={<ProfileSettings />} />
+              <Route path="/settings/personal" element={<PersonalProfileSettings />} />
               <Route path="/settings/plan" element={<PlanSettings />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
