@@ -332,34 +332,59 @@ export const Sidebar = ({ user, isAdmin, open, onOpenChange, isLoading = false }
     ? (showAdminMenu ? adminMenuItems : affiliateMenuItems)
     : affiliateMenuItems;
 
-  // Componente de loading para o sidebar
-  const SidebarLoadingContent = () => (
-    <>
-      <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
-        <div className="flex items-center justify-center mb-4">
-          <Skeleton className="h-16 w-32" />
+  // Componente de loading ou erro para o sidebar
+  const SidebarLoadingContent = () => {
+    // Se passou do timeout e ainda não tem user, mostrar erro
+    if (!isLoading && !user) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+          <div className="mb-4">
+            <svg className="w-16 h-16 mx-auto opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <p className="mb-4 text-sm opacity-80">Erro ao carregar o menu</p>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.location.reload()}
+            className="border-current hover:bg-white/10"
+          >
+            Recarregar página
+          </Button>
         </div>
-        <div className="text-center">
-          <Skeleton className="h-3 w-20 mx-auto" />
-        </div>
-      </div>
-      <nav className="flex-1 p-4 space-y-2">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-10 w-full rounded-lg" />
-        ))}
-      </nav>
-      <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
-        <div className="flex flex-col items-center gap-3">
-          <Skeleton className="h-16 w-16 rounded-full" />
-          <div className="w-full space-y-2">
-            <Skeleton className="h-4 w-32 mx-auto" />
-            <Skeleton className="h-3 w-40 mx-auto" />
+      );
+    }
+
+    // Mostra skeletons enquanto está carregando
+    return (
+      <>
+        <div className="p-6 border-b" style={{ borderColor: `${colorEnd}40` }}>
+          <div className="flex items-center justify-center mb-4">
+            <Skeleton className="h-16 w-32" />
+          </div>
+          <div className="text-center">
+            <Skeleton className="h-3 w-20 mx-auto" />
           </div>
         </div>
-        <Skeleton className="h-10 w-full rounded-lg" />
-      </div>
-    </>
-  );
+        <nav className="flex-1 p-4 space-y-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-10 w-full rounded-lg" />
+          ))}
+        </nav>
+        <div className="p-4 border-t space-y-2" style={{ borderColor: `${colorEnd}40` }}>
+          <div className="flex flex-col items-center gap-3">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <div className="w-full space-y-2">
+              <Skeleton className="h-4 w-32 mx-auto" />
+              <Skeleton className="h-3 w-40 mx-auto" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </div>
+      </>
+    );
+  };
 
   const SidebarContent = ({ closeSidebar }: { closeSidebar?: () => void }) => (
     <>
