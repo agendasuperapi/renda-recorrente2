@@ -7,7 +7,7 @@ import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CheckCircle, XCircle, Clock, Eye, RefreshCw } from "lucide-react";
+import { DollarSign, Calendar, CheckCircle, XCircle, Clock, Eye, RefreshCw, ImagePlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -611,14 +611,25 @@ export default function AdminWithdrawals() {
                         {selectedWithdrawal.status === "paid" ? "Comprovantes anexados" : "Anexar Comprovantes de Pagamento PIX"}
                       </Label>
                       {selectedWithdrawal.status !== "paid" && (
-                        <Input
-                          id="payment-proof"
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleAddProof}
-                          className="mt-2"
-                        />
+                        <div className="mt-2">
+                          <input
+                            id="payment-proof"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleAddProof}
+                            className="hidden"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('payment-proof')?.click()}
+                            className="w-full"
+                          >
+                            <ImagePlus className="h-4 w-4 mr-2" />
+                            Adicionar Comprovantes
+                          </Button>
+                        </div>
                       )}
                     </div>
                     
