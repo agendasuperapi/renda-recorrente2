@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/contexts/UserContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -46,6 +48,7 @@ interface Stats {
 }
 
 const CommissionsMonthly = () => {
+  const isMobile = useIsMobile();
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<MonthlyCommission[]>([]);
   const [stats, setStats] = useState<Stats>({ 
@@ -417,40 +420,121 @@ const CommissionsMonthly = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             )}
-            <Table className={isFiltering ? "pointer-events-none" : ""}>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Mês/Ano</TableHead>
-                  <TableHead>Produto</TableHead>
-                  <TableHead>Plano</TableHead>
-                  <TableHead className="text-center">Qtd. Comissões</TableHead>
-                  <TableHead>Valor Total</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            {isMobile ? (
+              <div className="space-y-3">
                 {commissions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <Card>
+                    <CardContent className="py-8 text-center text-muted-foreground">
                       Nenhuma comissão registrada
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ) : (
                   commissions.map((commission, index) => (
-                    <TableRow key={`${commission.mes_referencia}-${commission.product_id}-${commission.plan_id}-${index}`}>
-                      <TableCell className="font-medium capitalize">{formatMonth(commission.mes_referencia)}</TableCell>
-                      <TableCell>{commission.produto || "-"}</TableCell>
-                      <TableCell>{commission.plano || "-"}</TableCell>
-                      <TableCell className="text-center">{commission.quantidade_comissoes}</TableCell>
-                      <TableCell className="font-medium">{formatCurrency(commission.valor_total)}</TableCell>
-                      <TableCell>
-...
-                      </TableCell>
-                    </TableRow>
+                    <Card key={`${commission.mes_referencia}-${commission.product_id}-${commission.plan_id}-${index}`}>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm capitalize">{formatMonth(commission.mes_referencia)}</p>
+                            <p className="text-xs text-muted-foreground">{commission.produto || "-"}</p>
+                          </div>
+                          <span className="text-lg font-bold text-success">{formatCurrency(commission.valor_total)}</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Plano:</span>
+                            <p className="font-medium truncate">{commission.plano || "-"}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Quantidade:</span>
+                            <p className="font-medium">{commission.quantidade_comissoes} comissões</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5 text-xs">
+                          {commission.pendentes > 0 && (
+                            <Badge variant="secondary" className="text-xs bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
+                              {commission.pendentes} pendentes
+                            </Badge>
+                          )}
+                          {commission.disponiveis > 0 && (
+                            <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-700 dark:text-green-400">
+                              {commission.disponiveis} disponíveis
+                            </Badge>
+                          )}
+                          {commission.sacadas > 0 && (
+                            <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-400">
+                              {commission.sacadas} sacadas
+                            </Badge>
+                          )}
+                          {commission.canceladas > 0 && (
+                            <Badge variant="secondary" className="text-xs bg-red-500/10 text-red-700 dark:text-red-400">
+                              {commission.canceladas} canceladas
+                            </Badge>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))
                 )}
-              </TableBody>
-            </Table>
+              </div>
+            ) : (
+              <Table className={isFiltering ? "pointer-events-none" : ""}>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Mês/Ano</TableHead>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Plano</TableHead>
+                    <TableHead className="text-center">Qtd. Comissões</TableHead>
+                    <TableHead>Valor Total</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {commissions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        Nenhuma comissão registrada
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    commissions.map((commission, index) => (
+                      <TableRow key={`${commission.mes_referencia}-${commission.product_id}-${commission.plan_id}-${index}`}>
+                        <TableCell className="font-medium capitalize">{formatMonth(commission.mes_referencia)}</TableCell>
+                        <TableCell>{commission.produto || "-"}</TableCell>
+                        <TableCell>{commission.plano || "-"}</TableCell>
+                        <TableCell className="text-center">{commission.quantidade_comissoes}</TableCell>
+                        <TableCell className="font-medium">{formatCurrency(commission.valor_total)}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {commission.pendentes > 0 && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
+                                {commission.pendentes} pendentes
+                              </span>
+                            )}
+                            {commission.disponiveis > 0 && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-700 dark:text-green-400">
+                                {commission.disponiveis} disponíveis
+                              </span>
+                            )}
+                            {commission.sacadas > 0 && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-700 dark:text-blue-400">
+                                {commission.sacadas} sacadas
+                              </span>
+                            )}
+                            {commission.canceladas > 0 && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-700 dark:text-red-400">
+                                {commission.canceladas} canceladas
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </div>
 
           {/* Total Filtrado */}
@@ -465,9 +549,9 @@ const CommissionsMonthly = () => {
 
           {/* Paginação */}
           {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground whitespace-nowrap">
-                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} registros
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount}
               </p>
               <Pagination>
                 <PaginationContent>
@@ -478,13 +562,19 @@ const CommissionsMonthly = () => {
                     />
                   </PaginationItem>
                   
-                  {[...Array(totalPages)].map((_, i) => {
-                    const page = i + 1;
-                    if (
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-                    ) {
+                  {isMobile ? (
+                    // Versão mobile - mostra apenas 3 páginas
+                    Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+                      let page;
+                      if (totalPages <= 3) {
+                        page = i + 1;
+                      } else if (currentPage <= 2) {
+                        page = i + 1;
+                      } else if (currentPage >= totalPages - 1) {
+                        page = totalPages - 2 + i;
+                      } else {
+                        page = currentPage - 1 + i;
+                      }
                       return (
                         <PaginationItem key={page}>
                           <PaginationLink
@@ -496,9 +586,31 @@ const CommissionsMonthly = () => {
                           </PaginationLink>
                         </PaginationItem>
                       );
-                    }
-                    return null;
-                  })}
+                    })
+                  ) : (
+                    // Versão desktop - mostra mais páginas
+                    [...Array(totalPages)].map((_, i) => {
+                      const page = i + 1;
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      }
+                      return null;
+                    })
+                  )}
                   
                   <PaginationItem>
                     <PaginationNext 
