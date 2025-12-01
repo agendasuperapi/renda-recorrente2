@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy } from "lucide-react";
+import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, FileCode } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -283,6 +283,24 @@ export default function AdminVersions() {
                   ⚠ Desincronizado - Cadastre a versão {APP_VERSION}
                 </span>
               )}
+            </p>
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      {/* Important Notice */}
+      <Alert>
+        <FileCode className="h-4 w-4" />
+        <AlertTitle>Importante: Atualize o arquivo de versão</AlertTitle>
+        <AlertDescription>
+          <div className="mt-2 space-y-2">
+            <p>
+              Após cadastrar uma nova versão no banco de dados, você também deve atualizar o arquivo{" "}
+              <code className="bg-muted px-1.5 py-0.5 rounded text-sm">src/config/version.ts</code>{" "}
+              com o número da nova versão.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Ative o Dev Mode no canto superior esquerdo para editar o arquivo.
             </p>
           </div>
         </AlertDescription>
