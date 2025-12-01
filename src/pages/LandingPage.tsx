@@ -1617,22 +1617,21 @@ const LandingPage = () => {
           
           {/* Card de Cupom */}
           <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0 relative p-6 rounded-lg" style={getGradientStyle('cupom-card')}>
-            {isAdmin && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="absolute top-2 right-2 z-10"
-                onClick={() => setEditingBlock(editingBlock === 'cupom-card' ? null : 'cupom-card')}
-              >
-                <Edit className="h-4 w-4 mr-1" />
-                Editar Gradiente
-              </Button>
-            )}
             <Card className="border-2 border-primary/20 bg-transparent"  style={{ color: getTextColor('cupom-card') }}>
               <CardHeader>
-                <div className="flex items-center justify-center gap-3">
+                <div className="flex items-center justify-center gap-3 relative">
                   <Ticket className="h-6 w-6 text-primary" />
                   <CardTitle className="text-center">Possui um cupom?</CardTitle>
+                  {isAdmin && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="absolute -right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => setEditingBlock(editingBlock === 'cupom-card' ? null : 'cupom-card')}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
