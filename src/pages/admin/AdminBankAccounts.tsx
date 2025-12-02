@@ -24,14 +24,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Bank {
   id: string;
@@ -89,6 +98,7 @@ const AdminBankAccounts = () => {
     is_active: true,
   });
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const client = supabase as any;
 
@@ -522,191 +532,403 @@ const AdminBankAccounts = () => {
               </Button>
             </div>
             
-            <Dialog open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>
+            
+            {isMobile ? (
+              <Drawer open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
+                <DrawerContent className="max-h-[95vh]">
+                  <DrawerHeader className="relative pb-3">
+                    {/* Drag Handle */}
+                    <div className="mx-auto w-12 h-1.5 rounded-full bg-muted-foreground/40 mb-3" />
+                    
+                    {/* Close Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-2 h-8 w-8"
+                      onClick={() => setOpenAccountDialog(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    
+                    <DrawerTitle>
                       {editingAccount ? "Editar Conta" : "Nova Conta"}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleAccountSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="product_id">Produto</Label>
-                        <Select
-                          value={accountFormData.product_id}
-                          onValueChange={(value) =>
-                            setAccountFormData({ ...accountFormData, product_id: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um produto" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {products.map((product) => (
-                              <SelectItem key={product.id} value={product.id}>
-                                {product.nome}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    </DrawerTitle>
+                  </DrawerHeader>
+                  
+                  <ScrollArea className="h-[calc(95vh-140px)] px-4">
+                    <form onSubmit={handleAccountSubmit} className="space-y-3 pb-4">
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="product_id" className="text-xs">Produto</Label>
+                          <Select
+                            value={accountFormData.product_id}
+                            onValueChange={(value) =>
+                              setAccountFormData({ ...accountFormData, product_id: value })
+                            }
+                          >
+                            <SelectTrigger className="text-sm">
+                              <SelectValue placeholder="Selecione um produto" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  {product.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="bank_id" className="text-xs">Banco</Label>
+                          <Select
+                            value={accountFormData.bank_id}
+                            onValueChange={(value) =>
+                              setAccountFormData({ ...accountFormData, bank_id: value })
+                            }
+                          >
+                            <SelectTrigger className="text-sm">
+                              <SelectValue placeholder="Selecione um banco" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {banks.map((bank) => (
+                                <SelectItem key={bank.id} value={bank.id}>
+                                  {bank.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
+
                       <div className="space-y-2">
-                        <Label htmlFor="bank_id">Banco</Label>
-                        <Select
-                          value={accountFormData.bank_id}
-                          onValueChange={(value) =>
-                            setAccountFormData({ ...accountFormData, bank_id: value })
+                        <Label htmlFor="account-name" className="text-xs">Nome da conta</Label>
+                        <Input
+                          id="account-name"
+                          value={accountFormData.name}
+                          onChange={(e) =>
+                            setAccountFormData({ ...accountFormData, name: e.target.value })
                           }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um banco" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {banks.map((bank) => (
-                              <SelectItem key={bank.id} value={bank.id}>
-                                {bank.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          required
+                          className="text-sm"
+                        />
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="account-name">Nome da conta</Label>
-                      <Input
-                        id="account-name"
-                        value={accountFormData.name}
-                        onChange={(e) =>
-                          setAccountFormData({ ...accountFormData, name: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="account-email" className="text-xs">E-mail</Label>
+                        <Input
+                          id="account-email"
+                          type="email"
+                          value={accountFormData.email}
+                          onChange={(e) =>
+                            setAccountFormData({ ...accountFormData, email: e.target.value })
+                          }
+                          required
+                          className="text-sm"
+                        />
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="account-email">E-mail</Label>
-                      <Input
-                        id="account-email"
-                        type="email"
-                        value={accountFormData.email}
-                        onChange={(e) =>
-                          setAccountFormData({ ...accountFormData, email: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="key_authorization">Key Authorization</Label>
-                      <textarea
-                        id="key_authorization"
-                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
-                        value={accountFormData.key_authorization}
-                        onChange={(e) =>
-                          setAccountFormData({
-                            ...accountFormData,
-                            key_authorization: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="signing_secret">Signing Secret</Label>
-                      <textarea
-                        id="signing_secret"
-                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
-                        value={accountFormData.signing_secret}
-                        onChange={(e) =>
-                          setAccountFormData({
-                            ...accountFormData,
-                            signing_secret: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="success_url">Success URL</Label>
-                      <Input
-                        id="success_url"
-                        type="url"
-                        value={accountFormData.success_url}
-                        onChange={(e) =>
-                          setAccountFormData({
-                            ...accountFormData,
-                            success_url: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="cancel_url">Cancel URL</Label>
-                      <Input
-                        id="cancel_url"
-                        type="url"
-                        value={accountFormData.cancel_url}
-                        onChange={(e) =>
-                          setAccountFormData({
-                            ...accountFormData,
-                            cancel_url: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="return_url">Return URL</Label>
-                      <Input
-                        id="return_url"
-                        type="url"
-                        value={accountFormData.return_url}
-                        onChange={(e) =>
-                          setAccountFormData({
-                            ...accountFormData,
-                            return_url: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="is_production"
-                          checked={accountFormData.is_production}
-                          onCheckedChange={(checked) =>
+                      <div className="space-y-2">
+                        <Label htmlFor="key_authorization" className="text-xs">Key Authorization</Label>
+                        <textarea
+                          id="key_authorization"
+                          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                          value={accountFormData.key_authorization}
+                          onChange={(e) =>
                             setAccountFormData({
                               ...accountFormData,
-                              is_production: checked,
+                              key_authorization: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signing_secret" className="text-xs">Signing Secret</Label>
+                        <textarea
+                          id="signing_secret"
+                          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                          value={accountFormData.signing_secret}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              signing_secret: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="success_url" className="text-xs">Success URL</Label>
+                        <Input
+                          id="success_url"
+                          type="url"
+                          value={accountFormData.success_url}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              success_url: e.target.value,
+                            })
+                          }
+                          className="text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cancel_url" className="text-xs">Cancel URL</Label>
+                        <Input
+                          id="cancel_url"
+                          type="url"
+                          value={accountFormData.cancel_url}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              cancel_url: e.target.value,
+                            })
+                          }
+                          className="text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="return_url" className="text-xs">Return URL</Label>
+                        <Input
+                          id="return_url"
+                          type="url"
+                          value={accountFormData.return_url}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              return_url: e.target.value,
+                            })
+                          }
+                          className="text-sm"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between rounded-lg border p-3">
+                          <Label htmlFor="is_production" className="text-sm">Conta de produção</Label>
+                          <Switch
+                            id="is_production"
+                            checked={accountFormData.is_production}
+                            onCheckedChange={(checked) =>
+                              setAccountFormData({
+                                ...accountFormData,
+                                is_production: checked,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="flex items-center justify-between rounded-lg border p-3">
+                          <Label htmlFor="account-active" className="text-sm">Conta ativa</Label>
+                          <Switch
+                            id="account-active"
+                            checked={accountFormData.is_active}
+                            onCheckedChange={(checked) =>
+                              setAccountFormData({ ...accountFormData, is_active: checked })
+                            }
+                          />
+                        </div>
+                      </div>
+                    </form>
+                  </ScrollArea>
+                  
+                  <DrawerFooter className="pt-3">
+                    <Button onClick={handleAccountSubmit} className="w-full">
+                      {editingAccount ? "Salvar alterações" : "Criar conta"}
+                    </Button>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            ) : (
+              <Dialog open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingAccount ? "Editar Conta" : "Nova Conta"}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleAccountSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="product_id">Produto</Label>
+                          <Select
+                            value={accountFormData.product_id}
+                            onValueChange={(value) =>
+                              setAccountFormData({ ...accountFormData, product_id: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione um produto" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  {product.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="bank_id">Banco</Label>
+                          <Select
+                            value={accountFormData.bank_id}
+                            onValueChange={(value) =>
+                              setAccountFormData({ ...accountFormData, bank_id: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione um banco" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {banks.map((bank) => (
+                                <SelectItem key={bank.id} value={bank.id}>
+                                  {bank.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="account-name">Nome da conta</Label>
+                        <Input
+                          id="account-name"
+                          value={accountFormData.name}
+                          onChange={(e) =>
+                            setAccountFormData({ ...accountFormData, name: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="account-email">E-mail</Label>
+                        <Input
+                          id="account-email"
+                          type="email"
+                          value={accountFormData.email}
+                          onChange={(e) =>
+                            setAccountFormData({ ...accountFormData, email: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="key_authorization">Key Authorization</Label>
+                        <textarea
+                          id="key_authorization"
+                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
+                          value={accountFormData.key_authorization}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              key_authorization: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signing_secret">Signing Secret</Label>
+                        <textarea
+                          id="signing_secret"
+                          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-y"
+                          value={accountFormData.signing_secret}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              signing_secret: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="success_url">Success URL</Label>
+                        <Input
+                          id="success_url"
+                          type="url"
+                          value={accountFormData.success_url}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              success_url: e.target.value,
                             })
                           }
                         />
-                        <Label htmlFor="is_production">Conta de produção</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="account-active"
-                          checked={accountFormData.is_active}
-                          onCheckedChange={(checked) =>
-                            setAccountFormData({ ...accountFormData, is_active: checked })
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cancel_url">Cancel URL</Label>
+                        <Input
+                          id="cancel_url"
+                          type="url"
+                          value={accountFormData.cancel_url}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              cancel_url: e.target.value,
+                            })
                           }
                         />
-                        <Label htmlFor="account-active">Conta ativa</Label>
                       </div>
-                    </div>
 
-                    <Button type="submit" className="w-full">
-                      {editingAccount ? "Salvar alterações" : "Criar conta"}
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+                      <div className="space-y-2">
+                        <Label htmlFor="return_url">Return URL</Label>
+                        <Input
+                          id="return_url"
+                          type="url"
+                          value={accountFormData.return_url}
+                          onChange={(e) =>
+                            setAccountFormData({
+                              ...accountFormData,
+                              return_url: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="is_production"
+                            checked={accountFormData.is_production}
+                            onCheckedChange={(checked) =>
+                              setAccountFormData({
+                                ...accountFormData,
+                                is_production: checked,
+                              })
+                            }
+                          />
+                          <Label htmlFor="is_production">Conta de produção</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="account-active"
+                            checked={accountFormData.is_active}
+                            onCheckedChange={(checked) =>
+                              setAccountFormData({ ...accountFormData, is_active: checked })
+                            }
+                          />
+                          <Label htmlFor="account-active">Conta ativa</Label>
+                        </div>
+                      </div>
+
+                      <Button type="submit" className="w-full">
+                        {editingAccount ? "Salvar alterações" : "Criar conta"}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+            )}
 
             <div className="space-y-8">
               {loading ? (
