@@ -13,6 +13,7 @@ import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
+import { APP_VERSION } from "@/config/version";
 
 const authSchema = z.object({
   email: z
@@ -424,6 +425,10 @@ const Auth = () => {
               Aviso de Privacidade
             </span>
             .
+          </div>
+
+          <div className="mt-4 text-center text-xs opacity-50" style={{ color: getTextColor('auth_form_card') }}>
+            v{APP_VERSION}
           </div>
         </div>
       </div>
