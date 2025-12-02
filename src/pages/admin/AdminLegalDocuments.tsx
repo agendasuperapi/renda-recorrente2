@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Shield, Cookie } from "lucide-react";
 
 const AdminLegalDocuments = () => {
   const { toast } = useToast();
@@ -131,14 +132,17 @@ const AdminLegalDocuments = () => {
       
       <Tabs defaultValue="terms" className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-auto">
-          <TabsTrigger value="terms" className="text-xs md:text-sm px-2 md:px-4 py-2">
-            Termos
+          <TabsTrigger value="terms" className="text-xs md:text-sm px-2 md:px-4 py-2 flex items-center gap-1.5 md:gap-2">
+            <FileText className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            <span>Termos</span>
           </TabsTrigger>
-          <TabsTrigger value="privacy" className="text-xs md:text-sm px-2 md:px-4 py-2">
-            Privacidade
+          <TabsTrigger value="privacy" className="text-xs md:text-sm px-2 md:px-4 py-2 flex items-center gap-1.5 md:gap-2">
+            <Shield className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            <span>Privacidade</span>
           </TabsTrigger>
-          <TabsTrigger value="cookies" className="text-xs md:text-sm px-2 md:px-4 py-2">
-            Cookies
+          <TabsTrigger value="cookies" className="text-xs md:text-sm px-2 md:px-4 py-2 flex items-center gap-1.5 md:gap-2">
+            <Cookie className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            <span>Cookies</span>
           </TabsTrigger>
         </TabsList>
 
