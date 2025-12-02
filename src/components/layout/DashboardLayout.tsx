@@ -190,7 +190,7 @@ export const DashboardLayout = () => {
               <Outlet />
             )}
           </main>
-          <BottomNav onMenuClick={() => setSidebarOpen(true)} />
+          <BottomNav onMenuClick={() => setSidebarOpen(true)} isAdmin={isAdmin ?? false} />
         </div>
       </UserProvider>
     </>
