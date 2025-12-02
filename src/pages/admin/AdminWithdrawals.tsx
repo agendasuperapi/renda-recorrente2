@@ -428,7 +428,7 @@ export default function AdminWithdrawals() {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       pending: {
-        label: "Pendente",
+        label: "Aguardando aprovação",
         variant: "secondary" as const,
         icon: Clock
       },
@@ -662,7 +662,7 @@ export default function AdminWithdrawals() {
 
               {/* Mobile Cards */}
               <div className="sm:hidden space-y-3 px-3">
-                {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <Card key={withdrawal.id} className="overflow-hidden">
+                {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <Card key={withdrawal.id} className={`overflow-hidden ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
                       <CardContent className="p-3">
                         <div className="space-y-2">
                           <div className="flex justify-between items-start">
