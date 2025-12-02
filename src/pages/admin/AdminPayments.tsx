@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -611,8 +611,21 @@ export default function AdminPayments() {
       {isMobile ? (
         <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
           <DrawerContent className="max-h-[90vh]">
-            <DrawerHeader>
+            {/* Handle bar para indicar que é um drawer */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+            </div>
+            
+            <DrawerHeader className="relative">
               <DrawerTitle>Detalhes do Pagamento</DrawerTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-4"
+                onClick={() => setDialogOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </DrawerHeader>
             {selectedPayment && (
               <Tabs defaultValue="payment" className="w-full px-4 pb-4">
