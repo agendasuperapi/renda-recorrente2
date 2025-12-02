@@ -920,20 +920,20 @@ const AdminPlans = () => {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="w-full h-full max-w-full max-h-full m-0 rounded-none lg:w-auto lg:h-auto lg:max-w-4xl lg:max-h-[90vh] lg:m-6 lg:rounded-lg overflow-y-auto bg-card">
-              <DialogHeader>
+            <DialogContent className="w-full h-full max-w-full max-h-full m-0 rounded-none lg:w-auto lg:h-auto lg:max-w-4xl lg:max-h-[90vh] lg:m-6 lg:rounded-lg bg-card flex flex-col overflow-hidden p-0">
+              <DialogHeader className="px-6 pt-6 pb-0 flex-shrink-0">
                 <DialogTitle className="text-foreground">
                   {editingPlan ? "Editar Plano" : "Novo Plano"}
                 </DialogTitle>
               </DialogHeader>
 
-              <Tabs defaultValue="plan" className="space-y-6">
-                <TabsList className="sticky top-0 z-10 bg-card lg:static">
+              <Tabs defaultValue="plan" className="flex flex-col flex-1 overflow-hidden">
+                <TabsList className="mx-6 mt-4 flex-shrink-0">
                   <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
                   <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="plan" className="space-y-6">
+                <TabsContent value="plan" className="space-y-6 px-6 pb-6 overflow-y-auto flex-1 mt-6">
                   <Form {...form}>
                     <form 
                       onSubmit={form.handleSubmit(onSubmit)} 
@@ -1290,7 +1290,7 @@ const AdminPlans = () => {
                   </Form>
                 </TabsContent>
 
-                <TabsContent value="stripe" className="space-y-4">
+                <TabsContent value="stripe" className="space-y-4 px-6 pb-6 overflow-y-auto flex-1 mt-6">
                     {/* Integrações de Produção */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
