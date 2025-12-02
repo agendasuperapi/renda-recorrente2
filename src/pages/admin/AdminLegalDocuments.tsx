@@ -113,78 +113,107 @@ const AdminLegalDocuments = () => {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-6">Termos e Privacidade</h1>
-        <p className="text-muted-foreground">Carregando...</p>
+      <div className="space-y-3 p-2 md:p-0">
+        <h1 className="text-2xl md:text-3xl font-bold">Termos e Privacidade</h1>
+        <p className="text-sm md:text-base text-muted-foreground">Carregando...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Termos e Privacidade</h1>
+    <div className="space-y-3 md:space-y-6 p-2 md:p-0">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Termos e Privacidade</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
+          Gerencie os documentos legais da plataforma
+        </p>
+      </div>
       
       <Tabs defaultValue="terms" className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-3">
-          <TabsTrigger value="terms">Termos de Uso</TabsTrigger>
-          <TabsTrigger value="privacy">Aviso de Privacidade</TabsTrigger>
-          <TabsTrigger value="cookies">Política de Cookies</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsTrigger value="terms" className="text-xs md:text-sm px-2 md:px-4 py-2">
+            Termos
+          </TabsTrigger>
+          <TabsTrigger value="privacy" className="text-xs md:text-sm px-2 md:px-4 py-2">
+            Privacidade
+          </TabsTrigger>
+          <TabsTrigger value="cookies" className="text-xs md:text-sm px-2 md:px-4 py-2">
+            Cookies
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="terms">
-          <Card className="p-6">
-            <div className="space-y-4">
+        <TabsContent value="terms" className="mt-3 md:mt-6">
+          <Card className="p-3 md:p-6">
+            <div className="space-y-3 md:space-y-4">
               <div>
-                <Label htmlFor="terms">Conteúdo dos Termos de Uso</Label>
+                <Label htmlFor="terms" className="text-sm md:text-base">
+                  Conteúdo dos Termos de Uso
+                </Label>
                 <Textarea
                   id="terms"
                   value={termsContent}
                   onChange={(e) => setTermsContent(e.target.value)}
-                  className="mt-2 min-h-[500px] font-mono text-sm"
+                  className="mt-2 min-h-[300px] md:min-h-[500px] font-mono text-xs md:text-sm"
                   placeholder="Digite o conteúdo dos Termos de Uso..."
                 />
               </div>
-              <Button onClick={handleSaveTerms} disabled={saving}>
+              <Button 
+                onClick={handleSaveTerms} 
+                disabled={saving}
+                className="w-full md:w-auto"
+              >
                 {saving ? "Salvando..." : "Salvar Termos de Uso"}
               </Button>
             </div>
           </Card>
         </TabsContent>
 
-        <TabsContent value="privacy">
-          <Card className="p-6">
-            <div className="space-y-4">
+        <TabsContent value="privacy" className="mt-3 md:mt-6">
+          <Card className="p-3 md:p-6">
+            <div className="space-y-3 md:space-y-4">
               <div>
-                <Label htmlFor="privacy">Conteúdo do Aviso de Privacidade</Label>
+                <Label htmlFor="privacy" className="text-sm md:text-base">
+                  Conteúdo do Aviso de Privacidade
+                </Label>
                 <Textarea
                   id="privacy"
                   value={privacyContent}
                   onChange={(e) => setPrivacyContent(e.target.value)}
-                  className="mt-2 min-h-[500px] font-mono text-sm"
+                  className="mt-2 min-h-[300px] md:min-h-[500px] font-mono text-xs md:text-sm"
                   placeholder="Digite o conteúdo do Aviso de Privacidade..."
                 />
               </div>
-              <Button onClick={handleSavePrivacy} disabled={saving}>
+              <Button 
+                onClick={handleSavePrivacy} 
+                disabled={saving}
+                className="w-full md:w-auto"
+              >
                 {saving ? "Salvando..." : "Salvar Aviso de Privacidade"}
               </Button>
             </div>
           </Card>
         </TabsContent>
 
-        <TabsContent value="cookies">
-          <Card className="p-6">
-            <div className="space-y-4">
+        <TabsContent value="cookies" className="mt-3 md:mt-6">
+          <Card className="p-3 md:p-6">
+            <div className="space-y-3 md:space-y-4">
               <div>
-                <Label htmlFor="cookies">Conteúdo da Política de Cookies</Label>
+                <Label htmlFor="cookies" className="text-sm md:text-base">
+                  Conteúdo da Política de Cookies
+                </Label>
                 <Textarea
                   id="cookies"
                   value={cookiesContent}
                   onChange={(e) => setCookiesContent(e.target.value)}
-                  className="mt-2 min-h-[500px] font-mono text-sm"
+                  className="mt-2 min-h-[300px] md:min-h-[500px] font-mono text-xs md:text-sm"
                   placeholder="Digite o conteúdo da Política de Cookies..."
                 />
               </div>
-              <Button onClick={handleSaveCookies} disabled={saving}>
+              <Button 
+                onClick={handleSaveCookies} 
+                disabled={saving}
+                className="w-full md:w-auto"
+              >
                 {saving ? "Salvando..." : "Salvar Política de Cookies"}
               </Button>
             </div>
