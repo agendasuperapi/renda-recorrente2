@@ -154,21 +154,21 @@ const AdminCpfApis = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-3 md:space-y-6 p-2 md:p-0">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold">APIs de CPF</h1>
-          <p className="text-muted-foreground">Gerencie as APIs de consulta de CPF</p>
+          <h1 className="text-2xl md:text-3xl font-bold">APIs de CPF</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Gerencie as APIs de consulta de CPF</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full md:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Nova API
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[95vw] md:w-full max-w-lg">
             <DialogHeader>
               <DialogTitle>Cadastrar Nova API</DialogTitle>
               <DialogDescription>
@@ -177,7 +177,7 @@ const AdminCpfApis = () => {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Nome</Label>
+                <Label htmlFor="name" className="text-sm">Nome</Label>
                 <Input
                   id="name"
                   value={newApi.name}
@@ -186,7 +186,7 @@ const AdminCpfApis = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="url">URL</Label>
+                <Label htmlFor="url" className="text-sm">URL</Label>
                 <Input
                   id="url"
                   value={newApi.url}
@@ -195,7 +195,7 @@ const AdminCpfApis = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="api_type">Tipo</Label>
+                <Label htmlFor="api_type" className="text-sm">Tipo</Label>
                 <Select
                   value={newApi.api_type}
                   onValueChange={(value: CpfApi['api_type']) => 
@@ -214,7 +214,7 @@ const AdminCpfApis = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="priority">Prioridade</Label>
+                <Label htmlFor="priority" className="text-sm">Prioridade</Label>
                 <Input
                   id="priority"
                   type="number"
@@ -237,16 +237,16 @@ const AdminCpfApis = () => {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Testar Consulta de CPF</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="text-base md:text-lg">Testar Consulta de CPF</CardTitle>
+          <CardDescription className="text-sm">
             Digite um CPF para testar o sistema de fallback das APIs
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <CardContent className="space-y-3 md:space-y-4 p-3 md:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
             <div>
-              <Label htmlFor="test-cpf">CPF</Label>
+              <Label htmlFor="test-cpf" className="text-sm">CPF</Label>
               <Input
                 id="test-cpf"
                 value={testCpf}
@@ -256,7 +256,7 @@ const AdminCpfApis = () => {
               />
             </div>
             <div>
-              <Label htmlFor="test-birth">Data de Nascimento</Label>
+              <Label htmlFor="test-birth" className="text-sm">Data de Nascimento</Label>
               <Input
                 id="test-birth"
                 type="date"
@@ -265,7 +265,7 @@ const AdminCpfApis = () => {
               />
             </div>
             <div>
-              <Label htmlFor="test-api">API</Label>
+              <Label htmlFor="test-api" className="text-sm">API</Label>
               <Select
                 value={selectedApiId}
                 onValueChange={setSelectedApiId}
@@ -297,21 +297,21 @@ const AdminCpfApis = () => {
           
           {testResult && (
             <Card className={testResult.error ? "border-destructive" : "border-green-500"}>
-              <CardContent className="pt-6">
+              <CardContent className="pt-4 md:pt-6 p-3 md:p-6">
                 {testResult.error ? (
                   <div className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-destructive mt-0.5" />
+                    <XCircle className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-semibold text-destructive">Erro na consulta</p>
-                      <p className="text-sm text-muted-foreground">{testResult.message}</p>
+                      <p className="font-semibold text-destructive text-sm md:text-base">Erro na consulta</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">{testResult.message}</p>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                     <div className="flex-1">
-                      <p className="font-semibold text-green-500">Consulta realizada com sucesso</p>
-                      <div className="mt-2 space-y-1 text-sm">
+                      <p className="font-semibold text-green-500 text-sm md:text-base">Consulta realizada com sucesso</p>
+                      <div className="mt-2 space-y-1 text-xs md:text-sm">
                         {testResult.name && <p><strong>Nome:</strong> {testResult.name}</p>}
                         {testResult.birthDate && <p><strong>Data Nascimento:</strong> {testResult.birthDate}</p>}
                         {testResult.gender && <p><strong>Gênero:</strong> {testResult.gender}</p>}
@@ -331,57 +331,108 @@ const AdminCpfApis = () => {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>APIs Cadastradas</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="text-base md:text-lg">APIs Cadastradas</CardTitle>
+          <CardDescription className="text-sm">
             As APIs são consultadas por ordem de prioridade
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Prioridade</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>URL</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Layout Mobile - Cards */}
+              <div className="lg:hidden space-y-2">
                 {apis?.map((api) => (
-                  <TableRow key={api.id}>
-                    <TableCell className="font-medium">{api.priority}</TableCell>
-                    <TableCell>{api.name}</TableCell>
-                    <TableCell>{api.api_type}</TableCell>
-                    <TableCell className="max-w-xs truncate">{api.url}</TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={api.is_active}
-                        onCheckedChange={(checked) => 
-                          toggleApiMutation.mutate({ id: api.id, is_active: checked })
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteApiMutation.mutate(api.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <Card key={api.id} className="p-3">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded">
+                              #{api.priority}
+                            </span>
+                            <h3 className="font-semibold text-base">{api.name}</h3>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{api.api_type}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0"
+                          onClick={() => deleteApiMutation.mutate(api.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                      
+                      <div className="text-xs break-all text-muted-foreground">
+                        {api.url}
+                      </div>
+                      
+                      <div className="flex items-center justify-between pt-1">
+                        <Label htmlFor={`status-${api.id}`} className="text-xs text-muted-foreground">
+                          {api.is_active ? "Ativa" : "Inativa"}
+                        </Label>
+                        <Switch
+                          id={`status-${api.id}`}
+                          checked={api.is_active}
+                          onCheckedChange={(checked) => 
+                            toggleApiMutation.mutate({ id: api.id, is_active: checked })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Layout Desktop - Table */}
+              <div className="hidden lg:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Prioridade</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>URL</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {apis?.map((api) => (
+                      <TableRow key={api.id}>
+                        <TableCell className="font-medium">{api.priority}</TableCell>
+                        <TableCell>{api.name}</TableCell>
+                        <TableCell>{api.api_type}</TableCell>
+                        <TableCell className="max-w-xs truncate">{api.url}</TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={api.is_active}
+                            onCheckedChange={(checked) => 
+                              toggleApiMutation.mutate({ id: api.id, is_active: checked })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteApiMutation.mutate(api.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
