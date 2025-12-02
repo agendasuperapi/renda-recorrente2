@@ -409,7 +409,7 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2 space-y-0">
                 <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Comissão do dia
@@ -423,7 +423,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão últimos 7 dias
@@ -437,7 +437,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão do mês
@@ -451,7 +451,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão disponível para saque
@@ -467,7 +467,7 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão pendente
@@ -481,7 +481,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total já sacado
@@ -495,7 +495,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-        <Card className="p-3 sm:p-4 md:p-6">
+        <Card className="p-4 sm:p-5 md:p-6">
           <CardHeader className="p-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Seu dia de solicitar saque
@@ -510,7 +510,7 @@ const Dashboard = () => {
       </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle>Quant. de Indicações</CardTitle>
                 <Users className="h-5 w-5 text-primary" />
@@ -520,7 +520,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-4 sm:p-5 md:p-6">
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle>Quant. de Sub-Afiliados</CardTitle>
                 <Users className="h-5 w-5 text-primary" />
