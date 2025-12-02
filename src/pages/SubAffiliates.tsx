@@ -633,7 +633,7 @@ const SubAffiliates = () => {
                   <Card key={sub.id} className="overflow-hidden">
                     <CardContent className="p-0">
                       {/* Mobile Layout */}
-                      <div className="md:hidden">
+                      <div className="md:hidden p-4">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <Avatar className="h-10 w-10 flex-shrink-0">
@@ -702,7 +702,7 @@ const SubAffiliates = () => {
                       </div>
 
                       {/* Tablet Layout - Grid organizado */}
-                      <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4">
+                      <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:p-4">
                         {/* Avatar + Nome */}
                         <div className="flex items-center gap-3 min-w-[200px]">
                           <Avatar className="h-9 w-9 flex-shrink-0">
