@@ -736,13 +736,32 @@ const SubAffiliates = () => {
                           </div>
                         </div>
 
-                        {/* Info Grid */}
-                        <div className="grid grid-cols-5 gap-3 text-xs items-center">
-                          <div className="truncate font-medium">{sub.plan_name || "-"}</div>
-                          <div className="flex justify-center">{getLevelBadge(sub.level)}</div>
-                          <div className="flex justify-center">{getStatusBadge(sub.status)}</div>
-                          <div className="text-center text-muted-foreground">{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</div>
-                          <div className="text-center">{sub.referrals_count} ind.</div>
+                        {/* Info Grid - 3 colunas, 2 linhas */}
+                        <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Plano: </span>
+                            <span className="font-medium">{sub.plan_name || "-"}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-muted-foreground">Nível: </span>
+                            {getLevelBadge(sub.level)}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-muted-foreground">Status: </span>
+                            {getStatusBadge(sub.status)}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Cadastro: </span>
+                            <span>{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Indicações: </span>
+                            <span className="font-medium">{sub.referrals_count}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Com. Sub: </span>
+                            <span className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</span>
+                          </div>
                         </div>
 
                         {/* Comissão + Ação */}
