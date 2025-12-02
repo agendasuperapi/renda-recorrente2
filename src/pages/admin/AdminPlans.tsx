@@ -615,9 +615,9 @@ const AdminPlans = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="flex gap-4 items-center justify-end">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-end">
               <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
-                <SelectTrigger className="w-[280px]">
+                <SelectTrigger className="w-full sm:w-[280px]">
                   <SelectValue placeholder="Filtrar por produto" />
                 </SelectTrigger>
                 <SelectContent>
@@ -630,7 +630,7 @@ const AdminPlans = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Button onClick={handleNewPlan}>
+              <Button onClick={handleNewPlan} className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Plano
               </Button>
