@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Calendar, Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -387,16 +388,14 @@ const CommissionsDaily = () => {
         </Button>
         
         {/* Layout mode selector - mobile/tablet */}
-        <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
-          <SelectTrigger className="w-auto gap-2">
-            {layoutMode === "compact" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="compact">Compacto</SelectItem>
-            <SelectItem value="complete">Completo</SelectItem>
-          </SelectContent>
-        </Select>
+        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
+          <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+            <LayoutList className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
