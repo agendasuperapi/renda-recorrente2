@@ -641,7 +641,7 @@ const LandingPage = () => {
   };
   return <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-b border-border backdrop-blur" style={{ backgroundColor: '#10b981' }}>
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             {getHeroImage('Logo Header') && <img src={getHeroImage('Logo Header')} alt={heroImages.find(img => img.name === 'Logo Header')?.alt_text || 'APP Renda recorrente'} className="h-8 sm:h-10" loading="eager" />}
