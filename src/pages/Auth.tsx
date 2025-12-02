@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthGradientEditor } from "@/components/AuthGradientEditor";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
@@ -274,6 +274,17 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
+      <div className="absolute top-4 left-4 z-10">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/")}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Button>
+      </div>
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
