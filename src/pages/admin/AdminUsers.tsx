@@ -222,15 +222,15 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="space-y-6">
-        <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Gestão de Usuários</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               Gerencie todos os afiliados e administradores
             </p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2 w-full md:w-auto">
             <UserPlus className="h-4 w-4" />
             Adicionar Usuário
           </Button>
@@ -239,8 +239,8 @@ const AdminUsers = () => {
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-4">
-              <div className="flex gap-4 flex-wrap">
-                <div className="relative flex-1 min-w-[300px]">
+              <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+                <div className="relative flex-1 min-w-full md:min-w-[300px]">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Buscar por nome, email, username ou código..."
@@ -249,41 +249,47 @@ const AdminUsers = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filtrar Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="active">Ativos</SelectItem>
-                    <SelectItem value="blocked">Bloqueados</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
-                }}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5 por página</SelectItem>
-                    <SelectItem value="10">10 por página</SelectItem>
-                    <SelectItem value="25">25 por página</SelectItem>
-                    <SelectItem value="50">50 por página</SelectItem>
-                    <SelectItem value="100">100 por página</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="flex-1 md:w-[180px]">
+                      <SelectValue placeholder="Filtrar Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="active">Ativos</SelectItem>
+                      <SelectItem value="blocked">Bloqueados</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                    setItemsPerPage(Number(value));
+                    setCurrentPage(1);
+                  }}>
+                    <SelectTrigger className="flex-1 md:w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5 por página</SelectItem>
+                      <SelectItem value="10">10 por página</SelectItem>
+                      <SelectItem value="25">25 por página</SelectItem>
+                      <SelectItem value="50">50 por página</SelectItem>
+                      <SelectItem value="100">100 por página</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex gap-2">
                 <Button 
                   variant="outline" 
                   size="icon"
                   onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-users"] })}
+                  className="shrink-0"
                 >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
                 <Button 
                   variant="outline"
                   onClick={handleResetFilters}
+                  className="flex-1 md:flex-none"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
@@ -291,7 +297,75 @@ const AdminUsers = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3 md:p-6">
+            {/* Layout Mobile - Cards */}
+            <div className="lg:hidden space-y-3">
+              {isLoading ? (
+                <>
+                  {[...Array(5)].map((_, i) => (
+                    <Card key={i} className="p-4">
+                      <Skeleton className="h-6 w-32 mb-2" />
+                      <Skeleton className="h-4 w-full mb-1" />
+                      <Skeleton className="h-4 w-3/4 mb-2" />
+                      <Skeleton className="h-8 w-full" />
+                    </Card>
+                  ))}
+                </>
+              ) : users && users.length > 0 ? (
+                users.map((user) => (
+                  <Card key={user.id} className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-base">{user.name}</h3>
+                          <p className="text-sm text-muted-foreground">{user.email || "-"}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewDetails(user)}
+                          className="shrink-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Username:</span>
+                          <p className="font-medium">{user.username || "-"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Telefone:</span>
+                          <p className="font-medium">{user.phone || "-"}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
+                          {user.role === "super_admin" ? "Admin" : "Afiliado"}
+                        </Badge>
+                        <Badge variant={user.is_blocked ? "destructive" : "default"}>
+                          {user.is_blocked ? "Bloqueado" : "Ativo"}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground self-center">
+                          {user.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "-"}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              ) : (
+                <Card className="p-8">
+                  <p className="text-center text-muted-foreground">
+                    Nenhum usuário encontrado
+                  </p>
+                </Card>
+              )}
+            </div>
+
+            {/* Layout Desktop - Table */}
+            <div className="hidden lg:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -376,14 +450,15 @@ const AdminUsers = () => {
                 )}
               </TableBody>
             </Table>
+            </div>
 
             {users && users.length > 0 && (
-              <div className="flex items-center justify-between mt-4">
-                <p className="text-sm text-muted-foreground whitespace-nowrap">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3 mt-4">
+                <p className="text-xs md:text-sm text-muted-foreground text-center md:text-left">
                   Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} usuários
                 </p>
                 <Pagination>
-                  <PaginationContent>
+                  <PaginationContent className="flex-wrap justify-center">
                     <PaginationItem>
                       <Button
                         variant="outline"
@@ -392,21 +467,38 @@ const AdminUsers = () => {
                         disabled={currentPage === 1}
                       >
                         <ChevronLeft className="h-4 w-4" />
-                        Anterior
+                        <span className="hidden md:inline ml-1">Anterior</span>
                       </Button>
                     </PaginationItem>
                     
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
-                        <Button
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </Button>
-                      </PaginationItem>
-                    ))}
+                    {/* Show fewer page numbers on mobile */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        // On mobile, only show current, first, last, and adjacent pages
+                        if (window.innerWidth < 768) {
+                          return page === 1 || 
+                                 page === totalPages || 
+                                 page === currentPage || 
+                                 page === currentPage - 1 || 
+                                 page === currentPage + 1;
+                        }
+                        return true;
+                      })
+                      .map((page, index, array) => (
+                        <PaginationItem key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <span className="px-2">...</span>
+                          )}
+                          <Button
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(page)}
+                            className="min-w-[2.5rem]"
+                          >
+                            {page}
+                          </Button>
+                        </PaginationItem>
+                      ))}
 
                     <PaginationItem>
                       <Button
@@ -415,7 +507,7 @@ const AdminUsers = () => {
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
                       >
-                        Próxima
+                        <span className="hidden md:inline mr-1">Próxima</span>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </PaginationItem>
@@ -427,18 +519,18 @@ const AdminUsers = () => {
         </Card>
 
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] md:w-full">
             <DialogHeader>
               <DialogTitle>Detalhes do Usuário</DialogTitle>
             </DialogHeader>
             
-            <ScrollArea className="h-[calc(90vh-8rem)] pr-4">
+            <ScrollArea className="h-[calc(90vh-8rem)] pr-2 md:pr-4">
               {selectedUser && (
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   {/* Informações Básicas */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Informações Básicas</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Nome</p>
                         <p className="font-medium">{selectedUser.name}</p>
@@ -482,9 +574,9 @@ const AdminUsers = () => {
 
                   {/* Endereço */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Endereço</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="col-span-2">
+                    <h3 className="text-base md:text-lg font-semibold mb-3">Endereço</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      <div className="md:col-span-2">
                         <p className="text-sm text-muted-foreground">Rua</p>
                         <p className="font-medium">{selectedUser.street || "-"}</p>
                       </div>
@@ -519,20 +611,20 @@ const AdminUsers = () => {
 
                   {/* PIX */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Informações PIX e Saque</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base md:text-lg font-semibold mb-3">Informações PIX e Saque</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Tipo de Chave</p>
                         <p className="font-medium">{selectedUser.pix_type || "-"}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Chave PIX</p>
-                        <p className="font-medium">{selectedUser.pix_key || "-"}</p>
+                        <p className="font-medium break-all">{selectedUser.pix_key || "-"}</p>
                       </div>
-                      <div className="col-span-2">
+                      <div className="md:col-span-2">
                         <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
                         {isEditingWithdrawal ? (
-                          <div className="flex gap-2">
+                          <div className="flex flex-col md:flex-row gap-2">
                             <select
                               value={withdrawalDay ?? ""}
                               onChange={(e) => setWithdrawalDay(Number(e.target.value))}
@@ -583,8 +675,8 @@ const AdminUsers = () => {
 
                   {/* Redes Sociais */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Redes Sociais</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base md:text-lg font-semibold mb-3">Redes Sociais</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Instagram</p>
                         <p className="font-medium">{selectedUser.instagram || "-"}</p>
@@ -606,7 +698,7 @@ const AdminUsers = () => {
                   {selectedUser?.role !== "super_admin" && (
                     <>
                       <div>
-                        <h3 className="text-lg font-semibold mb-3">Controle de Bloqueio</h3>
+                        <h3 className="text-base md:text-lg font-semibold mb-3">Controle de Bloqueio</h3>
                         <div className="space-y-4">
                           <div className="flex items-center justify-between p-4 border rounded-lg">
                             <div className="space-y-0.5">
@@ -657,7 +749,7 @@ const AdminUsers = () => {
 
                   {/* Histórico de Atividades */}
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Histórico de Atividades</h3>
+                    <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
                     {activitiesLoading ? (
                       <div className="space-y-2">
                         {[...Array(3)].map((_, i) => (
