@@ -206,7 +206,7 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
           <ScrollArea className="h-[calc(90vh-120px)] pr-4">
             <div className="space-y-6">
               {/* Header com Avatar e Info Básica */}
-              <div className="flex items-start gap-4 pb-4 border-b">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-4 pb-4 border-b">
                 <Avatar className="h-20 w-20">
                   {profile.avatar_url && (
                     <AvatarImage src={profile.avatar_url} alt={profile.name} />
@@ -215,10 +215,10 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
                     {getInitials(profile.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
+                <div className="flex-1 text-center md:text-left">
                   <h3 className="text-2xl font-bold">{profile.name}</h3>
                   <p className="text-muted-foreground">{profile.email}</p>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-start">
                     {subscription && (
                       <Badge variant="default">
                         {(subscription.plans as any)?.name || "Sem plano"}
