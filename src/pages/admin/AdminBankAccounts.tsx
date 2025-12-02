@@ -397,45 +397,107 @@ const AdminBankAccounts = () => {
               <p className="text-sm text-muted-foreground">
                 Cadastro de bancos utilizados para integrações de pagamento
               </p>
-              <Dialog open={openBankDialog} onOpenChange={setOpenBankDialog}>
-                <DialogTrigger asChild>
+              {isMobile ? (
+                <Drawer open={openBankDialog} onOpenChange={setOpenBankDialog}>
                   <Button onClick={resetBankForm} size="sm" className="w-full sm:w-auto">
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Banco
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{editingBank ? "Editar Banco" : "Novo Banco"}</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleBankSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="bank-name">Nome do banco</Label>
-                      <Input
-                        id="bank-name"
-                        value={bankFormData.name}
-                        onChange={(e) =>
-                          setBankFormData({ ...bankFormData, name: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="bank-active"
-                        checked={bankFormData.is_active}
-                        onCheckedChange={(checked) =>
-                          setBankFormData({ ...bankFormData, is_active: checked })
-                        }
-                      />
-                      <Label htmlFor="bank-active">Banco ativo</Label>
-                    </div>
-                    <Button type="submit" className="w-full">
-                      {editingBank ? "Salvar alterações" : "Criar banco"}
+                  <DrawerContent className="max-h-[95vh]">
+                    <DrawerHeader className="relative pb-3">
+                      {/* Drag Handle */}
+                      <div className="mx-auto w-12 h-1.5 rounded-full bg-muted-foreground/40 mb-3" />
+                      
+                      {/* Close Button */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-2 h-8 w-8"
+                        onClick={() => setOpenBankDialog(false)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      
+                      <DrawerTitle>
+                        {editingBank ? "Editar Banco" : "Novo Banco"}
+                      </DrawerTitle>
+                    </DrawerHeader>
+                    
+                    <ScrollArea className="h-[calc(95vh-140px)] px-4">
+                      <form onSubmit={handleBankSubmit} className="space-y-3 pb-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="bank-name" className="text-xs">Nome do banco</Label>
+                          <Input
+                            id="bank-name"
+                            value={bankFormData.name}
+                            onChange={(e) =>
+                              setBankFormData({ ...bankFormData, name: e.target.value })
+                            }
+                            required
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between rounded-lg border p-3">
+                          <Label htmlFor="bank-active" className="text-sm">Banco ativo</Label>
+                          <Switch
+                            id="bank-active"
+                            checked={bankFormData.is_active}
+                            onCheckedChange={(checked) =>
+                              setBankFormData({ ...bankFormData, is_active: checked })
+                            }
+                          />
+                        </div>
+                      </form>
+                    </ScrollArea>
+                    
+                    <DrawerFooter className="pt-3">
+                      <Button onClick={handleBankSubmit} className="w-full">
+                        {editingBank ? "Salvar alterações" : "Criar banco"}
+                      </Button>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              ) : (
+                <Dialog open={openBankDialog} onOpenChange={setOpenBankDialog}>
+                  <DialogTrigger asChild>
+                    <Button onClick={resetBankForm} size="sm" className="w-full sm:w-auto">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Novo Banco
                     </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{editingBank ? "Editar Banco" : "Novo Banco"}</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleBankSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bank-name">Nome do banco</Label>
+                        <Input
+                          id="bank-name"
+                          value={bankFormData.name}
+                          onChange={(e) =>
+                            setBankFormData({ ...bankFormData, name: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="bank-active"
+                          checked={bankFormData.is_active}
+                          onCheckedChange={(checked) =>
+                            setBankFormData({ ...bankFormData, is_active: checked })
+                          }
+                        />
+                        <Label htmlFor="bank-active">Banco ativo</Label>
+                      </div>
+                      <Button type="submit" className="w-full">
+                        {editingBank ? "Salvar alterações" : "Criar banco"}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
 
             <Card>
