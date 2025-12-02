@@ -68,7 +68,7 @@ const Auth = () => {
       const { data, error } = await supabase
         .from('landing_block_gradients' as any)
         .select('*')
-        .in('block_name', ['auth_left_panel', 'auth_right_panel']);
+        .in('block_name', ['auth_left_panel', 'auth_right_panel', 'auth_form_card']);
       
       if (error) throw error;
       return data as unknown as GradientConfig[];
@@ -306,7 +306,12 @@ const Auth = () => {
             <AuthGradientEditor blockName="auth_right_panel" initialConfig={gradientConfigs['auth_right_panel']} />
           </div>
         )}
-        <div className="w-full max-w-2xl bg-background/80 backdrop-blur-sm rounded-lg p-4 sm:p-6">
+        <div className="w-full max-w-2xl rounded-lg p-4 sm:p-6 relative" style={getGradientStyle('auth_form_card')}>
+          {isAdmin && (
+            <div className="absolute top-2 right-2 z-10">
+              <AuthGradientEditor blockName="auth_form_card" initialConfig={gradientConfigs['auth_form_card']} />
+            </div>
+          )}
           <div className="text-center mb-6 lg:hidden">
             <div className="inline-flex items-center justify-center w-24 h-24 sm:w-32 sm:h-32 mb-3">
               <img src={logoAuth} alt="Logo APP Renda recorrente" className="w-24 h-24 sm:w-32 sm:h-32 rounded-full" />
