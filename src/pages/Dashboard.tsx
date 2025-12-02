@@ -620,8 +620,8 @@ const Dashboard = () => {
 
       
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between px-0 lg:px-6">
           <div>
             <CardTitle>Comissões recentes</CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -633,7 +633,7 @@ const Dashboard = () => {
             <ArrowRight className="w-4 h-4" />
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0 lg:px-6">
           {recentCommissions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
               Nenhum registro encontrado...
             </div> : <div className="space-y-3">
