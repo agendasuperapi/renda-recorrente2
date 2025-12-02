@@ -18,6 +18,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import laptopImage from "@/assets/laptop-dashboard.png";
+import { APP_VERSION } from "@/config/version";
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 interface AnnouncementBanner {
   id: string;
@@ -1713,6 +1714,7 @@ const LandingPage = () => {
           </div>
           <div className="border-t border-border pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
             <p>&copy; 2024 APP Renda Recorrente. Todos os direitos reservados.</p>
+            <p className="mt-2 text-muted-foreground/70">v{APP_VERSION}</p>
           </div>
         </div>
       </footer>
