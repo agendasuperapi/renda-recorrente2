@@ -484,7 +484,7 @@ const AdminBankAccounts = () => {
 
           <TabsContent value="accounts" className="space-y-4">
             <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <div className="flex gap-4 items-center pr-3 sm:pr-0">
+              <div className="flex gap-4 items-center">
                 <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
                   <SelectTrigger className="w-full sm:w-[280px]">
                     <SelectValue placeholder="Filtrar por produto" />
