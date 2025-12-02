@@ -273,7 +273,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-y-auto">
       <div className="absolute top-4 left-4 z-10">
         <Button
           variant="ghost"

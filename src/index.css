@@ -186,3 +186,27 @@ All colors MUST be HSL.
   }
 }
 
+/* iOS PWA - viewport dinâmico e scroll natural */
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    /* Usar viewport dinâmico para iOS PWA */
+    .min-h-screen {
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+    }
+    
+    /* Garantir scroll natural em containers de formulário */
+    input, textarea {
+      -webkit-user-select: text;
+      user-select: text;
+      touch-action: manipulation;
+    }
+    
+    /* Permitir que o iOS empurre o conteúdo quando o teclado abre */
+    body {
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+    }
+  }
+}
+
