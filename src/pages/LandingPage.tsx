@@ -840,17 +840,30 @@ const LandingPage = () => {
                     {user ? (
                       <>
                         {isAdmin && (
-                          <button 
-                            onClick={() => {
-                              navigateToDashboard();
-                              setMobileMenuOpen(false);
-                            }} 
-                            className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
-                            style={{ color: currentSidebarTextColor }}
-                          >
-                            <LayoutDashboard className="w-5 h-5" />
-                            Painel
-                          </button>
+                          <>
+                            <button 
+                              onClick={() => {
+                                navigateToDashboard();
+                                setMobileMenuOpen(false);
+                              }} 
+                              className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
+                              style={{ color: currentSidebarTextColor }}
+                            >
+                              <LayoutDashboard className="w-5 h-5" />
+                              Painel
+                            </button>
+                            <button 
+                              onClick={() => {
+                                navigate("/auth");
+                                setMobileMenuOpen(false);
+                              }} 
+                              className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all"
+                              style={{ color: currentSidebarTextColor }}
+                            >
+                              <Lock className="w-5 h-5" />
+                              Configurar Login
+                            </button>
+                          </>
                         )}
                         <button 
                           onClick={() => {
@@ -865,30 +878,17 @@ const LandingPage = () => {
                         </button>
                       </>
                     ) : (
-                      <>
-                        <button 
-                          onClick={() => {
-                            navigate("/auth");
-                            setMobileMenuOpen(false);
-                          }} 
-                          className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
-                          style={{ color: currentSidebarTextColor }}
-                        >
-                          <LayoutDashboard className="w-5 h-5" />
-                          Painel
-                        </button>
-                        <button 
-                          onClick={() => {
-                            scrollToSection("planos");
-                            setMobileMenuOpen(false);
-                          }} 
-                          className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all"
-                          style={{ color: currentSidebarTextColor }}
-                        >
-                          <Target className="w-5 h-5" />
-                          Quero Contratar
-                        </button>
-                      </>
+                      <button 
+                        onClick={() => {
+                          navigate("/auth");
+                          setMobileMenuOpen(false);
+                        }} 
+                        className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
+                        style={{ color: currentSidebarTextColor }}
+                      >
+                        <LogOut className="w-5 h-5 rotate-180" />
+                        Entrar
+                      </button>
                     )}
                   </div>
                 </nav>
