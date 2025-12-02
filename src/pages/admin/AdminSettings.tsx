@@ -373,7 +373,7 @@ export default function AdminSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="space-y-1">
               <Label className="text-base">
                 Aparência do Sidebar

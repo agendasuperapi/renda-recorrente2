@@ -196,7 +196,7 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Editar Sidebar</Button>
+        <Button className="w-full md:w-auto">Editar Sidebar</Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
