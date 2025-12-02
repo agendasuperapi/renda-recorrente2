@@ -284,10 +284,10 @@ const AdminCommissionLevels = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-3 md:space-y-6 p-2 md:p-0">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Níveis de Comissão</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Níveis de Comissão</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Configure os percentuais de comissão por nível
           </p>
         </div>
@@ -297,25 +297,25 @@ const AdminCommissionLevels = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6 p-2 md:p-0">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Níveis de Comissão</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Níveis de Comissão</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
           Configure os percentuais de comissão por nível e por plano
         </p>
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Layers className="h-5 w-5" />
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="text-base md:text-lg flex items-center gap-2">
+            <Layers className="h-4 w-4 md:h-5 md:w-5" />
             Limite Máximo de Níveis
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-end gap-4">
+        <CardContent className="p-3 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-4">
             <div className="flex-1">
-              <Label htmlFor="maxLevels">Níveis Permitidos (configuração global)</Label>
+              <Label htmlFor="maxLevels" className="text-sm">Níveis Permitidos (configuração global)</Label>
               <Input
                 id="maxLevels"
                 type="number"
@@ -325,7 +325,7 @@ const AdminCommissionLevels = () => {
                 onChange={(e) => setMaxLevels(e.target.value)}
               />
             </div>
-            <Button onClick={handleSaveMaxLevels} disabled={isSaving}>
+            <Button onClick={handleSaveMaxLevels} disabled={isSaving} className="w-full md:w-auto">
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Salvando..." : "Salvar"}
             </Button>
@@ -334,12 +334,12 @@ const AdminCommissionLevels = () => {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Selecione o Plano</CardTitle>
+        <CardHeader className="p-3 md:p-6">
+          <CardTitle className="text-base md:text-lg">Selecione o Plano</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 md:p-6">
           <div className="space-y-2">
-            <Label htmlFor="plan-select">Plano do APP Renda Recorrente</Label>
+            <Label htmlFor="plan-select" className="text-sm">Plano do APP Renda Recorrente</Label>
             <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
               <SelectTrigger id="plan-select">
                 <SelectValue placeholder="Selecione um plano..." />
@@ -358,22 +358,22 @@ const AdminCommissionLevels = () => {
 
       {selectedPlanId && (
         <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Percentuais por Nível</CardTitle>
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-3 md:p-6">
+          <CardTitle className="text-base md:text-lg">Percentuais por Nível</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full md:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Nível
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="w-[95vw] md:w-full max-w-lg">
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Nível</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="newLevel">Nível (1-10)</Label>
+                  <Label htmlFor="newLevel" className="text-sm">Nível (1-10)</Label>
                   <Input
                     id="newLevel"
                     type="number"
@@ -386,7 +386,7 @@ const AdminCommissionLevels = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="newPercentage">Porcentagem (0-100)</Label>
+                  <Label htmlFor="newPercentage" className="text-sm">Porcentagem (0-100)</Label>
                   <Input
                     id="newPercentage"
                     type="number"
@@ -402,7 +402,7 @@ const AdminCommissionLevels = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="newDescription">Descrição</Label>
+                  <Label htmlFor="newDescription" className="text-sm">Descrição</Label>
                   <Textarea
                     id="newDescription"
                     value={newLevel.description}
@@ -419,7 +419,89 @@ const AdminCommissionLevels = () => {
             </DialogContent>
           </Dialog>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6">
+          {/* Layout Mobile - Cards */}
+          <div className="lg:hidden space-y-2">
+            {levels.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8 text-sm">
+                Nenhum nível cadastrado
+              </div>
+            ) : (
+              levels.map((level) => (
+                <Card key={level.id} className="p-3">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-base">Nível {level.level}</h3>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleDeleteLevel(level.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div>
+                        <Label htmlFor={`percentage-${level.id}`} className="text-xs text-muted-foreground">
+                          Porcentagem
+                        </Label>
+                        <Input
+                          id={`percentage-${level.id}`}
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={level.percentage}
+                          onChange={(e) =>
+                            handleUpdateLevel(
+                              level.id,
+                              "percentage",
+                              Number(e.target.value)
+                            )
+                          }
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor={`description-${level.id}`} className="text-xs text-muted-foreground">
+                          Descrição
+                        </Label>
+                        <Input
+                          id={`description-${level.id}`}
+                          value={level.description || ""}
+                          onChange={(e) =>
+                            handleUpdateLevel(
+                              level.id,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Descrição..."
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between pt-1">
+                        <Label htmlFor={`active-${level.id}`} className="text-xs text-muted-foreground">
+                          Ativo
+                        </Label>
+                        <Switch
+                          id={`active-${level.id}`}
+                          checked={level.is_active}
+                          onCheckedChange={(checked) =>
+                            handleUpdateLevel(level.id, "is_active", checked)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {/* Layout Desktop - Table */}
+          <div className="hidden lg:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -497,6 +579,7 @@ const AdminCommissionLevels = () => {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
       )}
