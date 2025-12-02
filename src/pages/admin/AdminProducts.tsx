@@ -8,12 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Upload } from "lucide-react";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const productSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -36,6 +39,7 @@ type ProductFormData = z.infer<typeof productSchema>;
 const AdminProducts = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
@@ -362,50 +366,285 @@ const AdminProducts = () => {
           </div>
         )}
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingProduct ? "Editar Produto" : "Novo Produto"}
-              </DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="nome"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome *</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        {isMobile ? (
+          <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DrawerContent className="max-h-[95vh]">
+              <DrawerHeader className="text-left border-b pb-4">
+                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-4" />
+                <div className="flex items-center justify-between">
+                  <DrawerTitle className="text-base">
+                    {editingProduct ? "Editar Produto" : "Novo Produto"}
+                  </DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </DrawerClose>
+                </div>
+              </DrawerHeader>
+              <ScrollArea className="h-[calc(95vh-140px)]">
+                <div className="px-4 pb-4">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name="nome"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Nome *</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="text-xs" />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
 
-                <FormField
-                  control={form.control}
-                  name="descricao"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descrição</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} rows={3} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      <FormField
+                        control={form.control}
+                        name="descricao"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Descrição</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} rows={3} className="text-xs" />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
 
-                <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField
+                          control={form.control}
+                          name="telefone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs">Telefone</FormLabel>
+                              <FormControl>
+                                <Input {...field} className="text-xs" />
+                              </FormControl>
+                              <FormMessage className="text-xs" />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs">Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" {...field} className="text-xs" />
+                              </FormControl>
+                              <FormMessage className="text-xs" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="texto_telefone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Texto Telefone</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="text-xs" />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="site"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Site</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="text-xs" />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="site_landingpage"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Site Landing Page</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="text-xs" />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="nome_apk"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Nome APK</FormLabel>
+                            <FormControl>
+                              <Input {...field} className="text-xs" />
+                            </FormControl>
+                            <FormMessage className="text-xs" />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="show_on_landing"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-xs font-medium">
+                                Exibir na Landing Page
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Marque para aparecer na landing page de afiliados
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Ícone Dark</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconDarkFile, setIconDarkPreview)}
+                              className="flex-1 text-xs"
+                            />
+                            <Upload className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                          {(iconDarkPreview || editingProduct?.icone_dark) && (
+                            <div className="relative w-16 h-16 bg-muted rounded border">
+                              <img 
+                                src={iconDarkPreview || editingProduct.icone_dark} 
+                                alt="Preview" 
+                                className="w-full h-full object-contain p-1" 
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-xs">Ícone Light</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconLightFile, setIconLightPreview)}
+                              className="flex-1 text-xs"
+                            />
+                            <Upload className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                          {(iconLightPreview || editingProduct?.icone_light) && (
+                            <div className="relative w-16 h-16 bg-muted rounded border">
+                              <img 
+                                src={iconLightPreview || editingProduct.icone_light} 
+                                alt="Preview" 
+                                className="w-full h-full object-contain p-1" 
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-xs">Logo Dark</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoDarkFile, setLogoDarkPreview)}
+                              className="flex-1 text-xs"
+                            />
+                            <Upload className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                          {(logoDarkPreview || editingProduct?.logo_dark) && (
+                            <div className="relative w-28 h-16 bg-muted rounded border">
+                              <img 
+                                src={logoDarkPreview || editingProduct.logo_dark} 
+                                alt="Preview" 
+                                className="w-full h-full object-contain p-1" 
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-xs">Logo Light</Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoLightFile, setLogoLightPreview)}
+                              className="flex-1 text-xs"
+                            />
+                            <Upload className="w-3 h-3 text-muted-foreground" />
+                          </div>
+                          {(logoLightPreview || editingProduct?.logo_light) && (
+                            <div className="relative w-28 h-16 bg-muted rounded border">
+                              <img 
+                                src={logoLightPreview || editingProduct.logo_light} 
+                                alt="Preview" 
+                                className="w-full h-full object-contain p-1" 
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 justify-end pt-3">
+                        <Button type="button" variant="outline" onClick={handleCloseDialog} className="text-xs">
+                          Cancelar
+                        </Button>
+                        <Button type="submit" disabled={uploading} className="text-xs">
+                          {uploading ? "Enviando..." : editingProduct ? "Atualizar" : "Criar"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
+              </ScrollArea>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingProduct ? "Editar Produto" : "Novo Produto"}
+                </DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="telefone"
+                    name="nome"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Telefone</FormLabel>
+                        <FormLabel>Nome *</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -416,202 +655,232 @@ const AdminProducts = () => {
 
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="descricao"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Descrição</FormLabel>
                         <FormControl>
-                          <Input type="email" {...field} />
+                          <Textarea {...field} rows={3} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <FormField
-                  control={form.control}
-                  name="texto_telefone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Texto Telefone</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="telefone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Telefone</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="site"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Site</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="site_landingpage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Site Landing Page</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="nome_apk"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome APK</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="show_on_landing"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Exibir na Landing Page
-                        </FormLabel>
-                        <FormDescription>
-                          Marque esta opção para que o produto apareça na seção de produtos da landing page de afiliados
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Ícone Dark</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconDarkFile, setIconDarkPreview)}
-                        className="flex-1"
-                      />
-                      <Upload className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    {(iconDarkPreview || editingProduct?.icone_dark) && (
-                      <div className="relative w-20 h-20 bg-muted rounded border">
-                        <img 
-                          src={iconDarkPreview || editingProduct.icone_dark} 
-                          alt="Preview" 
-                          className="w-full h-full object-contain p-1" 
-                        />
-                      </div>
-                    )}
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Ícone Light</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconLightFile, setIconLightPreview)}
-                        className="flex-1"
-                      />
-                      <Upload className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    {(iconLightPreview || editingProduct?.icone_light) && (
-                      <div className="relative w-20 h-20 bg-muted rounded border">
-                        <img 
-                          src={iconLightPreview || editingProduct.icone_light} 
-                          alt="Preview" 
-                          className="w-full h-full object-contain p-1" 
-                        />
-                      </div>
+                  <FormField
+                    control={form.control}
+                    name="texto_telefone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Texto Telefone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </div>
-                </div>
+                  />
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Logo Dark</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoDarkFile, setLogoDarkPreview)}
-                        className="flex-1"
-                      />
-                      <Upload className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    {(logoDarkPreview || editingProduct?.logo_dark) && (
-                      <div className="relative w-32 h-20 bg-muted rounded border">
-                        <img 
-                          src={logoDarkPreview || editingProduct.logo_dark} 
-                          alt="Preview" 
-                          className="w-full h-full object-contain p-1" 
-                        />
-                      </div>
+                  <FormField
+                    control={form.control}
+                    name="site"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Site</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </div>
+                  />
 
-                  <div className="space-y-2">
-                    <Label>Logo Light</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoLightFile, setLogoLightPreview)}
-                        className="flex-1"
-                      />
-                      <Upload className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                    {(logoLightPreview || editingProduct?.logo_light) && (
-                      <div className="relative w-32 h-20 bg-muted rounded border">
-                        <img 
-                          src={logoLightPreview || editingProduct.logo_light} 
-                          alt="Preview" 
-                          className="w-full h-full object-contain p-1" 
-                        />
-                      </div>
+                  <FormField
+                    control={form.control}
+                    name="site_landingpage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Site Landing Page</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </div>
-                </div>
+                  />
 
-                <div className="flex gap-2 justify-end pt-4">
-                  <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={uploading}>
-                    {uploading ? "Enviando..." : editingProduct ? "Atualizar" : "Criar"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <FormField
+                    control={form.control}
+                    name="nome_apk"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome APK</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="show_on_landing"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Exibir na Landing Page
+                          </FormLabel>
+                          <FormDescription>
+                            Marque esta opção para que o produto apareça na seção de produtos da landing page de afiliados
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Ícone Dark</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconDarkFile, setIconDarkPreview)}
+                          className="flex-1"
+                        />
+                        <Upload className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      {(iconDarkPreview || editingProduct?.icone_dark) && (
+                        <div className="relative w-20 h-20 bg-muted rounded border">
+                          <img 
+                            src={iconDarkPreview || editingProduct.icone_dark} 
+                            alt="Preview" 
+                            className="w-full h-full object-contain p-1" 
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Ícone Light</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e.target.files?.[0] || null, setIconLightFile, setIconLightPreview)}
+                          className="flex-1"
+                        />
+                        <Upload className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      {(iconLightPreview || editingProduct?.icone_light) && (
+                        <div className="relative w-20 h-20 bg-muted rounded border">
+                          <img 
+                            src={iconLightPreview || editingProduct.icone_light} 
+                            alt="Preview" 
+                            className="w-full h-full object-contain p-1" 
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Logo Dark</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoDarkFile, setLogoDarkPreview)}
+                          className="flex-1"
+                        />
+                        <Upload className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      {(logoDarkPreview || editingProduct?.logo_dark) && (
+                        <div className="relative w-32 h-20 bg-muted rounded border">
+                          <img 
+                            src={logoDarkPreview || editingProduct.logo_dark} 
+                            alt="Preview" 
+                            className="w-full h-full object-contain p-1" 
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Logo Light</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e.target.files?.[0] || null, setLogoLightFile, setLogoLightPreview)}
+                          className="flex-1"
+                        />
+                        <Upload className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                      {(logoLightPreview || editingProduct?.logo_light) && (
+                        <div className="relative w-32 h-20 bg-muted rounded border">
+                          <img 
+                            src={logoLightPreview || editingProduct.logo_light} 
+                            alt="Preview" 
+                            className="w-full h-full object-contain p-1" 
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 justify-end pt-4">
+                    <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={uploading}>
+                      {uploading ? "Enviando..." : editingProduct ? "Atualizar" : "Criar"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
   );
 };
