@@ -6,7 +6,8 @@ interface BackgroundConfig {
   colorEnd: string;
   intensityStart: number;
   intensityEnd: number;
-  gradientPosition: number;
+  gradientStart: number;
+  gradientEnd: number;
   applyMobile: boolean;
   applyTablet: boolean;
   applyDesktop: boolean;
@@ -17,7 +18,8 @@ const defaultConfig: BackgroundConfig = {
   colorEnd: "#00bf63",
   intensityStart: 5,
   intensityEnd: 15,
-  gradientPosition: 0,
+  gradientStart: 0,
+  gradientEnd: 50,
   applyMobile: true,
   applyTablet: true,
   applyDesktop: true,
@@ -54,7 +56,8 @@ export function useBgConfig() {
           'bg_color_end',
           'bg_intensity_start',
           'bg_intensity_end',
-          'bg_gradient_position',
+          'bg_gradient_start',
+          'bg_gradient_end',
           'bg_apply_mobile',
           'bg_apply_tablet',
           'bg_apply_desktop'
@@ -79,7 +82,8 @@ export function useBgConfig() {
             colorEnd: settings.bg_color_end || defaultConfig.colorEnd,
             intensityStart: parseInt(settings.bg_intensity_start || String(defaultConfig.intensityStart)),
             intensityEnd: parseInt(settings.bg_intensity_end || String(defaultConfig.intensityEnd)),
-            gradientPosition: parseInt(settings.bg_gradient_position || String(defaultConfig.gradientPosition)),
+            gradientStart: parseInt(settings.bg_gradient_start || String(defaultConfig.gradientStart)),
+            gradientEnd: parseInt(settings.bg_gradient_end || String(defaultConfig.gradientEnd)),
             applyMobile: settings.bg_apply_mobile !== 'false',
             applyTablet: settings.bg_apply_tablet !== 'false',
             applyDesktop: settings.bg_apply_desktop !== 'false',
@@ -144,7 +148,7 @@ export function useBgConfig() {
     const startAlpha = config.intensityStart / 100;
     const endAlpha = config.intensityEnd / 100;
     
-    const gradient = `linear-gradient(to bottom, ${hexToRgba(config.colorStart, startAlpha)} ${config.gradientPosition}%, ${hexToRgba(config.colorEnd, endAlpha)} 100%)`;
+    const gradient = `linear-gradient(to bottom, ${hexToRgba(config.colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(config.colorEnd, endAlpha)} ${config.gradientEnd}%)`;
 
     return {
       background: gradient,

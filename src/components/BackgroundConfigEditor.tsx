@@ -14,7 +14,8 @@ interface BackgroundConfig {
   colorEnd: string;
   intensityStart: number;
   intensityEnd: number;
-  gradientPosition: number;
+  gradientStart: number;
+  gradientEnd: number;
   applyMobile: boolean;
   applyTablet: boolean;
   applyDesktop: boolean;
@@ -25,7 +26,8 @@ const defaultConfig: BackgroundConfig = {
   colorEnd: "#00bf63",
   intensityStart: 5,
   intensityEnd: 15,
-  gradientPosition: 0,
+  gradientStart: 0,
+  gradientEnd: 50,
   applyMobile: true,
   applyTablet: true,
   applyDesktop: true,
@@ -59,7 +61,8 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
           'bg_color_end',
           'bg_intensity_start',
           'bg_intensity_end',
-          'bg_gradient_position',
+          'bg_gradient_start',
+          'bg_gradient_end',
           'bg_apply_mobile',
           'bg_apply_tablet',
           'bg_apply_desktop'
@@ -78,7 +81,8 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
           colorEnd: settings.bg_color_end || defaultConfig.colorEnd,
           intensityStart: parseInt(settings.bg_intensity_start || String(defaultConfig.intensityStart)),
           intensityEnd: parseInt(settings.bg_intensity_end || String(defaultConfig.intensityEnd)),
-          gradientPosition: parseInt(settings.bg_gradient_position || String(defaultConfig.gradientPosition)),
+          gradientStart: parseInt(settings.bg_gradient_start || String(defaultConfig.gradientStart)),
+          gradientEnd: parseInt(settings.bg_gradient_end || String(defaultConfig.gradientEnd)),
           applyMobile: settings.bg_apply_mobile !== 'false',
           applyTablet: settings.bg_apply_tablet !== 'false',
           applyDesktop: settings.bg_apply_desktop !== 'false',
@@ -99,7 +103,8 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
         { key: 'bg_color_end', value: config.colorEnd, description: 'Cor final do gradiente de fundo' },
         { key: 'bg_intensity_start', value: String(config.intensityStart), description: 'Intensidade inicial do gradiente' },
         { key: 'bg_intensity_end', value: String(config.intensityEnd), description: 'Intensidade final do gradiente' },
-        { key: 'bg_gradient_position', value: String(config.gradientPosition), description: 'Posição de início do gradiente' },
+        { key: 'bg_gradient_start', value: String(config.gradientStart), description: 'Posição de início do gradiente' },
+        { key: 'bg_gradient_end', value: String(config.gradientEnd), description: 'Posição de fim do gradiente' },
         { key: 'bg_apply_mobile', value: String(config.applyMobile), description: 'Aplicar em dispositivos móveis' },
         { key: 'bg_apply_tablet', value: String(config.applyTablet), description: 'Aplicar em tablets' },
         { key: 'bg_apply_desktop', value: String(config.applyDesktop), description: 'Aplicar em computadores' },
@@ -147,7 +152,7 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
   const getPreviewGradient = () => {
     const startAlpha = config.intensityStart / 100;
     const endAlpha = config.intensityEnd / 100;
-    return `linear-gradient(to bottom, ${hexToRgba(config.colorStart, startAlpha)} ${config.gradientPosition}%, ${hexToRgba(config.colorEnd, endAlpha)} 100%)`;
+    return `linear-gradient(to bottom, ${hexToRgba(config.colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(config.colorEnd, endAlpha)} ${config.gradientEnd}%)`;
   };
 
   return (
@@ -250,23 +255,38 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
               </div>
             </div>
 
-            {/* Gradient Position */}
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label>Início do Gradiente</Label>
-                <span className="text-sm text-muted-foreground">{config.gradientPosition}%</span>
+            {/* Gradient Positions */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Início</Label>
+                  <span className="text-sm text-muted-foreground">{config.gradientStart}%</span>
+                </div>
+                <Slider
+                  value={[config.gradientStart]}
+                  onValueChange={([value]) => setConfig({ ...config, gradientStart: Math.min(value, config.gradientEnd - 1) })}
+                  min={0}
+                  max={99}
+                  step={1}
+                />
               </div>
-              <Slider
-                value={[config.gradientPosition]}
-                onValueChange={([value]) => setConfig({ ...config, gradientPosition: value })}
-                min={0}
-                max={100}
-                step={1}
-              />
-              <p className="text-xs text-muted-foreground">
-                Define a partir de qual ponto (do topo) o gradiente começa a aparecer
-              </p>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Fim</Label>
+                  <span className="text-sm text-muted-foreground">{config.gradientEnd}%</span>
+                </div>
+                <Slider
+                  value={[config.gradientEnd]}
+                  onValueChange={([value]) => setConfig({ ...config, gradientEnd: Math.max(value, config.gradientStart + 1) })}
+                  min={1}
+                  max={100}
+                  step={1}
+                />
+              </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Início: onde a cor inicial termina | Fim: onde a cor final começa (a transição acontece entre os dois pontos)
+            </p>
 
             {/* Device Selection */}
             <div className="space-y-3">
