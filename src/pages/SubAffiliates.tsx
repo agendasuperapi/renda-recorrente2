@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -60,6 +60,9 @@ const SubAffiliates = () => {
   // Ordenação
   const [sortColumn, setSortColumn] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  // Layout mode para mobile/tablet
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
 
   useEffect(() => {
     loadSubAffiliates();
@@ -454,6 +457,29 @@ const SubAffiliates = () => {
             <RefreshCw className="h-4 w-4" />
             Atualizar
           </Button>
+
+          {/* Layout mode selector - apenas mobile/tablet */}
+          <div className="lg:hidden">
+            <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="compact">
+                  <div className="flex items-center gap-2">
+                    <LayoutList className="h-4 w-4" />
+                    Layout Compacto
+                  </div>
+                </SelectItem>
+                <SelectItem value="complete">
+                  <div className="flex items-center gap-2">
+                    <LayoutGrid className="h-4 w-4" />
+                    Layout Completo
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -632,144 +658,240 @@ const SubAffiliates = () => {
                 filteredData.map((sub) => (
                   <Card key={sub.id} className="overflow-hidden">
                     <CardContent className="p-0">
-                      {/* Mobile Layout */}
-                      <div className="md:hidden p-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <Avatar className="h-10 w-10 flex-shrink-0">
-                              <AvatarImage src={sub.avatar_url || undefined} />
-                              <AvatarFallback>
-                                {sub.name?.charAt(0).toUpperCase() || '?'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-sm truncate">{sub.name}</div>
-                              {sub.username && (
-                                <div className="text-xs text-muted-foreground truncate">
-                                  @{sub.username}
-                                </div>
-                              )}
-                              <div className="text-xs text-muted-foreground truncate mt-0.5">
-                                {sub.email}
+                      {/* Mobile Layout - Compact */}
+                      {layoutMode === "compact" && (
+                        <div className="md:hidden p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Avatar className="h-10 w-10 flex-shrink-0">
+                                <AvatarImage src={sub.avatar_url || undefined} />
+                                <AvatarFallback>
+                                  {sub.name?.charAt(0).toUpperCase() || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-sm truncate">{sub.name}</div>
+                                {sub.username && (
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    @{sub.username}
+                                  </div>
+                                )}
                               </div>
                             </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="flex-shrink-0 h-8 w-8"
-                            onClick={() => {
-                              setSelectedSubAffiliate(sub);
-                              setDialogOpen(true);
-                            }}
-                            title="Ver detalhes das comissões"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2 text-xs mt-3">
-                          <div>
-                            <span className="text-muted-foreground">Plano</span>
-                            <div className="font-medium truncate">{sub.plan_name || "-"}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Nível</span>
-                            <div className="mt-0.5">{getLevelBadge(sub.level)}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Status</span>
-                            <div className="mt-0.5">{getStatusBadge(sub.status)}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Cadastro</span>
-                            <div className="font-medium">{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Indicações</span>
-                            <div className="font-medium">{sub.referrals_count}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Com. Sub</span>
-                            <div className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-center">
+                                <div className="text-[10px] text-muted-foreground">Indicações</div>
+                                <div className="font-semibold text-sm">{sub.referrals_count}</div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
+                                <div className="font-bold text-sm text-success">
+                                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                                </div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="flex-shrink-0 h-8 w-8"
+                                onClick={() => {
+                                  setSelectedSubAffiliate(sub);
+                                  setDialogOpen(true);
+                                }}
+                                title="Ver detalhes"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <div className="mt-2 pt-2 border-t flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">Minha Comissão</span>
-                          <div className="text-sm font-bold text-success">
-                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
-                          </div>
-                        </div>
-                      </div>
+                      )}
 
-                      {/* Tablet Layout - Grid organizado */}
-                      <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:p-4">
-                        {/* Avatar + Nome */}
-                        <div className="flex items-center gap-3 min-w-[200px]">
-                          <Avatar className="h-9 w-9 flex-shrink-0">
-                            <AvatarImage src={sub.avatar_url || undefined} />
-                            <AvatarFallback className="text-xs">
-                              {sub.name?.charAt(0).toUpperCase() || '?'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div className="font-medium text-sm truncate">{sub.name}</div>
-                            {sub.username && (
-                              <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>
-                            )}
-                            <div className="text-xs text-muted-foreground truncate">{sub.email}</div>
+                      {/* Mobile Layout - Complete */}
+                      {layoutMode === "complete" && (
+                        <div className="md:hidden p-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Avatar className="h-10 w-10 flex-shrink-0">
+                                <AvatarImage src={sub.avatar_url || undefined} />
+                                <AvatarFallback>
+                                  {sub.name?.charAt(0).toUpperCase() || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-sm truncate">{sub.name}</div>
+                                {sub.username && (
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    @{sub.username}
+                                  </div>
+                                )}
+                                <div className="text-xs text-muted-foreground truncate mt-0.5">
+                                  {sub.email}
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="flex-shrink-0 h-8 w-8"
+                              onClick={() => {
+                                setSelectedSubAffiliate(sub);
+                                setDialogOpen(true);
+                              }}
+                              title="Ver detalhes das comissões"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                           </div>
-                        </div>
-
-                        {/* Info Grid - 3 colunas, 2 linhas */}
-                        <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Plano: </span>
-                            <span className="font-medium">{sub.plan_name || "-"}</span>
+                          <div className="grid grid-cols-3 gap-2 text-xs mt-3">
+                            <div>
+                              <span className="text-muted-foreground">Plano</span>
+                              <div className="font-medium truncate">{sub.plan_name || "-"}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Nível</span>
+                              <div className="mt-0.5">{getLevelBadge(sub.level)}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Status</span>
+                              <div className="mt-0.5">{getStatusBadge(sub.status)}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Cadastro</span>
+                              <div className="font-medium">{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Indicações</span>
+                              <div className="font-medium">{sub.referrals_count}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Com. Sub</span>
+                              <div className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">Nível: </span>
-                            {getLevelBadge(sub.level)}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">Status: </span>
-                            {getStatusBadge(sub.status)}
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Cadastro: </span>
-                            <span>{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Indicações: </span>
-                            <span className="font-medium">{sub.referrals_count}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Com. Sub: </span>
-                            <span className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</span>
-                          </div>
-                        </div>
-
-                        {/* Comissão + Ação */}
-                        <div className="flex items-center gap-3">
-                          <div className="text-right">
-                            <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
-                            <div className="text-sm font-bold text-success whitespace-nowrap">
+                          <div className="mt-2 pt-2 border-t flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Minha Comissão</span>
+                            <div className="text-sm font-bold text-success">
                               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 flex-shrink-0"
-                            onClick={() => {
-                              setSelectedSubAffiliate(sub);
-                              setDialogOpen(true);
-                            }}
-                            title="Ver detalhes das comissões"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
                         </div>
-                      </div>
+                      )}
+
+                      {/* Tablet Layout - Compact */}
+                      {layoutMode === "compact" && (
+                        <div className="hidden md:flex md:items-center md:justify-between md:gap-4 md:p-4">
+                          <div className="flex items-center gap-3 min-w-[180px]">
+                            <Avatar className="h-9 w-9 flex-shrink-0">
+                              <AvatarImage src={sub.avatar_url || undefined} />
+                              <AvatarFallback className="text-xs">
+                                {sub.name?.charAt(0).toUpperCase() || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm truncate">{sub.name}</div>
+                              {sub.username && (
+                                <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-6">
+                            <div className="text-center">
+                              <div className="text-[10px] text-muted-foreground">Indicações</div>
+                              <div className="font-semibold text-sm">{sub.referrals_count}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
+                              <div className="text-sm font-bold text-success whitespace-nowrap">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 flex-shrink-0"
+                              onClick={() => {
+                                setSelectedSubAffiliate(sub);
+                                setDialogOpen(true);
+                              }}
+                              title="Ver detalhes"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tablet Layout - Complete */}
+                      {layoutMode === "complete" && (
+                        <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:p-4">
+                          {/* Avatar + Nome */}
+                          <div className="flex items-center gap-3 min-w-[200px]">
+                            <Avatar className="h-9 w-9 flex-shrink-0">
+                              <AvatarImage src={sub.avatar_url || undefined} />
+                              <AvatarFallback className="text-xs">
+                                {sub.name?.charAt(0).toUpperCase() || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm truncate">{sub.name}</div>
+                              {sub.username && (
+                                <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>
+                              )}
+                              <div className="text-xs text-muted-foreground truncate">{sub.email}</div>
+                            </div>
+                          </div>
+
+                          {/* Info Grid - 3 colunas, 2 linhas */}
+                          <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Plano: </span>
+                              <span className="font-medium">{sub.plan_name || "-"}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted-foreground">Nível: </span>
+                              {getLevelBadge(sub.level)}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted-foreground">Status: </span>
+                              {getStatusBadge(sub.status)}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Cadastro: </span>
+                              <span>{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Indicações: </span>
+                              <span className="font-medium">{sub.referrals_count}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Com. Sub: </span>
+                              <span className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</span>
+                            </div>
+                          </div>
+
+                          {/* Comissão + Ação */}
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
+                              <div className="text-sm font-bold text-success whitespace-nowrap">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 flex-shrink-0"
+                              onClick={() => {
+                                setSelectedSubAffiliate(sub);
+                                setDialogOpen(true);
+                              }}
+                              title="Ver detalhes das comissões"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))
