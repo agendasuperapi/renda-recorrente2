@@ -927,17 +927,17 @@ const AdminPlans = () => {
             <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DrawerContent className="max-h-[95vh]">
                 <DrawerHeader className="text-left border-b pb-4">
-                  <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/30 mb-4" />
-                  <div className="flex items-center justify-between">
-                    <DrawerTitle className="text-base">
-                      {editingPlan ? "Editar Plano" : "Novo Plano"}
-                    </DrawerTitle>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/30" />
                     <DrawerClose asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 absolute right-4 top-4">
                         <X className="h-4 w-4" />
                       </Button>
                     </DrawerClose>
                   </div>
+                  <DrawerTitle className="text-base">
+                    {editingPlan ? "Editar Plano" : "Novo Plano"}
+                  </DrawerTitle>
                 </DrawerHeader>
 
                 <Tabs defaultValue="plan" className="flex flex-col flex-1 overflow-hidden">
