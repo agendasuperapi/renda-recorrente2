@@ -354,12 +354,6 @@ const Coupons = () => {
 
       {/* All Coupons */}
       <Card className="lg:bg-card lg:border bg-transparent border-0 shadow-none lg:shadow-sm">
-        <CardHeader className="p-0 lg:p-6">
-          <CardTitle className="flex items-center gap-2">
-            <Ticket className="h-5 w-5" />
-            Cupons e Links
-          </CardTitle>
-        </CardHeader>
         <CardContent className="p-0 lg:p-6 lg:pt-0">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <Select value={productFilter} onValueChange={setProductFilter}>
