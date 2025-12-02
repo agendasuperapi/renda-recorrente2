@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
 import { CookieConsent } from "@/components/CookieConsent";
-import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket } from "lucide-react";
+import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
@@ -699,69 +699,128 @@ const LandingPage = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-64">
-                <nav className="flex flex-col gap-4 mt-8">
-                  {showHomeButton && <Button onClick={() => {
-                  scrollToSection("inicio");
-                  setMobileMenuOpen(false);
-                }} variant={activeSection === "inicio" ? "secondary" : "ghost"} className="w-full justify-start">
+              <SheetContent side="right" className="w-72 flex flex-col">
+                <nav className="flex flex-col gap-2 mt-8 flex-1">
+                  {showHomeButton && (
+                    <Button 
+                      onClick={() => {
+                        scrollToSection("inicio");
+                        setMobileMenuOpen(false);
+                      }} 
+                      variant={activeSection === "inicio" ? "secondary" : "ghost"} 
+                      className="w-full justify-start gap-3 h-12"
+                    >
+                      <Target className="w-5 h-5" />
                       Início
-                    </Button>}
-                  <Button onClick={() => {
-                  scrollToSection("como-funciona");
-                  setMobileMenuOpen(false);
-                }} variant={activeSection === "como-funciona" ? "secondary" : "ghost"} className="w-full justify-start">
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={() => {
+                      scrollToSection("como-funciona");
+                      setMobileMenuOpen(false);
+                    }} 
+                    variant={activeSection === "como-funciona" ? "secondary" : "ghost"} 
+                    className="w-full justify-start gap-3 h-12"
+                  >
+                    <Zap className="w-5 h-5" />
                     Como funciona
                   </Button>
-                  <Button onClick={() => {
-                  scrollToSection("vantagens");
-                  setMobileMenuOpen(false);
-                }} variant={activeSection === "vantagens" ? "secondary" : "ghost"} className="w-full justify-start">
+                  <Button 
+                    onClick={() => {
+                      scrollToSection("vantagens");
+                      setMobileMenuOpen(false);
+                    }} 
+                    variant={activeSection === "vantagens" ? "secondary" : "ghost"} 
+                    className="w-full justify-start gap-3 h-12"
+                  >
+                    <Trophy className="w-5 h-5" />
                     Vantagens
                   </Button>
-                  {products.length > 0 && <Button onClick={() => {
-                  scrollToSection("produtos");
-                  setMobileMenuOpen(false);
-                }} variant={activeSection === "produtos" ? "secondary" : "ghost"} className="w-full justify-start">
+                  {products.length > 0 && (
+                    <Button 
+                      onClick={() => {
+                        scrollToSection("produtos");
+                        setMobileMenuOpen(false);
+                      }} 
+                      variant={activeSection === "produtos" ? "secondary" : "ghost"} 
+                      className="w-full justify-start gap-3 h-12"
+                    >
+                      <Award className="w-5 h-5" />
                       Produtos
-                    </Button>}
-                  <Button onClick={() => {
-                  scrollToSection("planos");
-                  setMobileMenuOpen(false);
-                }} variant={activeSection === "planos" ? "secondary" : "ghost"} className="w-full justify-start">
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={() => {
+                      scrollToSection("planos");
+                      setMobileMenuOpen(false);
+                    }} 
+                    variant={activeSection === "planos" ? "secondary" : "ghost"} 
+                    className="w-full justify-start gap-3 h-12"
+                  >
+                    <Ticket className="w-5 h-5" />
                     Quero contratar
                   </Button>
                   
                   <div className="border-t pt-4 mt-4 space-y-2">
-                    {user ? <>
-                        {isAdmin && <Button onClick={() => {
-                      navigateToDashboard();
-                      setMobileMenuOpen(false);
-                    }} variant="outline" className="w-full">
+                    {user ? (
+                      <>
+                        {isAdmin && (
+                          <Button 
+                            onClick={() => {
+                              navigateToDashboard();
+                              setMobileMenuOpen(false);
+                            }} 
+                            className="w-full gap-3 h-12 bg-[#166534] hover:bg-[#15803d] text-white"
+                          >
+                            <LayoutDashboard className="w-5 h-5" />
                             Painel
-                          </Button>}
-                        <Button onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }} variant="ghost" className="w-full">
+                          </Button>
+                        )}
+                        <Button 
+                          onClick={() => {
+                            handleLogout();
+                            setMobileMenuOpen(false);
+                          }} 
+                          variant="ghost" 
+                          className="w-full justify-start gap-3 h-12"
+                        >
+                          <LogOut className="w-5 h-5" />
                           Sair
                         </Button>
-                      </> : <>
-                        <Button onClick={() => {
-                      navigate("/auth");
-                      setMobileMenuOpen(false);
-                    }} variant="outline" className="w-full">
-                          Entrar
+                      </>
+                    ) : (
+                      <>
+                        <Button 
+                          onClick={() => {
+                            navigate("/auth");
+                            setMobileMenuOpen(false);
+                          }} 
+                          className="w-full gap-3 h-12 bg-[#166534] hover:bg-[#15803d] text-white"
+                        >
+                          <LayoutDashboard className="w-5 h-5" />
+                          Painel
                         </Button>
-                        <Button onClick={() => {
-                      scrollToSection("planos");
-                      setMobileMenuOpen(false);
-                    }} className="w-full">
+                        <Button 
+                          onClick={() => {
+                            scrollToSection("planos");
+                            setMobileMenuOpen(false);
+                          }} 
+                          className="w-full gap-3 h-12"
+                        >
+                          <Target className="w-5 h-5" />
                           Quero Contratar
                         </Button>
-                      </>}
+                      </>
+                    )}
                   </div>
                 </nav>
+                
+                {/* Versão no rodapé */}
+                <div className="border-t pt-4 pb-2">
+                  <p className="text-xs text-muted-foreground text-center">
+                    Versão {APP_VERSION}
+                  </p>
+                </div>
               </SheetContent>
             </Sheet>
           </div>
