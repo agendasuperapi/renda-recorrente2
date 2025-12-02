@@ -775,8 +775,8 @@ const SubAffiliates = () => {
           )}
 
           {/* Controles de paginação e informações */}
-          <div className="flex flex-col sm:grid sm:grid-cols-3 items-center gap-3 sm:gap-0 mt-4">
-            <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+          <div className="flex flex-col items-center gap-3 mt-4">
+            <div className="text-xs sm:text-sm text-muted-foreground text-center">
               Mostrando {startIndex + 1} a {endIndex} de {stats.total} resultados
             </div>
             
@@ -832,8 +832,6 @@ const SubAffiliates = () => {
                 </Button>
               </div>
             )}
-            
-            <div></div>
           </div>
         </CardContent>
       </Card>
