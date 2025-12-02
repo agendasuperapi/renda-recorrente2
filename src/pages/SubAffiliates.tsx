@@ -458,10 +458,7 @@ const SubAffiliates = () => {
       </div>
 
       <Card className="border-0 shadow-none bg-transparent lg:border lg:shadow-sm lg:bg-card">
-        <CardHeader className="px-2 py-3 lg:p-6">
-          <CardTitle className="text-base sm:text-lg">Lista de Sub-Afiliados</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 px-2 pb-3 lg:p-6 lg:pt-0">
+        <CardContent className="space-y-4 px-2 pb-3 lg:p-6">
 
           {/* Desktop - Tabela */}
           {!isMobile && (
