@@ -357,15 +357,16 @@ export default function AdminVersions() {
                 </Button>
               </div>
               {changes.length > 0 && (
-                <ul className="mt-2 space-y-1">
+                <ul className="mt-2 space-y-2">
                   {changes.map((change, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <span className="flex-1">• {change}</span>
+                    <li key={index} className="flex flex-col md:flex-row md:items-center gap-2">
+                      <span className="flex-1 text-sm">• {change}</span>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveChange(index)}
+                        className="h-8 w-8 p-0 ml-4 md:ml-0 self-start md:self-center"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -375,7 +376,7 @@ export default function AdminVersions() {
               )}
             </div>
 
-            <Button type="submit" disabled={createVersionMutation.isPending}>
+            <Button type="submit" disabled={createVersionMutation.isPending} className="w-full md:w-auto">
               {createVersionMutation.isPending ? "Salvando..." : "Salvar Versão"}
             </Button>
           </form>
@@ -398,7 +399,7 @@ export default function AdminVersions() {
               {versions.map((v) => (
                 <div
                   key={v.id}
-                  className={`border rounded-lg p-4 space-y-2 ${
+                  className={`border rounded-lg p-3 md:p-4 space-y-3 md:space-y-2 ${
                     editingVersionId === v.id ? "bg-accent/50" : ""
                   }`}
                 >
@@ -440,53 +441,63 @@ export default function AdminVersions() {
                           </Button>
                         </div>
                         {editChanges.length > 0 && (
-                          <ul className="mt-2 space-y-1">
+                          <ul className="mt-2 space-y-2">
                             {editChanges.map((change, index) => (
-                              <li key={index} className="flex items-center gap-2 text-sm">
+                              <li key={index} className="flex flex-col md:flex-row md:items-center gap-2">
                                 {editingChangeIndex === index ? (
-                                  <>
+                                  <div className="flex flex-col md:flex-row gap-2 w-full">
                                     <Input
                                       value={editingChangeText}
                                       onChange={(e) => setEditingChangeText(e.target.value)}
                                       className="flex-1"
                                       onKeyPress={(e) => e.key === "Enter" && handleSaveEditChange(index)}
                                     />
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleSaveEditChange(index)}
-                                    >
-                                      <Check className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={handleCancelEditChange}
-                                    >
-                                      <X className="h-4 w-4" />
-                                    </Button>
-                                  </>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        type="button"
+                                        variant="default"
+                                        size="sm"
+                                        onClick={() => handleSaveEditChange(index)}
+                                        className="flex-1 md:flex-none"
+                                      >
+                                        <Check className="h-4 w-4 md:mr-1" />
+                                        <span className="md:inline hidden">Salvar</span>
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleCancelEditChange}
+                                        className="flex-1 md:flex-none"
+                                      >
+                                        <X className="h-4 w-4 md:mr-1" />
+                                        <span className="md:inline hidden">Cancelar</span>
+                                      </Button>
+                                    </div>
+                                  </div>
                                 ) : (
                                   <>
-                                    <span className="flex-1">• {change}</span>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleStartEditChange(index)}
-                                    >
-                                      <Pencil className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleRemoveEditChange(index)}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    <span className="flex-1 text-sm">• {change}</span>
+                                    <div className="flex gap-2 ml-4 md:ml-0">
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleStartEditChange(index)}
+                                        className="h-8 w-8 p-0"
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleRemoveEditChange(index)}
+                                        className="h-8 w-8 p-0"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
                                   </>
                                 )}
                               </li>
@@ -495,21 +506,21 @@ export default function AdminVersions() {
                         )}
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-col md:flex-row gap-2 pt-2">
                         <Button
                           onClick={handleSaveEdit}
                           disabled={updateVersionMutation.isPending}
-                          size="sm"
+                          className="w-full md:w-auto"
                         >
-                          <Check className="h-4 w-4 mr-1" />
+                          <Check className="h-4 w-4 mr-2" />
                           {updateVersionMutation.isPending ? "Salvando..." : "Salvar"}
                         </Button>
                         <Button
                           onClick={handleCancelEdit}
                           variant="outline"
-                          size="sm"
+                          className="w-full md:w-auto"
                         >
-                          <X className="h-4 w-4 mr-1" />
+                          <X className="h-4 w-4 mr-2" />
                           Cancelar
                         </Button>
                       </div>
@@ -517,20 +528,21 @@ export default function AdminVersions() {
                   ) : (
                     // View Mode
                     <>
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
                         <div>
                           <h3 className="font-semibold text-lg">v{v.version}</h3>
                           <p className="text-sm text-muted-foreground">
                             {new Date(v.released_at).toLocaleDateString("pt-BR")}
                           </p>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDuplicate(v)}
                             disabled={editingVersionId !== null}
                             title="Duplicar versão"
+                            className="h-9 w-9 p-0"
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -540,6 +552,7 @@ export default function AdminVersions() {
                             onClick={() => handleStartEdit(v)}
                             disabled={editingVersionId !== null}
                             title="Editar versão"
+                            className="h-9 w-9 p-0"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -549,6 +562,7 @@ export default function AdminVersions() {
                             onClick={() => setDeletingVersionId(v.id)}
                             disabled={deleteVersionMutation.isPending || editingVersionId !== null}
                             title="Excluir versão"
+                            className="h-9 w-9 p-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -558,9 +572,9 @@ export default function AdminVersions() {
                         <p className="text-sm">{v.description}</p>
                       )}
                       {v.changes && v.changes.length > 0 && (
-                        <ul className="text-sm space-y-1">
+                        <ul className="text-sm space-y-1.5">
                           {v.changes.map((change, idx) => (
-                            <li key={idx}>• {change}</li>
+                            <li key={idx} className="leading-relaxed">• {change}</li>
                           ))}
                         </ul>
                       )}
