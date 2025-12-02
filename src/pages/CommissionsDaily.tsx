@@ -506,7 +506,7 @@ const CommissionsDaily = () => {
       </div>
 
       <Card className={isMobile ? "bg-transparent border-0 shadow-none" : ""}>
-        <CardHeader className={isMobile ? "p-0" : ""}>
+        <CardHeader className={isMobile ? "hidden" : ""}>
           <CardTitle>Histórico Diário</CardTitle>
         </CardHeader>
         <CardContent className={isMobile ? "p-0" : ""}>
