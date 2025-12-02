@@ -454,29 +454,83 @@ const Withdrawals = () => {
         </DialogContent>
       </Dialog>
 
-      <Card>
-        <CardHeader className="p-4 md:p-6">
+      <Card className="md:bg-card md:border bg-transparent border-0 shadow-none md:shadow-sm">
+        <CardHeader className="p-4 md:p-6 hidden md:block">
           <CardTitle className="text-lg md:text-xl">Histórico de Saques</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-          <div className="overflow-x-auto -mx-4 md:mx-0">
+        <CardContent className="p-0 md:p-6 md:pt-0">
+          {/* Mobile View - Cards */}
+          <div className="md:hidden space-y-2">
+            {withdrawalsLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : withdrawals && withdrawals.length > 0 ? (
+              withdrawals.map(withdrawal => (
+                <Card key={withdrawal.id} className="p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge 
+                          variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}
+                          className="text-[10px]"
+                        >
+                          {withdrawal.status === 'pending' ? 'Pendente' : withdrawal.status === 'approved' ? 'Aprovado' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeitado' : withdrawal.status}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                      <p className="font-semibold text-base">
+                        R$ {withdrawal.amount.toFixed(2)}
+                      </p>
+                      {withdrawal.paid_date && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Pago em {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR')}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={() => handleViewDetails(withdrawal)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground py-8 text-sm">
+                Nenhum saque solicitado
+              </p>
+            )}
+          </div>
+
+          {/* Desktop View - Table */}
+          <div className="hidden md:block overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-xs md:text-sm">Data</TableHead>
                   <TableHead className="text-xs md:text-sm">Valor</TableHead>
-                  <TableHead className="hidden md:table-cell text-xs md:text-sm">Chave PIX</TableHead>
+                  <TableHead className="text-xs md:text-sm">Chave PIX</TableHead>
                   <TableHead className="text-xs md:text-sm">Status</TableHead>
-                  <TableHead className="hidden sm:table-cell text-xs md:text-sm">Pagamento</TableHead>
+                  <TableHead className="text-xs md:text-sm">Pagamento</TableHead>
                   <TableHead className="text-xs md:text-sm w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {withdrawalsLoading ? <TableRow>
+                {withdrawalsLoading ? (
+                  <TableRow>
                     <TableCell colSpan={6} className="text-center py-8">
                       <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     </TableCell>
-                  </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
+                  </TableRow>
+                ) : withdrawals && withdrawals.length > 0 ? (
+                  withdrawals.map(withdrawal => (
+                    <TableRow key={withdrawal.id}>
                       <TableCell className="text-xs md:text-sm">
                         {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
                           day: '2-digit',
@@ -494,7 +548,7 @@ const Withdrawals = () => {
                       <TableCell className="font-medium text-xs md:text-sm whitespace-nowrap">
                         R$ {withdrawal.amount.toFixed(2)}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell font-mono text-xs">
+                      <TableCell className="font-mono text-xs">
                         {formatCpf(withdrawal.pix_key)}
                       </TableCell>
                       <TableCell>
@@ -502,10 +556,10 @@ const Withdrawals = () => {
                           variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}
                           className="text-xs"
                         >
-                          {withdrawal.status === 'pending' ? 'Pend.' : withdrawal.status === 'approved' ? 'Aprov.' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeit.' : withdrawal.status}
+                          {withdrawal.status === 'pending' ? 'Pendente' : withdrawal.status === 'approved' ? 'Aprovado' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeitado' : withdrawal.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell text-xs md:text-sm">
+                      <TableCell className="text-xs md:text-sm">
                         {withdrawal.paid_date ? (
                           <>
                             {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
@@ -533,11 +587,15 @@ const Withdrawals = () => {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                    </TableRow>) : <TableRow>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-xs md:text-sm">
                       Nenhum saque solicitado
                     </TableCell>
-                  </TableRow>}
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
