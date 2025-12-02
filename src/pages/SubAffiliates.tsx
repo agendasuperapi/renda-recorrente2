@@ -637,21 +637,21 @@ const SubAffiliates = () => {
             </Table>
           )}
 
-          {/* Mobile - Cards */}
+          {/* Mobile/Tablet - Cards */}
           {isMobile && (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {filteredData.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="text-center text-muted-foreground py-8 col-span-full">
                   Nenhum sub-afiliado encontrado
                 </div>
               ) : (
                 filteredData.map((sub) => (
                   <Card key={sub.id} className="overflow-hidden">
-                    <CardContent className="p-4 space-y-3">
+                    <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
                       {/* Header com Avatar e Nome */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <Avatar className="h-12 w-12 flex-shrink-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                          <Avatar className="h-10 w-10 md:h-12 md:w-12 flex-shrink-0">
                             <AvatarImage src={sub.avatar_url || undefined} />
                             <AvatarFallback>
                               {sub.name?.charAt(0).toUpperCase() || '?'}
@@ -664,7 +664,7 @@ const SubAffiliates = () => {
                                 @{sub.username}
                               </div>
                             )}
-                            <div className="text-xs text-muted-foreground truncate mt-0.5">
+                            <div className="text-xs text-muted-foreground truncate mt-0.5 hidden md:block">
                               {sub.email}
                             </div>
                           </div>
@@ -672,7 +672,7 @@ const SubAffiliates = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 h-8 w-8"
                           onClick={() => {
                             setSelectedSubAffiliate(sub);
                             setDialogOpen(true);
@@ -684,11 +684,11 @@ const SubAffiliates = () => {
                       </div>
 
                       {/* Info Grid */}
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-1.5 text-xs">
                         <div>
                           <span className="text-muted-foreground">Plano:</span>
-                          <div className="font-medium mt-0.5">
-                            {sub.plan_name || <span className="text-muted-foreground">Sem plano</span>}
+                          <div className="font-medium">
+                            {sub.plan_name || <span className="text-muted-foreground">-</span>}
                           </div>
                         </div>
                         <div>
@@ -704,20 +704,20 @@ const SubAffiliates = () => {
                           </div>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Data Cadastro:</span>
-                          <div className="font-medium mt-0.5">
-                            {format(new Date(sub.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                          <span className="text-muted-foreground">Cadastro:</span>
+                          <div className="font-medium">
+                            {format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}
                           </div>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Indicações:</span>
-                          <div className="font-medium mt-0.5">
+                          <div className="font-medium">
                             {sub.referrals_count}
                           </div>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Comissão do Sub:</span>
-                          <div className="font-medium mt-0.5">
+                          <span className="text-muted-foreground">Com. Sub:</span>
+                          <div className="font-medium">
                             {new Intl.NumberFormat('pt-BR', {
                               style: 'currency',
                               currency: 'BRL'
@@ -727,9 +727,9 @@ const SubAffiliates = () => {
                       </div>
 
                       {/* Minha Comissão - Destaque */}
-                      <div className="pt-2 border-t">
+                      <div className="pt-1.5 border-t flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">Minha Comissão:</span>
-                        <div className="text-base font-bold text-success mt-0.5">
+                        <div className="text-sm md:text-base font-bold text-success">
                           {new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
                             currency: 'BRL'
