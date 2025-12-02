@@ -300,23 +300,24 @@ const Referrals = () => {
             </SelectContent>
           </Select>
 
-          <Select 
-            value={selectedPlan} 
-            onValueChange={setSelectedPlan}
-            disabled={selectedProduct === "all"}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Plano" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os planos</SelectItem>
-              {plans.map((plan) => (
-                <SelectItem key={plan.id} value={plan.id}>
-                  {plan.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {selectedProduct !== "all" && (
+            <Select 
+              value={selectedPlan} 
+              onValueChange={setSelectedPlan}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Plano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os planos</SelectItem>
+                {plans.map((plan) => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger>
