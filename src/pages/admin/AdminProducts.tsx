@@ -370,7 +370,7 @@ const AdminProducts = () => {
           <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DrawerContent className="max-h-[95vh]">
               <DrawerHeader className="text-left border-b pb-4">
-                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-4" />
+                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/30 mb-4" />
                 <div className="flex items-center justify-between">
                   <DrawerTitle className="text-base">
                     {editingProduct ? "Editar Produto" : "Novo Produto"}
