@@ -251,10 +251,10 @@ export default function AdminVersions() {
   const isSynced = latestDbVersion === APP_VERSION;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-2 mb-6">
-        <GitBranch className="h-6 w-6" />
-        <h1 className="text-3xl font-bold">Gerenciamento de Versões</h1>
+    <div className="container mx-auto p-3 md:p-6 space-y-4 md:space-y-6">
+      <div className="flex items-center gap-2 mb-4 md:mb-6">
+        <GitBranch className="h-5 w-5 md:h-6 md:w-6" />
+        <h1 className="text-2xl md:text-3xl font-bold">Gerenciamento de Versões</h1>
       </div>
 
       {/* Status Card */}
