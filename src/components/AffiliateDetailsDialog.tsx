@@ -188,23 +188,25 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-full max-h-[90vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-x-0 translate-y-0 data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:left-1/2 lg:translate-x-[-50%] lg:max-w-4xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] lg:data-[state=closed]:fade-out-0 lg:data-[state=closed]:zoom-out-95 lg:data-[state=closed]:slide-out-to-left-1/2 lg:data-[state=closed]:slide-out-to-top-[48%] duration-300">
+      <DialogContent className="max-h-[90vh] p-0 lg:p-6 gap-0 fixed bottom-0 left-0 right-0 top-auto w-full rounded-t-2xl rounded-b-none lg:relative lg:top-auto lg:bottom-auto lg:left-auto lg:right-auto lg:max-w-4xl lg:rounded-lg">
         {/* Handle bar para indicar que é um bottom sheet (apenas mobile/tablet) */}
         <div className="flex justify-center pt-3 pb-2 lg:hidden">
           <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
         </div>
         
-        <DialogHeader>
-          <DialogTitle>Detalhes do Afiliado</DialogTitle>
-        </DialogHeader>
+        <div className="px-6 pt-2 lg:pt-0">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Afiliado</DialogTitle>
+          </DialogHeader>
+        </div>
 
         {loadingProfile ? (
-          <div className="flex items-center justify-center py-8">
+          <div className="flex items-center justify-center py-8 px-6">
             <p className="text-muted-foreground">Carregando...</p>
           </div>
         ) : profile ? (
-          <ScrollArea className="h-[calc(90vh-120px)] pr-4">
-            <div className="space-y-6">
+          <ScrollArea className="h-[calc(90vh-120px)] px-6 lg:px-0">
+            <div className="space-y-6 pb-6">
               {/* Header com Avatar e Info Básica */}
               <div className="flex flex-col md:flex-row items-center md:items-start gap-4 pb-4 border-b">
                 <Avatar className="h-20 w-20">
@@ -707,7 +709,7 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
             </div>
           </ScrollArea>
         ) : (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="text-center text-muted-foreground py-8 px-6">
             Afiliado não encontrado
           </div>
         )}
