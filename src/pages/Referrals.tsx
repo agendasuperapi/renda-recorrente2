@@ -279,15 +279,16 @@ const Referrals = () => {
 
       <div className="bg-card rounded-lg border p-6">
         <h2 className="text-lg font-semibold mb-4">Filtros</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="flex flex-wrap gap-4 items-center">
           <Input
             placeholder="Buscar por nome ou email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-auto sm:min-w-[200px] lg:flex-1"
           />
           
           <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[160px]">
               <SelectValue placeholder="Produto" />
             </SelectTrigger>
             <SelectContent>
@@ -305,7 +306,7 @@ const Referrals = () => {
               value={selectedPlan} 
               onValueChange={setSelectedPlan}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[160px]">
                 <SelectValue placeholder="Plano" />
               </SelectTrigger>
               <SelectContent>
@@ -320,7 +321,7 @@ const Referrals = () => {
           )}
 
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[160px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -332,11 +333,9 @@ const Referrals = () => {
               <SelectItem value="incomplete">Incompleto</SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        <div className="flex flex-wrap gap-4 mt-4">
           <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
