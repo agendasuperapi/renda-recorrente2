@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Calendar, DollarSign, TrendingUp, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -296,7 +297,7 @@ const CommissionsMonthly = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:px-6 lg:px-0">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -344,7 +345,7 @@ const CommissionsMonthly = () => {
       </div>
 
       {/* Botão de filtros mobile/tablet */}
-      <div className="lg:hidden flex items-center justify-between">
+      <div className="lg:hidden flex items-center justify-between md:px-6">
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
@@ -360,16 +361,14 @@ const CommissionsMonthly = () => {
         </Button>
         
         {/* Layout mode selector - mobile/tablet */}
-        <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
-          <SelectTrigger className="w-auto gap-2">
-            {layoutMode === "compact" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="compact">Compacto</SelectItem>
-            <SelectItem value="complete">Completo</SelectItem>
-          </SelectContent>
-        </Select>
+        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
+          <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+            <LayoutList className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
