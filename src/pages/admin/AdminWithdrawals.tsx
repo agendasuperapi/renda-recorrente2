@@ -430,27 +430,31 @@ export default function AdminWithdrawals() {
       pending: {
         label: "Aguardando aprovação",
         variant: "secondary" as const,
-        icon: Clock
+        icon: Clock,
+        className: "bg-warning/20 text-warning-foreground border-warning/30"
       },
       approved: {
         label: "Aprovado",
         variant: "default" as const,
-        icon: CheckCircle
+        icon: CheckCircle,
+        className: ""
       },
       paid: {
         label: "Pago",
         variant: "default" as const,
-        icon: CheckCircle
+        icon: CheckCircle,
+        className: ""
       },
       rejected: {
         label: "Rejeitado",
         variant: "destructive" as const,
-        icon: XCircle
+        icon: XCircle,
+        className: ""
       }
     };
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
     const Icon = config.icon;
-    return <Badge variant={config.variant} className="gap-1">
+    return <Badge variant={config.variant} className={`gap-1 ${config.className}`}>
         <Icon className="h-3 w-3" />
         {config.label}
       </Badge>;
