@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, Copy, LucideProps } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, Copy, LucideProps, Megaphone, Image as ImageIcon, MessageSquareQuote, HelpCircle, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -1469,12 +1469,31 @@ const AdminLandingPage = () => {
       </div>
 
       <Tabs defaultValue="banner" className="w-full">
-        <TabsList>
-          <TabsTrigger value="banner">Banner de Anúncio</TabsTrigger>
-          <TabsTrigger value="hero">Imagens</TabsTrigger>
-          <TabsTrigger value="testimonials">Depoimentos</TabsTrigger>
-          <TabsTrigger value="faqs">FAQs</TabsTrigger>
-          <TabsTrigger value="features">Funcionalidades</TabsTrigger>
+        <TabsList className="grid grid-cols-5 w-full lg:w-auto">
+          <TabsTrigger value="banner" className="flex items-center gap-2">
+            <Megaphone className="h-4 w-4" />
+            <span className="hidden sm:inline">Banner de Anúncio</span>
+            <span className="sm:hidden">Banner</span>
+          </TabsTrigger>
+          <TabsTrigger value="hero" className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Imagens</span>
+            <span className="sm:hidden">Imgs</span>
+          </TabsTrigger>
+          <TabsTrigger value="testimonials" className="flex items-center gap-2">
+            <MessageSquareQuote className="h-4 w-4" />
+            <span className="hidden sm:inline">Depoimentos</span>
+            <span className="sm:hidden">Deptos</span>
+          </TabsTrigger>
+          <TabsTrigger value="faqs" className="flex items-center gap-2">
+            <HelpCircle className="h-4 w-4" />
+            <span>FAQs</span>
+          </TabsTrigger>
+          <TabsTrigger value="features" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline">Funcionalidades</span>
+            <span className="sm:hidden">Funcs</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="banner" className="space-y-3 lg:space-y-4">
