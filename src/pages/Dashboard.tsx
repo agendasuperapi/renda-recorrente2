@@ -467,41 +467,41 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão pendente
                 </CardTitle>
                 <DollarSign className="h-4 w-4 text-destructive" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-2xl font-bold text-destructive">
                   {formatCurrency(stats?.comissao_pendente || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total já sacado
                 </CardTitle>
                 <Coins className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-2xl font-bold">
                   {formatCurrency(stats?.total_sacado || 0)}
                 </div>
               </CardContent>
             </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="p-3 sm:p-4">
+          <CardHeader className="p-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Seu dia de solicitar saque
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <div className="text-lg font-medium">
               SEGUNDA-FEIRA, 24 DE NOVEMBRO
             </div>
@@ -510,22 +510,22 @@ const Dashboard = () => {
       </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle>Quant. de Indicações</CardTitle>
                 <Users className="h-5 w-5 text-primary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-4xl font-bold">{stats?.total_indicacoes || 0}</div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle>Quant. de Sub-Afiliados</CardTitle>
                 <Users className="h-5 w-5 text-primary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-4xl font-bold">{stats?.total_sub_afiliados || 0}</div>
               </CardContent>
             </Card>
