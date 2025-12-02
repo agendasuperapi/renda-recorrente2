@@ -920,7 +920,7 @@ const AdminPlans = () => {
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card">
+            <DialogContent className="w-full h-full max-w-full max-h-full m-0 rounded-none lg:w-auto lg:h-auto lg:max-w-4xl lg:max-h-[90vh] lg:m-6 lg:rounded-lg overflow-y-auto bg-card">
               <DialogHeader>
                 <DialogTitle className="text-foreground">
                   {editingPlan ? "Editar Plano" : "Novo Plano"}
