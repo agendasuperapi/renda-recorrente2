@@ -483,10 +483,10 @@ const AdminBankAccounts = () => {
           </TabsContent>
 
           <TabsContent value="accounts" className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="flex gap-4 items-center pr-3 sm:pr-0">
                 <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
-                  <SelectTrigger className="w-[280px]">
+                  <SelectTrigger className="w-full sm:w-[280px]">
                     <SelectValue placeholder="Filtrar por produto" />
                   </SelectTrigger>
                   <SelectContent>
@@ -504,11 +504,22 @@ const AdminBankAccounts = () => {
                     resetAccountForm();
                     setOpenAccountDialog(true);
                   }}
+                  className="hidden sm:flex"
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Nova Conta
                 </Button>
               </div>
+              <Button
+                onClick={() => {
+                  resetAccountForm();
+                  setOpenAccountDialog(true);
+                }}
+                className="sm:hidden w-full"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Conta
+              </Button>
             </div>
             
             <Dialog open={openAccountDialog} onOpenChange={setOpenAccountDialog}>
