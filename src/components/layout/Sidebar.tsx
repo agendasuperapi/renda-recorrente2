@@ -186,9 +186,11 @@ export const Sidebar = ({
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const versionInfo = useVersionCheck();
 
-  // Salvar preferência de menu no localStorage
+  // Salvar preferência de menu no localStorage e notificar BottomNav
   useEffect(() => {
     localStorage.setItem('sidebar_admin_view', JSON.stringify(showAdminMenu));
+    // Disparar evento customizado para sincronizar BottomNav na mesma aba
+    window.dispatchEvent(new Event('sidebar-mode-change'));
   }, [showAdminMenu]);
 
   // Observar mudanças de tema
