@@ -1244,11 +1244,11 @@ const AdminLandingPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="container mx-auto p-3 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Configuração da Landing Page</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl lg:text-3xl font-bold">Configuração da Landing Page</h1>
+          <p className="text-muted-foreground mt-1 lg:mt-2 text-sm lg:text-base">
             Gerencie os depoimentos e perguntas frequentes da sua landing page
           </p>
         </div>
@@ -1270,7 +1270,7 @@ const AdminLandingPage = () => {
           <TabsTrigger value="features">Funcionalidades</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="banner" className="space-y-4">
+        <TabsContent value="banner" className="space-y-3 lg:space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Banner de Anúncio</CardTitle>
@@ -1278,7 +1278,7 @@ const AdminLandingPage = () => {
                 Configure o banner de destaque que aparece no topo da página para promoções, lançamentos e anúncios especiais.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 lg:space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <div className="text-sm text-muted-foreground">
                   Use templates prontos ou personalize seu banner
@@ -1553,7 +1553,7 @@ const AdminLandingPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="hero" className="space-y-4">
+        <TabsContent value="hero" className="space-y-3 lg:space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Imagens da Landing Page</CardTitle>
@@ -1561,14 +1561,14 @@ const AdminLandingPage = () => {
                 Gerencie todas as imagens da landing page. As imagens serão comprimidas automaticamente para melhor performance.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 lg:space-y-6">
               {heroImages.map((heroImage) => (
                 <Card key={heroImage.id}>
                   <CardHeader>
                     <CardTitle className="text-lg">{heroImage.name}</CardTitle>
                     <CardDescription>{heroImage.alt_text}</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 lg:space-y-4">
                     <div className="grid md:grid-cols-2 gap-6">
                       {/* Light Theme */}
                       <div className="space-y-2">
@@ -1629,7 +1629,7 @@ const AdminLandingPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="testimonials" className="space-y-4">
+        <TabsContent value="testimonials" className="space-y-3 lg:space-y-4">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -1646,7 +1646,7 @@ const AdminLandingPage = () => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 lg:space-y-4">
               {showTestimonialForm && (
                 <Card>
                   <CardHeader>
@@ -1654,7 +1654,7 @@ const AdminLandingPage = () => {
                       {editingTestimonial ? "Editar Depoimento" : "Novo Depoimento"}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 lg:space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="name">Nome *</Label>
@@ -1774,7 +1774,7 @@ const AdminLandingPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="faqs" className="space-y-4">
+        <TabsContent value="faqs" className="space-y-3 lg:space-y-4">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -1791,7 +1791,7 @@ const AdminLandingPage = () => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 lg:space-y-4">
               {showFaqForm && (
                 <Card>
                   <CardHeader>
@@ -1799,7 +1799,7 @@ const AdminLandingPage = () => {
                       {editingFaq ? "Editar FAQ" : "Nova FAQ"}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 lg:space-y-4">
                     <div>
                       <Label htmlFor="question">Pergunta *</Label>
                       <Input
@@ -1872,7 +1872,7 @@ const AdminLandingPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="features" className="space-y-4">
+        <TabsContent value="features" className="space-y-3 lg:space-y-4">
 
           <Card>
             <CardHeader>
@@ -1891,7 +1891,7 @@ const AdminLandingPage = () => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 lg:space-y-4">
               {showFeatureForm && (
                 <Card>
                   <CardHeader>
@@ -1899,7 +1899,7 @@ const AdminLandingPage = () => {
                       {editingFeature ? "Editar Funcionalidade" : "Nova Funcionalidade"}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 lg:space-y-4">
                     <div>
                       <Label htmlFor="feature_name">Nome *</Label>
                       <Input
