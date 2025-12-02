@@ -153,7 +153,7 @@ const AdminLegalDocuments = () => {
                   id="terms"
                   value={termsContent}
                   onChange={(e) => setTermsContent(e.target.value)}
-                  className="mt-2 h-[calc(100vh-360px)] md:h-[calc(100vh-320px)] font-mono text-xs md:text-sm resize-none"
+                  className="mt-2 h-[calc(100vh-400px)] md:h-[calc(100vh-360px)] font-mono text-xs md:text-sm resize-none"
                   placeholder="Digite o conteúdo dos Termos de Uso..."
                 />
               </div>
@@ -179,7 +179,7 @@ const AdminLegalDocuments = () => {
                   id="privacy"
                   value={privacyContent}
                   onChange={(e) => setPrivacyContent(e.target.value)}
-                  className="mt-2 h-[calc(100vh-360px)] md:h-[calc(100vh-320px)] font-mono text-xs md:text-sm resize-none"
+                  className="mt-2 h-[calc(100vh-400px)] md:h-[calc(100vh-360px)] font-mono text-xs md:text-sm resize-none"
                   placeholder="Digite o conteúdo do Aviso de Privacidade..."
                 />
               </div>
@@ -205,7 +205,7 @@ const AdminLegalDocuments = () => {
                   id="cookies"
                   value={cookiesContent}
                   onChange={(e) => setCookiesContent(e.target.value)}
-                  className="mt-2 h-[calc(100vh-360px)] md:h-[calc(100vh-320px)] font-mono text-xs md:text-sm resize-none"
+                  className="mt-2 h-[calc(100vh-400px)] md:h-[calc(100vh-360px)] font-mono text-xs md:text-sm resize-none"
                   placeholder="Digite o conteúdo da Política de Cookies..."
                 />
               </div>
