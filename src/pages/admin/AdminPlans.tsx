@@ -608,13 +608,13 @@ const AdminPlans = () => {
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-3 lg:p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold">Planos</h1>
+          <div className="flex items-center justify-between mb-6 lg:mb-8">
+            <h1 className="text-2xl lg:text-3xl font-bold">Planos</h1>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-end">
               <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
                 <SelectTrigger className="w-full sm:w-[280px]">
