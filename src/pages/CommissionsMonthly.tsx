@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, DollarSign, TrendingUp, RefreshCw, X, Loader2 } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
@@ -82,6 +82,15 @@ const CommissionsMonthly = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [totalCount, setTotalCount] = useState(0);
+
+  // Layout mode para mobile/tablet
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
+
+  // Mostrar/esconder filtros no mobile/tablet
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Card expandido no modo compacto
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   useEffect(() => {
     loadCommissions();
@@ -334,88 +343,123 @@ const CommissionsMonthly = () => {
         </Card>
       </div>
 
-      {/* Card de Filtros */}
-      <Card>
-        <CardHeader className={isMobile ? "p-4" : undefined}>
-          <CardTitle className="text-lg">Filtros</CardTitle>
-        </CardHeader>
-        <CardContent className={isMobile ? "p-4 pt-0" : undefined}>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
-            <Select 
-              value={filters.product_id} 
-              onValueChange={(value) => {
-                setFilters(f => ({ ...f, product_id: value, plan_id: "" }));
-                loadPlansForProduct(value);
-              }}
-            >
+      {/* Botão de filtros mobile/tablet */}
+      <div className="lg:hidden flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+          {(filters.product_id || filters.plan_id) && (
+            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+              !
+            </Badge>
+          )}
+        </Button>
+        
+        {/* Layout mode selector - mobile/tablet */}
+        <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
+          <SelectTrigger className="w-auto gap-2">
+            {layoutMode === "compact" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="compact">Compacto</SelectItem>
+            <SelectItem value="complete">Completo</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
+      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Filtros</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowFilters(false)}
+            className="lg:hidden h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
+          <Select 
+            value={filters.product_id} 
+            onValueChange={(value) => {
+              setFilters(f => ({ ...f, product_id: value, plan_id: "" }));
+              loadPlansForProduct(value);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Produto" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value=" ">Todos os produtos</SelectItem>
+              {products.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {filters.product_id && filters.product_id !== " " && (
+            <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
               <SelectTrigger>
-                <SelectValue placeholder="Produto" />
+                <SelectValue placeholder="Plano" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=" ">Todos os produtos</SelectItem>
-                {products.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                <SelectItem value=" ">Todos os planos</SelectItem>
+                {plans.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          )}
 
-            {filters.product_id && filters.product_id !== " " && (
-              <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value=" ">Todos os planos</SelectItem>
-                  {plans.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+          <input
+            type="month"
+            placeholder="Mês início"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            value={filters.mes_inicio}
+            onChange={(e) => setFilters(f => ({ ...f, mes_inicio: e.target.value }))}
+          />
 
-            <input
-              type="month"
-              placeholder="Mês início"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              value={filters.mes_inicio}
-              onChange={(e) => setFilters(f => ({ ...f, mes_inicio: e.target.value }))}
-            />
+          <input
+            type="month"
+            placeholder="Mês fim"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            value={filters.mes_fim}
+            onChange={(e) => setFilters(f => ({ ...f, mes_fim: e.target.value }))}
+          />
 
-            <input
-              type="month"
-              placeholder="Mês fim"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              value={filters.mes_fim}
-              onChange={(e) => setFilters(f => ({ ...f, mes_fim: e.target.value }))}
-            />
+          <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+            setItemsPerPage(Number(value));
+            setCurrentPage(1);
+          }}>
+            <SelectTrigger className="h-10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 por página</SelectItem>
+              <SelectItem value="20">20 por página</SelectItem>
+              <SelectItem value="50">50 por página</SelectItem>
+              <SelectItem value="100">100 por página</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-              setItemsPerPage(Number(value));
-              setCurrentPage(1);
-            }}>
-              <SelectTrigger className="h-10">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 por página</SelectItem>
-                <SelectItem value="20">20 por página</SelectItem>
-                <SelectItem value="50">50 por página</SelectItem>
-                <SelectItem value="100">100 por página</SelectItem>
-              </SelectContent>
-            </Select>
+          <Button variant="outline" onClick={clearFilters} className="gap-2">
+            <X className="h-4 w-4" />
+            Limpar filtros
+          </Button>
 
-            <Button variant="outline" onClick={clearFilters} className="h-10">
-              <X className="h-4 w-4 mr-2" />
-              Limpar filtros
-            </Button>
-
-            <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2 h-10">
-              <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
-              Atualizar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+        </div>
+      </div>
 
       {/* Card de Listagem */}
       <Card className={isMobile ? "bg-transparent border-0 shadow-none" : undefined}>
@@ -438,53 +482,96 @@ const CommissionsMonthly = () => {
                     </CardContent>
                   </Card>
                 ) : (
-                  commissions.map((commission, index) => (
-                    <Card key={`${commission.mes_referencia}-${commission.product_id}-${commission.plan_id}-${index}`}>
+                  commissions.map((commission, index) => {
+                    const cardKey = `${commission.mes_referencia}-${commission.product_id}-${commission.plan_id}-${index}`;
+                    return (
+                    <Card key={cardKey}>
                       <CardContent className="p-4 space-y-3">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm capitalize">{formatMonth(commission.mes_referencia)}</p>
-                            <p className="text-xs text-muted-foreground">{commission.produto || "-"}</p>
+                        {layoutMode === "compact" && expandedCardId !== cardKey ? (
+                          // Layout Compacto: Mês/Ano, Aplicativo, Plano, Comissão
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-sm capitalize truncate">{formatMonth(commission.mes_referencia)}</div>
+                              <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"} • {commission.plano || "-"}</div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <div className="font-bold text-sm text-success">{formatCurrency(commission.valor_total)}</div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="flex-shrink-0 h-8 w-8"
+                                onClick={() => setExpandedCardId(cardKey)}
+                                title="Ver detalhes"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                          <span className="text-lg font-bold text-success">{formatCurrency(commission.valor_total)}</span>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Plano:</span>
-                            <p className="font-medium truncate">{commission.plano || "-"}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Quantidade:</span>
-                            <p className="font-medium">{commission.quantidade_comissoes} comissões</p>
-                          </div>
-                        </div>
+                        ) : (
+                          // Layout Completo: Todas as informações
+                          <>
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1">
+                                <p className="font-semibold text-sm capitalize">{formatMonth(commission.mes_referencia)}</p>
+                                <p className="text-xs text-muted-foreground">{commission.produto || "-"}</p>
+                              </div>
+                              <span className="text-lg font-bold text-success">{formatCurrency(commission.valor_total)}</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Plano:</span>
+                                <p className="font-medium truncate">{commission.plano || "-"}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Quantidade:</span>
+                                <p className="font-medium">{commission.quantidade_comissoes} comissões</p>
+                              </div>
+                            </div>
 
-                        <div className="flex flex-wrap gap-1.5 text-xs">
-                          {commission.pendentes > 0 && (
-                            <Badge variant="secondary" className="text-xs bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
-                              {commission.pendentes} pendentes
-                            </Badge>
-                          )}
-                          {commission.disponiveis > 0 && (
-                            <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-700 dark:text-green-400">
-                              {commission.disponiveis} disponíveis
-                            </Badge>
-                          )}
-                          {commission.sacadas > 0 && (
-                            <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-400">
-                              {commission.sacadas} sacadas
-                            </Badge>
-                          )}
-                          {commission.canceladas > 0 && (
-                            <Badge variant="secondary" className="text-xs bg-red-500/10 text-red-700 dark:text-red-400">
-                              {commission.canceladas} canceladas
-                            </Badge>
-                          )}
-                        </div>
+                            <div className="flex flex-wrap gap-1.5 text-xs">
+                              {commission.pendentes > 0 && (
+                                <Badge variant="secondary" className="text-xs bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">
+                                  {commission.pendentes} pendentes
+                                </Badge>
+                              )}
+                              {commission.disponiveis > 0 && (
+                                <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-700 dark:text-green-400">
+                                  {commission.disponiveis} disponíveis
+                                </Badge>
+                              )}
+                              {commission.sacadas > 0 && (
+                                <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-400">
+                                  {commission.sacadas} sacadas
+                                </Badge>
+                              )}
+                              {commission.canceladas > 0 && (
+                                <Badge variant="secondary" className="text-xs bg-red-500/10 text-red-700 dark:text-red-400">
+                                  {commission.canceladas} canceladas
+                                </Badge>
+                              )}
+                            </div>
+
+                            {layoutMode === "compact" && (
+                              <div className="flex justify-end pt-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => setExpandedCardId(null)}
+                                  title="Fechar"
+                                >
+                                  <ChevronUp className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </CardContent>
                     </Card>
-                  ))
+                  )})
                 )}
               </div>
             ) : (
