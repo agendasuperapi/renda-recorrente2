@@ -646,8 +646,8 @@ const SubAffiliates = () => {
                 </div>
               ) : (
                 filteredData.map((sub) => (
-                  <Card key={sub.id} className="overflow-hidden border-0 shadow-none">
-                    <CardContent className="p-2 space-y-2">
+                  <Card key={sub.id} className="overflow-hidden">
+                    <CardContent className="p-4 space-y-3">
                       {/* Header com Avatar e Nome */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
