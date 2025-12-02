@@ -3,13 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Ticket, Copy, ExternalLink, Check, XCircle } from "lucide-react";
+import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface AvailableCoupon {
   id: string;
@@ -46,6 +48,9 @@ const Coupons = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [productFilter, setProductFilter] = useState<string>("all");
+  const [layoutMode, setLayoutMode] = useState<string>("compact");
+  const [selectedCoupon, setSelectedCoupon] = useState<AvailableCoupon | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { userId } = useAuth();
 
   // Fetch current user profile
@@ -356,7 +361,7 @@ const Coupons = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0 lg:p-6 lg:pt-0">
-          <div className="mb-4">
+          <div className="mb-4 flex flex-wrap items-center gap-3">
             <Select value={productFilter} onValueChange={setProductFilter}>
               <SelectTrigger className="w-[250px]">
                 <SelectValue placeholder="Filtrar por produto" />
@@ -370,6 +375,16 @@ const Coupons = () => {
                 ))}
               </SelectContent>
             </Select>
+            {isMobile && (
+              <ToggleGroup type="single" value={layoutMode} onValueChange={(v) => v && setLayoutMode(v)} className="border rounded-lg">
+                <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+                  <LayoutList className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+                  <LayoutGrid className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            )}
           </div>
           {allCoupons.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -401,6 +416,82 @@ const Coupons = () => {
                         const customCode = profile?.username 
                           ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
                           : "";
+
+                        if (layoutMode === "compact") {
+                          return (
+                            <div 
+                              key={coupon.id} 
+                              className={`flex items-center gap-3 p-3 border rounded-lg ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm truncate">{coupon.name}</span>
+                                  {isActivated && isActive && (
+                                    <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Ativo</Badge>
+                                  )}
+                                  {isActivated && !isActive && (
+                                    <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs shrink-0">Inativo</Badge>
+                                  )}
+                                </div>
+                                <code className="text-xs font-mono text-muted-foreground">
+                                  {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                                </code>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => { setSelectedCoupon(coupon); setDetailsOpen(true); }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                {isActivated && isActive && (
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                                  >
+                                    <Copy className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                                {isActivated ? (
+                                  isActive ? (
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                      disabled={deactivateCoupon.isPending}
+                                    >
+                                      <XCircle className="h-3.5 w-3.5" />
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-8 w-8 bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400"
+                                      onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                      disabled={reactivateCoupon.isPending}
+                                    >
+                                      <Check className="h-3.5 w-3.5" />
+                                    </Button>
+                                  )
+                                ) : (
+                                  <Button
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)}
+                                    disabled={activateCoupon.isPending || !profile?.username}
+                                  >
+                                    <Check className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
 
                         return (
                           <Card key={coupon.id} className={isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}>
@@ -707,6 +798,82 @@ const Coupons = () => {
                     ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false)
                     : "";
 
+                  if (layoutMode === "compact") {
+                    return (
+                      <div 
+                        key={coupon.id} 
+                        className={`flex items-center gap-3 p-3 border rounded-lg ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm truncate">{coupon.name}</span>
+                            {isActivated && isActive && (
+                              <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Ativo</Badge>
+                            )}
+                            {isActivated && !isActive && (
+                              <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs shrink-0">Inativo</Badge>
+                            )}
+                          </div>
+                          <code className="text-xs font-mono text-muted-foreground">
+                            {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                          </code>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => { setSelectedCoupon(coupon); setDetailsOpen(true); }}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {isActivated && isActive && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                          {isActivated ? (
+                            isActive ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                disabled={deactivateCoupon.isPending}
+                              >
+                                <XCircle className="h-3.5 w-3.5" />
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400"
+                                onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")}
+                                disabled={reactivateCoupon.isPending}
+                              >
+                                <Check className="h-3.5 w-3.5" />
+                              </Button>
+                            )
+                          ) : (
+                            <Button
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)}
+                              disabled={activateCoupon.isPending || !profile?.username}
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Card key={coupon.id} className={isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}>
                       <CardContent className="p-4 space-y-3">
@@ -987,6 +1154,150 @@ const Coupons = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Coupon Details Drawer */}
+      <Drawer open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="pb-2 relative">
+            <DrawerTitle className="text-center">Detalhes do Cupom</DrawerTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 absolute right-4 top-1/2 -translate-y-1/2"
+              onClick={() => setDetailsOpen(false)}
+            >
+              <XCircle className="h-4 w-4" />
+            </Button>
+          </DrawerHeader>
+          {selectedCoupon && (
+            <div className="px-4 pb-6 space-y-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <h3 className="font-semibold text-lg">{selectedCoupon.name}</h3>
+                  {selectedCoupon.is_primary && (
+                    <Badge className="bg-yellow-500 text-white">Principal</Badge>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">
+                    {selectedCoupon.type === "percentage" && `${selectedCoupon.value}%`}
+                    {selectedCoupon.type === "days" && `${selectedCoupon.value} dias`}
+                    {selectedCoupon.type === "free_trial" && `${selectedCoupon.value} dias grátis`}
+                  </Badge>
+                  {selectedCoupon.products && (
+                    <Badge variant="secondary">{selectedCoupon.products.nome}</Badge>
+                  )}
+                  {selectedCoupon.activatedCoupon?.is_active && (
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Ativo</Badge>
+                  )}
+                  {selectedCoupon.activatedCoupon && !selectedCoupon.activatedCoupon.is_active && (
+                    <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">Inativo</Badge>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                {selectedCoupon.description || "Sem descrição"}
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <span className="text-sm text-muted-foreground block mb-1">Seu cupom:</span>
+                  <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-2 rounded block">
+                    {selectedCoupon.activatedCoupon?.custom_code || 
+                      generateCustomCode(profile?.username || "", selectedCoupon.code, selectedCoupon.is_primary || false)}
+                  </code>
+                </div>
+
+                {getAffiliateLink(selectedCoupon) && selectedCoupon.activatedCoupon?.is_active && (
+                  <div>
+                    <span className="text-sm text-muted-foreground block mb-1">Link de afiliado:</span>
+                    <code className="text-sm bg-muted px-3 py-2 rounded block break-all">
+                      {getAffiliateLink(selectedCoupon)}
+                    </code>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {selectedCoupon.activatedCoupon ? (
+                  <>
+                    {selectedCoupon.activatedCoupon.is_active && (
+                      <>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleCopy(selectedCoupon.activatedCoupon?.custom_code || "")}
+                        >
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiar Cupom
+                        </Button>
+                        {getAffiliateLink(selectedCoupon) && (
+                          <>
+                            <Button
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => handleCopy(getAffiliateLink(selectedCoupon) || "")}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copiar Link
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => window.open(getAffiliateLink(selectedCoupon) || "", '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </>
+                    )}
+                    {selectedCoupon.activatedCoupon.is_active ? (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          deactivateCoupon.mutate(selectedCoupon.activatedCoupon?.id || "");
+                          setDetailsOpen(false);
+                        }}
+                        disabled={deactivateCoupon.isPending}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Inativar Cupom
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400"
+                        onClick={() => {
+                          reactivateCoupon.mutate(selectedCoupon.activatedCoupon?.id || "");
+                          setDetailsOpen(false);
+                        }}
+                        disabled={reactivateCoupon.isPending}
+                      >
+                        <Check className="h-4 w-4 mr-2" />
+                        Ativar Cupom
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      handleActivateCoupon(selectedCoupon.id, selectedCoupon.code, selectedCoupon.is_primary || false, selectedCoupon.product_id);
+                      setDetailsOpen(false);
+                    }}
+                    disabled={activateCoupon.isPending || !profile?.username}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Liberar Cupom
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DrawerContent>
+      </Drawer>
 
     </div>
   );
