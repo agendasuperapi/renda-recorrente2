@@ -35,6 +35,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Testimonial {
   id: string;
@@ -522,6 +524,7 @@ const AdminLandingPage = () => {
   const [editingTemplate, setEditingTemplate] = useState<BannerTemplate | null>(null);
   const [iconSearch, setIconSearch] = useState("");
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
   const [uploadingHeroImage, setUploadingHeroImage] = useState<string | null>(null);
   
   const [bannerForm, setBannerForm] = useState({
@@ -2150,14 +2153,15 @@ const AdminLandingPage = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-3 lg:space-y-4">
-              {showFeatureForm && (
+              {/* Desktop Form - Card */}
+              {showFeatureForm && !isMobile && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">
                       {editingFeature ? "Editar Funcionalidade" : "Nova Funcionalidade"}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3 lg:space-y-4">
+                  <CardContent className="space-y-4">
                     <div>
                       <Label htmlFor="feature_name">Nome *</Label>
                       <Input
@@ -2186,7 +2190,7 @@ const AdminLandingPage = () => {
                               Selecionar
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
+                          <DialogContent className="max-w-2xl max-h-[80vh]">
                             <DialogHeader>
                               <DialogTitle>Selecione um ícone</DialogTitle>
                               <DialogDescription>
@@ -2204,7 +2208,7 @@ const AdminLandingPage = () => {
                                 />
                               </div>
                               <ScrollArea className="h-96">
-                                <div className="grid grid-cols-6 gap-3 p-1">
+                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 p-1">
                                   {filteredIcons.slice(0, 200).map((iconName) => {
                                     // Converte de kebab-case para PascalCase para exibição
                                     const displayName = iconName
@@ -2221,18 +2225,18 @@ const AdminLandingPage = () => {
                                           setIconDialogOpen(false);
                                           setIconSearch("");
                                         }}
-                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
+                                        className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
                                           featureForm.icon === displayName ? "border-primary bg-accent" : "border-border"
                                         }`}
                                       >
-                                        <DynamicIcon name={iconName} className="h-6 w-6" />
-                                        <span className="text-xs text-center break-all">{displayName}</span>
+                                        <DynamicIcon name={iconName} className="h-5 w-5" />
+                                        <span className="text-[10px] text-center break-all line-clamp-2">{displayName}</span>
                                       </button>
                                     );
                                   })}
                                 </div>
                                 {filteredIcons.length > 200 && (
-                                  <p className="text-sm text-muted-foreground text-center py-4">
+                                  <p className="text-xs text-muted-foreground text-center py-3">
                                     Mostrando 200 de {filteredIcons.length} ícones. Continue pesquisando para refinar.
                                   </p>
                                 )}
@@ -2269,6 +2273,124 @@ const AdminLandingPage = () => {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Mobile Form - Drawer */}
+              <Drawer open={showFeatureForm && isMobile} onOpenChange={(open) => !open && resetFeatureForm()}>
+                <DrawerContent className="max-h-[90vh]">
+                  <DrawerHeader className="text-left">
+                    <DrawerTitle>
+                      {editingFeature ? "Editar Funcionalidade" : "Nova Funcionalidade"}
+                    </DrawerTitle>
+                    <DrawerDescription>
+                      Gerencie as funcionalidades do sistema exibidas na landing page.
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <div className="px-4 pb-4 space-y-4 overflow-y-auto">
+                    <div className="space-y-2">
+                      <Label htmlFor="feature_name_mobile">Nome *</Label>
+                      <Input
+                        id="feature_name_mobile"
+                        value={featureForm.name}
+                        onChange={(e) => setFeatureForm({ ...featureForm, name: e.target.value })}
+                        placeholder="Ex: Dashboard completo"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="feature_icon_mobile">Ícone *</Label>
+                      <div className="flex gap-2">
+                        <Dialog open={iconDialogOpen} onOpenChange={setIconDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button type="button" variant="outline" size="sm" className="flex-1">
+                              <Search className="h-4 w-4 mr-2" />
+                              Selecionar
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-[95vw] max-h-[85vh] p-4">
+                            <DialogHeader>
+                              <DialogTitle className="text-base">Selecione um ícone</DialogTitle>
+                              <DialogDescription className="text-sm">
+                                Pesquise e selecione o ícone que deseja usar
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-3">
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  placeholder="Pesquisar ícone..."
+                                  value={iconSearch}
+                                  onChange={(e) => setIconSearch(e.target.value)}
+                                  className="pl-10 text-sm"
+                                />
+                              </div>
+                              <ScrollArea className="h-[50vh]">
+                                <div className="grid grid-cols-4 gap-2 p-1">
+                                  {filteredIcons.slice(0, 200).map((iconName) => {
+                                    const displayName = iconName
+                                      .split('-')
+                                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                      .join('');
+                                    
+                                    return (
+                                      <button
+                                        key={iconName}
+                                        type="button"
+                                        onClick={() => {
+                                          setFeatureForm({ ...featureForm, icon: displayName });
+                                          setIconDialogOpen(false);
+                                          setIconSearch("");
+                                        }}
+                                        className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all active:scale-95 ${
+                                          featureForm.icon === displayName ? "border-primary bg-accent" : "border-border"
+                                        }`}
+                                      >
+                                        <DynamicIcon name={iconName} className="h-5 w-5" />
+                                        <span className="text-[9px] text-center break-all line-clamp-1">{displayName}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                                {filteredIcons.length > 200 && (
+                                  <p className="text-xs text-muted-foreground text-center py-3">
+                                    Mostrando 200 de {filteredIcons.length} ícones
+                                  </p>
+                                )}
+                              </ScrollArea>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        
+                        <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted">
+                          {dynamicIconImports[selectedIconKebab] ? (
+                            <DynamicIcon name={selectedIconKebab} className="h-5 w-5 text-primary" />
+                          ) : (
+                            <CheckCircle2 className="h-5 w-5 text-primary" />
+                          )}
+                          <span className="text-xs text-muted-foreground">Preview</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between py-2">
+                      <Label htmlFor="feature_active_mobile">Ativo</Label>
+                      <Switch
+                        id="feature_active_mobile"
+                        checked={featureForm.is_active}
+                        onCheckedChange={(checked) => setFeatureForm({ ...featureForm, is_active: checked })}
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <Button onClick={handleSaveFeature} className="flex-1">
+                        {editingFeature ? "Atualizar" : "Criar"}
+                      </Button>
+                      <Button variant="outline" onClick={resetFeatureForm} className="flex-1">
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                </DrawerContent>
+              </Drawer>
 
               {/* Layout Mobile - Cards */}
               <div className="lg:hidden space-y-3">
