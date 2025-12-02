@@ -4,18 +4,47 @@ import { cn } from "@/lib/utils";
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => {
-  return (
-    <textarea
-      className={cn(
-        "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      ref={ref}
-      {...props}
-    />
-  );
-});
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, onTouchStart, onClick, ...props }, ref) => {
+    const handleIOSFocus = (target: HTMLTextAreaElement) => {
+      // Técnica combinada para iOS PWA - força o teclado a aparecer
+      requestAnimationFrame(() => {
+        target.blur();
+        requestAnimationFrame(() => {
+          target.focus();
+          setTimeout(() => {
+            if (document.activeElement !== target) {
+              target.focus();
+            }
+          }, 100);
+        });
+      });
+    };
+
+    const handleTouchStart = (e: React.TouchEvent<HTMLTextAreaElement>) => {
+      handleIOSFocus(e.currentTarget);
+      onTouchStart?.(e);
+    };
+
+    const handleClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+      handleIOSFocus(e.currentTarget);
+      onClick?.(e);
+    };
+
+    return (
+      <textarea
+        onTouchStart={handleTouchStart}
+        onClick={handleClick}
+        className={cn(
+          "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          className,
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
 Textarea.displayName = "Textarea";
 
 export { Textarea };
