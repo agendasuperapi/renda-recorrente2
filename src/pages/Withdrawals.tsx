@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp, Loader2 } from "lucide-react";
+import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp, Loader2, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import pixIcon from "@/assets/pix-icon.png";
+import { WithdrawalDetailsDialog, WithdrawalData } from "@/components/WithdrawalDetailsDialog";
 const DAYS_OF_WEEK: Record<number, string> = {
   0: "Domingo",
   1: "Segunda-feira",
@@ -31,6 +32,8 @@ const Withdrawals = () => {
   } = useToast();
   const queryClient = useQueryClient();
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<WithdrawalData | null>(null);
   const formatCpf = (cpf: string | null | undefined) => {
     if (!cpf) return '';
     const numbers = cpf.replace(/\D/g, '');
@@ -111,14 +114,22 @@ const Withdrawals = () => {
       const {
         data,
         error
-      } = await supabase.from('withdrawals').select('*').eq('affiliate_id', userId).order('requested_date', {
+      } = await supabase.from('withdrawals').select(`
+        *,
+        profiles!withdrawals_affiliate_id_fkey (name, email, username)
+      `).eq('affiliate_id', userId).order('requested_date', {
         ascending: false
       });
       if (error) throw error;
-      return data;
+      return data as unknown as WithdrawalData[];
     },
     enabled: !!userId
   });
+
+  const handleViewDetails = (withdrawal: WithdrawalData) => {
+    setSelectedWithdrawal(withdrawal);
+    setDetailsDialogOpen(true);
+  };
 
   // Verificar se hoje é o dia de saque
   const today = new Date();
@@ -457,11 +468,12 @@ const Withdrawals = () => {
                   <TableHead className="hidden md:table-cell text-xs md:text-sm">Chave PIX</TableHead>
                   <TableHead className="text-xs md:text-sm">Status</TableHead>
                   <TableHead className="hidden sm:table-cell text-xs md:text-sm">Pagamento</TableHead>
+                  <TableHead className="text-xs md:text-sm w-10"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {withdrawalsLoading ? <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     </TableCell>
                   </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
@@ -511,8 +523,18 @@ const Withdrawals = () => {
                           </>
                         ) : '-'}
                       </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleViewDetails(withdrawal)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>) : <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8 text-xs md:text-sm">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-xs md:text-sm">
                       Nenhum saque solicitado
                     </TableCell>
                   </TableRow>}
@@ -533,6 +555,14 @@ const Withdrawals = () => {
           <p className="hidden md:block">• Certifique-se de ter PIX no CPF {formatCpf(profile?.cpf)}</p>
         </CardContent>
       </Card>
+
+      {/* Dialog de Detalhes do Saque */}
+      <WithdrawalDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        withdrawal={selectedWithdrawal}
+        showAdminActions={false}
+      />
     </div>;
 };
 export default Withdrawals;
