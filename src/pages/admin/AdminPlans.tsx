@@ -1436,7 +1436,11 @@ const AdminPlans = () => {
             setIsStripeDialogOpen(open);
             if (!open) setIsEditingIntegration(false);
           }}>
-            <DialogContent className="max-w-2xl bg-card">
+            <DialogContent className="w-full max-w-full max-h-[85vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-y-0 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:max-w-2xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] bg-card">
+              {/* Handle bar para indicar que é um bottom sheet (apenas mobile) */}
+              <div className="flex justify-center pt-2 pb-2 lg:hidden">
+                <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+              </div>
               <DialogHeader>
                 <DialogTitle className="text-foreground">
                   {isEditingIntegration ? "Editar Integração Stripe" : "Configurar Integração Stripe"}
