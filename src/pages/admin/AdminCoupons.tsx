@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerFooter } from "@/components/ui/drawer";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,7 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Search, Edit, Trash2, CalendarIcon, Minus } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Plus, Search, Edit, Trash2, CalendarIcon, Minus, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +23,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const couponTypeLabels = {
   percentage: "% de desconto",
@@ -60,6 +63,7 @@ const AdminCoupons = () => {
   const [showZeroConfirmation, setShowZeroConfirmation] = useState(false);
   const [pendingFormValues, setPendingFormValues] = useState<CouponFormValues | null>(null);
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
   const form = useForm<CouponFormValues>({
     resolver: zodResolver(couponFormSchema),
@@ -359,364 +363,743 @@ const AdminCoupons = () => {
             Crie e gerencie cupons de desconto para afiliados
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) {
-            setEditingCoupon(null);
-            form.reset();
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button 
-              className="gap-2 w-full sm:w-auto"
-              onClick={() => {
-                setEditingCoupon(null);
-                form.reset({
-                  name: "",
-                  code: "",
-                  description: "",
-                  type: "percentage",
-                  value: 10,
-                  is_active: true,
-                  is_visible_to_affiliates: true,
-                  is_primary: false,
-                });
-                setDateInputValue("");
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              Criar Cupom
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingCoupon ? "Editar Cupom" : "Cadastro de Cupom"}
-              </DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+        {isMobile ? (
+          <Drawer open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setEditingCoupon(null);
+              form.reset();
+            }
+          }}>
+            <DrawerTrigger asChild>
+              <Button 
+                className="gap-2 w-full sm:w-auto"
+                onClick={() => {
+                  setEditingCoupon(null);
+                  form.reset({
+                    name: "",
+                    code: "",
+                    description: "",
+                    type: "percentage",
+                    value: 10,
+                    is_active: true,
+                    is_visible_to_affiliates: true,
+                    is_primary: false,
+                  });
+                  setDateInputValue("");
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Criar Cupom
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="max-h-[95vh]">
+              <DrawerHeader className="relative pb-3">
+                {/* Drag Handle */}
+                <div className="mx-auto w-12 h-1.5 rounded-full bg-muted-foreground/40 mb-3" />
+                
+                {/* Close Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-2 h-8 w-8"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                
+                <DrawerTitle>
+                  {editingCoupon ? "Editar Cupom" : "Cadastro de Cupom"}
+                </DrawerTitle>
+              </DrawerHeader>
+              
+              <ScrollArea className="h-[calc(95vh-140px)] px-4">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 pb-4">
+                    <div className="grid grid-cols-1 gap-3">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Nome do Cupom</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Ex: Black Friday 2024" {...field} className="text-sm" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="code"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Código</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Ex: BLACKFRIDAY" 
+                                {...field} 
+                                onChange={(e) => field.onChange(e.target.value.toUpperCase().replace(/\s/g, ""))}
+                                className="text-sm"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="product_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Produto</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="text-sm">
+                                <SelectValue placeholder="Selecione um produto" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id}>
+                                  {product.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Descrição</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Descrição do cupom (opcional)" 
+                              {...field} 
+                              className="min-h-[60px] text-sm"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Tipo Cupom</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger className="text-sm">
+                                  <SelectValue placeholder="Selecione o tipo" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="percentage">% de desconto</SelectItem>
+                                <SelectItem value="days">Dias grátis</SelectItem>
+                                <SelectItem value="free_trial">Mês grátis</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="value"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Quantidade/Valor</FormLabel>
+                            <FormControl>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                                  className="h-8 w-8"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                  className="text-center text-sm"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(field.value + 1)}
+                                  className="h-8 w-8"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <FormField
+                        control={form.control}
+                        name="valid_until"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel className="text-xs">Data de Validade</FormLabel>
+                            <div className="flex gap-2">
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  placeholder="DD/MM/AAAA"
+                                  value={dateInputValue}
+                                  onChange={(e) => {
+                                    const rawValue = e.target.value.replace(/\D/g, '');
+                                    let formatted = rawValue;
+                                    
+                                    if (rawValue.length >= 2) {
+                                      formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2);
+                                    }
+                                    if (rawValue.length >= 4) {
+                                      formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2, 4) + '/' + rawValue.slice(4, 8);
+                                    }
+                                    
+                                    setDateInputValue(formatted);
+                                    
+                                    if (rawValue.length === 8) {
+                                      const day = parseInt(rawValue.slice(0, 2));
+                                      const month = parseInt(rawValue.slice(2, 4));
+                                      const year = parseInt(rawValue.slice(4, 8));
+                                      const date = new Date(year, month - 1, day);
+                                      
+                                      if (!isNaN(date.getTime()) && 
+                                          date.getDate() === day && 
+                                          date.getMonth() === month - 1 && 
+                                          date.getFullYear() === year) {
+                                        field.onChange(date);
+                                      }
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    const rawValue = dateInputValue.replace(/\D/g, '');
+                                    if (rawValue.length === 8) {
+                                      const day = parseInt(rawValue.slice(0, 2));
+                                      const month = parseInt(rawValue.slice(2, 4));
+                                      const year = parseInt(rawValue.slice(4, 8));
+                                      const date = new Date(year, month - 1, day);
+                                      
+                                      if (!isNaN(date.getTime()) && 
+                                          date.getDate() === day && 
+                                          date.getMonth() === month - 1 && 
+                                          date.getFullYear() === year) {
+                                        field.onChange(date);
+                                      } else {
+                                        setDateInputValue("");
+                                        field.onChange(undefined);
+                                      }
+                                    } else if (rawValue.length === 0) {
+                                      field.onChange(undefined);
+                                    }
+                                  }}
+                                  maxLength={10}
+                                  className="flex-1 text-sm"
+                                />
+                              </FormControl>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                  >
+                                    <CalendarIcon className="h-3 w-3" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) => date < new Date()}
+                                    initialFocus
+                                    className="pointer-events-auto"
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="max_uses"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">Usos Máximos</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="Ilimitado"
+                                {...field}
+                                value={field.value || ""}
+                                onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                                className="text-sm"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="is_active"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm">Cadastro ativo</FormLabel>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="is_visible_to_affiliates"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm">Cupom para todos os afiliados</FormLabel>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="is_primary"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm">Cupom principal</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Apenas um cupom pode ser principal por produto
+                            </p>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </ScrollArea>
+              
+              <DrawerFooter className="pt-3">
+                <Button 
+                  onClick={form.handleSubmit(onSubmit)} 
+                  disabled={createCouponMutation.isPending || updateCouponMutation.isPending}
+                  className="w-full"
+                >
+                  {editingCoupon ? "Atualizar" : "Salvar"}
+                </Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setEditingCoupon(null);
+              form.reset();
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button 
+                className="gap-2 w-full sm:w-auto"
+                onClick={() => {
+                  setEditingCoupon(null);
+                  form.reset({
+                    name: "",
+                    code: "",
+                    description: "",
+                    type: "percentage",
+                    value: 10,
+                    is_active: true,
+                    is_visible_to_affiliates: true,
+                    is_primary: false,
+                  });
+                  setDateInputValue("");
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Criar Cupom
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingCoupon ? "Editar Cupom" : "Cadastro de Cupom"}
+                </DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome do Cupom</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Ex: Black Friday 2024" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="code"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Código</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Ex: BLACKFRIDAY" 
+                              {...field} 
+                              onChange={(e) => field.onChange(e.target.value.toUpperCase().replace(/\s/g, ""))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="product_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nome do Cupom</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ex: Black Friday 2024" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Código</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Ex: BLACKFRIDAY" 
-                            {...field} 
-                            onChange={(e) => field.onChange(e.target.value.toUpperCase().replace(/\s/g, ""))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="product_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Produto</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um produto" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {products.map((product) => (
-                            <SelectItem key={product.id} value={product.id}>
-                              {product.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descrição</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Descrição do cupom (opcional)" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo Cupom</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <FormLabel>Produto</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecione o tipo" />
+                              <SelectValue placeholder="Selecione um produto" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="percentage">% de desconto</SelectItem>
-                            <SelectItem value="days">Dias grátis</SelectItem>
-                            <SelectItem value="free_trial">Mês grátis</SelectItem>
+                            {products.map((product) => (
+                              <SelectItem key={product.id} value={product.id}>
+                                {product.nome}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="value"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Quantidade/Valor</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => field.onChange(Math.max(0, field.value - 1))}
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input
-                              type="number"
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                              className="text-center"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => field.onChange(field.value + 1)}
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="valid_until"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Data de Validade</FormLabel>
-                        <div className="flex gap-2">
-                          <FormControl>
-                            <Input
-                              type="text"
-                              placeholder="DD/MM/AAAA"
-                              value={dateInputValue}
-                              onChange={(e) => {
-                                const rawValue = e.target.value.replace(/\D/g, '');
-                                let formatted = rawValue;
-                                
-                                // Format with slashes as user types
-                                if (rawValue.length >= 2) {
-                                  formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2);
-                                }
-                                if (rawValue.length >= 4) {
-                                  formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2, 4) + '/' + rawValue.slice(4, 8);
-                                }
-                                
-                                // Update local state immediately for free typing
-                                setDateInputValue(formatted);
-                                
-                                // Try to parse and update form only when complete
-                                if (rawValue.length === 8) {
-                                  const day = parseInt(rawValue.slice(0, 2));
-                                  const month = parseInt(rawValue.slice(2, 4));
-                                  const year = parseInt(rawValue.slice(4, 8));
-                                  const date = new Date(year, month - 1, day);
-                                  
-                                  if (!isNaN(date.getTime()) && 
-                                      date.getDate() === day && 
-                                      date.getMonth() === month - 1 && 
-                                      date.getFullYear() === year) {
-                                    field.onChange(date);
-                                  }
-                                }
-                              }}
-                              onBlur={() => {
-                                const rawValue = dateInputValue.replace(/\D/g, '');
-                                if (rawValue.length === 8) {
-                                  const day = parseInt(rawValue.slice(0, 2));
-                                  const month = parseInt(rawValue.slice(2, 4));
-                                  const year = parseInt(rawValue.slice(4, 8));
-                                  const date = new Date(year, month - 1, day);
-                                  
-                                  if (!isNaN(date.getTime()) && 
-                                      date.getDate() === day && 
-                                      date.getMonth() === month - 1 && 
-                                      date.getFullYear() === year) {
-                                    field.onChange(date);
-                                  } else {
-                                    // Invalid date, clear it
-                                    setDateInputValue("");
-                                    field.onChange(undefined);
-                                  }
-                                } else if (rawValue.length === 0) {
-                                  field.onChange(undefined);
-                                }
-                              }}
-                              maxLength={10}
-                              className="flex-1"
-                            />
-                          </FormControl>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                              >
-                                <CalendarIcon className="h-4 w-4" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) => date < new Date()}
-                                initialFocus
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="max_uses"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Usos Máximos (opcional)</FormLabel>
+                        <FormLabel>Descrição</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Ilimitado"
-                            {...field}
-                            value={field.value || ""}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          <Textarea 
+                            placeholder="Descrição do cupom (opcional)" 
+                            {...field} 
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <FormField
-                  control={form.control}
-                  name="is_active"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Cadastro ativo</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo Cupom</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione o tipo" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="percentage">% de desconto</SelectItem>
+                              <SelectItem value="days">Dias grátis</SelectItem>
+                              <SelectItem value="free_trial">Mês grátis</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Quantidade/Valor</FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                className="text-center"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => field.onChange(field.value + 1)}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-                <FormField
-                  control={form.control}
-                  name="is_visible_to_affiliates"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Cupom para todos os afiliados</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="valid_until"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Data de Validade</FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="DD/MM/AAAA"
+                                value={dateInputValue}
+                                onChange={(e) => {
+                                  const rawValue = e.target.value.replace(/\D/g, '');
+                                  let formatted = rawValue;
+                                  
+                                  if (rawValue.length >= 2) {
+                                    formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2);
+                                  }
+                                  if (rawValue.length >= 4) {
+                                    formatted = rawValue.slice(0, 2) + '/' + rawValue.slice(2, 4) + '/' + rawValue.slice(4, 8);
+                                  }
+                                  
+                                  setDateInputValue(formatted);
+                                  
+                                  if (rawValue.length === 8) {
+                                    const day = parseInt(rawValue.slice(0, 2));
+                                    const month = parseInt(rawValue.slice(2, 4));
+                                    const year = parseInt(rawValue.slice(4, 8));
+                                    const date = new Date(year, month - 1, day);
+                                    
+                                    if (!isNaN(date.getTime()) && 
+                                        date.getDate() === day && 
+                                        date.getMonth() === month - 1 && 
+                                        date.getFullYear() === year) {
+                                      field.onChange(date);
+                                    }
+                                  }
+                                }}
+                                onBlur={() => {
+                                  const rawValue = dateInputValue.replace(/\D/g, '');
+                                  if (rawValue.length === 8) {
+                                    const day = parseInt(rawValue.slice(0, 2));
+                                    const month = parseInt(rawValue.slice(2, 4));
+                                    const year = parseInt(rawValue.slice(4, 8));
+                                    const date = new Date(year, month - 1, day);
+                                    
+                                    if (!isNaN(date.getTime()) && 
+                                        date.getDate() === day && 
+                                        date.getMonth() === month - 1 && 
+                                        date.getFullYear() === year) {
+                                      field.onChange(date);
+                                    } else {
+                                      setDateInputValue("");
+                                      field.onChange(undefined);
+                                    }
+                                  } else if (rawValue.length === 0) {
+                                    field.onChange(undefined);
+                                  }
+                                }}
+                                maxLength={10}
+                                className="flex-1"
+                              />
+                            </FormControl>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                >
+                                  <CalendarIcon className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) => date < new Date()}
+                                  initialFocus
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="max_uses"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Usos Máximos (opcional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="Ilimitado"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-                <FormField
-                  control={form.control}
-                  name="is_primary"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Cupom principal</FormLabel>
-                        <p className="text-sm text-muted-foreground">
-                          Apenas um cupom pode ser principal por produto
-                        </p>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="is_active"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Cadastro ativo</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={createCouponMutation.isPending || updateCouponMutation.isPending}>
-                    {editingCoupon ? "Atualizar" : "Salvar"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                  <FormField
+                    control={form.control}
+                    name="is_visible_to_affiliates"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Cupom para todos os afiliados</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="is_primary"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Cupom principal</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Apenas um cupom pode ser principal por produto
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={createCouponMutation.isPending || updateCouponMutation.isPending}>
+                      {editingCoupon ? "Atualizar" : "Salvar"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
