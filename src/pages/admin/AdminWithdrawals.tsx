@@ -1136,45 +1136,49 @@ export default function AdminWithdrawals() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Data</TableHead>
-                            <TableHead>Produto</TableHead>
-                            <TableHead>Cliente</TableHead>
-                            <TableHead>Plano</TableHead>
-                            <TableHead>Nível</TableHead>
-                            <TableHead>Percentual</TableHead>
-                            <TableHead>Valor</TableHead>
+                            <TableHead className="text-xs">Data</TableHead>
+                            <TableHead className="text-xs">Produto/Plano</TableHead>
+                            <TableHead className="text-xs">Cliente</TableHead>
+                            <TableHead className="text-xs">Nível/%</TableHead>
+                            <TableHead className="text-xs text-right">Valor</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {commissions.map((commission: any) => <TableRow key={commission.id}>
-                              <TableCell className="text-xs whitespace-nowrap">
+                              <TableCell className="text-xs whitespace-nowrap py-2">
                                 {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", {
                         locale: ptBR
                       })}
                               </TableCell>
-                              <TableCell className="text-sm">
-                                {commission.products?.nome || "N/A"}
-                              </TableCell>
-                              <TableCell>
+                              <TableCell className="py-2">
                                 <div className="flex flex-col">
-                                  <span className="text-sm font-medium">
-                                    {commission.unified_users?.name || "N/A"}
+                                  <span className="text-xs font-medium">
+                                    {commission.products?.nome || "N/A"}
                                   </span>
                                   <span className="text-xs text-muted-foreground">
+                                    {commission.subscriptions?.plans?.name || "N/A"}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-2">
+                                <div className="flex flex-col">
+                                  <span className="text-xs font-medium truncate max-w-[120px]">
+                                    {commission.unified_users?.name || "N/A"}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground truncate max-w-[120px]">
                                     {commission.unified_users?.email || "N/A"}
                                   </span>
                                 </div>
                               </TableCell>
-                              <TableCell className="text-sm">
-                                {commission.subscriptions?.plans?.name || "N/A"}
+                              <TableCell className="py-2">
+                                <div className="flex items-center gap-1">
+                                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                    N{commission.level || 1}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">{commission.percentage}%</span>
+                                </div>
                               </TableCell>
-                              <TableCell>
-                                <Badge variant="secondary" className="text-xs">
-                                  N{commission.level || 1}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-sm">{commission.percentage}%</TableCell>
-                              <TableCell className="font-semibold">
+                              <TableCell className="font-semibold text-xs text-right py-2">
                                 {Number(commission.amount).toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL"
