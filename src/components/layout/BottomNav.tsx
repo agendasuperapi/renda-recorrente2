@@ -1,15 +1,16 @@
-import { LayoutDashboard, LineChart, Coins, Menu } from "lucide-react";
+import { LayoutDashboard, LineChart, Coins, Menu, DollarSign, Wallet } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface BottomNavProps {
   onMenuClick: () => void;
+  isAdmin?: boolean;
 }
 
-export const BottomNav = ({ onMenuClick }: BottomNavProps) => {
+export const BottomNav = ({ onMenuClick, isAdmin = false }: BottomNavProps) => {
   const location = useLocation();
 
-  const navItems = [
+  const affiliateNavItems = [
     {
       icon: LayoutDashboard,
       label: "Dashboard",
@@ -26,6 +27,26 @@ export const BottomNav = ({ onMenuClick }: BottomNavProps) => {
       path: "/commissions-daily",
     },
   ];
+
+  const adminNavItems = [
+    {
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      path: "/admin/dashboard",
+    },
+    {
+      icon: DollarSign,
+      label: "Pagamentos",
+      path: "/admin/payments",
+    },
+    {
+      icon: Wallet,
+      label: "Saques",
+      path: "/admin/withdrawals",
+    },
+  ];
+
+  const navItems = isAdmin ? adminNavItems : affiliateNavItems;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t lg:hidden">
