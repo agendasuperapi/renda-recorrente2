@@ -720,7 +720,7 @@ const SubAffiliates = () => {
                       {/* Tablet Layout - Grid organizado */}
                       <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4">
                         {/* Avatar + Nome */}
-                        <div className="flex items-center gap-3 min-w-[180px]">
+                        <div className="flex items-center gap-3 min-w-[200px]">
                           <Avatar className="h-9 w-9 flex-shrink-0">
                             <AvatarImage src={sub.avatar_url || undefined} />
                             <AvatarFallback className="text-xs">
@@ -732,12 +732,12 @@ const SubAffiliates = () => {
                             {sub.username && (
                               <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>
                             )}
+                            <div className="text-xs text-muted-foreground truncate">{sub.email}</div>
                           </div>
                         </div>
 
                         {/* Info Grid */}
-                        <div className="grid grid-cols-6 gap-3 text-xs items-center">
-                          <div className="truncate text-muted-foreground">{sub.email}</div>
+                        <div className="grid grid-cols-5 gap-3 text-xs items-center">
                           <div className="truncate font-medium">{sub.plan_name || "-"}</div>
                           <div className="flex justify-center">{getLevelBadge(sub.level)}</div>
                           <div className="flex justify-center">{getStatusBadge(sub.status)}</div>
