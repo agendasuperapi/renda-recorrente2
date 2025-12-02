@@ -175,6 +175,75 @@ const SortableTestimonialRow = ({ testimonial, onEdit, onDelete }: {
   );
 };
 
+const SortableTestimonialCard = ({ testimonial, onEdit, onDelete }: { 
+  testimonial: Testimonial; 
+  onEdit: (t: Testimonial) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: testimonial.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style} className="p-3">
+      <div className="flex gap-3">
+        <button className="cursor-grab active:cursor-grabbing self-start pt-1" {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+        
+        <div className="flex-1 space-y-2">
+          <div className="flex items-start gap-2">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
+              <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="font-medium text-sm">{testimonial.name}</div>
+              <div className="text-xs text-muted-foreground">{testimonial.role}</div>
+            </div>
+            <Badge variant={testimonial.is_active ? "default" : "secondary"} className="text-xs">
+              {testimonial.is_active ? "Ativo" : "Inativo"}
+            </Badge>
+          </div>
+          
+          <p className="text-xs text-muted-foreground line-clamp-2">{testimonial.content}</p>
+          
+          <div className="flex items-center justify-between">
+            <div className="text-sm">{"⭐".repeat(testimonial.rating)}</div>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(testimonial)}
+                className="h-7 w-7 p-0"
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(testimonial.id)}
+                className="h-7 w-7 p-0"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 const SortableFaqRow = ({ faq, onEdit, onDelete }: { 
   faq: FAQ; 
   onEdit: (f: FAQ) => void;
@@ -1749,63 +1818,14 @@ const AdminLandingPage = () => {
                     items={testimonials.map(t => t.id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    {testimonials.map((testimonial) => {
-                      const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: testimonial.id });
-                      const style = {
-                        transform: CSS.Transform.toString(transform),
-                        transition,
-                      };
-                      
-                      return (
-                        <Card key={testimonial.id} ref={setNodeRef} style={style} className="p-3">
-                          <div className="flex gap-3">
-                            <button className="cursor-grab active:cursor-grabbing self-start pt-1" {...attributes} {...listeners}>
-                              <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                            
-                            <div className="flex-1 space-y-2">
-                              <div className="flex items-start gap-2">
-                                <Avatar className="h-10 w-10">
-                                  <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
-                                  <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                  <div className="font-medium text-sm">{testimonial.name}</div>
-                                  <div className="text-xs text-muted-foreground">{testimonial.role}</div>
-                                </div>
-                                <Badge variant={testimonial.is_active ? "default" : "secondary"} className="text-xs">
-                                  {testimonial.is_active ? "Ativo" : "Inativo"}
-                                </Badge>
-                              </div>
-                              
-                              <p className="text-xs text-muted-foreground line-clamp-2">{testimonial.content}</p>
-                              
-                              <div className="flex items-center justify-between">
-                                <div className="text-sm">{"⭐".repeat(testimonial.rating)}</div>
-                                <div className="flex gap-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => editTestimonial(testimonial)}
-                                    className="h-7 w-7 p-0"
-                                  >
-                                    <Pencil className="h-3 w-3" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteTestimonial(testimonial.id)}
-                                    className="h-7 w-7 p-0"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      );
-                    })}
+                    {testimonials.map((testimonial) => (
+                      <SortableTestimonialCard
+                        key={testimonial.id}
+                        testimonial={testimonial}
+                        onEdit={editTestimonial}
+                        onDelete={handleDeleteTestimonial}
+                      />
+                    ))}
                   </SortableContext>
                 </DndContext>
               </div>
