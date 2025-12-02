@@ -527,129 +527,137 @@ export default function AdminPayments() {
       </Card>
 
       {isMobile ? <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DrawerContent className="max-h-[90vh]">
-            {/* Handle bar para indicar que é um drawer */}
-            
-            
-            <DrawerHeader className="relative">
-              <DrawerTitle>Detalhes do Pagamento</DrawerTitle>
+          <DrawerContent className="max-h-[95vh]">
+            <DrawerHeader className="relative pb-3">
+              {/* Drag Handle */}
+              <div className="mx-auto w-12 h-1.5 rounded-full bg-muted-foreground/40 mb-3" />
               
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 h-8 w-8"
+                onClick={() => setDialogOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              
+              <DrawerTitle>Detalhes do Pagamento</DrawerTitle>
             </DrawerHeader>
-            {selectedPayment && <Tabs defaultValue="payment" className="w-full px-4 pb-4">
+            
+            {selectedPayment && <ScrollArea className="h-[calc(95vh-140px)] px-4">
+              <Tabs defaultValue="payment" className="w-full pb-4">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="payment" className="gap-2">
-                    <Receipt className="h-4 w-4" />
-                    Detalhes do Pagamento
+                  <TabsTrigger value="payment" className="gap-2 text-xs">
+                    <Receipt className="h-3.5 w-3.5" />
+                    Pagamento
                   </TabsTrigger>
-                  <TabsTrigger value="client" disabled={!selectedPayment.user_name} className="gap-2">
-                    <User className="h-4 w-4" />
+                  <TabsTrigger value="client" disabled={!selectedPayment.user_name} className="gap-2 text-xs">
+                    <User className="h-3.5 w-3.5" />
                     Cliente
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="payment" className="space-y-4 mt-4">
-                  <ScrollArea className="max-h-[60vh]">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Invoice ID</p>
-                        <p className="text-sm font-mono break-all">{selectedPayment.stripe_invoice_id}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Status</p>
-                        <Badge variant={selectedPayment.status === "paid" ? "default" : "destructive"}>
-                          {selectedPayment.status === "paid" ? "Pago" : selectedPayment.status}
-                        </Badge>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Valor</p>
-                        <p className="text-lg font-semibold">
-                          {Number(selectedPayment.amount).toLocaleString("pt-BR", {
+                <TabsContent value="payment" className="space-y-3 mt-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Invoice ID</p>
+                      <p className="text-xs font-mono break-all">{selectedPayment.stripe_invoice_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Status</p>
+                      <Badge variant={selectedPayment.status === "paid" ? "default" : "destructive"} className="text-xs">
+                        {selectedPayment.status === "paid" ? "Pago" : selectedPayment.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Valor</p>
+                      <p className="text-base font-semibold">
+                        {Number(selectedPayment.amount).toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL"
                     })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Moeda</p>
-                        <p className="text-sm uppercase">{selectedPayment.currency || "BRL"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Data do Pagamento</p>
-                        <p className="text-sm">
-                          {format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm:ss", {
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Moeda</p>
+                      <p className="text-xs uppercase">{selectedPayment.currency || "BRL"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Data do Pagamento</p>
+                      <p className="text-xs">
+                        {format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm", {
                       locale: ptBR
                     })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Ambiente</p>
-                        <Badge variant={selectedPayment.environment === "production" ? "default" : "secondary"}>
-                          {selectedPayment.environment === "production" ? "Produção" : "Teste"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">Ambiente</p>
+                      <Badge variant={selectedPayment.environment === "production" ? "default" : "secondary"} className="text-xs">
+                        {selectedPayment.environment === "production" ? "Produção" : "Teste"}
+                      </Badge>
+                    </div>
+                    {selectedPayment.billing_reason && <div>
+                        <p className="text-xs font-medium text-muted-foreground">Motivo da Cobrança</p>
+                        <Badge variant="outline" className="text-xs">
+                          {selectedPayment.billing_reason === "subscription_create" ? "Nova Assinatura" : selectedPayment.billing_reason === "subscription_cycle" ? "Renovação" : selectedPayment.billing_reason === "subscription_update" ? "Atualização" : selectedPayment.billing_reason}
                         </Badge>
-                      </div>
-                      {selectedPayment.billing_reason && <div>
-                          <p className="text-sm font-medium text-muted-foreground">Motivo da Cobrança</p>
-                          <Badge variant="outline">
-                            {selectedPayment.billing_reason === "subscription_create" ? "Nova Assinatura" : selectedPayment.billing_reason === "subscription_cycle" ? "Renovação" : selectedPayment.billing_reason === "subscription_update" ? "Atualização" : selectedPayment.billing_reason}
-                          </Badge>
-                        </div>}
-                      {selectedPayment.plan_name && <div>
-                          <p className="text-sm font-medium text-muted-foreground">Plano</p>
-                          <p className="text-sm font-semibold">{selectedPayment.plan_name}</p>
-                          {selectedPayment.plan_price && <p className="text-xs text-muted-foreground">
-                              {Number(selectedPayment.plan_price).toLocaleString("pt-BR", {
+                      </div>}
+                    {selectedPayment.plan_name && <div>
+                        <p className="text-xs font-medium text-muted-foreground">Plano</p>
+                        <p className="text-sm font-semibold">{selectedPayment.plan_name}</p>
+                        {selectedPayment.plan_price && <p className="text-xs text-muted-foreground">
+                            {Number(selectedPayment.plan_price).toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL"
                     })}
-                            </p>}
-                        </div>}
-                      {selectedPayment.user_name && <>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Nome do Cliente</p>
-                            <p className="text-sm">{selectedPayment.user_name}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Email do Cliente</p>
-                            <p className="text-sm">{selectedPayment.user_email || "-"}</p>
-                          </div>
-                        </>}
-                      {selectedPayment.stripe_subscription_id && <div className="col-span-2">
-                          <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
-                          <p className="text-sm font-mono break-all">{selectedPayment.stripe_subscription_id}</p>
-                        </div>}
-                      {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <>
-                          {selectedPayment.affiliate_name && <div>
-                              <p className="text-sm font-medium text-muted-foreground">Afiliado</p>
-                              <p className="text-sm font-semibold">{selectedPayment.affiliate_name}</p>
-                            </div>}
-                          {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <div>
-                              <p className="text-sm font-medium text-muted-foreground">Cupom Utilizado</p>
-                              <Badge variant="outline">
-                                {selectedPayment.coupon_custom_code || selectedPayment.coupon_code}
-                              </Badge>
-                            </div>}
-                        </>}
-                    </div>
-                  </ScrollArea>
+                          </p>}
+                      </div>}
+                    {selectedPayment.user_name && <>
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">Nome do Cliente</p>
+                          <p className="text-xs">{selectedPayment.user_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">Email do Cliente</p>
+                          <p className="text-xs">{selectedPayment.user_email || "-"}</p>
+                        </div>
+                      </>}
+                    {selectedPayment.stripe_subscription_id && <div className="col-span-2">
+                        <p className="text-xs font-medium text-muted-foreground">Stripe Subscription ID</p>
+                        <p className="text-xs font-mono break-all">{selectedPayment.stripe_subscription_id}</p>
+                      </div>}
+                    {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <>
+                        {selectedPayment.affiliate_name && <div>
+                            <p className="text-xs font-medium text-muted-foreground">Afiliado</p>
+                            <p className="text-xs font-semibold">{selectedPayment.affiliate_name}</p>
+                          </div>}
+                        {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <div>
+                            <p className="text-xs font-medium text-muted-foreground">Cupom Utilizado</p>
+                            <Badge variant="outline" className="text-xs">
+                              {selectedPayment.coupon_custom_code || selectedPayment.coupon_code}
+                            </Badge>
+                          </div>}
+                      </>}
+                  </div>
                 </TabsContent>
 
-                <TabsContent value="client" className="space-y-4 mt-4">
-                  {selectedPayment.user_name ? <ScrollArea className="max-h-[60vh]">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Nome</p>
-                          <p className="text-sm">{selectedPayment.user_name}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Email</p>
-                          <p className="text-sm">{selectedPayment.user_email || "-"}</p>
-                        </div>
+                <TabsContent value="client" className="space-y-3 mt-3">
+                  {selectedPayment.user_name ? <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Nome</p>
+                        <p className="text-xs">{selectedPayment.user_name}</p>
                       </div>
-                    </ScrollArea> : <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Email</p>
+                        <p className="text-xs">{selectedPayment.user_email || "-"}</p>
+                      </div>
+                    </div> : <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
                       Nenhum dado de cliente disponível
                     </div>}
                 </TabsContent>
-              </Tabs>}
+              </Tabs>
+            </ScrollArea>}
           </DrawerContent>
         </Drawer> : <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[85vh]">
