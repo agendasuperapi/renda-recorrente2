@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, RefreshCw } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,12 @@ const Referrals = () => {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
+
+  // Layout mode para mobile/tablet
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
+
+  // Mostrar/esconder filtros no mobile/tablet
+  const [showFilters, setShowFilters] = useState(false);
 
   const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -277,8 +283,48 @@ const Referrals = () => {
         </Card>
       </div>
 
-      <div className="bg-card rounded-lg border p-6">
-        <h2 className="text-lg font-semibold mb-4">Filtros</h2>
+      {/* Botão de filtros mobile/tablet */}
+      <div className="lg:hidden flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+          {(searchTerm || selectedProduct !== "all" || selectedPlan !== "all" || selectedStatus !== "all") && (
+            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+              !
+            </Badge>
+          )}
+        </Button>
+        
+        {/* Layout mode selector - mobile/tablet */}
+        <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
+          <SelectTrigger className="w-auto gap-2">
+            {layoutMode === "compact" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="compact">Compacto</SelectItem>
+            <SelectItem value="complete">Completo</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
+      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Filtros</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowFilters(false)}
+            className="lg:hidden h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Input
             placeholder="Buscar por nome ou email..."
@@ -369,44 +415,69 @@ const Referrals = () => {
             referrals.map((referral) => (
               <Card key={referral.id}>
                 <CardContent className="p-4 space-y-3">
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{referral.name || "Sem nome"}</p>
-                      <p className="text-xs text-muted-foreground truncate">{referral.email}</p>
-                    </div>
-                    {getStatusBadge(referral.status)}
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Produto:</span>
-                      <p className="font-medium truncate">{referral.product_name || "-"}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Plano:</span>
-                      <p className="font-medium truncate">{referral.plan_name || "-"}</p>
-                    </div>
-                  </div>
+                  {layoutMode === "compact" ? (
+                    // Layout Compacto: Nome, Produto, Plano, Data de Cadastro
+                    <>
+                      <div className="flex justify-between items-start gap-2">
+                        <p className="font-medium text-sm truncate flex-1">{referral.name || "Sem nome"}</p>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatDate(referral.created_at)}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Produto:</span>
+                          <p className="font-medium truncate">{referral.product_name || "-"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Plano:</span>
+                          <p className="font-medium truncate">{referral.plan_name || "-"}</p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    // Layout Completo: Todas as informações
+                    <>
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{referral.name || "Sem nome"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{referral.email}</p>
+                        </div>
+                        {getStatusBadge(referral.status)}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Produto:</span>
+                          <p className="font-medium truncate">{referral.product_name || "-"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Plano:</span>
+                          <p className="font-medium truncate">{referral.plan_name || "-"}</p>
+                        </div>
+                      </div>
 
-                  <div className="flex flex-wrap gap-2 items-center text-xs">
-                    <span className="text-muted-foreground">Cancelamento:</span>
-                    {referral.cancel_at_period_end ? (
-                      <Badge variant="destructive" className="text-xs">Sim</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="text-xs">Não</Badge>
-                    )}
-                  </div>
+                      <div className="flex flex-wrap gap-2 items-center text-xs">
+                        <span className="text-muted-foreground">Cancelamento:</span>
+                        {referral.cancel_at_period_end ? (
+                          <Badge variant="destructive" className="text-xs">Sim</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">Não</Badge>
+                        )}
+                      </div>
 
-                  {referral.trial_end && (
-                    <div className="text-xs">
-                      <span className="text-muted-foreground">Trial até: </span>
-                      <span className="font-medium">{formatDate(referral.trial_end)}</span>
-                    </div>
+                      {referral.trial_end && (
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">Trial até: </span>
+                          <span className="font-medium">{formatDate(referral.trial_end)}</span>
+                        </div>
+                      )}
+
+                      <p className="text-xs text-muted-foreground">
+                        Cadastrado em {formatDate(referral.created_at)}
+                      </p>
+                    </>
                   )}
-
-                  <p className="text-xs text-muted-foreground">
-                    Cadastrado em {formatDate(referral.created_at)}
-                  </p>
                 </CardContent>
               </Card>
             ))
