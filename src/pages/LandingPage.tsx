@@ -262,6 +262,57 @@ const LandingPage = () => {
     },
     staleTime: 1000 * 60 * 5
   });
+
+  // Busca configurações do sidebar para o menu mobile
+  const { data: sidebarConfig } = useQuery({
+    queryKey: ['sidebar-config-landing'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('*')
+        .in('key', [
+          'sidebar_color_start',
+          'sidebar_color_end',
+          'sidebar_intensity_start',
+          'sidebar_intensity_end',
+          'sidebar_gradient_start_position',
+          'sidebar_text_color_light',
+          'sidebar_text_color_dark',
+          'sidebar_accent_color',
+          'sidebar_logo_url_light',
+          'sidebar_logo_url_dark'
+        ]);
+      if (error) {
+        console.error('Error loading sidebar config:', error);
+        return null;
+      }
+      const config: Record<string, string> = {};
+      data?.forEach(setting => {
+        config[setting.key] = setting.value;
+      });
+      return config;
+    },
+    staleTime: 1000 * 60 * 5
+  });
+
+  // Extrair configurações do sidebar
+  const sidebarColorStart = sidebarConfig?.sidebar_color_start || '#00bf63';
+  const sidebarColorEnd = sidebarConfig?.sidebar_color_end || '#00bf63';
+  const sidebarIntensityStart = parseInt(sidebarConfig?.sidebar_intensity_start || '37');
+  const sidebarIntensityEnd = parseInt(sidebarConfig?.sidebar_intensity_end || '25');
+  const sidebarGradientStartPos = parseInt(sidebarConfig?.sidebar_gradient_start_position || '0');
+  const sidebarTextColorLight = sidebarConfig?.sidebar_text_color_light || '#000000';
+  const sidebarTextColorDark = sidebarConfig?.sidebar_text_color_dark || '#ffffff';
+  const sidebarAccentColor = sidebarConfig?.sidebar_accent_color || '#00e676';
+  const sidebarLogoLight = sidebarConfig?.sidebar_logo_url_light;
+  const sidebarLogoDark = sidebarConfig?.sidebar_logo_url_dark;
+
+  // Calcular gradiente do sidebar
+  const sidebarGradientStyle = {
+    background: `linear-gradient(180deg, ${sidebarColorStart}${Math.round(sidebarIntensityStart / 100 * 255).toString(16).padStart(2, '0')} ${sidebarGradientStartPos}%, ${sidebarColorEnd}${Math.round(sidebarIntensityEnd / 100 * 255).toString(16).padStart(2, '0')} 100%)`
+  };
+  const currentSidebarTextColor = theme === 'dark' ? sidebarTextColorDark : sidebarTextColorLight;
+  const currentSidebarLogo = theme === 'dark' ? sidebarLogoDark : sidebarLogoLight;
   useEffect(() => {
     if (gradientConfigsData && gradientConfigsData.length > 0) {
       const configs: Record<string, GradientConfig> = {};
@@ -699,128 +750,145 @@ const LandingPage = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 flex flex-col">
-                <nav className="flex flex-col gap-2 mt-8 flex-1">
+              <SheetContent 
+                side="right" 
+                className="w-72 flex flex-col p-0 border-l-0"
+                style={sidebarGradientStyle}
+              >
+                {/* Logo e Versão no topo */}
+                <div className="flex flex-col items-center pt-6 pb-4 px-4">
+                  {currentSidebarLogo && (
+                    <img 
+                      src={currentSidebarLogo} 
+                      alt="Logo" 
+                      className="h-12 mb-2" 
+                    />
+                  )}
+                  <span 
+                    className="text-xs opacity-70"
+                    style={{ color: currentSidebarTextColor }}
+                  >
+                    v{APP_VERSION}
+                  </span>
+                </div>
+
+                <nav className="flex flex-col gap-1 px-3 flex-1">
                   {showHomeButton && (
-                    <Button 
+                    <button 
                       onClick={() => {
                         scrollToSection("inicio");
                         setMobileMenuOpen(false);
                       }} 
-                      variant={activeSection === "inicio" ? "secondary" : "ghost"} 
-                      className="w-full justify-start gap-3 h-12"
+                      className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "inicio" ? "bg-white/20" : "hover:bg-white/10"}`}
+                      style={{ color: currentSidebarTextColor }}
                     >
                       <Target className="w-5 h-5" />
                       Início
-                    </Button>
+                    </button>
                   )}
-                  <Button 
+                  <button 
                     onClick={() => {
                       scrollToSection("como-funciona");
                       setMobileMenuOpen(false);
                     }} 
-                    variant={activeSection === "como-funciona" ? "secondary" : "ghost"} 
-                    className="w-full justify-start gap-3 h-12"
+                    className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "como-funciona" ? "bg-white/20" : "hover:bg-white/10"}`}
+                    style={{ color: currentSidebarTextColor }}
                   >
                     <Zap className="w-5 h-5" />
                     Como funciona
-                  </Button>
-                  <Button 
+                  </button>
+                  <button 
                     onClick={() => {
                       scrollToSection("vantagens");
                       setMobileMenuOpen(false);
                     }} 
-                    variant={activeSection === "vantagens" ? "secondary" : "ghost"} 
-                    className="w-full justify-start gap-3 h-12"
+                    className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "vantagens" ? "bg-white/20" : "hover:bg-white/10"}`}
+                    style={{ color: currentSidebarTextColor }}
                   >
                     <Trophy className="w-5 h-5" />
                     Vantagens
-                  </Button>
+                  </button>
                   {products.length > 0 && (
-                    <Button 
+                    <button 
                       onClick={() => {
                         scrollToSection("produtos");
                         setMobileMenuOpen(false);
                       }} 
-                      variant={activeSection === "produtos" ? "secondary" : "ghost"} 
-                      className="w-full justify-start gap-3 h-12"
+                      className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "produtos" ? "bg-white/20" : "hover:bg-white/10"}`}
+                      style={{ color: currentSidebarTextColor }}
                     >
                       <Award className="w-5 h-5" />
                       Produtos
-                    </Button>
+                    </button>
                   )}
-                  <Button 
+                  <button 
                     onClick={() => {
                       scrollToSection("planos");
                       setMobileMenuOpen(false);
                     }} 
-                    variant={activeSection === "planos" ? "secondary" : "ghost"} 
-                    className="w-full justify-start gap-3 h-12"
+                    className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "planos" ? "bg-white/20" : "hover:bg-white/10"}`}
+                    style={{ color: currentSidebarTextColor }}
                   >
                     <Ticket className="w-5 h-5" />
                     Quero contratar
-                  </Button>
+                  </button>
                   
-                  <div className="border-t pt-4 mt-4 space-y-2">
+                  <div className="border-t border-white/20 pt-4 mt-4 space-y-1">
                     {user ? (
                       <>
                         {isAdmin && (
-                          <Button 
+                          <button 
                             onClick={() => {
                               navigateToDashboard();
                               setMobileMenuOpen(false);
                             }} 
-                            className="w-full gap-3 h-12 bg-[#166534] hover:bg-[#15803d] text-white"
+                            className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
+                            style={{ color: currentSidebarTextColor }}
                           >
                             <LayoutDashboard className="w-5 h-5" />
                             Painel
-                          </Button>
+                          </button>
                         )}
-                        <Button 
+                        <button 
                           onClick={() => {
                             handleLogout();
                             setMobileMenuOpen(false);
                           }} 
-                          variant="ghost" 
-                          className="w-full justify-start gap-3 h-12"
+                          className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all"
+                          style={{ color: currentSidebarTextColor }}
                         >
                           <LogOut className="w-5 h-5" />
                           Sair
-                        </Button>
+                        </button>
                       </>
                     ) : (
                       <>
-                        <Button 
+                        <button 
                           onClick={() => {
                             navigate("/auth");
                             setMobileMenuOpen(false);
                           }} 
-                          className="w-full gap-3 h-12 bg-[#166534] hover:bg-[#15803d] text-white"
+                          className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
+                          style={{ color: currentSidebarTextColor }}
                         >
                           <LayoutDashboard className="w-5 h-5" />
                           Painel
-                        </Button>
-                        <Button 
+                        </button>
+                        <button 
                           onClick={() => {
                             scrollToSection("planos");
                             setMobileMenuOpen(false);
                           }} 
-                          className="w-full gap-3 h-12"
+                          className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all"
+                          style={{ color: currentSidebarTextColor }}
                         >
                           <Target className="w-5 h-5" />
                           Quero Contratar
-                        </Button>
+                        </button>
                       </>
                     )}
                   </div>
                 </nav>
-                
-                {/* Versão no rodapé */}
-                <div className="border-t pt-4 pb-2">
-                  <p className="text-xs text-muted-foreground text-center">
-                    Versão {APP_VERSION}
-                  </p>
-                </div>
               </SheetContent>
             </Sheet>
           </div>
