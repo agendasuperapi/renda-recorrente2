@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
+import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { Loader2, RefreshCw } from "lucide-react";
 
 export default function AdminSettings() {
@@ -387,6 +388,35 @@ export default function AdminSettings() {
                 toast({
                   title: "Configurações salvas",
                   description: "Recarregue a página para ver as mudanças aplicadas",
+                });
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Personalização do Fundo das Páginas</CardTitle>
+          <CardDescription>
+            Configure o gradiente de fundo das páginas do dashboard (exceto Landing Page e Auth)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="space-y-1">
+              <Label className="text-base">
+                Fundo do Dashboard
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Personalize o gradiente de fundo com cores e intensidades diferentes para cada dispositivo
+              </p>
+            </div>
+            <BackgroundConfigEditor 
+              onConfigSaved={() => {
+                toast({
+                  title: "Configurações salvas",
+                  description: "O fundo das páginas foi atualizado",
                 });
               }}
             />
