@@ -396,24 +396,27 @@ const Auth = () => {
             <button
               type="button"
               onClick={() => isLogin ? navigate("/") : setIsLogin(!isLogin)}
-              className="text-foreground hover:text-foreground/80 transition-colors"
+              className="hover:opacity-80 transition-opacity"
+              style={{ color: getTextColor('auth_form_card') }}
             >
               {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
             </button>
           </div>
 
-          <div className="mt-4 text-center text-xs text-muted-foreground">
+          <div className="mt-4 text-center text-xs" style={{ color: getTextColor('auth_form_card') }}>
             Ao continuar, estou de acordo com os{" "}
             <span
               onClick={() => navigate("/terms")}
-              className="text-foreground hover:text-foreground/80 underline cursor-pointer"
+              className="hover:opacity-80 underline cursor-pointer"
+              style={{ color: getTextColor('auth_form_card') }}
             >
               Termos de Uso
             </span>{" "}
             e{" "}
             <span
               onClick={() => navigate("/privacy")}
-              className="text-foreground hover:text-foreground/80 underline cursor-pointer"
+              className="hover:opacity-80 underline cursor-pointer"
+              style={{ color: getTextColor('auth_form_card') }}
             >
               Aviso de Privacidade
             </span>
