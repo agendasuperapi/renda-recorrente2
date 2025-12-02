@@ -306,7 +306,7 @@ const Auth = () => {
             <AuthGradientEditor blockName="auth_right_panel" initialConfig={gradientConfigs['auth_right_panel']} />
           </div>
         )}
-        <div className="w-full max-w-2xl rounded-lg p-4 sm:p-6 relative border border-border/20 backdrop-blur-md shadow-2xl bg-background" style={getGradientStyle('auth_form_card')}>
+        <div className="w-full max-w-2xl rounded-lg p-4 sm:p-6 relative backdrop-blur-md shadow-2xl bg-background" style={getGradientStyle('auth_form_card')}>
           {isAdmin && (
             <div className="absolute top-2 right-2 z-10">
               <AuthGradientEditor blockName="auth_form_card" initialConfig={gradientConfigs['auth_form_card']} />
