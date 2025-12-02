@@ -343,15 +343,16 @@ export default function AdminVersions() {
 
             <div className="space-y-2">
               <Label htmlFor="change">Lista de Mudanças</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
                 <Input
                   id="change"
                   placeholder="Digite uma mudança e clique em Adicionar"
                   value={changeInput}
                   onChange={(e) => setChangeInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddChange())}
+                  className="flex-1"
                 />
-                <Button type="button" onClick={handleAddChange} variant="outline">
+                <Button type="button" onClick={handleAddChange} variant="outline" className="w-full md:w-auto">
                   Adicionar
                 </Button>
               </div>
@@ -426,14 +427,15 @@ export default function AdminVersions() {
 
                       <div className="space-y-2">
                         <Label>Lista de Mudanças</Label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col md:flex-row gap-2">
                           <Input
                             value={editChangeInput}
                             onChange={(e) => setEditChangeInput(e.target.value)}
                             placeholder="Adicionar nova mudança"
                             onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddEditChange())}
+                            className="flex-1"
                           />
-                          <Button type="button" onClick={handleAddEditChange} variant="outline" size="sm">
+                          <Button type="button" onClick={handleAddEditChange} variant="outline" size="sm" className="w-full md:w-auto">
                             Adicionar
                           </Button>
                         </div>
