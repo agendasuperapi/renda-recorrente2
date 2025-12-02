@@ -1238,6 +1238,7 @@ const Coupons = () => {
                             </Button>
                             <Button
                               variant="outline"
+                              className="flex-1"
                               onClick={() => window.open(getAffiliateLink(selectedCoupon) || "", '_blank')}
                             >
                               <ExternalLink className="h-4 w-4 mr-2" />
