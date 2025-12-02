@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -537,8 +537,14 @@ export default function AdminPayments() {
             </DrawerHeader>
             {selectedPayment && <Tabs defaultValue="payment" className="w-full px-4 pb-4">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="payment">Detalhes do Pagamento</TabsTrigger>
-                  <TabsTrigger value="client" disabled={!selectedPayment.user_name}>Cliente</TabsTrigger>
+                  <TabsTrigger value="payment" className="gap-2">
+                    <Receipt className="h-4 w-4" />
+                    Detalhes do Pagamento
+                  </TabsTrigger>
+                  <TabsTrigger value="client" disabled={!selectedPayment.user_name} className="gap-2">
+                    <User className="h-4 w-4" />
+                    Cliente
+                  </TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="payment" className="space-y-4 mt-4">
@@ -651,10 +657,16 @@ export default function AdminPayments() {
               <DialogTitle>Detalhes do Pagamento</DialogTitle>
             </DialogHeader>
             {selectedPayment && <Tabs defaultValue="payment" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="payment">Detalhes do Pagamento</TabsTrigger>
-                  <TabsTrigger value="client" disabled={!selectedPayment.user_name}>Cliente</TabsTrigger>
-                </TabsList>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="payment" className="gap-2">
+                  <Receipt className="h-4 w-4" />
+                  Detalhes do Pagamento
+                </TabsTrigger>
+                <TabsTrigger value="client" disabled={!selectedPayment.user_name} className="gap-2">
+                  <User className="h-4 w-4" />
+                  Cliente
+                </TabsTrigger>
+              </TabsList>
                 
                 <TabsContent value="payment" className="space-y-4 mt-4">
                   <ScrollArea className="max-h-[50vh]">
