@@ -531,14 +531,14 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
+          <Card className="p-3 sm:p-4 md:p-4">
+            <CardHeader className="p-0 pb-2">
               <CardTitle>Comissões Diárias (Últimos 30 dias)</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Acompanhe suas comissões diárias
               </p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               {dailyChartData.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   Nenhum dado disponível
                 </div> : <ResponsiveContainer width="100%" height={300}>
