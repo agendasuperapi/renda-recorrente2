@@ -1876,7 +1876,7 @@ const AdminLandingPage = () => {
 
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <CardTitle>Funcionalidades</CardTitle>
                   <CardDescription>Gerencie as funcionalidades do sistema exibidas na landing page. Arraste para reordenar.</CardDescription>
@@ -1884,6 +1884,7 @@ const AdminLandingPage = () => {
                 <Button
                   onClick={() => setShowFeatureForm(!showFeatureForm)}
                   size="sm"
+                  className="w-full lg:w-auto"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {showFeatureForm ? "Cancelar" : "Nova Funcionalidade"}
