@@ -529,38 +529,28 @@ const CommissionsDaily = () => {
                     <Card key={commission.id}>
                       <CardContent className="p-4 space-y-3">
                         {layoutMode === "compact" && expandedCardId !== commission.id ? (
-                          // Layout Compacto: Nome, Produto, Nível, Data, Valor, Status
-                          <>
-                            <div className="flex justify-between items-start gap-2">
-                              <p className="font-medium text-sm truncate flex-1">{commission.cliente || "Sem nome"}</p>
-                              {getStatusBadge(commission.status)}
+                          // Layout Compacto: Nome, Produto, Data, Comissão
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
+                              <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
                             </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
-                              {getLevelBadge(commission.level)}
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground">Produto:</span>
-                                <p className="font-medium truncate">{commission.produto || "-"}</p>
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <div className="text-[10px] text-muted-foreground">{formatDate(commission.data)}</div>
+                                <div className="font-bold text-sm text-success">{formatCurrency(commission.valor)}</div>
                               </div>
-                              <div>
-                                <span className="text-muted-foreground">Data:</span>
-                                <p className="font-medium">{formatDate(commission.data)}</p>
-                              </div>
-                            </div>
-                            <div className="flex justify-end pt-1">
                               <Button
                                 variant="ghost"
-                                size="sm"
+                                size="icon"
+                                className="flex-shrink-0 h-8 w-8"
                                 onClick={() => setExpandedCardId(commission.id)}
-                                className="h-7 gap-1 text-xs"
+                                title="Ver detalhes"
                               >
-                                <Eye className="h-3 w-3" />
-                                Ver mais
+                                <Eye className="h-4 w-4" />
                               </Button>
                             </div>
-                          </>
+                          </div>
                         ) : (
                           // Layout Completo: Todas as informações
                           <>
@@ -597,12 +587,12 @@ const CommissionsDaily = () => {
                               <div className="flex justify-end pt-1">
                                 <Button
                                   variant="ghost"
-                                  size="sm"
+                                  size="icon"
+                                  className="h-8 w-8"
                                   onClick={() => setExpandedCardId(null)}
-                                  className="h-7 gap-1 text-xs"
+                                  title="Fechar"
                                 >
-                                  <ChevronUp className="h-3 w-3" />
-                                  Ver menos
+                                  <ChevronUp className="h-4 w-4" />
                                 </Button>
                               </div>
                             )}
