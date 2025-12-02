@@ -1632,7 +1632,7 @@ const AdminLandingPage = () => {
         <TabsContent value="testimonials" className="space-y-3 lg:space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <CardTitle>Depoimentos</CardTitle>
                   <CardDescription>Gerencie os depoimentos de clientes. Arraste para reordenar.</CardDescription>
@@ -1640,6 +1640,7 @@ const AdminLandingPage = () => {
                 <Button
                   onClick={() => setShowTestimonialForm(!showTestimonialForm)}
                   size="sm"
+                  className="w-full lg:w-auto"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {showTestimonialForm ? "Cancelar" : "Novo Depoimento"}
@@ -1777,7 +1778,7 @@ const AdminLandingPage = () => {
         <TabsContent value="faqs" className="space-y-3 lg:space-y-4">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <CardTitle>Perguntas Frequentes</CardTitle>
                   <CardDescription>Gerencie as FAQs da landing page. Arraste para reordenar.</CardDescription>
@@ -1785,6 +1786,7 @@ const AdminLandingPage = () => {
                 <Button
                   onClick={() => setShowFaqForm(!showFaqForm)}
                   size="sm"
+                  className="w-full lg:w-auto"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {showFaqForm ? "Cancelar" : "Nova FAQ"}
