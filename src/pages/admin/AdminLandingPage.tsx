@@ -1245,7 +1245,7 @@ const AdminLandingPage = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Configuração da Landing Page</h1>
           <p className="text-muted-foreground mt-2">
@@ -1255,6 +1255,7 @@ const AdminLandingPage = () => {
         <Button
           variant="outline"
           onClick={() => navigate('/')}
+          className="w-full lg:w-auto"
         >
           Ir para Landing Page
         </Button>
