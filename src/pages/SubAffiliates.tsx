@@ -358,7 +358,7 @@ const SubAffiliates = () => {
         </CardHeader>
         <CardContent className="space-y-4 px-2 pb-3 sm:p-6 sm:pt-0">
           {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
             <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
               <Input
                 placeholder="Nome/Username/Email"
