@@ -645,7 +645,7 @@ const LandingPage = () => {
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             {getHeroImage('Logo Header') && <img src={getHeroImage('Logo Header')} alt={heroImages.find(img => img.name === 'Logo Header')?.alt_text || 'APP Renda recorrente'} className="h-8 sm:h-10" loading="eager" />}
-            <span className="font-bold text-base sm:text-lg hidden sm:inline">APP Renda recorrente</span>
+            <span className="font-bold text-base sm:text-lg">APP Renda recorrente</span>
           </div>
           
           <div className="flex items-center gap-1 sm:gap-2">
