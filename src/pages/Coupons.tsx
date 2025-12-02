@@ -421,7 +421,7 @@ const Coupons = () => {
                           return (
                             <div 
                               key={coupon.id} 
-                              className={`flex items-center gap-3 p-3 border rounded-lg ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}`}
+                              className={`flex items-center gap-3 p-3 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}`}
                             >
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
