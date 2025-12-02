@@ -207,6 +207,13 @@ All colors MUST be HSL.
       min-height: 100dvh;
       min-height: -webkit-fill-available;
     }
+    
+    /* ScrollView wrapper - scroll nativo iOS */
+    .ios-scroll-wrapper {
+      -webkit-overflow-scrolling: touch;
+      overflow-y: auto;
+      overscroll-behavior: none;
+    }
   }
 }
 
