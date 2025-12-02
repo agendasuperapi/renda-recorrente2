@@ -352,129 +352,116 @@ const SubAffiliates = () => {
         </Card>
       </div>
 
+      {/* Filtros */}
+      <div className="bg-card rounded-lg border p-6">
+        <h2 className="text-lg font-semibold mb-4">Filtros</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Input
+            placeholder="Nome/Username/Email"
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+          />
+
+          <Select value={planFilter} onValueChange={setPlanFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Plano" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os planos</SelectItem>
+              {uniquePlans.map((plan) => (
+                <SelectItem key={plan} value={plan || "no-plan"}>
+                  {plan || "Sem plano"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os status</SelectItem>
+              {uniqueStatuses.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={levelFilter} onValueChange={setLevelFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Nível" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os níveis</SelectItem>
+              {uniqueLevels.map((level) => (
+                <SelectItem key={level} value={level.toString()}>
+                  Nível {level}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Input
+            type="date"
+            placeholder="Data inicial"
+            value={startDateFilter}
+            onChange={(e) => setStartDateFilter(e.target.value)}
+          />
+
+          <Input
+            type="date"
+            placeholder="Data final"
+            value={endDateFilter}
+            onChange={(e) => setEndDateFilter(e.target.value)}
+          />
+
+          <Select
+            value={itemsPerPage.toString()}
+            onValueChange={(value) => {
+              setItemsPerPage(Number(value));
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5 por página</SelectItem>
+              <SelectItem value="10">10 por página</SelectItem>
+              <SelectItem value="25">25 por página</SelectItem>
+              <SelectItem value="50">50 por página</SelectItem>
+              <SelectItem value="100">100 por página</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant="outline"
+            onClick={clearFilters}
+            className="gap-2"
+          >
+            <X className="h-4 w-4" />
+            Limpar filtros
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={loadSubAffiliates}
+            className="gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Atualizar
+          </Button>
+        </div>
+      </div>
+
       <Card className="border-0 shadow-none bg-transparent lg:border lg:shadow-sm lg:bg-card">
         <CardHeader className="px-2 py-3 lg:p-6">
           <CardTitle className="text-base sm:text-lg">Lista de Sub-Afiliados</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 px-2 pb-3 lg:p-6 lg:pt-0">
-          {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
-            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
-              <Input
-                placeholder="Nome/Username/Email"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
-
-            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
-              <Select value={planFilter} onValueChange={setPlanFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
-                  <SelectValue placeholder="Plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os planos</SelectItem>
-                  {uniquePlans.map((plan) => (
-                    <SelectItem key={plan} value={plan || "no-plan"}>
-                      {plan || "Sem plano"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
-              <Input
-                type="date"
-                value={startDateFilter}
-                onChange={(e) => setStartDateFilter(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
-
-            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
-              <Input
-                type="date"
-                value={endDateFilter}
-                onChange={(e) => setEndDateFilter(e.target.value)}
-                className="text-xs sm:text-sm"
-              />
-            </div>
-
-            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  {uniqueStatuses.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
-              <Select value={levelFilter} onValueChange={setLevelFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
-                  <SelectValue placeholder="Nível" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os níveis</SelectItem>
-                  {uniqueLevels.map((level) => (
-                    <SelectItem key={level} value={level.toString()}>
-                      Nível {level}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="w-full md:flex-1 md:min-w-[100px] sm:min-w-[120px]">
-              <Select
-                value={itemsPerPage.toString()}
-                onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="text-xs sm:text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5 por página</SelectItem>
-                  <SelectItem value="10">10 por página</SelectItem>
-                  <SelectItem value="25">25 por página</SelectItem>
-                  <SelectItem value="50">50 por página</SelectItem>
-                  <SelectItem value="100">100 por página</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={clearFilters}
-              title="Limpar filtros"
-              className="flex-1 min-w-[120px] sm:min-w-[150px] h-10 text-xs sm:text-sm"
-            >
-              <X className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-              Limpar filtros
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={loadSubAffiliates}
-              title="Atualizar"
-              className="flex-1 min-w-[120px] sm:min-w-[150px] h-10 text-xs sm:text-sm"
-            >
-              <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-              Atualizar
-            </Button>
-          </div>
 
           {/* Desktop - Tabela */}
           {!isMobile && (
