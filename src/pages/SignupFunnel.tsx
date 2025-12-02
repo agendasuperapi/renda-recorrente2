@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
+import { IOSKeyboardWrapper } from "@/components/IOSKeyboardWrapper";
 
 interface Plan {
   id: string;
@@ -437,7 +438,7 @@ export default function SignupFunnel() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <IOSKeyboardWrapper className="bg-background py-12 px-4">
       <div className="container max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-4">
           <Button 
@@ -762,6 +763,6 @@ export default function SignupFunnel() {
           </CardFooter>
         </Card>
       </div>
-    </div>
+    </IOSKeyboardWrapper>
   );
 }
