@@ -614,7 +614,7 @@ export default function AdminWithdrawals() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id} className={withdrawal.status === 'pending' ? 'bg-warning/5 border-l-4 border-l-warning' : ''}>
+                    {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
                           <TableCell className="text-xs whitespace-nowrap">
                             {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", {
                       locale: ptBR
