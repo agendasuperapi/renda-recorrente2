@@ -232,7 +232,15 @@ const Referrals = () => {
       incomplete: "outline"
     };
 
-    return <Badge variant={variants[status] || "secondary"}>{status}</Badge>;
+    const labels: Record<string, string> = {
+      active: "Ativo",
+      trialing: "Teste",
+      canceled: "Cancelado",
+      past_due: "Atrasado",
+      incomplete: "Incompleto"
+    };
+
+    return <Badge variant={variants[status] || "secondary"}>{labels[status] || status}</Badge>;
   };
 
   if (loading && referrals.length === 0) {
