@@ -1436,12 +1436,13 @@ const AdminPlans = () => {
             setIsStripeDialogOpen(open);
             if (!open) setIsEditingIntegration(false);
           }}>
-            <DialogContent className="w-full max-w-full max-h-[85vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-y-0 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:max-w-2xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] bg-card">
+            <DialogContent className="w-full max-w-full max-h-[85vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-y-0 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:max-w-2xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] bg-card flex flex-col p-0 overflow-hidden">
               {/* Handle bar para indicar que é um bottom sheet (apenas mobile) */}
-              <div className="flex justify-center pt-2 pb-2 lg:hidden">
+              <div className="flex justify-center pt-3 pb-2 lg:hidden flex-shrink-0">
                 <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
               </div>
-              <DialogHeader>
+              
+              <DialogHeader className="px-6 pt-4 pb-4 flex-shrink-0">
                 <DialogTitle className="text-foreground">
                   {isEditingIntegration ? "Editar Integração Stripe" : "Configurar Integração Stripe"}
                 </DialogTitle>
@@ -1452,7 +1453,7 @@ const AdminPlans = () => {
                 </p>
               </DialogHeader>
 
-              <div className="space-y-4">
+              <div className="px-6 pb-6 overflow-y-auto flex-1 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm text-foreground font-medium">Banco</label>
