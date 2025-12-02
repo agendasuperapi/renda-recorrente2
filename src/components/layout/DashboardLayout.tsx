@@ -9,11 +9,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BlockedUserDialog } from "@/components/BlockedUserDialog";
 import { UserProvider } from "@/contexts/UserContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { useBgConfig } from "@/hooks/useBgConfig";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const { backgroundStyle } = useBgConfig();
   const [user, setUser] = useState<User | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -174,7 +176,10 @@ export const DashboardLayout = () => {
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex h-screen bg-background overflow-hidden">
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
-          <main className={`flex-1 min-h-0 overflow-auto ${isMobile ? 'px-3 pt-6 pb-20' : 'px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}>
+          <main 
+            className={`flex-1 min-h-0 overflow-auto ${isMobile ? 'px-3 pt-6 pb-20' : 'px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
+            style={backgroundStyle}
+          >
             {isLoading ? (
               <div className="space-y-3 sm:space-y-4">
                 <Skeleton className="h-6 sm:h-8 w-48 sm:w-64" />
