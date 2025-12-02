@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Check, X, Edit, Trash2, Tag, Plus, Minus } from "lucide-react";
+import { Check, X, Edit, Trash2, Tag, Plus, Minus, FileText, CreditCard } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -929,8 +929,14 @@ const AdminPlans = () => {
 
               <Tabs defaultValue="plan" className="flex flex-col flex-1 overflow-hidden">
                 <TabsList className="mx-6 mt-4 flex-shrink-0">
-                  <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
-                  <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
+                  <TabsTrigger value="plan" className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Dados do Plano
+                  </TabsTrigger>
+                  <TabsTrigger value="stripe" className="gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Integração Stripe
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="plan" className="space-y-6 px-6 pb-6 overflow-y-auto flex-1 mt-6">
