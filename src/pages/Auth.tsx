@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { APP_VERSION } from "@/config/version";
+import { IOSKeyboardWrapper } from "@/components/IOSKeyboardWrapper";
 
 const authSchema = z.object({
   email: z
@@ -273,7 +274,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
+    <IOSKeyboardWrapper className="grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative overflow-hidden">
       <div className="absolute top-4 left-4 z-10">
         <Button
           variant="ghost"
@@ -447,7 +448,7 @@ const Auth = () => {
           </div>
         </div>
       </div>
-    </div>
+    </IOSKeyboardWrapper>
   );
 };
 

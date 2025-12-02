@@ -179,41 +179,86 @@ All colors MUST be HSL.
   font-size: 2.5em;
 }
 
-/* Fix para iOS PWA - garante que inputs funcionem corretamente */
+/* iOS input fixes */
 input, textarea, select {
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  -webkit-appearance: none;
-  appearance: none;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
-/* Força modo de toque para inputs no iOS */
+/* Remove default appearance para forçar touch mode no iOS */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="tel"],
+input[type="url"],
+input[type="search"],
 textarea {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Fix específico para iOS 18 PWA */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px !important; /* Previne zoom automático */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  /* Standalone mode específico */
+  @media (display-mode: standalone) {
+    input, textarea {
+      min-height: 44px; /* Touch area mínima recomendada pela Apple */
+    }
+    
+    input:focus, textarea:focus {
+      position: relative;
+      z-index: 1;
+    }
+  }
+}
+
+/* Força exibição do teclado em iOS */
+input, textarea {
+  -webkit-user-select: text !important;
+  user-select: text !important;
   -webkit-touch-callout: default !important;
   touch-action: manipulation;
 }
 
-/* Fix específico para iOS 18 PWA - previne zoom e força teclado */
+/* iOS PWA Keyboard Wrapper - Container expansível como Stack do FlutterFlow */
+.ios-keyboard-wrapper {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.ios-keyboard-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Quando teclado está aberto no iOS PWA */
 @supports (-webkit-touch-callout: none) {
-  input, textarea, select {
-    font-size: 16px !important; /* Previne zoom automático no iOS */
-  }
-  
-  /* Standalone mode específico para PWA */
   @media (display-mode: standalone) {
-    input:focus, textarea:focus, select:focus {
-      position: relative;
-      z-index: 1;
+    body.keyboard-open {
+      height: var(--visual-viewport-height, 100vh);
+      overflow: hidden;
     }
     
-    /* Garante área de toque adequada */
-    input, textarea {
-      min-height: 44px;
+    body.keyboard-open .ios-keyboard-wrapper {
+      height: var(--visual-viewport-height, 100vh);
+      min-height: var(--visual-viewport-height, 100vh);
+    }
+    
+    body.keyboard-open .ios-keyboard-content {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
     }
   }
 }
