@@ -16,7 +16,7 @@ import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import { 
   User, Mail, Phone, Calendar, MapPin, CreditCard, 
-  Hash, Award, Save, X 
+  Hash, Award, Save, X, Package, Wallet, TrendingUp
 } from "lucide-react";
 
 interface AffiliateDetailsDialogProps {
@@ -235,10 +235,22 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
 
               <Tabs defaultValue="personal" className="w-full">
                 <TabsList className="w-full">
-                  <TabsTrigger value="personal">Dados Pessoais</TabsTrigger>
-                  <TabsTrigger value="plan">Plano</TabsTrigger>
-                  <TabsTrigger value="payments">Pagamentos</TabsTrigger>
-                  <TabsTrigger value="commissions">Comissões</TabsTrigger>
+                  <TabsTrigger value="personal" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Dados Pessoais
+                  </TabsTrigger>
+                  <TabsTrigger value="plan" className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Plano
+                  </TabsTrigger>
+                  <TabsTrigger value="payments" className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Pagamentos
+                  </TabsTrigger>
+                  <TabsTrigger value="commissions" className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />
+                    Comissões
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="personal" className="space-y-4">
