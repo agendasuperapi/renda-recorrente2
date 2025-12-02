@@ -20,7 +20,6 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
-
 type Payment = {
   id: string;
   stripe_invoice_id: string;
@@ -40,10 +39,8 @@ type Payment = {
   coupon_custom_code: string | null;
   coupon_code: string | null;
 };
-
 type SortColumn = "payment_date" | "amount" | "user_name" | "plan_name" | null;
 type SortDirection = "asc" | "desc";
-
 export default function AdminPayments() {
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,18 +55,19 @@ export default function AdminPayments() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [sortColumn, setSortColumn] = useState<SortColumn>("payment_date");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-
   const debouncedSearch = useDebounce(searchTerm, 300);
-
-  const { data: payments, isLoading, refetch } = useQuery({
+  const {
+    data: payments,
+    isLoading,
+    refetch
+  } = useQuery({
     queryKey: ["admin-payments", currentPage, itemsPerPage, debouncedSearch, statusFilter, environmentFilter, affiliateFilter, startDate, endDate, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
-
-      let query = supabase
-        .from("view_admin_payments" as any)
-        .select("*", { count: "exact" });
+      let query = supabase.from("view_admin_payments" as any).select("*", {
+        count: "exact"
+      });
 
       // Filtros aplicados no banco de dados
       if (debouncedSearch) {
@@ -93,20 +91,23 @@ export default function AdminPayments() {
 
       // Ordenação e paginação no banco
       if (sortColumn) {
-        query = query.order(sortColumn, { ascending: sortDirection === "asc" });
+        query = query.order(sortColumn, {
+          ascending: sortDirection === "asc"
+        });
       }
       query = query.range(from, to);
-
-      const { data, error, count } = await query;
+      const {
+        data,
+        error,
+        count
+      } = await query;
       if (error) throw error;
-      
-      return { 
-        data: (data || []) as unknown as Payment[], 
-        totalCount: count || 0 
+      return {
+        data: (data || []) as unknown as Payment[],
+        totalCount: count || 0
       };
-    },
+    }
   });
-
   const paginatedPayments = payments?.data;
   const totalCount = payments?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -114,23 +115,27 @@ export default function AdminPayments() {
   const endIndex = startIndex + itemsPerPage;
 
   // Query separada para estatísticas
-  const { data: statsData } = useQuery({
+  const {
+    data: statsData
+  } = useQuery({
     queryKey: ["admin-payments-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("view_admin_payments" as any)
-        .select("amount, environment, payment_date");
-
+      const {
+        data,
+        error
+      } = await supabase.from("view_admin_payments" as any).select("amount, environment, payment_date");
       if (error) throw error;
-      
-      type StatsRow = { amount: number; environment: string; payment_date: string };
-      const all = (data as unknown as StatsRow[]) || [];
+      type StatsRow = {
+        amount: number;
+        environment: string;
+        payment_date: string;
+      };
+      const all = data as unknown as StatsRow[] || [];
       const totalPaid = all.reduce((sum, p) => sum + Number(p.amount), 0);
       const totalPaidProduction = all.filter(p => p.environment === "production").reduce((sum, p) => sum + Number(p.amount), 0);
       const totalPaidTest = all.filter(p => p.environment === "test").reduce((sum, p) => sum + Number(p.amount), 0);
       const paymentCount = all.length;
       const lastPayment = all[0];
-
       return {
         totalPaid,
         totalPaidProduction,
@@ -138,18 +143,15 @@ export default function AdminPayments() {
         paymentCount,
         lastPayment
       };
-    },
+    }
   });
-
   const handleViewDetails = (payment: Payment) => {
     setSelectedPayment(payment);
     setDialogOpen(true);
   };
-
   const handleRefresh = () => {
     refetch();
   };
-
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
@@ -159,7 +161,6 @@ export default function AdminPayments() {
     setEndDate("");
     setCurrentPage(1);
   };
-
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -169,18 +170,17 @@ export default function AdminPayments() {
     }
     setCurrentPage(1);
   };
-
-  const SortIcon = ({ column }: { column: SortColumn }) => {
+  const SortIcon = ({
+    column
+  }: {
+    column: SortColumn;
+  }) => {
     if (sortColumn !== column) {
       return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
     }
-    return sortDirection === "asc" 
-      ? <ArrowUp className="h-4 w-4 ml-1" />
-      : <ArrowDown className="h-4 w-4 ml-1" />;
+    return sortDirection === "asc" ? <ArrowUp className="h-4 w-4 ml-1" /> : <ArrowDown className="h-4 w-4 ml-1" />;
   };
-
-  return (
-    <div className="space-y-6 sm:p-6">
+  return <div className="space-y-6 sm:p-6">
       <div>
         <h1 className="text-3xl font-bold">Pagamentos</h1>
         <p className="text-muted-foreground">Gerenciamento de todos os pagamentos do sistema</p>
@@ -195,7 +195,10 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(statsData?.totalPaid || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(statsData?.totalPaid || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL"
+            })}
             </div>
             <p className="text-xs text-muted-foreground">
               Em {statsData?.paymentCount || 0} pagamentos
@@ -210,7 +213,10 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(statsData?.totalPaidProduction || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(statsData?.totalPaidProduction || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL"
+            })}
             </div>
             <p className="text-xs text-muted-foreground">
               Pagamentos reais
@@ -225,7 +231,10 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {(statsData?.totalPaidTest || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              {(statsData?.totalPaidTest || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL"
+            })}
             </div>
             <p className="text-xs text-muted-foreground">
               Pagamentos teste
@@ -240,12 +249,15 @@ export default function AdminPayments() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {statsData?.lastPayment ? Number(statsData.lastPayment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "N/A"}
+              {statsData?.lastPayment ? Number(statsData.lastPayment.amount).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL"
+            }) : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">
-              {statsData?.lastPayment 
-                ? format(new Date(statsData.lastPayment.payment_date), "dd/MM/yyyy", { locale: ptBR })
-                : "Nenhum"}
+              {statsData?.lastPayment ? format(new Date(statsData.lastPayment.payment_date), "dd/MM/yyyy", {
+              locale: ptBR
+            }) : "Nenhum"}
             </p>
           </CardContent>
         </Card>
@@ -256,32 +268,10 @@ export default function AdminPayments() {
         <CardHeader>
           <CardTitle>Todos os Pagamentos</CardTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4 mt-4">
-            <Input
-              placeholder="Buscar por invoice, usuário ou plano..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full lg:max-w-sm"
-            />
-            <Input
-              placeholder="Filtrar por afiliado/cupom..."
-              value={affiliateFilter}
-              onChange={(e) => setAffiliateFilter(e.target.value)}
-              className="w-full lg:max-w-sm"
-            />
-            <Input
-              type="date"
-              placeholder="Data inicial"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full lg:w-[160px]"
-            />
-            <Input
-              type="date"
-              placeholder="Data final"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full lg:w-[160px]"
-            />
+            <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
+            <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
+            <Input type="date" placeholder="Data inicial" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full lg:w-[160px]" />
+            <Input type="date" placeholder="Data final" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full lg:w-[160px]" />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Status" />
@@ -303,13 +293,10 @@ export default function AdminPayments() {
                 <SelectItem value="test">Teste</SelectItem>
               </SelectContent>
             </Select>
-            <Select 
-              value={itemsPerPage.toString()} 
-              onValueChange={(value) => {
-                setItemsPerPage(Number(value));
-                setCurrentPage(1);
-              }}
-            >
+            <Select value={itemsPerPage.toString()} onValueChange={value => {
+            setItemsPerPage(Number(value));
+            setCurrentPage(1);
+          }}>
               <SelectTrigger className="w-full lg:w-[140px]">
                 <SelectValue />
               </SelectTrigger>
@@ -331,25 +318,14 @@ export default function AdminPayments() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            isMobile ? (
-              <div className="space-y-3">
-                {[...Array(10)].map((_, i) => (
-                  <Card key={i}>
+          {isLoading ? isMobile ? <div className="space-y-3">
+                {[...Array(10)].map((_, i) => <Card key={i}>
                     <CardContent className="p-4">
                       <Skeleton className="h-24 w-full" />
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <TableSkeleton columns={8} rows={10} />
-            )
-          ) : isMobile ? (
-            <div className="space-y-3">
-              {paginatedPayments && paginatedPayments.length > 0 ? (
-                paginatedPayments.map((payment) => (
-                  <Card key={payment.id}>
+                  </Card>)}
+              </div> : <TableSkeleton columns={8} rows={10} /> : isMobile ? <div className="space-y-3">
+              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => <Card key={payment.id}>
                     <CardContent className="p-4 space-y-3">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
@@ -368,11 +344,16 @@ export default function AdminPayments() {
                         </div>
                         <div>
                           <span className="text-muted-foreground">Valor:</span>
-                          <p className="font-bold text-sm">{Number(payment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
+                          <p className="font-bold text-sm">{Number(payment.amount).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL"
+                    })}</p>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Data:</span>
-                          <p className="font-medium">{format(new Date(payment.payment_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                          <p className="font-medium">{format(new Date(payment.payment_date), "dd/MM/yy HH:mm", {
+                      locale: ptBR
+                    })}</p>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Ambiente:</span>
@@ -382,68 +363,44 @@ export default function AdminPayments() {
                         </div>
                       </div>
 
-                      {(payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code) && (
-                        <div className="text-xs">
+                      {(payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code) && <div className="text-xs">
                           <span className="text-muted-foreground">Afiliado/Cupom: </span>
                           <span className="font-medium">{payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code}</span>
-                        </div>
-                      )}
+                        </div>}
 
                       <div className="flex justify-between items-center pt-2 border-t">
                         <Badge variant="outline" className="text-xs">
-                          {payment.billing_reason === "subscription_create" ? "Nova" :
-                           payment.billing_reason === "subscription_cycle" ? "Renovação" :
-                           payment.billing_reason === "subscription_update" ? "Atualização" :
-                           payment.billing_reason || "N/A"}
+                          {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : payment.billing_reason === "subscription_update" ? "Atualização" : payment.billing_reason || "N/A"}
                         </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(payment)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleViewDetails(payment)}>
                           <Eye className="w-4 h-4 mr-1" />
                           Ver
                         </Button>
                       </div>
                     </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Card>
+                  </Card>) : <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
                     Nenhum pagamento encontrado
                   </CardContent>
-                </Card>
-              )}
-            </div>
-          ) : (
-            <div className="rounded-md border overflow-x-auto">
+                </Card>}
+            </div> : <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      <button 
-                        onClick={() => handleSort("payment_date")}
-                        className="flex items-center hover:text-foreground transition-colors font-medium"
-                      >
+                      <button onClick={() => handleSort("payment_date")} className="flex items-center hover:text-foreground transition-colors font-medium">
                         Data
                         <SortIcon column="payment_date" />
                       </button>
                     </TableHead>
                     <TableHead>
-                      <button 
-                        onClick={() => handleSort("user_name")}
-                        className="flex items-center hover:text-foreground transition-colors font-medium"
-                      >
+                      <button onClick={() => handleSort("user_name")} className="flex items-center hover:text-foreground transition-colors font-medium">
                         Usuário / Email
                         <SortIcon column="user_name" />
                       </button>
                     </TableHead>
                     <TableHead>
-                      <button 
-                        onClick={() => handleSort("plan_name")}
-                        className="flex items-center hover:text-foreground transition-colors font-medium"
-                      >
+                      <button onClick={() => handleSort("plan_name")} className="flex items-center hover:text-foreground transition-colors font-medium">
                         Plano
                         <SortIcon column="plan_name" />
                       </button>
@@ -451,10 +408,7 @@ export default function AdminPayments() {
                     <TableHead>Afiliado / Cupom</TableHead>
                     <TableHead>Motivo</TableHead>
                     <TableHead>
-                      <button 
-                        onClick={() => handleSort("amount")}
-                        className="flex items-center hover:text-foreground transition-colors font-medium"
-                      >
+                      <button onClick={() => handleSort("amount")} className="flex items-center hover:text-foreground transition-colors font-medium">
                         Valor
                         <SortIcon column="amount" />
                       </button>
@@ -465,11 +419,11 @@ export default function AdminPayments() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedPayments && paginatedPayments.length > 0 ? (
-                    paginatedPayments.map((payment) => (
-                      <TableRow key={payment.id}>
+                  {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => <TableRow key={payment.id}>
                         <TableCell className="text-xs">
-                          {format(new Date(payment.payment_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                          {format(new Date(payment.payment_date), "dd/MM/yy HH:mm", {
+                    locale: ptBR
+                  })}
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
@@ -479,31 +433,23 @@ export default function AdminPayments() {
                         </TableCell>
                         <TableCell>{payment.plan_name || "N/A"}</TableCell>
                         <TableCell>
-                          {payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code ? (
-                            <div className="flex flex-col">
-                              {payment.affiliate_name && (
-                                <span className="font-medium text-xs">{payment.affiliate_name}</span>
-                              )}
-                              {(payment.coupon_custom_code || payment.coupon_code) && (
-                                <span className="text-xs text-muted-foreground">
+                          {payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code ? <div className="flex flex-col">
+                              {payment.affiliate_name && <span className="font-medium text-xs">{payment.affiliate_name}</span>}
+                              {(payment.coupon_custom_code || payment.coupon_code) && <span className="text-xs text-muted-foreground">
                                   {payment.coupon_custom_code || payment.coupon_code}
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">-</span>
-                          )}
+                                </span>}
+                            </div> : <span className="text-xs text-muted-foreground">-</span>}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
-                            {payment.billing_reason === "subscription_create" ? "Nova" :
-                             payment.billing_reason === "subscription_cycle" ? "Renovação" :
-                             payment.billing_reason === "subscription_update" ? "Atualização" :
-                             payment.billing_reason || "N/A"}
+                            {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : payment.billing_reason === "subscription_update" ? "Atualização" : payment.billing_reason || "N/A"}
                           </Badge>
                         </TableCell>
                         <TableCell className="font-semibold">
-                          {Number(payment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                          {Number(payment.amount).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL"
+                  })}
                         </TableCell>
                         <TableCell>
                           <Badge variant={payment.environment === "production" ? "default" : "secondary"}>
@@ -516,72 +462,51 @@ export default function AdminPayments() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(payment)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(payment)}>
                             <Eye className="w-4 h-4" />
                           </Button>
                         </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
+                      </TableRow>) : <TableRow>
                       <TableCell colSpan={9} className="text-center text-muted-foreground">
                         Nenhum pagamento encontrado
                       </TableCell>
-                    </TableRow>
-                  )}
+                    </TableRow>}
                 </TableBody>
               </Table>
-            </div>
-          )}
+            </div>}
           
-          {totalCount > 0 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
+          {totalCount > 0 && <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
               <p className="text-sm text-muted-foreground order-2 sm:order-1">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, totalCount)} de {totalCount} pagamentos
               </p>
               <Pagination className="order-1 sm:order-2">
                 <PaginationContent className="gap-1">
                   <PaginationItem>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className="h-8 px-2 lg:px-3"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="h-8 px-2 lg:px-3">
                       <ChevronLeft className="h-4 w-4" />
                       <span className="hidden sm:inline ml-1">Anterior</span>
                     </Button>
                   </PaginationItem>
                   
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
-                    }
-                    return (
-                      <PaginationItem key={page} className="hidden sm:block">
-                        <Button
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="h-8 w-8 p-0"
-                        >
+                  {Array.from({
+                length: Math.min(totalPages, 5)
+              }, (_, i) => {
+                let page;
+                if (totalPages <= 5) {
+                  page = i + 1;
+                } else if (currentPage <= 3) {
+                  page = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  page = totalPages - 4 + i;
+                } else {
+                  page = currentPage - 2 + i;
+                }
+                return <PaginationItem key={page} className="hidden sm:block">
+                        <Button variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(page)} className="h-8 w-8 p-0">
                           {page}
                         </Button>
-                      </PaginationItem>
-                    );
-                  })}
+                      </PaginationItem>;
+              })}
 
                   <PaginationItem className="sm:hidden">
                     <span className="text-sm px-2">
@@ -590,45 +515,29 @@ export default function AdminPayments() {
                   </PaginationItem>
 
                   <PaginationItem>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className="h-8 px-2 lg:px-3"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="h-8 px-2 lg:px-3">
                       <span className="hidden sm:inline mr-1">Próxima</span>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-            </div>
-          )}
+            </div>}
         </CardContent>
       </Card>
 
-      {isMobile ? (
-        <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
+      {isMobile ? <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
           <DrawerContent className="max-h-[90vh]">
             {/* Handle bar para indicar que é um drawer */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-            </div>
+            
             
             <DrawerHeader className="relative">
               <DrawerTitle>Detalhes do Pagamento</DrawerTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-2"
-                onClick={() => setDialogOpen(false)}
-              >
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2" onClick={() => setDialogOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </DrawerHeader>
-            {selectedPayment && (
-              <Tabs defaultValue="payment" className="w-full px-4 pb-4">
+            {selectedPayment && <Tabs defaultValue="payment" className="w-full px-4 pb-4">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="payment">Detalhes do Pagamento</TabsTrigger>
                   <TabsTrigger value="client" disabled={!selectedPayment.user_name}>Cliente</TabsTrigger>
@@ -650,7 +559,10 @@ export default function AdminPayments() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Valor</p>
                         <p className="text-lg font-semibold">
-                          {Number(selectedPayment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                          {Number(selectedPayment.amount).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL"
+                    })}
                         </p>
                       </div>
                       <div>
@@ -660,7 +572,9 @@ export default function AdminPayments() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Data do Pagamento</p>
                         <p className="text-sm">
-                          {format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}
+                          {format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm:ss", {
+                      locale: ptBR
+                    })}
                         </p>
                       </div>
                       <div>
@@ -669,30 +583,23 @@ export default function AdminPayments() {
                           {selectedPayment.environment === "production" ? "Produção" : "Teste"}
                         </Badge>
                       </div>
-                      {selectedPayment.billing_reason && (
-                        <div>
+                      {selectedPayment.billing_reason && <div>
                           <p className="text-sm font-medium text-muted-foreground">Motivo da Cobrança</p>
                           <Badge variant="outline">
-                            {selectedPayment.billing_reason === "subscription_create" ? "Nova Assinatura" :
-                             selectedPayment.billing_reason === "subscription_cycle" ? "Renovação" :
-                             selectedPayment.billing_reason === "subscription_update" ? "Atualização" :
-                             selectedPayment.billing_reason}
+                            {selectedPayment.billing_reason === "subscription_create" ? "Nova Assinatura" : selectedPayment.billing_reason === "subscription_cycle" ? "Renovação" : selectedPayment.billing_reason === "subscription_update" ? "Atualização" : selectedPayment.billing_reason}
                           </Badge>
-                        </div>
-                      )}
-                      {selectedPayment.plan_name && (
-                        <div>
+                        </div>}
+                      {selectedPayment.plan_name && <div>
                           <p className="text-sm font-medium text-muted-foreground">Plano</p>
                           <p className="text-sm font-semibold">{selectedPayment.plan_name}</p>
-                          {selectedPayment.plan_price && (
-                            <p className="text-xs text-muted-foreground">
-                              {Number(selectedPayment.plan_price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {selectedPayment.user_name && (
-                        <>
+                          {selectedPayment.plan_price && <p className="text-xs text-muted-foreground">
+                              {Number(selectedPayment.plan_price).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL"
+                    })}
+                            </p>}
+                        </div>}
+                      {selectedPayment.user_name && <>
                           <div>
                             <p className="text-sm font-medium text-muted-foreground">Nome do Cliente</p>
                             <p className="text-sm">{selectedPayment.user_name}</p>
@@ -701,39 +608,29 @@ export default function AdminPayments() {
                             <p className="text-sm font-medium text-muted-foreground">Email do Cliente</p>
                             <p className="text-sm">{selectedPayment.user_email || "-"}</p>
                           </div>
-                        </>
-                      )}
-                      {selectedPayment.stripe_subscription_id && (
-                        <div className="col-span-2">
+                        </>}
+                      {selectedPayment.stripe_subscription_id && <div className="col-span-2">
                           <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
                           <p className="text-sm font-mono break-all">{selectedPayment.stripe_subscription_id}</p>
-                        </div>
-                      )}
-                      {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && (
-                        <>
-                          {selectedPayment.affiliate_name && (
-                            <div>
+                        </div>}
+                      {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <>
+                          {selectedPayment.affiliate_name && <div>
                               <p className="text-sm font-medium text-muted-foreground">Afiliado</p>
                               <p className="text-sm font-semibold">{selectedPayment.affiliate_name}</p>
-                            </div>
-                          )}
-                          {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && (
-                            <div>
+                            </div>}
+                          {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <div>
                               <p className="text-sm font-medium text-muted-foreground">Cupom Utilizado</p>
                               <Badge variant="outline">
                                 {selectedPayment.coupon_custom_code || selectedPayment.coupon_code}
                               </Badge>
-                            </div>
-                          )}
-                        </>
-                      )}
+                            </div>}
+                        </>}
                     </div>
                   </ScrollArea>
                 </TabsContent>
 
                 <TabsContent value="client" className="space-y-4 mt-4">
-                  {selectedPayment.user_name ? (
-                    <ScrollArea className="max-h-[60vh]">
+                  {selectedPayment.user_name ? <ScrollArea className="max-h-[60vh]">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Nome</p>
@@ -744,25 +641,18 @@ export default function AdminPayments() {
                           <p className="text-sm">{selectedPayment.user_email || "-"}</p>
                         </div>
                       </div>
-                    </ScrollArea>
-                  ) : (
-                    <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    </ScrollArea> : <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
                       Nenhum dado de cliente disponível
-                    </div>
-                  )}
+                    </div>}
                 </TabsContent>
-              </Tabs>
-            )}
+              </Tabs>}
           </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        </Drawer> : <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[85vh]">
             <DialogHeader>
               <DialogTitle>Detalhes do Pagamento</DialogTitle>
             </DialogHeader>
-            {selectedPayment && (
-              <Tabs defaultValue="payment" className="w-full">
+            {selectedPayment && <Tabs defaultValue="payment" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="payment">Detalhes do Pagamento</TabsTrigger>
                   <TabsTrigger value="client" disabled={!selectedPayment.user_name}>Cliente</TabsTrigger>
@@ -784,7 +674,10 @@ export default function AdminPayments() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Valor</p>
                         <p className="text-lg font-semibold">
-                          {Number(selectedPayment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                          {Number(selectedPayment.amount).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL"
+                    })}
                         </p>
                       </div>
                       <div>
@@ -794,7 +687,9 @@ export default function AdminPayments() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Data do Pagamento</p>
                         <p className="text-sm">
-                          {format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}
+                          {format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm:ss", {
+                      locale: ptBR
+                    })}
                         </p>
                       </div>
                       <div>
@@ -803,30 +698,23 @@ export default function AdminPayments() {
                           {selectedPayment.environment === "production" ? "Produção" : "Teste"}
                         </Badge>
                       </div>
-                      {selectedPayment.billing_reason && (
-                        <div>
+                      {selectedPayment.billing_reason && <div>
                           <p className="text-sm font-medium text-muted-foreground">Motivo da Cobrança</p>
                           <Badge variant="outline">
-                            {selectedPayment.billing_reason === "subscription_create" ? "Nova Assinatura" :
-                             selectedPayment.billing_reason === "subscription_cycle" ? "Renovação" :
-                             selectedPayment.billing_reason === "subscription_update" ? "Atualização" :
-                             selectedPayment.billing_reason}
+                            {selectedPayment.billing_reason === "subscription_create" ? "Nova Assinatura" : selectedPayment.billing_reason === "subscription_cycle" ? "Renovação" : selectedPayment.billing_reason === "subscription_update" ? "Atualização" : selectedPayment.billing_reason}
                           </Badge>
-                        </div>
-                      )}
-                      {selectedPayment.plan_name && (
-                        <div>
+                        </div>}
+                      {selectedPayment.plan_name && <div>
                           <p className="text-sm font-medium text-muted-foreground">Plano</p>
                           <p className="text-sm font-semibold">{selectedPayment.plan_name}</p>
-                          {selectedPayment.plan_price && (
-                            <p className="text-xs text-muted-foreground">
-                              {Number(selectedPayment.plan_price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {selectedPayment.user_name && (
-                        <>
+                          {selectedPayment.plan_price && <p className="text-xs text-muted-foreground">
+                              {Number(selectedPayment.plan_price).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL"
+                    })}
+                            </p>}
+                        </div>}
+                      {selectedPayment.user_name && <>
                           <div>
                             <p className="text-sm font-medium text-muted-foreground">Nome do Cliente</p>
                             <p className="text-sm">{selectedPayment.user_name}</p>
@@ -835,39 +723,29 @@ export default function AdminPayments() {
                             <p className="text-sm font-medium text-muted-foreground">Email do Cliente</p>
                             <p className="text-sm">{selectedPayment.user_email || "-"}</p>
                           </div>
-                        </>
-                      )}
-                      {selectedPayment.stripe_subscription_id && (
-                        <div className="col-span-2">
+                        </>}
+                      {selectedPayment.stripe_subscription_id && <div className="col-span-2">
                           <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
                           <p className="text-sm font-mono break-all">{selectedPayment.stripe_subscription_id}</p>
-                        </div>
-                      )}
-                      {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && (
-                        <>
-                          {selectedPayment.affiliate_name && (
-                            <div>
+                        </div>}
+                      {(selectedPayment.affiliate_name || selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <>
+                          {selectedPayment.affiliate_name && <div>
                               <p className="text-sm font-medium text-muted-foreground">Afiliado</p>
                               <p className="text-sm font-semibold">{selectedPayment.affiliate_name}</p>
-                            </div>
-                          )}
-                          {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && (
-                            <div>
+                            </div>}
+                          {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <div>
                               <p className="text-sm font-medium text-muted-foreground">Cupom Utilizado</p>
                               <Badge variant="outline">
                                 {selectedPayment.coupon_custom_code || selectedPayment.coupon_code}
                               </Badge>
-                            </div>
-                          )}
-                        </>
-                      )}
+                            </div>}
+                        </>}
                     </div>
                   </ScrollArea>
                 </TabsContent>
 
                 <TabsContent value="client" className="space-y-4 mt-4">
-                  {selectedPayment.user_name ? (
-                    <ScrollArea className="max-h-[50vh]">
+                  {selectedPayment.user_name ? <ScrollArea className="max-h-[50vh]">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground">Nome</p>
@@ -878,18 +756,12 @@ export default function AdminPayments() {
                           <p className="text-sm">{selectedPayment.user_email || "-"}</p>
                         </div>
                       </div>
-                    </ScrollArea>
-                  ) : (
-                    <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    </ScrollArea> : <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
                       Nenhum dado de cliente disponível
-                    </div>
-                  )}
+                    </div>}
                 </TabsContent>
-              </Tabs>
-            )}
+              </Tabs>}
           </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
+        </Dialog>}
+    </div>;
 }
