@@ -183,6 +183,8 @@ All colors MUST be HSL.
 input, textarea, select {
   -webkit-user-select: text !important;
   user-select: text !important;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 /* Força modo de toque para inputs no iOS */
@@ -194,5 +196,25 @@ input[type="tel"],
 textarea {
   -webkit-touch-callout: default !important;
   touch-action: manipulation;
+}
+
+/* Fix específico para iOS 18 PWA - previne zoom e força teclado */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px !important; /* Previne zoom automático no iOS */
+  }
+  
+  /* Standalone mode específico para PWA */
+  @media (display-mode: standalone) {
+    input:focus, textarea:focus, select:focus {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Garante área de toque adequada */
+    input, textarea {
+      min-height: 44px;
+    }
+  }
 }
 
