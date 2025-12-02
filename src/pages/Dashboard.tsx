@@ -409,56 +409,56 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2 space-y-0">
                 <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Comissão do dia
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-success" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-xl sm:text-2xl font-bold text-success">
                   {formatCurrency(stats?.comissao_hoje || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão últimos 7 dias
                 </CardTitle>
                 <DollarSign className="h-4 w-4 text-info" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-2xl font-bold text-info">
                   {formatCurrency(stats?.comissao_7_dias || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão do mês
                 </CardTitle>
                 <DollarSign className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-2xl font-bold">
                   {formatCurrency(stats?.comissao_mes || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <Card className="p-3 sm:p-4">
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão disponível para saque
                 </CardTitle>
                 <Wallet className="h-4 w-4 text-success" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <div className="text-2xl font-bold text-success">
                   {formatCurrency(stats?.comissao_disponivel || 0)}
                 </div>
