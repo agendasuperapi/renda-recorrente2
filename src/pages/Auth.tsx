@@ -327,7 +327,7 @@ const Auth = () => {
           <form onSubmit={handleAuth} className="space-y-3 sm:space-y-4">
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground">
+                <Label htmlFor="name" style={{ color: getTextColor('auth_form_card') }}>
                   Nome completo
                 </Label>
                 <Input
@@ -343,7 +343,7 @@ const Auth = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">
+              <Label htmlFor="email" style={{ color: getTextColor('auth_form_card') }}>
                 E-mail
               </Label>
               <Input
@@ -359,7 +359,7 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">
+              <Label htmlFor="password" style={{ color: getTextColor('auth_form_card') }}>
                 Senha
               </Label>
               <div className="relative">
