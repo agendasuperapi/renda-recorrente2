@@ -279,16 +279,15 @@ const Referrals = () => {
 
       <div className="bg-card rounded-lg border p-6">
         <h2 className="text-lg font-semibold mb-4">Filtros</h2>
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Input
             placeholder="Buscar por nome ou email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full sm:w-auto sm:min-w-[200px] lg:flex-1"
           />
           
           <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-            <SelectTrigger className="w-full sm:w-[160px]">
+            <SelectTrigger>
               <SelectValue placeholder="Produto" />
             </SelectTrigger>
             <SelectContent>
@@ -306,7 +305,7 @@ const Referrals = () => {
               value={selectedPlan} 
               onValueChange={setSelectedPlan}
             >
-              <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectTrigger>
                 <SelectValue placeholder="Plano" />
               </SelectTrigger>
               <SelectContent>
@@ -321,7 +320,7 @@ const Referrals = () => {
           )}
 
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-full sm:w-[160px]">
+            <SelectTrigger>
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -335,7 +334,7 @@ const Referrals = () => {
           </Select>
 
           <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
-            <SelectTrigger className="w-full sm:w-[140px]">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
