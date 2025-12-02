@@ -194,7 +194,7 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
           <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
         </div>
         
-        <div className="px-6 pt-2 lg:pt-0">
+        <div className="px-6 pt-2 pb-4 lg:pt-0 lg:pb-6">
           <DialogHeader>
             <DialogTitle>Detalhes do Afiliado</DialogTitle>
           </DialogHeader>
