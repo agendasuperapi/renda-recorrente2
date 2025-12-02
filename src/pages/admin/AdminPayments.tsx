@@ -533,9 +533,7 @@ export default function AdminPayments() {
             
             <DrawerHeader className="relative">
               <DrawerTitle>Detalhes do Pagamento</DrawerTitle>
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2" onClick={() => setDialogOpen(false)}>
-                <X className="h-4 w-4" />
-              </Button>
+              
             </DrawerHeader>
             {selectedPayment && <Tabs defaultValue="payment" className="w-full px-4 pb-4">
                 <TabsList className="grid w-full grid-cols-2">
