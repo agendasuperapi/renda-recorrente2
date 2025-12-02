@@ -1436,7 +1436,7 @@ const AdminPlans = () => {
             setIsStripeDialogOpen(open);
             if (!open) setIsEditingIntegration(false);
           }}>
-            <DialogContent className="w-full max-w-full max-h-[85vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-y-0 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:max-w-2xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] bg-card flex flex-col p-0 overflow-hidden">
+            <DialogContent className="w-full max-w-full max-h-[85vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-x-0 translate-y-0 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:left-1/2 lg:translate-x-[-50%] lg:max-w-2xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] bg-card flex flex-col p-0 overflow-hidden">
               {/* Handle bar para indicar que é um bottom sheet (apenas mobile) */}
               <div className="flex justify-center pt-3 pb-2 lg:hidden flex-shrink-0">
                 <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
