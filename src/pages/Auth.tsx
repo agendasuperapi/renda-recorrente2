@@ -172,8 +172,11 @@ const Auth = () => {
     const startAlpha = config.intensity_start / 100;
     const endAlpha = config.intensity_end / 100;
     
+    // Use vertical gradient for auth_form_card, horizontal for others
+    const direction = blockName === 'auth_form_card' ? 'to bottom' : 'to right';
+    
     return {
-      background: `linear-gradient(to right, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
+      background: `linear-gradient(${direction}, ${config.color_start}${Math.round(startAlpha * 255).toString(16).padStart(2, '0')} ${config.gradient_start_position}%, ${config.color_end}${Math.round(endAlpha * 255).toString(16).padStart(2, '0')} 100%)`
     };
   };
 
