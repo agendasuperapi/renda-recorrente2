@@ -928,7 +928,7 @@ const AdminPlans = () => {
               </DialogHeader>
 
               <Tabs defaultValue="plan" className="space-y-6">
-                <TabsList>
+                <TabsList className="sticky top-0 z-10 bg-card lg:static">
                   <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
                   <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
                 </TabsList>
