@@ -449,12 +449,12 @@ export function WithdrawalDetailsDialog({
       <>
         <Drawer open={open} onOpenChange={handleDialogChange}>
           <DrawerContent className="max-h-[95vh]">
-            <DrawerHeader className="pb-2 flex items-center justify-between">
-              <DrawerTitle>Detalhes do Saque</DrawerTitle>
+            <DrawerHeader className="pb-2 relative">
+              <DrawerTitle className="text-center">Detalhes do Saque</DrawerTitle>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 absolute right-4 top-1/2 -translate-y-1/2"
                 onClick={() => onOpenChange(false)}
               >
                 <X className="h-4 w-4" />
