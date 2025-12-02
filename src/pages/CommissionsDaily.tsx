@@ -505,11 +505,11 @@ const CommissionsDaily = () => {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className={isMobile ? "bg-transparent border-0 shadow-none" : ""}>
+        <CardHeader className={isMobile ? "p-0" : ""}>
           <CardTitle>Histórico Diário</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={isMobile ? "p-0" : ""}>
           <div className="relative">
             {isFiltering && (
               <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
