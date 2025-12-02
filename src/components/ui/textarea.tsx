@@ -8,17 +8,23 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, onTouchStart, onClick, ...props }, ref) => {
     const handleIOSFocus = (target: HTMLTextAreaElement) => {
       // Técnica combinada para iOS PWA - força o teclado a aparecer
-      requestAnimationFrame(() => {
-        target.blur();
+      // Verifica se está em modo standalone (PWA instalado)
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          (window.navigator as any).standalone === true;
+      
+      if (isStandalone) {
         requestAnimationFrame(() => {
-          target.focus();
-          setTimeout(() => {
-            if (document.activeElement !== target) {
-              target.focus();
-            }
-          }, 100);
+          target.blur();
+          requestAnimationFrame(() => {
+            target.focus();
+            setTimeout(() => {
+              if (document.activeElement !== target) {
+                target.focus();
+              }
+            }, 100);
+          });
         });
-      });
+      }
     };
 
     const handleTouchStart = (e: React.TouchEvent<HTMLTextAreaElement>) => {

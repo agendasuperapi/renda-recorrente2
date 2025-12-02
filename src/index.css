@@ -195,17 +195,21 @@ All colors MUST be HSL.
       min-height: -webkit-fill-available;
     }
     
-    /* Garantir scroll natural em containers de formulário */
-    input, textarea {
+    /* Garantir que inputs e textareas funcionem corretamente no iOS PWA */
+    /* NÃO usar touch-action: manipulation em inputs - isso impede o teclado de abrir */
+    input, textarea, select {
       -webkit-user-select: text;
       user-select: text;
-      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      /* Removido touch-action: manipulation para permitir que o teclado abra */
     }
     
     /* Permitir que o iOS empurre o conteúdo quando o teclado abre */
     body {
       min-height: 100dvh;
       min-height: -webkit-fill-available;
+      /* Garantir que o body não bloqueie eventos de toque */
+      touch-action: pan-y;
     }
     
     /* ScrollView wrapper - scroll nativo iOS */
@@ -213,6 +217,11 @@ All colors MUST be HSL.
       -webkit-overflow-scrolling: touch;
       overflow-y: auto;
       overscroll-behavior: none;
+    }
+    
+    /* Garantir que formulários sejam focáveis e permitam abertura do teclado */
+    form {
+      touch-action: pan-y;
     }
   }
 }
