@@ -337,6 +337,7 @@ const Auth = () => {
                 <Input
                   id="name"
                   type="text"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required={!isLogin}
@@ -353,6 +354,8 @@ const Auth = () => {
               <Input
                 id="email"
                 type="email"
+                inputMode="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
                 required
@@ -370,6 +373,7 @@ const Auth = () => {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete={isLogin ? "current-password" : "new-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
                   required
