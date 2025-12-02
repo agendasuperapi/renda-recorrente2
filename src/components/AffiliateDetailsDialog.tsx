@@ -587,50 +587,114 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
                     </CardHeader>
                     <CardContent>
                       {commissions && commissions.length > 0 ? (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Data</TableHead>
-                              <TableHead>Tipo</TableHead>
-                              <TableHead>Valor</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Nível</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
+                        <>
+                          {/* Desktop: Tabela */}
+                          <div className="hidden md:block">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Data</TableHead>
+                                  <TableHead>Tipo</TableHead>
+                                  <TableHead>Valor</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Nível</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {commissions.map((commission) => (
+                                  <TableRow key={commission.id}>
+                                    <TableCell>
+                                      {commission.created_at 
+                                        ? format(new Date(commission.created_at), "dd/MM/yyyy", { locale: ptBR })
+                                        : "-"}
+                                    </TableCell>
+                                    <TableCell className="capitalize">
+                                      {commission.commission_type.replace("_", " ")}
+                                    </TableCell>
+                                    <TableCell>
+                                      {new Intl.NumberFormat("pt-BR", {
+                                        style: "currency",
+                                        currency: "BRL",
+                                      }).format(commission.amount)}
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge 
+                                        variant={
+                                          commission.status === "available" ? "default" :
+                                          commission.status === "pending" ? "secondary" :
+                                          commission.status === "paid" ? "default" :
+                                          "secondary"
+                                        }
+                                      >
+                                        {commission.status}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell>N{commission.level || 1}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+
+                          {/* Mobile/Tablet: Cards */}
+                          <div className="md:hidden space-y-4">
                             {commissions.map((commission) => (
-                              <TableRow key={commission.id}>
-                                <TableCell>
-                                  {commission.created_at 
-                                    ? format(new Date(commission.created_at), "dd/MM/yyyy", { locale: ptBR })
-                                    : "-"}
-                                </TableCell>
-                                <TableCell className="capitalize">
-                                  {commission.commission_type.replace("_", " ")}
-                                </TableCell>
-                                <TableCell>
-                                  {new Intl.NumberFormat("pt-BR", {
-                                    style: "currency",
-                                    currency: "BRL",
-                                  }).format(commission.amount)}
-                                </TableCell>
-                                <TableCell>
-                                  <Badge 
-                                    variant={
-                                      commission.status === "available" ? "default" :
-                                      commission.status === "pending" ? "secondary" :
-                                      commission.status === "paid" ? "default" :
-                                      "secondary"
-                                    }
-                                  >
-                                    {commission.status}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>N{commission.level || 1}</TableCell>
-                              </TableRow>
+                              <Card key={commission.id} className="border-border/50">
+                                <CardContent className="p-4 space-y-3">
+                                  <div className="flex items-center justify-between pb-2 border-b">
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                                      <span className="text-sm font-medium">
+                                        {commission.created_at 
+                                          ? format(new Date(commission.created_at), "dd/MM/yyyy", { locale: ptBR })
+                                          : "-"}
+                                      </span>
+                                    </div>
+                                    <Badge 
+                                      variant={
+                                        commission.status === "available" ? "default" :
+                                        commission.status === "pending" ? "secondary" :
+                                        commission.status === "paid" ? "default" :
+                                        "secondary"
+                                      }
+                                      className="text-xs"
+                                    >
+                                      {commission.status}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <Label className="text-xs text-muted-foreground">Tipo</Label>
+                                      <p className="text-sm font-medium capitalize">
+                                        {commission.commission_type.replace("_", " ")}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs text-muted-foreground">Valor</Label>
+                                      <p className="text-sm font-semibold text-primary">
+                                        {new Intl.NumberFormat("pt-BR", {
+                                          style: "currency",
+                                          currency: "BRL",
+                                        }).format(commission.amount)}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center pt-2">
+                                    <div className="flex items-center gap-2">
+                                      <Award className="h-4 w-4 text-muted-foreground" />
+                                      <Label className="text-xs text-muted-foreground">Nível:</Label>
+                                      <Badge variant="outline" className="text-xs">
+                                        N{commission.level || 1}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
                             ))}
-                          </TableBody>
-                        </Table>
+                          </div>
+                        </>
                       ) : (
                         <p className="text-center text-muted-foreground py-8">
                           Nenhuma comissão encontrada
