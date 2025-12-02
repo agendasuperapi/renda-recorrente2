@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, DollarSign, RefreshCw, X, Loader2 } from "lucide-react";
+import { Calendar, Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
@@ -91,6 +91,15 @@ const CommissionsDaily = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [totalCount, setTotalCount] = useState(0);
+
+  // Layout mode para mobile/tablet
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
+
+  // Mostrar/esconder filtros no mobile/tablet
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Card expandido no modo compacto
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
@@ -361,104 +370,144 @@ const CommissionsDaily = () => {
         </div>
       )}
 
+      {/* Botão de filtros mobile/tablet */}
+      <div className="lg:hidden flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+          {(filters.product_id || filters.plan_id || filters.status || clienteSearch) && (
+            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+              !
+            </Badge>
+          )}
+        </Button>
+        
+        {/* Layout mode selector - mobile/tablet */}
+        <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
+          <SelectTrigger className="w-auto gap-2">
+            {layoutMode === "compact" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="compact">Compacto</SelectItem>
+            <SelectItem value="complete">Completo</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
+      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Filtros</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowFilters(false)}
+            className="lg:hidden h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-4">
+          <Select 
+            value={filters.product_id} 
+            onValueChange={(value) => {
+              setFilters(f => ({ ...f, product_id: value, plan_id: "" }));
+              loadPlansForProduct(value);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Produto" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value=" ">Todos os produtos</SelectItem>
+              {products.map((p) => (
+                <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {filters.product_id && filters.product_id !== " " && (
+            <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Plano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value=" ">Todos os planos</SelectItem>
+                {plans.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          <Input
+            type="date"
+            placeholder="Data início"
+            value={filters.data_inicio}
+            onChange={(e) => setFilters(f => ({ ...f, data_inicio: e.target.value }))}
+          />
+
+          <Input
+            type="date"
+            placeholder="Data fim"
+            value={filters.data_fim}
+            onChange={(e) => setFilters(f => ({ ...f, data_fim: e.target.value }))}
+          />
+
+          <Input
+            placeholder="Cliente"
+            value={clienteSearch}
+            onChange={(e) => setClienteSearch(e.target.value)}
+          />
+
+          <Select value={filters.status} onValueChange={(value) => setFilters(f => ({ ...f, status: value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value=" ">Todos os status</SelectItem>
+              <SelectItem value="pending">Pendente</SelectItem>
+              <SelectItem value="available">Disponível</SelectItem>
+              <SelectItem value="withdrawn">Sacado</SelectItem>
+              <SelectItem value="cancelled">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+            setItemsPerPage(Number(value));
+            setCurrentPage(1);
+          }}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 por página</SelectItem>
+              <SelectItem value="20">20 por página</SelectItem>
+              <SelectItem value="50">50 por página</SelectItem>
+              <SelectItem value="100">100 por página</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button variant="outline" onClick={clearFilters} className="gap-2">
+            <X className="h-4 w-4" />
+            Limpar filtros
+          </Button>
+
+          <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+        </div>
+      </div>
+
       <Card>
         <CardHeader>
-          <div className="flex flex-col space-y-4">
-            <CardTitle>Histórico Diário</CardTitle>
-            
-            {/* Filtros */}
-            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-4">
-              <Select 
-                value={filters.product_id} 
-                onValueChange={(value) => {
-                  setFilters(f => ({ ...f, product_id: value, plan_id: "" }));
-                  loadPlansForProduct(value);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Produto" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value=" ">Todos os produtos</SelectItem>
-                  {products.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {filters.product_id && filters.product_id !== " " && (
-                <Select value={filters.plan_id} onValueChange={(value) => setFilters(f => ({ ...f, plan_id: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Plano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value=" ">Todos os planos</SelectItem>
-                    {plans.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              <Input
-                type="date"
-                placeholder="Data início"
-                value={filters.data_inicio}
-                onChange={(e) => setFilters(f => ({ ...f, data_inicio: e.target.value }))}
-              />
-
-              <Input
-                type="date"
-                placeholder="Data fim"
-                value={filters.data_fim}
-                onChange={(e) => setFilters(f => ({ ...f, data_fim: e.target.value }))}
-              />
-
-              <Input
-                placeholder="Cliente"
-                value={clienteSearch}
-                onChange={(e) => setClienteSearch(e.target.value)}
-              />
-
-              <Select value={filters.status} onValueChange={(value) => setFilters(f => ({ ...f, status: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value=" ">Todos os status</SelectItem>
-                  <SelectItem value="pending">Pendente</SelectItem>
-                  <SelectItem value="available">Disponível</SelectItem>
-                  <SelectItem value="withdrawn">Sacado</SelectItem>
-                  <SelectItem value="cancelled">Cancelado</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                setItemsPerPage(Number(value));
-                setCurrentPage(1);
-              }}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10 por página</SelectItem>
-                  <SelectItem value="20">20 por página</SelectItem>
-                  <SelectItem value="50">50 por página</SelectItem>
-                  <SelectItem value="100">100 por página</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button variant="outline" onClick={clearFilters} className="gap-2">
-                <X className="h-4 w-4" />
-                Limpar filtros
-              </Button>
-
-              <Button variant="outline" onClick={() => { loadStats(); loadCommissions(); }} disabled={isFiltering} className="gap-2">
-                <RefreshCw className={`h-4 w-4 ${isFiltering ? "animate-spin" : ""}`} />
-                Atualizar
-              </Button>
-            </div>
-          </div>
+          <CardTitle>Histórico Diário</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="relative">
@@ -479,34 +528,86 @@ const CommissionsDaily = () => {
                   commissions.map((commission) => (
                     <Card key={commission.id}>
                       <CardContent className="p-4 space-y-3">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
-                            <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
-                          </div>
-                          {getStatusBadge(commission.status)}
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
-                          {getLevelBadge(commission.level)}
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Produto:</span>
-                            <p className="font-medium truncate">{commission.produto || "-"}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Plano:</span>
-                            <p className="font-medium truncate">{commission.plano || "-"}</p>
-                          </div>
-                        </div>
+                        {layoutMode === "compact" && expandedCardId !== commission.id ? (
+                          // Layout Compacto: Nome, Produto, Nível, Data, Valor, Status
+                          <>
+                            <div className="flex justify-between items-start gap-2">
+                              <p className="font-medium text-sm truncate flex-1">{commission.cliente || "Sem nome"}</p>
+                              {getStatusBadge(commission.status)}
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
+                              {getLevelBadge(commission.level)}
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Produto:</span>
+                                <p className="font-medium truncate">{commission.produto || "-"}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Data:</span>
+                                <p className="font-medium">{formatDate(commission.data)}</p>
+                              </div>
+                            </div>
+                            <div className="flex justify-end pt-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setExpandedCardId(commission.id)}
+                                className="h-7 gap-1 text-xs"
+                              >
+                                <Eye className="h-3 w-3" />
+                                Ver mais
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          // Layout Completo: Todas as informações
+                          <>
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
+                                <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
+                              </div>
+                              {getStatusBadge(commission.status)}
+                            </div>
+                            
+                            <div className="flex justify-between items-center">
+                              <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
+                              {getLevelBadge(commission.level)}
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Produto:</span>
+                                <p className="font-medium truncate">{commission.produto || "-"}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Plano:</span>
+                                <p className="font-medium truncate">{commission.plano || "-"}</p>
+                              </div>
+                            </div>
 
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
-                          <span className="text-muted-foreground">{formatDate(commission.data)}</span>
-                        </div>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
+                              <span className="text-muted-foreground">{formatDate(commission.data)}</span>
+                            </div>
+                            
+                            {layoutMode === "compact" && expandedCardId === commission.id && (
+                              <div className="flex justify-end pt-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setExpandedCardId(null)}
+                                  className="h-7 gap-1 text-xs"
+                                >
+                                  <ChevronUp className="h-3 w-3" />
+                                  Ver menos
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </CardContent>
                     </Card>
                   ))
