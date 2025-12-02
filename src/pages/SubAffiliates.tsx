@@ -965,8 +965,20 @@ const SubAffiliates = () => {
         <SubAffiliateCommissionsDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          subAffiliateName={selectedSubAffiliate.name || 'N/A'}
-          subAffiliateId={selectedSubAffiliate.external_user_id}
+          subAffiliate={{
+            id: selectedSubAffiliate.external_user_id,
+            name: selectedSubAffiliate.name,
+            username: selectedSubAffiliate.username,
+            email: selectedSubAffiliate.email,
+            avatar_url: selectedSubAffiliate.avatar_url,
+            plan_name: selectedSubAffiliate.plan_name,
+            level: selectedSubAffiliate.level,
+            status: selectedSubAffiliate.status,
+            created_at: selectedSubAffiliate.created_at,
+            referrals_count: selectedSubAffiliate.referrals_count,
+            total_commission: selectedSubAffiliate.total_commission,
+            my_commission_from_sub: selectedSubAffiliate.my_commission_from_sub,
+          }}
           parentAffiliateId={currentUserId}
         />
       )}
