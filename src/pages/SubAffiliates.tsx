@@ -631,7 +631,7 @@ const SubAffiliates = () => {
               ) : (
                 filteredData.map((sub) => (
                   <Card key={sub.id} className="overflow-hidden">
-                    <CardContent className="p-3 md:py-3 md:px-4">
+                    <CardContent className="p-0">
                       {/* Mobile Layout */}
                       <div className="md:hidden">
                         <div className="flex items-center justify-between gap-2">
