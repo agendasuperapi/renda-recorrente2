@@ -383,13 +383,13 @@ const AdminBankAccounts = () => {
           </TabsList>
 
           <TabsContent value="banks" className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-3">
               <p className="text-sm text-muted-foreground">
                 Cadastro de bancos utilizados para integrações de pagamento
               </p>
               <Dialog open={openBankDialog} onOpenChange={setOpenBankDialog}>
                 <DialogTrigger asChild>
-                  <Button onClick={resetBankForm} size="sm">
+                  <Button onClick={resetBankForm} size="sm" className="w-full sm:w-auto">
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Banco
                   </Button>
