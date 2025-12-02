@@ -476,43 +476,101 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
                     </CardHeader>
                     <CardContent>
                       {payments && payments.length > 0 ? (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Data</TableHead>
-                              <TableHead>Plano</TableHead>
-                              <TableHead>Valor</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead>Ambiente</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
+                        <>
+                          {/* Desktop: Tabela */}
+                          <div className="hidden md:block">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Data</TableHead>
+                                  <TableHead>Plano</TableHead>
+                                  <TableHead>Valor</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Ambiente</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {payments.map((payment) => (
+                                  <TableRow key={payment.id}>
+                                    <TableCell>
+                                      {payment.payment_date 
+                                        ? format(new Date(payment.payment_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                                        : "-"}
+                                    </TableCell>
+                                    <TableCell>{(payment.plans as any)?.name || "-"}</TableCell>
+                                    <TableCell>
+                                      {new Intl.NumberFormat("pt-BR", {
+                                        style: "currency",
+                                        currency: payment.currency || "BRL",
+                                      }).format(payment.amount)}
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge variant={payment.status === "paid" ? "default" : "secondary"}>
+                                        {payment.status}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge variant="outline">{payment.environment}</Badge>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+
+                          {/* Mobile/Tablet: Cards */}
+                          <div className="md:hidden space-y-4">
                             {payments.map((payment) => (
-                              <TableRow key={payment.id}>
-                                <TableCell>
-                                  {payment.payment_date 
-                                    ? format(new Date(payment.payment_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                                    : "-"}
-                                </TableCell>
-                                <TableCell>{(payment.plans as any)?.name || "-"}</TableCell>
-                                <TableCell>
-                                  {new Intl.NumberFormat("pt-BR", {
-                                    style: "currency",
-                                    currency: payment.currency || "BRL",
-                                  }).format(payment.amount)}
-                                </TableCell>
-                                <TableCell>
-                                  <Badge variant={payment.status === "paid" ? "default" : "secondary"}>
-                                    {payment.status}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge variant="outline">{payment.environment}</Badge>
-                                </TableCell>
-                              </TableRow>
+                              <Card key={payment.id} className="border-border/50">
+                                <CardContent className="p-4 space-y-3">
+                                  <div className="flex items-center justify-between pb-2 border-b">
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                                      <span className="text-sm font-medium">
+                                        {payment.payment_date 
+                                          ? format(new Date(payment.payment_date), "dd/MM/yyyy", { locale: ptBR })
+                                          : "-"}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground">
+                                      {payment.payment_date 
+                                        ? format(new Date(payment.payment_date), "HH:mm", { locale: ptBR })
+                                        : ""}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                      <Label className="text-xs text-muted-foreground">Plano</Label>
+                                      <p className="text-sm font-medium">{(payment.plans as any)?.name || "-"}</p>
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs text-muted-foreground">Valor</Label>
+                                      <p className="text-sm font-semibold text-primary">
+                                        {new Intl.NumberFormat("pt-BR", {
+                                          style: "currency",
+                                          currency: payment.currency || "BRL",
+                                        }).format(payment.amount)}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center justify-between pt-2">
+                                    <div className="flex items-center gap-2">
+                                      <Label className="text-xs text-muted-foreground">Status:</Label>
+                                      <Badge variant={payment.status === "paid" ? "default" : "secondary"}>
+                                        {payment.status}
+                                      </Badge>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs">
+                                      {payment.environment}
+                                    </Badge>
+                                  </div>
+                                </CardContent>
+                              </Card>
                             ))}
-                          </TableBody>
-                        </Table>
+                          </div>
+                        </>
                       ) : (
                         <p className="text-center text-muted-foreground py-8">
                           Nenhum pagamento encontrado
