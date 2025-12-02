@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, CheckCircle, XCircle, Clock, ImagePlus, Undo2, FileText, Percent } from "lucide-react";
+import { DollarSign, CheckCircle, XCircle, Clock, ImagePlus, Undo2, FileText, Percent, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
@@ -449,8 +449,16 @@ export function WithdrawalDetailsDialog({
       <>
         <Drawer open={open} onOpenChange={handleDialogChange}>
           <DrawerContent className="max-h-[95vh]">
-            <DrawerHeader className="pb-2">
+            <DrawerHeader className="pb-2 flex items-center justify-between">
               <DrawerTitle>Detalhes do Saque</DrawerTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onOpenChange(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </DrawerHeader>
             <Tabs defaultValue="details" className="w-full px-4">
               <TabsList className="grid w-full grid-cols-2 mb-3">
