@@ -279,7 +279,7 @@ const Referrals = () => {
 
       <div className="bg-card rounded-lg border p-6">
         <h2 className="text-lg font-semibold mb-4">Filtros</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <Input
             placeholder="Buscar por nome ou email..."
             value={searchTerm}
@@ -332,11 +332,9 @@ const Referrals = () => {
               <SelectItem value="incomplete">Incompleto</SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t">
           <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
