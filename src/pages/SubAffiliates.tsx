@@ -352,11 +352,11 @@ const SubAffiliates = () => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="border-0 shadow-none sm:border sm:shadow-sm">
+        <CardHeader className="px-2 py-3 sm:p-6">
           <CardTitle className="text-base sm:text-lg">Lista de Sub-Afiliados</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-2 pb-3 sm:p-6 sm:pt-0">
           {/* Filtros */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap items-end gap-2 sm:gap-3 pb-4 border-b">
             <div className="w-full md:flex-1 md:min-w-[120px] sm:min-w-[150px]">
