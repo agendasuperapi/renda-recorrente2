@@ -22,6 +22,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +47,7 @@ const WEEKDAYS = [
 ];
 
 const AdminUsers = () => {
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -518,271 +526,539 @@ const AdminUsers = () => {
           </CardContent>
         </Card>
 
-        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] md:w-full">
-            <DialogHeader>
-              <DialogTitle>Detalhes do Usuário</DialogTitle>
-            </DialogHeader>
-            
-            <ScrollArea className="h-[calc(90vh-8rem)] pr-2 md:pr-4">
-              {selectedUser && (
-                <div className="space-y-4 md:space-y-6">
-                  {/* Informações Básicas */}
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Nome</p>
-                        <p className="font-medium">{selectedUser.name}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Username</p>
-                        <p className="font-medium">{selectedUser.username || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{selectedUser.email || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Telefone</p>
-                        <p className="font-medium">{selectedUser.phone || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">CPF</p>
-                        <p className="font-medium">{selectedUser.cpf || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Data de Nascimento</p>
-                        <p className="font-medium">
-                          {selectedUser.birth_date ? format(new Date(selectedUser.birth_date), "dd/MM/yyyy") : "-"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Gênero</p>
-                        <p className="font-medium">{selectedUser.gender || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Cadastro</p>
-                        <p className="font-medium">
-                          {selectedUser.created_at ? format(new Date(selectedUser.created_at), "dd/MM/yyyy HH:mm") : "-"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Endereço */}
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold mb-3">Endereço</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                      <div className="md:col-span-2">
-                        <p className="text-sm text-muted-foreground">Rua</p>
-                        <p className="font-medium">{selectedUser.street || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Número</p>
-                        <p className="font-medium">{selectedUser.number || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Complemento</p>
-                        <p className="font-medium">{selectedUser.complement || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Bairro</p>
-                        <p className="font-medium">{selectedUser.neighborhood || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">CEP</p>
-                        <p className="font-medium">{selectedUser.cep || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Cidade</p>
-                        <p className="font-medium">{selectedUser.city || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Estado</p>
-                        <p className="font-medium">{selectedUser.state || "-"}</p>
+        {isMobile ? (
+          <Drawer open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <DrawerContent className="max-h-[90vh]">
+              <DrawerHeader>
+                <DrawerTitle>Detalhes do Usuário</DrawerTitle>
+              </DrawerHeader>
+              
+              <ScrollArea className="h-[calc(90vh-8rem)] px-4">
+                {selectedUser && (
+                  <div className="space-y-4 md:space-y-6">
+                    {/* Informações Básicas */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Nome</p>
+                          <p className="font-medium">{selectedUser.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Username</p>
+                          <p className="font-medium">{selectedUser.username || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{selectedUser.email || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Telefone</p>
+                          <p className="font-medium">{selectedUser.phone || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CPF</p>
+                          <p className="font-medium">{selectedUser.cpf || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Data de Nascimento</p>
+                          <p className="font-medium">
+                            {selectedUser.birth_date ? format(new Date(selectedUser.birth_date), "dd/MM/yyyy") : "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Gênero</p>
+                          <p className="font-medium">{selectedUser.gender || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Cadastro</p>
+                          <p className="font-medium">
+                            {selectedUser.created_at ? format(new Date(selectedUser.created_at), "dd/MM/yyyy HH:mm") : "-"}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <Separator />
+                    <Separator />
 
-                  {/* PIX */}
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold mb-3">Informações PIX e Saque</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Tipo de Chave</p>
-                        <p className="font-medium">{selectedUser.pix_type || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Chave PIX</p>
-                        <p className="font-medium break-all">{selectedUser.pix_key || "-"}</p>
-                      </div>
-                      <div className="md:col-span-2">
-                        <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
-                        {isEditingWithdrawal ? (
-                          <div className="flex flex-col md:flex-row gap-2">
-                            <select
-                              value={withdrawalDay ?? ""}
-                              onChange={(e) => setWithdrawalDay(Number(e.target.value))}
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            >
-                              <option value="">Selecione...</option>
-                              {WEEKDAYS.map((day) => (
-                                <option key={day.value} value={day.value}>
-                                  {day.label}
-                                </option>
-                              ))}
-                            </select>
-                            <Button
-                              size="sm"
-                              onClick={handleSaveWithdrawalDay}
-                              disabled={updateWithdrawalDayMutation.isPending}
-                            >
-                              Salvar
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setIsEditingWithdrawal(false);
-                                setWithdrawalDay(selectedUser.withdrawal_day);
-                              }}
-                            >
-                              Cancelar
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{getWeekdayLabel(selectedUser.withdrawal_day)}</p>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setIsEditingWithdrawal(true)}
-                            >
-                              Editar
-                            </Button>
-                          </div>
-                        )}
+                    {/* Endereço */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Endereço</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-muted-foreground">Rua</p>
+                          <p className="font-medium">{selectedUser.street || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Número</p>
+                          <p className="font-medium">{selectedUser.number || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Complemento</p>
+                          <p className="font-medium">{selectedUser.complement || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Bairro</p>
+                          <p className="font-medium">{selectedUser.neighborhood || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CEP</p>
+                          <p className="font-medium">{selectedUser.cep || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Cidade</p>
+                          <p className="font-medium">{selectedUser.city || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Estado</p>
+                          <p className="font-medium">{selectedUser.state || "-"}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <Separator />
+                    <Separator />
 
-                  {/* Redes Sociais */}
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold mb-3">Redes Sociais</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Instagram</p>
-                        <p className="font-medium">{selectedUser.instagram || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Facebook</p>
-                        <p className="font-medium">{selectedUser.facebook || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">TikTok</p>
-                        <p className="font-medium">{selectedUser.tiktok || "-"}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Controle de Bloqueio */}
-                  {selectedUser?.role !== "super_admin" && (
-                    <>
-                      <div>
-                        <h3 className="text-base md:text-lg font-semibold mb-3">Controle de Bloqueio</h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="space-y-0.5">
-                              <Label htmlFor="block-status">Status de Bloqueio</Label>
-                              <p className="text-sm text-muted-foreground">
-                                {isBlocked ? "Usuário está bloqueado" : "Usuário está ativo"}
-                              </p>
+                    {/* PIX */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Informações PIX e Saque</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Tipo de Chave</p>
+                          <p className="font-medium">{selectedUser.pix_type || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Chave PIX</p>
+                          <p className="font-medium break-all">{selectedUser.pix_key || "-"}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
+                          {isEditingWithdrawal ? (
+                            <div className="flex flex-col md:flex-row gap-2">
+                              <select
+                                value={withdrawalDay ?? ""}
+                                onChange={(e) => setWithdrawalDay(Number(e.target.value))}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              >
+                                <option value="">Selecione...</option>
+                                {WEEKDAYS.map((day) => (
+                                  <option key={day.value} value={day.value}>
+                                    {day.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <Button
+                                size="sm"
+                                onClick={handleSaveWithdrawalDay}
+                                disabled={updateWithdrawalDayMutation.isPending}
+                              >
+                                Salvar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setIsEditingWithdrawal(false);
+                                  setWithdrawalDay(selectedUser.withdrawal_day);
+                                }}
+                              >
+                                Cancelar
+                              </Button>
                             </div>
-                            <Switch
-                              id="block-status"
-                              checked={isBlocked}
-                              onCheckedChange={setIsBlocked}
-                            />
-                          </div>
-
-                          {isBlocked && (
-                            <div className="space-y-2">
-                              <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
-                              <Textarea
-                                id="blockMessage"
-                                placeholder="Digite a mensagem que será exibida ao usuário..."
-                                value={editedBlockMessage}
-                                onChange={(e) => setEditedBlockMessage(e.target.value)}
-                                rows={4}
-                              />
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{getWeekdayLabel(selectedUser.withdrawal_day)}</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setIsEditingWithdrawal(true)}
+                              >
+                                Editar
+                              </Button>
                             </div>
-                          )}
-
-                          <Button 
-                            onClick={handleSaveBlockStatus}
-                            className="w-full"
-                            disabled={updateBlockStatusMutation.isPending}
-                          >
-                            {updateBlockStatusMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-                          </Button>
-
-                          {selectedUser?.blocked_at && (
-                            <p className="text-xs text-muted-foreground text-center">
-                              Bloqueado em: {format(new Date(selectedUser.blocked_at), "dd/MM/yyyy HH:mm")}
-                            </p>
                           )}
                         </div>
                       </div>
+                    </div>
 
-                      <Separator />
-                    </>
-                  )}
+                    <Separator />
 
-                  {/* Histórico de Atividades */}
-                  <div>
-                    <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
-                    {activitiesLoading ? (
-                      <div className="space-y-2">
-                        {[...Array(3)].map((_, i) => (
-                          <Skeleton key={i} className="h-16 w-full" />
-                        ))}
+                    {/* Redes Sociais */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Redes Sociais</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Instagram</p>
+                          <p className="font-medium">{selectedUser.instagram || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Facebook</p>
+                          <p className="font-medium">{selectedUser.facebook || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">TikTok</p>
+                          <p className="font-medium">{selectedUser.tiktok || "-"}</p>
+                        </div>
                       </div>
-                    ) : activities && activities.length > 0 ? (
-                      <div className="space-y-3">
-                        {activities.map((activity) => (
-                          <div key={activity.id} className="border rounded-lg p-3">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <p className="font-medium">{activity.activity_type}</p>
-                                <p className="text-sm text-muted-foreground">{activity.description}</p>
+                    </div>
+
+                    <Separator />
+
+                    {/* Controle de Bloqueio */}
+                    {selectedUser?.role !== "super_admin" && (
+                      <>
+                        <div>
+                          <h3 className="text-base md:text-lg font-semibold mb-3">Controle de Bloqueio</h3>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between p-4 border rounded-lg">
+                              <div className="space-y-0.5">
+                                <Label htmlFor="block-status">Status de Bloqueio</Label>
+                                <p className="text-sm text-muted-foreground">
+                                  {isBlocked ? "Usuário está bloqueado" : "Usuário está ativo"}
+                                </p>
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                {format(new Date(activity.created_at), "dd/MM/yyyy HH:mm")}
-                              </p>
+                              <Switch
+                                id="block-status"
+                                checked={isBlocked}
+                                onCheckedChange={setIsBlocked}
+                              />
                             </div>
+
+                            {isBlocked && (
+                              <div className="space-y-2">
+                                <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
+                                <Textarea
+                                  id="blockMessage"
+                                  placeholder="Digite a mensagem que será exibida ao usuário..."
+                                  value={editedBlockMessage}
+                                  onChange={(e) => setEditedBlockMessage(e.target.value)}
+                                  rows={4}
+                                />
+                              </div>
+                            )}
+
+                            <Button 
+                              onClick={handleSaveBlockStatus}
+                              className="w-full"
+                              disabled={updateBlockStatusMutation.isPending}
+                            >
+                              {updateBlockStatusMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                            </Button>
+
+                            {selectedUser?.blocked_at && (
+                              <p className="text-xs text-muted-foreground text-center">
+                                Bloqueado em: {format(new Date(selectedUser.blocked_at), "dd/MM/yyyy HH:mm")}
+                              </p>
+                            )}
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        Nenhuma atividade registrada
-                      </p>
+                        </div>
+
+                        <Separator />
+                      </>
                     )}
+
+                    {/* Histórico de Atividades */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
+                      {activitiesLoading ? (
+                        <div className="space-y-2">
+                          {[...Array(3)].map((_, i) => (
+                            <Skeleton key={i} className="h-16 w-full" />
+                          ))}
+                        </div>
+                      ) : activities && activities.length > 0 ? (
+                        <div className="space-y-3">
+                          {activities.map((activity) => (
+                            <div key={activity.id} className="border rounded-lg p-3">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <p className="font-medium">{activity.activity_type}</p>
+                                  <p className="text-sm text-muted-foreground">{activity.description}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(activity.created_at), "dd/MM/yyyy HH:mm")}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Nenhuma atividade registrada
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
+                )}
+              </ScrollArea>
+            </DrawerContent>
+          </Drawer>
+        ) : (
+          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+            <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] md:w-full">
+              <DialogHeader>
+                <DialogTitle>Detalhes do Usuário</DialogTitle>
+              </DialogHeader>
+              
+              <ScrollArea className="h-[calc(90vh-8rem)] pr-2 md:pr-4">
+                {selectedUser && (
+                  <div className="space-y-4 md:space-y-6">
+                    {/* Informações Básicas */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Nome</p>
+                          <p className="font-medium">{selectedUser.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Username</p>
+                          <p className="font-medium">{selectedUser.username || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium">{selectedUser.email || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Telefone</p>
+                          <p className="font-medium">{selectedUser.phone || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CPF</p>
+                          <p className="font-medium">{selectedUser.cpf || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Data de Nascimento</p>
+                          <p className="font-medium">
+                            {selectedUser.birth_date ? format(new Date(selectedUser.birth_date), "dd/MM/yyyy") : "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Gênero</p>
+                          <p className="font-medium">{selectedUser.gender || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Cadastro</p>
+                          <p className="font-medium">
+                            {selectedUser.created_at ? format(new Date(selectedUser.created_at), "dd/MM/yyyy HH:mm") : "-"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Endereço */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Endereço</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-muted-foreground">Rua</p>
+                          <p className="font-medium">{selectedUser.street || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Número</p>
+                          <p className="font-medium">{selectedUser.number || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Complemento</p>
+                          <p className="font-medium">{selectedUser.complement || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Bairro</p>
+                          <p className="font-medium">{selectedUser.neighborhood || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">CEP</p>
+                          <p className="font-medium">{selectedUser.cep || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Cidade</p>
+                          <p className="font-medium">{selectedUser.city || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Estado</p>
+                          <p className="font-medium">{selectedUser.state || "-"}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* PIX */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Informações PIX e Saque</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Tipo de Chave</p>
+                          <p className="font-medium">{selectedUser.pix_type || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Chave PIX</p>
+                          <p className="font-medium break-all">{selectedUser.pix_key || "-"}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
+                          {isEditingWithdrawal ? (
+                            <div className="flex flex-col md:flex-row gap-2">
+                              <select
+                                value={withdrawalDay ?? ""}
+                                onChange={(e) => setWithdrawalDay(Number(e.target.value))}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              >
+                                <option value="">Selecione...</option>
+                                {WEEKDAYS.map((day) => (
+                                  <option key={day.value} value={day.value}>
+                                    {day.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <Button
+                                size="sm"
+                                onClick={handleSaveWithdrawalDay}
+                                disabled={updateWithdrawalDayMutation.isPending}
+                              >
+                                Salvar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setIsEditingWithdrawal(false);
+                                  setWithdrawalDay(selectedUser.withdrawal_day);
+                                }}
+                              >
+                                Cancelar
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{getWeekdayLabel(selectedUser.withdrawal_day)}</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setIsEditingWithdrawal(true)}
+                              >
+                                Editar
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Redes Sociais */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Redes Sociais</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Instagram</p>
+                          <p className="font-medium">{selectedUser.instagram || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Facebook</p>
+                          <p className="font-medium">{selectedUser.facebook || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">TikTok</p>
+                          <p className="font-medium">{selectedUser.tiktok || "-"}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Controle de Bloqueio */}
+                    {selectedUser?.role !== "super_admin" && (
+                      <>
+                        <div>
+                          <h3 className="text-base md:text-lg font-semibold mb-3">Controle de Bloqueio</h3>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between p-4 border rounded-lg">
+                              <div className="space-y-0.5">
+                                <Label htmlFor="block-status">Status de Bloqueio</Label>
+                                <p className="text-sm text-muted-foreground">
+                                  {isBlocked ? "Usuário está bloqueado" : "Usuário está ativo"}
+                                </p>
+                              </div>
+                              <Switch
+                                id="block-status"
+                                checked={isBlocked}
+                                onCheckedChange={setIsBlocked}
+                              />
+                            </div>
+
+                            {isBlocked && (
+                              <div className="space-y-2">
+                                <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
+                                <Textarea
+                                  id="blockMessage"
+                                  placeholder="Digite a mensagem que será exibida ao usuário..."
+                                  value={editedBlockMessage}
+                                  onChange={(e) => setEditedBlockMessage(e.target.value)}
+                                  rows={4}
+                                />
+                              </div>
+                            )}
+
+                            <Button 
+                              onClick={handleSaveBlockStatus}
+                              className="w-full"
+                              disabled={updateBlockStatusMutation.isPending}
+                            >
+                              {updateBlockStatusMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                            </Button>
+
+                            {selectedUser?.blocked_at && (
+                              <p className="text-xs text-muted-foreground text-center">
+                                Bloqueado em: {format(new Date(selectedUser.blocked_at), "dd/MM/yyyy HH:mm")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <Separator />
+                      </>
+                    )}
+
+                    {/* Histórico de Atividades */}
+                    <div>
+                      <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
+                      {activitiesLoading ? (
+                        <div className="space-y-2">
+                          {[...Array(3)].map((_, i) => (
+                            <Skeleton key={i} className="h-16 w-full" />
+                          ))}
+                        </div>
+                      ) : activities && activities.length > 0 ? (
+                        <div className="space-y-3">
+                          {activities.map((activity) => (
+                            <div key={activity.id} className="border rounded-lg p-3">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <p className="font-medium">{activity.activity_type}</p>
+                                  <p className="text-sm text-muted-foreground">{activity.description}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(activity.created_at), "dd/MM/yyyy HH:mm")}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Nenhuma atividade registrada
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
   );
 };
