@@ -230,8 +230,8 @@ const AdminUsers = () => {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6 p-3 md:p-0">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+    <div className="space-y-3 md:space-y-4 p-2 md:p-0">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
             <p className="text-sm md:text-base text-muted-foreground">
@@ -245,8 +245,8 @@ const AdminUsers = () => {
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex flex-col gap-4">
+          <CardHeader className="p-3 md:p-6">
+            <div className="flex flex-col gap-3">
               <div className="flex flex-col md:flex-row gap-3 md:gap-4">
                 <div className="relative flex-1 min-w-full md:min-w-[300px]">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -305,9 +305,9 @@ const AdminUsers = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="p-3 md:p-6">
+          <CardContent className="p-2 md:p-6">
             {/* Layout Mobile - Cards */}
-            <div className="lg:hidden space-y-3">
+            <div className="lg:hidden space-y-2">
               {isLoading ? (
                 <>
                   {[...Array(5)].map((_, i) => (
@@ -321,8 +321,8 @@ const AdminUsers = () => {
                 </>
               ) : users && users.length > 0 ? (
                 users.map((user) => (
-                  <Card key={user.id} className="p-4">
-                    <div className="space-y-3">
+                  <Card key={user.id} className="p-3">
+                    <div className="space-y-2">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-semibold text-base">{user.name}</h3>
@@ -461,7 +461,7 @@ const AdminUsers = () => {
             </div>
 
             {users && users.length > 0 && (
-              <div className="flex flex-col md:flex-row items-center justify-between gap-3 mt-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-2 mt-3">
                 <p className="text-xs md:text-sm text-muted-foreground text-center md:text-left">
                   Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} usuários
                 </p>
@@ -529,17 +529,17 @@ const AdminUsers = () => {
         {isMobile ? (
           <Drawer open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <DrawerContent className="max-h-[90vh]">
-              <DrawerHeader>
+              <DrawerHeader className="pb-3">
                 <DrawerTitle>Detalhes do Usuário</DrawerTitle>
               </DrawerHeader>
               
-              <ScrollArea className="h-[calc(90vh-8rem)] px-4">
+              <ScrollArea className="h-[calc(90vh-8rem)] px-3">
                 {selectedUser && (
-                  <div className="space-y-4 md:space-y-6">
+                  <div className="space-y-3 pb-4">
                     {/* Informações Básicas */}
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      <h3 className="text-base md:text-lg font-semibold mb-2">Informações Básicas</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                         <div>
                           <p className="text-sm text-muted-foreground">Nome</p>
                           <p className="font-medium">{selectedUser.name}</p>
@@ -583,8 +583,8 @@ const AdminUsers = () => {
 
                     {/* Endereço */}
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-3">Endereço</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      <h3 className="text-base md:text-lg font-semibold mb-2">Endereço</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                         <div className="md:col-span-2">
                           <p className="text-sm text-muted-foreground">Rua</p>
                           <p className="font-medium">{selectedUser.street || "-"}</p>
@@ -620,8 +620,8 @@ const AdminUsers = () => {
 
                     {/* PIX */}
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-3">Informações PIX e Saque</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      <h3 className="text-base md:text-lg font-semibold mb-2">Informações PIX e Saque</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                         <div>
                           <p className="text-sm text-muted-foreground">Tipo de Chave</p>
                           <p className="font-medium">{selectedUser.pix_type || "-"}</p>
@@ -684,8 +684,8 @@ const AdminUsers = () => {
 
                     {/* Redes Sociais */}
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-3">Redes Sociais</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      <h3 className="text-base md:text-lg font-semibold mb-2">Redes Sociais</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                         <div>
                           <p className="text-sm text-muted-foreground">Instagram</p>
                           <p className="font-medium">{selectedUser.instagram || "-"}</p>
@@ -707,9 +707,9 @@ const AdminUsers = () => {
                     {selectedUser?.role !== "super_admin" && (
                       <>
                         <div>
-                          <h3 className="text-base md:text-lg font-semibold mb-3">Controle de Bloqueio</h3>
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
+                          <h3 className="text-base md:text-lg font-semibold mb-2">Controle de Bloqueio</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 border rounded-lg">
                               <div className="space-y-0.5">
                                 <Label htmlFor="block-status">Status de Bloqueio</Label>
                                 <p className="text-sm text-muted-foreground">
@@ -758,7 +758,7 @@ const AdminUsers = () => {
 
                     {/* Histórico de Atividades */}
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
+                      <h3 className="text-base md:text-lg font-semibold mb-2">Histórico de Atividades</h3>
                       {activitiesLoading ? (
                         <div className="space-y-2">
                           {[...Array(3)].map((_, i) => (
@@ -801,7 +801,7 @@ const AdminUsers = () => {
               
               <ScrollArea className="h-[calc(90vh-8rem)] pr-2 md:pr-4">
                 {selectedUser && (
-                  <div className="space-y-4 md:space-y-6">
+                  <div className="space-y-3 md:space-y-4">
                     {/* Informações Básicas */}
                     <div>
                       <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
