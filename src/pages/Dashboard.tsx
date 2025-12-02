@@ -566,14 +566,14 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
+            <CardHeader className="px-0 lg:px-6">
               <CardTitle>Cupons principais</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Veja aqui seus cupons principais para compartilhar
               </p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-0 lg:px-6">
               {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   Nenhum cupom disponível no momento
                 </div> : <div className="space-y-3">
