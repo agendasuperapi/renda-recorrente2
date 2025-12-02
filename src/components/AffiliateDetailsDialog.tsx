@@ -216,7 +216,7 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 text-center md:text-left">
-                  <h3 className="text-2xl font-bold">{profile.name}</h3>
+                  <h3 className="text-xl md:text-2xl font-bold">{profile.name}</h3>
                   <p className="text-muted-foreground">{profile.email}</p>
                   <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-start">
                     {subscription && (
