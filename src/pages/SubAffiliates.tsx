@@ -352,7 +352,7 @@ const SubAffiliates = () => {
         </Card>
       </div>
 
-      <Card className="border-0 shadow-none sm:border sm:shadow-sm">
+      <Card className="border-0 shadow-none bg-transparent sm:border sm:shadow-sm sm:bg-card">
         <CardHeader className="px-2 py-3 sm:p-6">
           <CardTitle className="text-base sm:text-lg">Lista de Sub-Afiliados</CardTitle>
         </CardHeader>
