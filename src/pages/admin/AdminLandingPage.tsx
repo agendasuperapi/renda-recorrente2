@@ -2190,7 +2190,7 @@ const AdminLandingPage = () => {
                               Selecionar
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[80vh]">
+                          <DialogContent className="max-w-3xl max-h-[85vh]">
                             <DialogHeader>
                               <DialogTitle>Selecione um ícone</DialogTitle>
                               <DialogDescription>
@@ -2207,10 +2207,9 @@ const AdminLandingPage = () => {
                                   className="pl-10"
                                 />
                               </div>
-                              <ScrollArea className="h-96">
-                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 p-1">
+                              <ScrollArea className="h-[500px]">
+                                <div className="grid grid-cols-6 gap-3 p-1">
                                   {filteredIcons.slice(0, 200).map((iconName) => {
-                                    // Converte de kebab-case para PascalCase para exibição
                                     const displayName = iconName
                                       .split('-')
                                       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -2225,18 +2224,18 @@ const AdminLandingPage = () => {
                                           setIconDialogOpen(false);
                                           setIconSearch("");
                                         }}
-                                        className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
+                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all hover:border-primary hover:bg-accent ${
                                           featureForm.icon === displayName ? "border-primary bg-accent" : "border-border"
                                         }`}
                                       >
-                                        <DynamicIcon name={iconName} className="h-5 w-5" />
-                                        <span className="text-[10px] text-center break-all line-clamp-2">{displayName}</span>
+                                        <DynamicIcon name={iconName} className="h-6 w-6" />
+                                        <span className="text-xs text-center break-all line-clamp-2">{displayName}</span>
                                       </button>
                                     );
                                   })}
                                 </div>
                                 {filteredIcons.length > 200 && (
-                                  <p className="text-xs text-muted-foreground text-center py-3">
+                                  <p className="text-sm text-muted-foreground text-center py-4">
                                     Mostrando 200 de {filteredIcons.length} ícones. Continue pesquisando para refinar.
                                   </p>
                                 )}
@@ -2306,25 +2305,25 @@ const AdminLandingPage = () => {
                               Selecionar
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-[95vw] max-h-[85vh] p-4">
-                            <DialogHeader>
+                          <DialogContent className="w-screen h-screen max-w-none max-h-none m-0 p-0 rounded-none flex flex-col">
+                            <DialogHeader className="p-4 border-b">
                               <DialogTitle className="text-base">Selecione um ícone</DialogTitle>
                               <DialogDescription className="text-sm">
                                 Pesquise e selecione o ícone que deseja usar
                               </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-3">
-                              <div className="relative">
+                            <div className="flex-1 flex flex-col p-4 overflow-hidden">
+                              <div className="relative mb-4">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                   placeholder="Pesquisar ícone..."
                                   value={iconSearch}
                                   onChange={(e) => setIconSearch(e.target.value)}
-                                  className="pl-10 text-sm"
+                                  className="pl-10"
                                 />
                               </div>
-                              <ScrollArea className="h-[50vh]">
-                                <div className="grid grid-cols-4 gap-2 p-1">
+                              <ScrollArea className="flex-1">
+                                <div className="grid grid-cols-4 gap-3 p-1 pb-4">
                                   {filteredIcons.slice(0, 200).map((iconName) => {
                                     const displayName = iconName
                                       .split('-')
@@ -2340,18 +2339,18 @@ const AdminLandingPage = () => {
                                           setIconDialogOpen(false);
                                           setIconSearch("");
                                         }}
-                                        className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all active:scale-95 ${
+                                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all active:scale-95 ${
                                           featureForm.icon === displayName ? "border-primary bg-accent" : "border-border"
                                         }`}
                                       >
-                                        <DynamicIcon name={iconName} className="h-5 w-5" />
-                                        <span className="text-[9px] text-center break-all line-clamp-1">{displayName}</span>
+                                        <DynamicIcon name={iconName} className="h-6 w-6" />
+                                        <span className="text-[10px] text-center break-all line-clamp-2 leading-tight">{displayName}</span>
                                       </button>
                                     );
                                   })}
                                 </div>
                                 {filteredIcons.length > 200 && (
-                                  <p className="text-xs text-muted-foreground text-center py-3">
+                                  <p className="text-sm text-muted-foreground text-center py-4">
                                     Mostrando 200 de {filteredIcons.length} ícones
                                   </p>
                                 )}
