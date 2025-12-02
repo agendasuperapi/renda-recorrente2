@@ -1240,7 +1240,8 @@ const Coupons = () => {
                               variant="outline"
                               onClick={() => window.open(getAffiliateLink(selectedCoupon) || "", '_blank')}
                             >
-                              <ExternalLink className="h-4 w-4" />
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Abrir link
                             </Button>
                           </>
                         )}
