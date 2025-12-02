@@ -639,40 +639,114 @@ const SubAffiliates = () => {
 
           {/* Mobile/Tablet - Cards */}
           {isMobile && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-3">
               {filteredData.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8 col-span-full">
+                <div className="text-center text-muted-foreground py-8">
                   Nenhum sub-afiliado encontrado
                 </div>
               ) : (
                 filteredData.map((sub) => (
                   <Card key={sub.id} className="overflow-hidden">
-                    <CardContent className="p-3 md:p-4 space-y-2 md:space-y-3">
-                      {/* Header com Avatar e Nome */}
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                          <Avatar className="h-10 w-10 md:h-12 md:w-12 flex-shrink-0">
-                            <AvatarImage src={sub.avatar_url || undefined} />
-                            <AvatarFallback>
-                              {sub.name?.charAt(0).toUpperCase() || '?'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-sm truncate">{sub.name}</div>
-                            {sub.username && (
-                              <div className="text-xs text-muted-foreground truncate">
-                                @{sub.username}
+                    <CardContent className="p-3 md:p-4">
+                      {/* Layout horizontal para tablet */}
+                      <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+                        {/* Header com Avatar e Nome */}
+                        <div className="flex items-center justify-between gap-2 md:flex-1">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
+                              <AvatarImage src={sub.avatar_url || undefined} />
+                              <AvatarFallback>
+                                {sub.name?.charAt(0).toUpperCase() || '?'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-sm truncate">{sub.name}</div>
+                              {sub.username && (
+                                <div className="text-xs text-muted-foreground truncate">
+                                  @{sub.username}
+                                </div>
+                              )}
+                              <div className="text-xs text-muted-foreground truncate mt-0.5 md:hidden">
+                                {sub.email}
                               </div>
-                            )}
-                            <div className="text-xs text-muted-foreground truncate mt-0.5 hidden md:block">
-                              {sub.email}
                             </div>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="flex-shrink-0 h-8 w-8 md:hidden"
+                            onClick={() => {
+                              setSelectedSubAffiliate(sub);
+                              setDialogOpen(true);
+                            }}
+                            title="Ver detalhes das comissões"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </div>
+
+                        {/* Info - Grid no mobile, inline no tablet */}
+                        <div className="mt-3 md:mt-0 md:flex md:items-center md:gap-6 md:flex-1">
+                          {/* Mobile Grid */}
+                          <div className="grid grid-cols-3 gap-2 text-xs md:hidden">
+                            <div>
+                              <span className="text-muted-foreground">Plano</span>
+                              <div className="font-medium truncate">
+                                {sub.plan_name || "-"}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Nível</span>
+                              <div className="mt-0.5">{getLevelBadge(sub.level)}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Status</span>
+                              <div className="mt-0.5">{getStatusBadge(sub.status)}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Cadastro</span>
+                              <div className="font-medium">
+                                {format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}
+                              </div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Indicações</span>
+                              <div className="font-medium">{sub.referrals_count}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Com. Sub</span>
+                              <div className="font-medium">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Tablet inline */}
+                          <div className="hidden md:flex md:items-center md:gap-4 text-xs">
+                            <div className="text-muted-foreground truncate max-w-[150px]">{sub.email}</div>
+                            <div className="font-medium">{sub.plan_name || "-"}</div>
+                            {getLevelBadge(sub.level)}
+                            {getStatusBadge(sub.status)}
+                            <div className="text-muted-foreground">
+                              {format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}
+                            </div>
+                            <div>{sub.referrals_count} ind.</div>
+                          </div>
+                        </div>
+
+                        {/* Minha Comissão */}
+                        <div className="mt-2 pt-2 border-t md:border-t-0 md:mt-0 md:pt-0 md:border-l md:pl-4 flex items-center justify-between md:flex-col md:items-end md:gap-0">
+                          <span className="text-xs text-muted-foreground">Minha Comissão</span>
+                          <div className="text-sm font-bold text-success">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                          </div>
+                        </div>
+
+                        {/* Botão tablet */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="flex-shrink-0 h-8 w-8"
+                          className="hidden md:flex flex-shrink-0 h-8 w-8"
                           onClick={() => {
                             setSelectedSubAffiliate(sub);
                             setDialogOpen(true);
@@ -681,60 +755,6 @@ const SubAffiliates = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                      </div>
-
-                      {/* Info Grid */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-1.5 text-xs">
-                        <div>
-                          <span className="text-muted-foreground">Plano:</span>
-                          <div className="font-medium">
-                            {sub.plan_name || <span className="text-muted-foreground">-</span>}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Nível:</span>
-                          <div className="mt-0.5">
-                            {getLevelBadge(sub.level)}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Status:</span>
-                          <div className="mt-0.5">
-                            {getStatusBadge(sub.status)}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Cadastro:</span>
-                          <div className="font-medium">
-                            {format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Indicações:</span>
-                          <div className="font-medium">
-                            {sub.referrals_count}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Com. Sub:</span>
-                          <div className="font-medium">
-                            {new Intl.NumberFormat('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL'
-                            }).format(Number(sub.total_commission) || 0)}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Minha Comissão - Destaque */}
-                      <div className="pt-1.5 border-t flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Minha Comissão:</span>
-                        <div className="text-sm md:text-base font-bold text-success">
-                          {new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL'
-                          }).format(Number(sub.my_commission_from_sub) || 0)}
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
