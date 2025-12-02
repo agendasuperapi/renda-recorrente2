@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,9 @@ const Referrals = () => {
 
   // Mostrar/esconder filtros no mobile/tablet
   const [showFilters, setShowFilters] = useState(false);
+
+  // Card expandido no modo compacto
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -415,14 +418,12 @@ const Referrals = () => {
             referrals.map((referral) => (
               <Card key={referral.id}>
                 <CardContent className="p-4 space-y-3">
-                  {layoutMode === "compact" ? (
-                    // Layout Compacto: Nome, Produto, Plano, Data de Cadastro
+                  {layoutMode === "compact" && expandedCardId !== referral.id ? (
+                    // Layout Compacto: Nome, Produto, Plano, Status, Data de Cadastro
                     <>
                       <div className="flex justify-between items-start gap-2">
                         <p className="font-medium text-sm truncate flex-1">{referral.name || "Sem nome"}</p>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {formatDate(referral.created_at)}
-                        </span>
+                        {getStatusBadge(referral.status)}
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div>
@@ -433,6 +434,20 @@ const Referrals = () => {
                           <span className="text-muted-foreground">Plano:</span>
                           <p className="font-medium truncate">{referral.plan_name || "-"}</p>
                         </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-1">
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(referral.created_at)}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExpandedCardId(referral.id)}
+                          className="h-7 gap-1 text-xs"
+                        >
+                          <Eye className="h-3 w-3" />
+                          Ver mais
+                        </Button>
                       </div>
                     </>
                   ) : (
@@ -473,9 +488,22 @@ const Referrals = () => {
                         </div>
                       )}
 
-                      <p className="text-xs text-muted-foreground">
-                        Cadastrado em {formatDate(referral.created_at)}
-                      </p>
+                      <div className="flex justify-between items-center pt-1">
+                        <p className="text-xs text-muted-foreground">
+                          Cadastrado em {formatDate(referral.created_at)}
+                        </p>
+                        {layoutMode === "compact" && expandedCardId === referral.id && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpandedCardId(null)}
+                            className="h-7 gap-1 text-xs"
+                          >
+                            <ChevronUp className="h-3 w-3" />
+                            Ver menos
+                          </Button>
+                        )}
+                      </div>
                     </>
                   )}
                 </CardContent>
