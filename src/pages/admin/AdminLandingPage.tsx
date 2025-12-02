@@ -300,6 +300,67 @@ const SortableFaqRow = ({ faq, onEdit, onDelete }: {
   );
 };
 
+const SortableFaqCard = ({ faq, onEdit, onDelete }: { 
+  faq: FAQ; 
+  onEdit: (f: FAQ) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: faq.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style} className="p-3">
+      <div className="flex gap-3">
+        <button className="cursor-grab active:cursor-grabbing self-start pt-1" {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+        
+        <div className="flex-1 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1">
+              <p className="font-bold text-sm">{faq.question}</p>
+            </div>
+            <Badge variant={faq.is_active ? "default" : "secondary"} className="text-xs shrink-0">
+              {faq.is_active ? "Ativo" : "Inativo"}
+            </Badge>
+          </div>
+          
+          <p className="text-xs text-muted-foreground line-clamp-3">{faq.answer}</p>
+          
+          <div className="flex justify-end gap-1 pt-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(faq)}
+              className="h-7 w-7 p-0"
+            >
+              <Pencil className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(faq.id)}
+              className="h-7 w-7 p-0"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 const SortableFeatureRow = ({ feature, onEdit, onDelete }: { 
   feature: Feature; 
   onEdit: (f: Feature) => void;
@@ -365,6 +426,80 @@ const SortableFeatureRow = ({ feature, onEdit, onDelete }: {
         </Button>
       </TableCell>
     </TableRow>
+  );
+};
+
+const SortableFeatureCard = ({ feature, onEdit, onDelete }: { 
+  feature: Feature; 
+  onEdit: (f: Feature) => void;
+  onDelete: (id: string) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: feature.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  // Converte de PascalCase para kebab-case para o dynamicIconImports
+  const getKebabCase = (str: string) => {
+    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  };
+
+  const iconName = getKebabCase(feature.icon) as keyof typeof dynamicIconImports;
+
+  return (
+    <Card ref={setNodeRef} style={style} className="p-3">
+      <div className="flex gap-3">
+        <button className="cursor-grab active:cursor-grabbing self-start pt-1" {...attributes} {...listeners}>
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+        
+        <div className="flex-1 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1">
+              {dynamicIconImports[iconName] ? (
+                <DynamicIcon name={iconName} className="h-5 w-5 text-primary shrink-0" />
+              ) : (
+                <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+              )}
+              <span className="font-medium text-sm">{feature.name}</span>
+            </div>
+            <Badge variant={feature.is_active ? "default" : "secondary"} className="text-xs shrink-0">
+              {feature.is_active ? "Ativo" : "Inativo"}
+            </Badge>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{feature.icon}</span>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(feature)}
+                className="h-7 w-7 p-0"
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(feature.id)}
+                className="h-7 w-7 p-0"
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 };
 
@@ -1934,37 +2069,63 @@ const AdminLandingPage = () => {
                 </Card>
               )}
 
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEndFaqs}
-              >
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[50px]"></TableHead>
-                      <TableHead>Pergunta e Resposta</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <SortableContext
-                      items={faqs.map(f => f.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {faqs.map((faq) => (
-                        <SortableFaqRow
-                          key={faq.id}
-                          faq={faq}
-                          onEdit={editFaq}
-                          onDelete={handleDeleteFaq}
-                        />
-                      ))}
-                    </SortableContext>
-                  </TableBody>
-                </Table>
-              </DndContext>
+              {/* Layout Mobile - Cards */}
+              <div className="lg:hidden space-y-3">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEndFaqs}
+                >
+                  <SortableContext
+                    items={faqs.map(f => f.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {faqs.map((faq) => (
+                      <SortableFaqCard
+                        key={faq.id}
+                        faq={faq}
+                        onEdit={editFaq}
+                        onDelete={handleDeleteFaq}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
+
+              {/* Layout Desktop - Table */}
+              <div className="hidden lg:block">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEndFaqs}
+                >
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead>Pergunta e Resposta</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <SortableContext
+                        items={faqs.map(f => f.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {faqs.map((faq) => (
+                          <SortableFaqRow
+                            key={faq.id}
+                            faq={faq}
+                            onEdit={editFaq}
+                            onDelete={handleDeleteFaq}
+                          />
+                        ))}
+                      </SortableContext>
+                    </TableBody>
+                  </Table>
+                </DndContext>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -2109,38 +2270,64 @@ const AdminLandingPage = () => {
                 </Card>
               )}
 
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEndFeatures}
-              >
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[50px]"></TableHead>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Ícone</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <SortableContext
-                      items={features.map(f => f.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {features.map((feature) => (
-                        <SortableFeatureRow
-                          key={feature.id}
-                          feature={feature}
-                          onEdit={editFeature}
-                          onDelete={handleDeleteFeature}
-                        />
-                      ))}
-                    </SortableContext>
-                  </TableBody>
-                </Table>
-              </DndContext>
+              {/* Layout Mobile - Cards */}
+              <div className="lg:hidden space-y-3">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEndFeatures}
+                >
+                  <SortableContext
+                    items={features.map(f => f.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {features.map((feature) => (
+                      <SortableFeatureCard
+                        key={feature.id}
+                        feature={feature}
+                        onEdit={editFeature}
+                        onDelete={handleDeleteFeature}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
+
+              {/* Layout Desktop - Table */}
+              <div className="hidden lg:block">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEndFeatures}
+                >
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Ícone</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <SortableContext
+                        items={features.map(f => f.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {features.map((feature) => (
+                          <SortableFeatureRow
+                            key={feature.id}
+                            feature={feature}
+                            onEdit={editFeature}
+                            onDelete={handleDeleteFeature}
+                          />
+                        ))}
+                      </SortableContext>
+                    </TableBody>
+                  </Table>
+                </DndContext>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
