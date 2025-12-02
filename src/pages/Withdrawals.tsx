@@ -366,7 +366,7 @@ const Withdrawals = () => {
                 </div>
                 <p className="text-xs text-destructive mt-1 md:mt-2 flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />
-                  Disponível só nesse dia
+                  Solicitação disponível somente nesse dia
                 </p>
               </>}
           </CardContent>
