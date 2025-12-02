@@ -621,7 +621,7 @@ export default function AdminPayments() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-4"
+                className="absolute right-2 top-2"
                 onClick={() => setDialogOpen(false)}
               >
                 <X className="h-4 w-4" />
