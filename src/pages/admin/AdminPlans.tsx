@@ -14,10 +14,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check, X, Edit, Trash2, Tag, Plus, Minus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const planFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -53,6 +56,7 @@ type Coupon = {
 
 const AdminPlans = () => {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProductFilter, setSelectedProductFilter] = useState<string>("bb582482-b006-47b8-b6ea-a6944d8cfdfd");
@@ -919,517 +923,1042 @@ const AdminPlans = () => {
             </div>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="w-full h-full max-w-full max-h-full m-0 rounded-none lg:w-auto lg:h-auto lg:max-w-4xl lg:max-h-[90vh] lg:m-6 lg:rounded-lg bg-card flex flex-col overflow-hidden p-0">
-              <DialogHeader className="px-6 pt-6 pb-0 flex-shrink-0">
-                <DialogTitle className="text-foreground">
-                  {editingPlan ? "Editar Plano" : "Novo Plano"}
-                </DialogTitle>
-              </DialogHeader>
+          {isMobile ? (
+            <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DrawerContent className="max-h-[95vh]">
+                <DrawerHeader className="text-left border-b pb-4">
+                  <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/30 mb-4" />
+                  <div className="flex items-center justify-between">
+                    <DrawerTitle className="text-base">
+                      {editingPlan ? "Editar Plano" : "Novo Plano"}
+                    </DrawerTitle>
+                    <DrawerClose asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </DrawerClose>
+                  </div>
+                </DrawerHeader>
 
-              <Tabs defaultValue="plan" className="flex flex-col flex-1 overflow-hidden">
-                <TabsList className="mx-6 mt-4 flex-shrink-0">
-                  <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
-                  <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
-                </TabsList>
+                <Tabs defaultValue="plan" className="flex flex-col flex-1 overflow-hidden">
+                  <TabsList className="mx-4 mt-4 flex-shrink-0 grid w-auto grid-cols-2">
+                    <TabsTrigger value="plan" className="text-xs">Dados do Plano</TabsTrigger>
+                    <TabsTrigger value="stripe" className="text-xs">Integração Stripe</TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="plan" className="space-y-6 px-6 pb-6 overflow-y-auto flex-1 mt-6">
-                  <Form {...form}>
-                    <form 
-                      onSubmit={form.handleSubmit(onSubmit)} 
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
-                          e.preventDefault();
-                          const form = e.target.form;
-                          if (form) {
-                            const inputs = Array.from(form.querySelectorAll('input, select, textarea'));
-                            const index = inputs.indexOf(e.target);
-                            const nextInput = inputs[index + 1] as HTMLElement;
-                            if (nextInput) {
-                              nextInput.focus();
+                  <ScrollArea className="h-[calc(95vh-200px)]">
+                    <TabsContent value="plan" className="space-y-4 px-4 pb-4 mt-4">
+                      <Form {...form}>
+                        <form 
+                          onSubmit={form.handleSubmit(onSubmit)} 
+                          className="space-y-4"
+                        >
+                          <div className="grid grid-cols-1 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="billing_period"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Período do plano</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="text-xs">
+                                        <SelectValue placeholder="Selecione o período" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="monthly">Mensal</SelectItem>
+                                      <SelectItem value="yearly">Anual</SelectItem>
+                                      <SelectItem value="daily">Diário</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Nome do Plano</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: Plano Mensal"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="product_id"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Produto</FormLabel>
+                                  <Select 
+                                    onValueChange={field.onChange} 
+                                    value={field.value || ""}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="text-xs">
+                                        <SelectValue placeholder="Selecione um produto" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="none">Nenhum produto</SelectItem>
+                                      {products?.map((product: Product) => (
+                                        <SelectItem key={product.id} value={product.id}>
+                                          {product.nome}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="price"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Valor Assinatura/Recorrente</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="original_price"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Preço anterior</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className="space-y-3">
+                              <FormLabel className="text-xs">Funcionalidades do Plano</FormLabel>
+                              <div className="grid grid-cols-1 gap-2 p-3 border rounded-md">
+                                {landingFeatures?.map((feature) => (
+                                  <div key={feature.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`feature-${feature.id}`}
+                                      checked={selectedFeatures.includes(feature.id)}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedFeatures([...selectedFeatures, feature.id]);
+                                        } else {
+                                          setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
+                                        }
+                                      }}
+                                    />
+                                    <label
+                                      htmlFor={`feature-${feature.id}`}
+                                      className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                    >
+                                      {feature.name}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <FormField
+                              control={form.control}
+                              name="obs_plan"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Observação do Plano</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: Mais contratado"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="obs_discount"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Observação de Desconto</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: R$10,00 de desconto"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="obs_coupon"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Observação Cupom</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: Cupom de desconto 10%"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="coupon_id"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Selecione o CUPOM</FormLabel>
+                                  <Select 
+                                    onValueChange={field.onChange} 
+                                    value={field.value || ""}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="text-xs">
+                                        <SelectValue placeholder="Selecione um cupom" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {coupons?.map((coupon: Coupon) => (
+                                        <SelectItem key={coupon.id} value={coupon.id}>
+                                          {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="trial_days"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Tempo de teste (dias)</FormLabel>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                                      className="h-8 w-8"
+                                    >
+                                      <Minus className="h-3 w-3" />
+                                    </Button>
+                                    <FormControl>
+                                      <Input 
+                                        {...field} 
+                                        type="number"
+                                        className="text-center text-xs"
+                                      />
+                                    </FormControl>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => field.onChange(field.value + 1)}
+                                      className="h-8 w-8"
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                  <FormDescription className="text-xs">
+                                    Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
+                                  </FormDescription>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="commission_percentage"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">Percentual de Comissão (%)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      className="text-xs"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="is_active"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                                  <div className="space-y-0.5">
+                                    <FormLabel className="text-xs">Ativo</FormLabel>
+                                    <FormDescription className="text-xs">
+                                      Plano disponível para assinatura
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="is_free"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                                  <div className="space-y-0.5">
+                                    <FormLabel className="text-xs">Plano Gratuito</FormLabel>
+                                    <FormDescription className="text-xs">
+                                      Marque se este plano é FREE (não pago)
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="flex gap-2 justify-end pt-4 border-t border-border">
+                            <Button
+                              type="button"
+                              onClick={handleCancelEdit}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              <X className="h-3 w-3 mr-2" />
+                              Cancelar
+                            </Button>
+                            <Button
+                              type="submit"
+                              className="text-xs"
+                            >
+                              <Check className="h-3 w-3 mr-2" />
+                              Salvar
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </TabsContent>
+
+                    <TabsContent value="stripe" className="space-y-3 px-4 pb-4 mt-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-semibold text-foreground">
+                            Integrações de Produção
+                          </h3>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "production")}
+                            className="text-xs h-7"
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Nova
+                          </Button>
+                        </div>
+                        
+                        {planIntegrations
+                          ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "production")
+                          .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+                          .map((integration) => (
+                            <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
+                              <CardContent className="pt-3 space-y-2 p-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={integration.is_active ? "default" : "destructive"} className="text-xs">
+                                      {integration.is_active ? "Ativa" : "Inativa"}
+                                    </Badge>
+                                    <span className="text-xs font-medium">
+                                      {integration.accounts?.name}
+                                    </span>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleToggleIntegration(integration)}
+                                      className="text-xs h-7"
+                                    >
+                                      {integration.is_active ? "Desativar" : "Ativar"}
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "production", integration.id)}
+                                      className="h-7 w-7 p-0"
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteStripeIntegration(integration.id)}
+                                      className="h-7 w-7 p-0"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-muted-foreground space-y-1">
+                                  <p className="truncate">Produto: {integration.stripe_product_id}</p>
+                                  <p className="truncate">Preço: {integration.stripe_price_id}</p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                          
+                        {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "production") && (
+                          <p className="text-xs text-muted-foreground">Nenhuma integração de produção configurada</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-semibold text-foreground">
+                            Integrações de Teste
+                          </h3>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "test")}
+                            className="text-xs h-7"
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Nova
+                          </Button>
+                        </div>
+                        
+                        {planIntegrations
+                          ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "test")
+                          .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+                          .map((integration) => (
+                            <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
+                              <CardContent className="pt-3 space-y-2 p-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={integration.is_active ? "default" : "destructive"} className="text-xs">
+                                      {integration.is_active ? "Ativa" : "Inativa"}
+                                    </Badge>
+                                    <span className="text-xs font-medium">
+                                      {integration.accounts?.name}
+                                    </span>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleToggleIntegration(integration)}
+                                      className="text-xs h-7"
+                                    >
+                                      {integration.is_active ? "Desativar" : "Ativar"}
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "test", integration.id)}
+                                      className="h-7 w-7 p-0"
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteStripeIntegration(integration.id)}
+                                      className="h-7 w-7 p-0"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-muted-foreground space-y-1">
+                                  <p className="truncate">Produto: {integration.stripe_product_id}</p>
+                                  <p className="truncate">Preço: {integration.stripe_price_id}</p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                          
+                        {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "test") && (
+                          <p className="text-xs text-muted-foreground">Nenhuma integração de teste configurada</p>
+                        )}
+                      </div>
+                    </TabsContent>
+                  </ScrollArea>
+                </Tabs>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogContent className="w-full h-full max-w-full max-h-full m-0 rounded-none lg:w-auto lg:h-auto lg:max-w-4xl lg:max-h-[90vh] lg:m-6 lg:rounded-lg bg-card flex flex-col overflow-hidden p-0">
+                <DialogHeader className="px-6 pt-6 pb-0 flex-shrink-0">
+                  <DialogTitle className="text-foreground">
+                    {editingPlan ? "Editar Plano" : "Novo Plano"}
+                  </DialogTitle>
+                </DialogHeader>
+
+                <Tabs defaultValue="plan" className="flex flex-col flex-1 overflow-hidden">
+                  <TabsList className="mx-6 mt-4 flex-shrink-0">
+                    <TabsTrigger value="plan">Dados do Plano</TabsTrigger>
+                    <TabsTrigger value="stripe">Integração Stripe</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="plan" className="space-y-6 px-6 pb-6 overflow-y-auto flex-1 mt-6">
+                    <Form {...form}>
+                      <form 
+                        onSubmit={form.handleSubmit(onSubmit)} 
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+                            e.preventDefault();
+                            const form = e.target.form;
+                            if (form) {
+                              const inputs = Array.from(form.querySelectorAll('input, select, textarea'));
+                              const index = inputs.indexOf(e.target);
+                              const nextInput = inputs[index + 1] as HTMLElement;
+                              if (nextInput) {
+                                nextInput.focus();
+                              }
                             }
                           }
-                        }
-                      }}
-                      className="space-y-6"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="billing_period"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Período do plano</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                        }}
+                        className="space-y-6"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="billing_period"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Período do plano</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Selecione o período" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="monthly">Mensal</SelectItem>
+                                    <SelectItem value="yearly">Anual</SelectItem>
+                                    <SelectItem value="daily">Diário</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nome do Plano</FormLabel>
                                 <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione o período" />
-                                  </SelectTrigger>
+                                  <Input 
+                                    {...field} 
+                                    placeholder="Ex: Plano Mensal"
+                                  />
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="monthly">Mensal</SelectItem>
-                                  <SelectItem value="yearly">Anual</SelectItem>
-                                  <SelectItem value="daily">Diário</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nome do Plano</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: Plano Mensal"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="product_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Produto</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                value={field.value || ""}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione um produto" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="none">Nenhum produto</SelectItem>
-                                  {products?.map((product: Product) => (
-                                    <SelectItem key={product.id} value={product.id}>
-                                      {product.nome}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="price"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Valor Assinatura/Recorrente</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="0.00"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="original_price"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Preço anterior</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="0.00"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-
-                        {/* Funcionalidades */}
-                        <div className="md:col-span-2 space-y-3">
-                          <FormLabel>Funcionalidades do Plano</FormLabel>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border rounded-md">
-                            {landingFeatures?.map((feature) => (
-                              <div key={feature.id} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`feature-${feature.id}`}
-                                  checked={selectedFeatures.includes(feature.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setSelectedFeatures([...selectedFeatures, feature.id]);
-                                    } else {
-                                      setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
-                                    }
-                                  }}
-                                />
-                                <label
-                                  htmlFor={`feature-${feature.id}`}
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          <FormField
+                            control={form.control}
+                            name="product_id"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Produto</FormLabel>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  value={field.value || ""}
                                 >
-                                  {feature.name}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Selecione um produto" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="none">Nenhum produto</SelectItem>
+                                    {products?.map((product: Product) => (
+                                      <SelectItem key={product.id} value={product.id}>
+                                        {product.nome}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                        <FormField
-                          control={form.control}
-                          name="obs_plan"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Observação do Plano</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: Mais contratado"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="obs_discount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Observação de Desconto</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: R$10,00 de desconto"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="obs_coupon"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Observação Cupom</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: Cupom de desconto 10%"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="coupon_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Selecione o CUPOM</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                value={field.value || ""}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione um cupom" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {coupons?.map((coupon: Coupon) => (
-                                    <SelectItem key={coupon.id} value={coupon.id}>
-                                      {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="trial_days"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tempo de teste (dias)</FormLabel>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => field.onChange(Math.max(0, field.value - 1))}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
+                          <FormField
+                            control={form.control}
+                            name="price"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Valor Assinatura/Recorrente</FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
                                     type="number"
-                                    className="text-center"
+                                    step="0.01"
+                                    placeholder="0.00"
                                   />
                                 </FormControl>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => field.onChange(field.value + 1)}
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="original_price"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Preço anterior</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+
+                          {/* Funcionalidades */}
+                          <div className="md:col-span-2 space-y-3">
+                            <FormLabel>Funcionalidades do Plano</FormLabel>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border rounded-md">
+                              {landingFeatures?.map((feature) => (
+                                <div key={feature.id} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`feature-${feature.id}`}
+                                    checked={selectedFeatures.includes(feature.id)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedFeatures([...selectedFeatures, feature.id]);
+                                      } else {
+                                        setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
+                                      }
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor={`feature-${feature.id}`}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                  >
+                                    {feature.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <FormField
+                            control={form.control}
+                            name="obs_plan"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Observação do Plano</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    placeholder="Ex: Mais contratado"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="obs_discount"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Observação de Desconto</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    placeholder="Ex: R$10,00 de desconto"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="obs_coupon"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Observação Cupom</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    placeholder="Ex: Cupom de desconto 10%"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="coupon_id"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Selecione o CUPOM</FormLabel>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  value={field.value || ""}
                                 >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <FormDescription className="text-xs">
-                                Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Selecione um cupom" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {coupons?.map((coupon: Coupon) => (
+                                      <SelectItem key={coupon.id} value={coupon.id}>
+                                        {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                        <FormField
-                          control={form.control}
-                          name="commission_percentage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Percentual de Comissão (%)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="is_active"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                              <div className="space-y-0.5">
-                                <FormLabel>Ativo</FormLabel>
-                                <FormDescription className="text-xs">
-                                  Plano disponível para assinatura
-                                </FormDescription>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="is_free"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                              <div className="space-y-0.5">
-                                <FormLabel>Plano Gratuito</FormLabel>
-                                <FormDescription className="text-xs">
-                                  Marque se este plano é FREE (não pago)
-                                </FormDescription>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="flex gap-3 justify-end pt-6 border-t border-border">
-                        <Button
-                          type="button"
-                          onClick={handleCancelEdit}
-                          variant="outline"
-                        >
-                          <X className="h-4 w-4 mr-2" />
-                          Cancelar
-                        </Button>
-                        <Button
-                          type="submit"
-                        >
-                          <Check className="h-4 w-4 mr-2" />
-                          Salvar
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </TabsContent>
-
-                <TabsContent value="stripe" className="space-y-4 px-6 pb-6 overflow-y-auto flex-1 mt-6">
-                    {/* Integrações de Produção */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-foreground">
-                          Integrações de Produção
-                        </h3>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "production")}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Nova Integração
-                        </Button>
-                      </div>
-                      
-                      {planIntegrations
-                        ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "production")
-                        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-                        .map((integration) => (
-                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
-                            <CardContent className="pt-4 space-y-2">
-                              <div className="flex items-center justify-between">
+                          <FormField
+                            control={form.control}
+                            name="trial_days"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Tempo de teste (dias)</FormLabel>
                                 <div className="flex items-center gap-2">
-                                  <Badge variant={integration.is_active ? "default" : "destructive"}>
-                                    {integration.is_active ? "Ativa" : "Inativa"}
-                                  </Badge>
-                                  <span className="text-sm font-medium">
-                                    {integration.accounts?.name}
-                                  </span>
-                                </div>
-                                <div className="flex gap-2">
                                   <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleToggleIntegration(integration)}
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => field.onChange(Math.max(0, field.value - 1))}
                                   >
-                                    {integration.is_active ? "Desativar" : "Ativar"}
+                                    <Minus className="h-4 w-4" />
                                   </Button>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      type="number"
+                                      className="text-center"
+                                    />
+                                  </FormControl>
                                   <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "production", integration.id)}
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => field.onChange(field.value + 1)}
                                   >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteStripeIntegration(integration.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Plus className="h-4 w-4" />
                                   </Button>
                                 </div>
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                <p>Produto: {integration.stripe_product_id}</p>
-                                <p>Preço: {integration.stripe_price_id}</p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                        
-                      {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "production") && (
-                        <p className="text-sm text-muted-foreground">Nenhuma integração de produção configurada</p>
-                      )}
-                    </div>
+                                <FormDescription className="text-xs">
+                                  Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                    {/* Integrações de Teste */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-foreground">
-                          Integrações de Teste
-                        </h3>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "test")}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Nova Integração
-                        </Button>
-                      </div>
-                      
-                      {planIntegrations
-                        ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "test")
-                        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-                        .map((integration) => (
-                          <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
-                            <CardContent className="pt-4 space-y-2">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <Badge variant={integration.is_active ? "default" : "destructive"}>
-                                    {integration.is_active ? "Ativa" : "Inativa"}
-                                  </Badge>
-                                  <span className="text-sm font-medium">
-                                    {integration.accounts?.name}
-                                  </span>
+                          <FormField
+                            control={form.control}
+                            name="commission_percentage"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Percentual de Comissão (%)</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="is_active"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                  <FormLabel>Ativo</FormLabel>
+                                  <FormDescription className="text-xs">
+                                    Plano disponível para assinatura
+                                  </FormDescription>
                                 </div>
-                                <div className="flex gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleToggleIntegration(integration)}
-                                  >
-                                    {integration.is_active ? "Desativar" : "Ativar"}
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "test", integration.id)}
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleDeleteStripeIntegration(integration.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="is_free"
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                  <FormLabel>Plano Gratuito</FormLabel>
+                                  <FormDescription className="text-xs">
+                                    Marque se este plano é FREE (não pago)
+                                  </FormDescription>
                                 </div>
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                <p>Produto: {integration.stripe_product_id}</p>
-                                <p>Preço: {integration.stripe_price_id}</p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                        
-                      {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "test") && (
-                        <p className="text-sm text-muted-foreground">Nenhuma integração de teste configurada</p>
-                      )}
-                    </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div className="flex gap-3 justify-end pt-6 border-t border-border">
+                          <Button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            variant="outline"
+                          >
+                            <X className="h-4 w-4 mr-2" />
+                            Cancelar
+                          </Button>
+                          <Button
+                            type="submit"
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            Salvar
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
                   </TabsContent>
-              </Tabs>
-            </DialogContent>
-          </Dialog>
+
+                  <TabsContent value="stripe" className="space-y-4 px-6 pb-6 overflow-y-auto flex-1 mt-6">
+                      {/* Integrações de Produção */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-semibold text-foreground">
+                            Integrações de Produção
+                          </h3>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "production")}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Nova Integração
+                          </Button>
+                        </div>
+                        
+                        {planIntegrations
+                          ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "production")
+                          .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+                          .map((integration) => (
+                            <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
+                              <CardContent className="pt-4 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={integration.is_active ? "default" : "destructive"}>
+                                      {integration.is_active ? "Ativa" : "Inativa"}
+                                    </Badge>
+                                    <span className="text-sm font-medium">
+                                      {integration.accounts?.name}
+                                    </span>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleToggleIntegration(integration)}
+                                    >
+                                      {integration.is_active ? "Desativar" : "Ativar"}
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "production", integration.id)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteStripeIntegration(integration.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  <p>Produto: {integration.stripe_product_id}</p>
+                                  <p>Preço: {integration.stripe_price_id}</p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                          
+                        {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "production") && (
+                          <p className="text-sm text-muted-foreground">Nenhuma integração de produção configurada</p>
+                        )}
+                      </div>
+
+                      {/* Integrações de Teste */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-semibold text-foreground">
+                            Integrações de Teste
+                          </h3>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => editingPlan && handleNewStripeIntegration(editingPlan, "test")}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Nova Integração
+                          </Button>
+                        </div>
+                        
+                        {planIntegrations
+                          ?.filter(int => int.plan_id === editingPlan?.id && int.environment_type === "test")
+                          .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+                          .map((integration) => (
+                            <Card key={integration.id} className={integration.is_active ? "border-primary/50" : "border-destructive/50 bg-destructive/5"}>
+                              <CardContent className="pt-4 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={integration.is_active ? "default" : "destructive"}>
+                                      {integration.is_active ? "Ativa" : "Inativa"}
+                                    </Badge>
+                                    <span className="text-sm font-medium">
+                                      {integration.accounts?.name}
+                                    </span>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleToggleIntegration(integration)}
+                                    >
+                                      {integration.is_active ? "Desativar" : "Ativar"}
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => editingPlan && handleEditStripeIntegration(editingPlan, "test", integration.id)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleDeleteStripeIntegration(integration.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  <p>Produto: {integration.stripe_product_id}</p>
+                                  <p>Preço: {integration.stripe_price_id}</p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                          
+                        {!planIntegrations?.some(int => int.plan_id === editingPlan?.id && int.environment_type === "test") && (
+                          <p className="text-sm text-muted-foreground">Nenhuma integração de teste configurada</p>
+                        )}
+                      </div>
+                    </TabsContent>
+                </Tabs>
+              </DialogContent>
+            </Dialog>
+          )}
 
           {/* Dialog de Integração Stripe */}
           <Dialog open={isStripeDialogOpen} onOpenChange={(open) => {
