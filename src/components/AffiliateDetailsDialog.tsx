@@ -232,7 +232,7 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
               </div>
 
               <Tabs defaultValue="personal" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="w-full">
                   <TabsTrigger value="personal">Dados Pessoais</TabsTrigger>
                   <TabsTrigger value="plan">Plano</TabsTrigger>
                   <TabsTrigger value="payments">Pagamentos</TabsTrigger>
