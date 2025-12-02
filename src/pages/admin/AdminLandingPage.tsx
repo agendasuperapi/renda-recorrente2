@@ -1469,30 +1469,26 @@ const AdminLandingPage = () => {
       </div>
 
       <Tabs defaultValue="banner" className="w-full">
-        <TabsList className="grid grid-cols-5 w-full lg:w-auto">
-          <TabsTrigger value="banner" className="flex items-center gap-2">
+        <TabsList className="h-auto flex-wrap justify-start w-full">
+          <TabsTrigger value="banner" className="flex items-center gap-2 flex-shrink-0">
             <Megaphone className="h-4 w-4" />
-            <span className="hidden sm:inline">Banner de Anúncio</span>
-            <span className="sm:hidden">Banner</span>
+            <span>Banner de Anúncio</span>
           </TabsTrigger>
-          <TabsTrigger value="hero" className="flex items-center gap-2">
+          <TabsTrigger value="hero" className="flex items-center gap-2 flex-shrink-0">
             <ImageIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">Imagens</span>
-            <span className="sm:hidden">Imgs</span>
+            <span>Imagens</span>
           </TabsTrigger>
-          <TabsTrigger value="testimonials" className="flex items-center gap-2">
+          <TabsTrigger value="testimonials" className="flex items-center gap-2 flex-shrink-0">
             <MessageSquareQuote className="h-4 w-4" />
-            <span className="hidden sm:inline">Depoimentos</span>
-            <span className="sm:hidden">Deptos</span>
+            <span>Depoimentos</span>
           </TabsTrigger>
-          <TabsTrigger value="faqs" className="flex items-center gap-2">
+          <TabsTrigger value="faqs" className="flex items-center gap-2 flex-shrink-0">
             <HelpCircle className="h-4 w-4" />
             <span>FAQs</span>
           </TabsTrigger>
-          <TabsTrigger value="features" className="flex items-center gap-2">
+          <TabsTrigger value="features" className="flex items-center gap-2 flex-shrink-0">
             <Sparkles className="h-4 w-4" />
-            <span className="hidden sm:inline">Funcionalidades</span>
-            <span className="sm:hidden">Funcs</span>
+            <span>Funcionalidades</span>
           </TabsTrigger>
         </TabsList>
 
