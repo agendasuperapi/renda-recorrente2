@@ -188,7 +188,12 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="w-full max-w-full max-h-[90vh] m-0 fixed top-auto bottom-0 left-0 right-0 rounded-t-2xl rounded-b-none translate-x-0 translate-y-0 data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom lg:relative lg:top-auto lg:left-1/2 lg:translate-x-[-50%] lg:max-w-4xl lg:max-h-[90vh] lg:rounded-lg lg:data-[state=open]:slide-in-from-left-1/2 lg:data-[state=open]:slide-in-from-top-[48%] lg:data-[state=closed]:fade-out-0 lg:data-[state=closed]:zoom-out-95 lg:data-[state=closed]:slide-out-to-left-1/2 lg:data-[state=closed]:slide-out-to-top-[48%] duration-300">
+        {/* Handle bar para indicar que é um bottom sheet (apenas mobile/tablet) */}
+        <div className="flex justify-center pt-3 pb-2 lg:hidden">
+          <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+        </div>
+        
         <DialogHeader>
           <DialogTitle>Detalhes do Afiliado</DialogTitle>
         </DialogHeader>
