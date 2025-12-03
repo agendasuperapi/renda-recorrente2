@@ -854,6 +854,21 @@ const Coupons = () => {
                               <ExternalLink className="h-4 w-4 mr-2" />
                               Abrir link
                             </Button>
+                            <Button variant="outline" className="flex-1" onClick={() => {
+                              const link = getAffiliateLink(selectedCoupon) || "";
+                              if (navigator.share) {
+                                navigator.share({
+                                  title: `Cupom ${selectedCoupon.activatedCoupon?.custom_code}`,
+                                  text: `Use meu cupom de desconto!`,
+                                  url: link
+                                });
+                              } else {
+                                handleCopy(link);
+                              }
+                            }}>
+                              <Share2 className="h-4 w-4 mr-2" />
+                              Compartilhar
+                            </Button>
                           </>}
                       </>}
                     {selectedCoupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full" onClick={() => {
