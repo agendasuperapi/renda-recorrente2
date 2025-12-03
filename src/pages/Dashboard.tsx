@@ -608,12 +608,12 @@ const Dashboard = () => {
                       </div>
 
                       {/* Botões de Ação */}
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
+                      <div className="flex gap-2 lg:flex-col lg:items-end">
+                        <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 lg:flex-none gap-2 text-xs sm:text-sm">
                           {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                           Copiar
                         </Button>
-                        <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
+                        <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 lg:flex-none gap-2 text-xs sm:text-sm">
                           <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           Compartilhar
                         </Button>
