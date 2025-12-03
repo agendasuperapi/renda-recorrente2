@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal } from "lucide-react";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SubAffiliateCommissionsDialog } from "@/components/SubAffiliateCommissionsDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface SubAffiliate {
   id: string;
@@ -68,9 +69,18 @@ const SubAffiliates = () => {
   // Mostrar/esconder filtros no mobile/tablet
   const [showFilters, setShowFilters] = useState(false);
 
+  // Debounce do filtro de nome para evitar muitas requisições
+  const debouncedNameFilter = useDebounce(nameFilter, 500);
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      loadSubAffiliates();
+      return;
+    }
     loadSubAffiliates();
-  }, [currentPage, itemsPerPage, nameFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
+  }, [currentPage, itemsPerPage, debouncedNameFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
 
   const loadSubAffiliates = async () => {
     try {
@@ -95,8 +105,8 @@ const SubAffiliates = () => {
         .eq('parent_affiliate_id', user.id);
 
       // Aplicar filtros
-      if (nameFilter) {
-        query = query.or(`name.ilike.%${nameFilter}%,username.ilike.%${nameFilter}%,email.ilike.%${nameFilter}%`);
+      if (debouncedNameFilter) {
+        query = query.or(`name.ilike.%${debouncedNameFilter}%,username.ilike.%${debouncedNameFilter}%,email.ilike.%${debouncedNameFilter}%`);
       }
 
       if (planFilter && planFilter !== "all") {
