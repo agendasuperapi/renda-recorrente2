@@ -399,7 +399,7 @@ const CommissionsDaily = () => {
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
-      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-card rounded-lg border p-6 md:mx-6 lg:mx-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
           <Button
