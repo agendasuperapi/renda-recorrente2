@@ -32,7 +32,7 @@ interface Version {
 
 export default function AdminVersions() {
   const queryClient = useQueryClient();
-  const [version, setVersion] = useState("");
+  const [version, setVersion] = useState(APP_VERSION);
   const [description, setDescription] = useState("");
   const [changeInput, setChangeInput] = useState("");
   const [changes, setChanges] = useState<string[]>([]);
@@ -325,7 +325,10 @@ export default function AdminVersions() {
                 id="version"
                 placeholder="Ex: 4.1.71"
                 value={version}
-                onChange={(e) => setVersion(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, '');
+                  setVersion(value);
+                }}
                 required
               />
             </div>
@@ -411,7 +414,10 @@ export default function AdminVersions() {
                         <Input
                           id={`edit-version-${v.id}`}
                           value={editVersion}
-                          onChange={(e) => setEditVersion(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9.]/g, '');
+                            setEditVersion(value);
+                          }}
                           placeholder="Ex: 4.1.71"
                         />
                       </div>
