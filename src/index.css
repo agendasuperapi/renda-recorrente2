@@ -187,26 +187,19 @@ All colors MUST be HSL.
   }
 }
 
-/* iOS PWA - viewport dinâmico e scroll natural */
+/* iOS PWA - Background verde fixo para barra de status */
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    /* Barra de status com cor sólida #10b981 no iOS PWA */
-    /* Com black-translucent, a barra fica transparente e mostra o conteúdo por trás */
-    html {
-      background-color: #10b981;
+    /* Background verde SEMPRE atrás de tudo - isso é o que a barra de status vai ver */
+    html, body {
+      background-color: #10b981 !important;
     }
     
-    /* Garantir que a área da barra de status tenha a cor sólida */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: env(safe-area-inset-top, 44px);
-      background-color: #10b981;
-      z-index: 9999;
-      pointer-events: none;
+    /* Container principal tem seu próprio background */
+    #root {
+      background-color: hsl(var(--background));
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
     }
     
     /* Usar viewport dinâmico para iOS PWA */
@@ -216,19 +209,14 @@ All colors MUST be HSL.
     }
     
     /* Garantir que inputs e textareas funcionem corretamente no iOS PWA */
-    /* NÃO usar touch-action: manipulation em inputs - isso impede o teclado de abrir */
     input, textarea, select {
       -webkit-user-select: text;
       user-select: text;
       -webkit-tap-highlight-color: transparent;
-      /* Removido touch-action: manipulation para permitir que o teclado abra */
     }
     
     /* Permitir que o iOS empurre o conteúdo quando o teclado abre */
     body {
-      min-height: 100dvh;
-      min-height: -webkit-fill-available;
-      /* Garantir que o body não bloqueie eventos de toque */
       touch-action: pan-y;
     }
     
@@ -239,7 +227,7 @@ All colors MUST be HSL.
       overscroll-behavior: none;
     }
     
-    /* Garantir que formulários sejam focáveis e permitam abertura do teclado */
+    /* Garantir que formulários sejam focáveis */
     form {
       touch-action: pan-y;
     }
