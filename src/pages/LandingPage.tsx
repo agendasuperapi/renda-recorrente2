@@ -267,24 +267,15 @@ const LandingPage = () => {
   });
 
   // Busca configurações do sidebar para o menu mobile
-  const { data: sidebarConfig } = useQuery({
+  const {
+    data: sidebarConfig
+  } = useQuery({
     queryKey: ['sidebar-config-landing'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('*')
-        .in('key', [
-          'sidebar_color_start',
-          'sidebar_color_end',
-          'sidebar_intensity_start',
-          'sidebar_intensity_end',
-          'sidebar_gradient_start_position',
-          'sidebar_text_color_light',
-          'sidebar_text_color_dark',
-          'sidebar_accent_color',
-          'sidebar_logo_url_light',
-          'sidebar_logo_url_dark'
-        ]);
+      const {
+        data,
+        error
+      } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
       if (error) {
         console.error('Error loading sidebar config:', error);
         return null;
@@ -696,7 +687,9 @@ const LandingPage = () => {
   };
   return <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur" style={{ backgroundColor: '#10b981' }}>
+      <header className="sticky top-0 z-50 backdrop-blur" style={{
+      backgroundColor: '#10b981'
+    }}>
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             {getHeroImage('Logo Header') && <img src={getHeroImage('Logo Header')} alt={heroImages.find(img => img.name === 'Logo Header')?.alt_text || 'APP Renda recorrente'} className="h-8 sm:h-10" loading="eager" />}
@@ -753,186 +746,129 @@ const LandingPage = () => {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent 
-                side="right" 
-                className="w-72 flex flex-col p-0 border-l-0 bg-background"
-                style={{
-                  ...sidebarGradientStyle,
-                  backgroundColor: sidebarColorStart
-                }}
-              >
+              <SheetContent side="right" className="w-72 flex flex-col p-0 border-l-0 bg-background" style={{
+              ...sidebarGradientStyle,
+              backgroundColor: sidebarColorStart
+            }}>
                 {/* Logo e Versão no topo */}
                 <div className="flex flex-col items-center pt-6 pb-4 px-4">
-                  {currentSidebarLogo && (
-                    <img 
-                      src={currentSidebarLogo} 
-                      alt="Logo" 
-                      className="h-12 mb-2" 
-                    />
-                  )}
+                  {currentSidebarLogo && <img src={currentSidebarLogo} alt="Logo" className="h-12 mb-2" />}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div 
-                          className="flex items-center justify-center gap-2 text-xs opacity-70 cursor-pointer hover:opacity-100 transition-opacity"
-                          style={{ color: currentSidebarTextColor }}
-                        >
+                        <div className="flex items-center justify-center gap-2 text-xs opacity-70 cursor-pointer hover:opacity-100 transition-opacity" style={{
+                        color: currentSidebarTextColor
+                      }}>
                           <span>v{APP_VERSION}</span>
-                          {versionInfo.hasUpdate ? (
-                            <X className="h-3.5 w-3.5 text-red-500" />
-                          ) : (
-                            <Check className="h-3.5 w-3.5 text-green-500" />
-                          )}
-                          {versionInfo.hasUpdate && (
-                            <Badge 
-                              variant="default" 
-                              className="text-[10px] px-1 py-0 h-4 cursor-pointer"
-                              onClick={() => window.location.reload()}
-                            >
+                          {versionInfo.hasUpdate ? <X className="h-3.5 w-3.5 text-red-500" /> : <Check className="h-3.5 w-3.5 text-green-500" />}
+                          {versionInfo.hasUpdate && <Badge variant="default" className="text-[10px] px-1 py-0 h-4 cursor-pointer" onClick={() => window.location.reload()}>
                               <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
                               Atualizar
-                            </Badge>
-                          )}
+                            </Badge>}
                         </div>
                       </TooltipTrigger>
-                      {versionInfo.hasUpdate ? (
-                        <TooltipContent>
-                          {versionInfo.newVersion ? (
-                            <>
+                      {versionInfo.hasUpdate ? <TooltipContent>
+                          {versionInfo.newVersion ? <>
                               <p>Nova versão disponível: v{versionInfo.newVersion}</p>
                               <p className="text-xs">Clique para atualizar</p>
-                            </>
-                          ) : (
-                            <>
+                            </> : <>
                               <p>Nenhuma versão registrada no banco</p>
                               <p className="text-xs">Registre a versão atual em Admin → Versões</p>
-                            </>
-                          )}
-                        </TooltipContent>
-                      ) : (
-                        <TooltipContent>
+                            </>}
+                        </TooltipContent> : <TooltipContent>
                           <p>Versão atualizada</p>
-                        </TooltipContent>
-                      )}
+                        </TooltipContent>}
                     </Tooltip>
                   </TooltipProvider>
                 </div>
 
                 <nav className="flex flex-col gap-1 px-3 flex-1">
-                  {showHomeButton && (
-                    <button 
-                      onClick={() => {
-                        scrollToSection("inicio");
-                        setMobileMenuOpen(false);
-                      }} 
-                      className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "inicio" ? "bg-white/20" : "hover:bg-white/10"}`}
-                      style={{ color: currentSidebarTextColor }}
-                    >
+                  {showHomeButton && <button onClick={() => {
+                  scrollToSection("inicio");
+                  setMobileMenuOpen(false);
+                }} className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "inicio" ? "bg-white/20" : "hover:bg-white/10"}`} style={{
+                  color: currentSidebarTextColor
+                }}>
                       <Target className="w-5 h-5" />
                       Início
-                    </button>
-                  )}
-                  <button 
-                    onClick={() => {
-                      scrollToSection("como-funciona");
-                      setMobileMenuOpen(false);
-                    }} 
-                    className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "como-funciona" ? "bg-white/20" : "hover:bg-white/10"}`}
-                    style={{ color: currentSidebarTextColor }}
-                  >
+                    </button>}
+                  <button onClick={() => {
+                  scrollToSection("como-funciona");
+                  setMobileMenuOpen(false);
+                }} className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "como-funciona" ? "bg-white/20" : "hover:bg-white/10"}`} style={{
+                  color: currentSidebarTextColor
+                }}>
                     <Zap className="w-5 h-5" />
                     Como funciona
                   </button>
-                  <button 
-                    onClick={() => {
-                      scrollToSection("vantagens");
-                      setMobileMenuOpen(false);
-                    }} 
-                    className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "vantagens" ? "bg-white/20" : "hover:bg-white/10"}`}
-                    style={{ color: currentSidebarTextColor }}
-                  >
+                  <button onClick={() => {
+                  scrollToSection("vantagens");
+                  setMobileMenuOpen(false);
+                }} className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "vantagens" ? "bg-white/20" : "hover:bg-white/10"}`} style={{
+                  color: currentSidebarTextColor
+                }}>
                     <Trophy className="w-5 h-5" />
                     Vantagens
                   </button>
-                  {products.length > 0 && (
-                    <button 
-                      onClick={() => {
-                        scrollToSection("produtos");
-                        setMobileMenuOpen(false);
-                      }} 
-                      className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "produtos" ? "bg-white/20" : "hover:bg-white/10"}`}
-                      style={{ color: currentSidebarTextColor }}
-                    >
+                  {products.length > 0 && <button onClick={() => {
+                  scrollToSection("produtos");
+                  setMobileMenuOpen(false);
+                }} className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "produtos" ? "bg-white/20" : "hover:bg-white/10"}`} style={{
+                  color: currentSidebarTextColor
+                }}>
                       <Award className="w-5 h-5" />
                       Produtos
-                    </button>
-                  )}
-                  <button 
-                    onClick={() => {
-                      scrollToSection("planos");
-                      setMobileMenuOpen(false);
-                    }} 
-                    className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "planos" ? "bg-white/20" : "hover:bg-white/10"}`}
-                    style={{ color: currentSidebarTextColor }}
-                  >
+                    </button>}
+                  <button onClick={() => {
+                  scrollToSection("planos");
+                  setMobileMenuOpen(false);
+                }} className={`w-full flex items-center gap-3 h-11 px-3 rounded-lg transition-all ${activeSection === "planos" ? "bg-white/20" : "hover:bg-white/10"}`} style={{
+                  color: currentSidebarTextColor
+                }}>
                     <Ticket className="w-5 h-5" />
                     Quero contratar
                   </button>
                   
                   <div className="border-t border-white/20 pt-4 mt-4 space-y-1">
-                    {user ? (
-                      <>
-                        {isAdmin && (
-                          <>
-                            <button 
-                              onClick={() => {
-                                navigateToDashboard();
-                                setMobileMenuOpen(false);
-                              }} 
-                              className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
-                              style={{ color: currentSidebarTextColor }}
-                            >
+                    {user ? <>
+                        {isAdmin && <>
+                            <button onClick={() => {
+                        navigateToDashboard();
+                        setMobileMenuOpen(false);
+                      }} className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all" style={{
+                        color: currentSidebarTextColor
+                      }}>
                               <LayoutDashboard className="w-5 h-5" />
                               Painel
                             </button>
-                            <button 
-                              onClick={() => {
-                                navigate("/auth");
-                                setMobileMenuOpen(false);
-                              }} 
-                              className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all"
-                              style={{ color: currentSidebarTextColor }}
-                            >
+                            <button onClick={() => {
+                        navigate("/auth");
+                        setMobileMenuOpen(false);
+                      }} className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all" style={{
+                        color: currentSidebarTextColor
+                      }}>
                               <Lock className="w-5 h-5" />
                               Configurar Login
                             </button>
-                          </>
-                        )}
-                        <button 
-                          onClick={() => {
-                            handleLogout();
-                            setMobileMenuOpen(false);
-                          }} 
-                          className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all"
-                          style={{ color: currentSidebarTextColor }}
-                        >
+                          </>}
+                        <button onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }} className="w-full flex items-center gap-3 h-11 px-3 rounded-lg hover:bg-white/10 transition-all" style={{
+                      color: currentSidebarTextColor
+                    }}>
                           <LogOut className="w-5 h-5" />
                           Sair
                         </button>
-                      </>
-                    ) : (
-                      <button 
-                        onClick={() => {
-                          navigate("/auth");
-                          setMobileMenuOpen(false);
-                        }} 
-                        className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all"
-                        style={{ color: currentSidebarTextColor }}
-                      >
+                      </> : <button onClick={() => {
+                    navigate("/auth");
+                    setMobileMenuOpen(false);
+                  }} className="w-full flex items-center gap-3 h-11 px-3 rounded-lg bg-white/20 hover:bg-white/30 transition-all" style={{
+                    color: currentSidebarTextColor
+                  }}>
                         <LogOut className="w-5 h-5 rotate-180" />
                         Entrar
-                      </button>
-                    )}
+                      </button>}
                   </div>
                 </nav>
               </SheetContent>
@@ -1886,34 +1822,21 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="border-t border-border pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
-            <p>&copy; 2024 APP Renda Recorrente. Todos os direitos reservados.</p>
+            <p>© 2025 APP Renda Recorrente. Todos os direitos reservados.</p>
             <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground/70">
               <span>v{APP_VERSION}</span>
-              {versionInfo.hasUpdate && versionInfo.newVersion ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-6 text-xs px-2 gap-1"
-                  onClick={() => window.location.reload()}
-                >
+              {versionInfo.hasUpdate && versionInfo.newVersion ? <Button variant="outline" size="sm" className="h-6 text-xs px-2 gap-1" onClick={() => window.location.reload()}>
                   <RefreshCw className="h-3 w-3" />
                   Atualizar para v{versionInfo.newVersion}
-                </Button>
-              ) : (
-                <TooltipProvider>
+                </Button> : <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-xs px-2 gap-1 text-muted-foreground/70 hover:text-foreground"
-                        onClick={() => {
-                          toast({
-                            title: "Versão atualizada",
-                            description: `Você está usando a versão mais recente (v${APP_VERSION})`,
-                          });
-                        }}
-                      >
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2 gap-1 text-muted-foreground/70 hover:text-foreground" onClick={() => {
+                    toast({
+                      title: "Versão atualizada",
+                      description: `Você está usando a versão mais recente (v${APP_VERSION})`
+                    });
+                  }}>
                         <Check className="h-3 w-3 text-green-500" />
                         Atualizado
                       </Button>
@@ -1922,8 +1845,7 @@ const LandingPage = () => {
                       <p>Clique para verificar atualizações</p>
                     </TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
-              )}
+                </TooltipProvider>}
             </div>
           </div>
         </div>
