@@ -1,11 +1,16 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
+
+// Executar IMEDIATAMENTE quando o módulo é importado (antes de qualquer render)
+if (typeof document !== 'undefined') {
+  document.documentElement.style.backgroundColor = '#10b981';
+}
 
 /**
  * Hook para gerenciar a cor da barra de status no iOS PWA
  * Força a cor #10b981 sempre, independente do estado de autenticação
  */
 export const useStatusBarColor = () => {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const color = '#10b981';
     
     // Função para atualizar a meta tag theme-color

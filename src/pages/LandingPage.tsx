@@ -685,7 +685,9 @@ const LandingPage = () => {
     // Navega para o dashboard correspondente
     navigate(showAdminMenu && isAdmin ? '/admin/dashboard' : '/dashboard');
   };
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-[#10b981] pt-[env(safe-area-inset-top)]">
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur" style={{
       backgroundColor: '#10b981'
@@ -1873,6 +1875,8 @@ const LandingPage = () => {
     }} onClose={() => setEditingBlock(null)} />}
 
       <CookieConsent />
-    </div>;
+      </div>
+    </div>
+  );
 };
 export default LandingPage;

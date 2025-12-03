@@ -171,7 +171,7 @@ export const DashboardLayout = () => {
   const isLoading = !initialized && !loadingTimeout;
 
   return (
-    <>
+    <div className="min-h-screen bg-[#10b981]">
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
         <div className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)]">
@@ -198,6 +198,6 @@ export const DashboardLayout = () => {
           <BottomNav onMenuClick={() => setSidebarOpen(true)} isAdmin={isAdmin ?? false} />
         </div>
       </UserProvider>
-    </>
+    </div>
   );
 };
