@@ -14,10 +14,14 @@ interface BackgroundConfig {
   colorEndLight: string;
   colorStartDark: string;
   colorEndDark: string;
-  intensityStart: number;
-  intensityEnd: number;
-  gradientStart: number;
-  gradientEnd: number;
+  intensityStartLight: number;
+  intensityEndLight: number;
+  intensityStartDark: number;
+  intensityEndDark: number;
+  gradientStartLight: number;
+  gradientEndLight: number;
+  gradientStartDark: number;
+  gradientEndDark: number;
   applyMobile: boolean;
   applyTablet: boolean;
   applyDesktop: boolean;
@@ -28,10 +32,14 @@ const defaultConfig: BackgroundConfig = {
   colorEndLight: "#00bf63",
   colorStartDark: "#00bf63",
   colorEndDark: "#00bf63",
-  intensityStart: 5,
-  intensityEnd: 15,
-  gradientStart: 0,
-  gradientEnd: 50,
+  intensityStartLight: 5,
+  intensityEndLight: 15,
+  intensityStartDark: 5,
+  intensityEndDark: 15,
+  gradientStartLight: 0,
+  gradientEndLight: 50,
+  gradientStartDark: 0,
+  gradientEndDark: 50,
   applyMobile: true,
   applyTablet: true,
   applyDesktop: true,
@@ -65,10 +73,14 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
           'bg_color_end_light',
           'bg_color_start_dark',
           'bg_color_end_dark',
-          'bg_intensity_start',
-          'bg_intensity_end',
-          'bg_gradient_start',
-          'bg_gradient_end',
+          'bg_intensity_start_light',
+          'bg_intensity_end_light',
+          'bg_intensity_start_dark',
+          'bg_intensity_end_dark',
+          'bg_gradient_start_light',
+          'bg_gradient_end_light',
+          'bg_gradient_start_dark',
+          'bg_gradient_end_dark',
           'bg_apply_mobile',
           'bg_apply_tablet',
           'bg_apply_desktop'
@@ -87,10 +99,14 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
           colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
           colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
           colorEndDark: settings.bg_color_end_dark || defaultConfig.colorEndDark,
-          intensityStart: parseInt(settings.bg_intensity_start || String(defaultConfig.intensityStart)),
-          intensityEnd: parseInt(settings.bg_intensity_end || String(defaultConfig.intensityEnd)),
-          gradientStart: parseInt(settings.bg_gradient_start || String(defaultConfig.gradientStart)),
-          gradientEnd: parseInt(settings.bg_gradient_end || String(defaultConfig.gradientEnd)),
+          intensityStartLight: parseInt(settings.bg_intensity_start_light || String(defaultConfig.intensityStartLight)),
+          intensityEndLight: parseInt(settings.bg_intensity_end_light || String(defaultConfig.intensityEndLight)),
+          intensityStartDark: parseInt(settings.bg_intensity_start_dark || String(defaultConfig.intensityStartDark)),
+          intensityEndDark: parseInt(settings.bg_intensity_end_dark || String(defaultConfig.intensityEndDark)),
+          gradientStartLight: parseInt(settings.bg_gradient_start_light || String(defaultConfig.gradientStartLight)),
+          gradientEndLight: parseInt(settings.bg_gradient_end_light || String(defaultConfig.gradientEndLight)),
+          gradientStartDark: parseInt(settings.bg_gradient_start_dark || String(defaultConfig.gradientStartDark)),
+          gradientEndDark: parseInt(settings.bg_gradient_end_dark || String(defaultConfig.gradientEndDark)),
           applyMobile: settings.bg_apply_mobile !== 'false',
           applyTablet: settings.bg_apply_tablet !== 'false',
           applyDesktop: settings.bg_apply_desktop !== 'false',
@@ -111,10 +127,14 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
         { key: 'bg_color_end_light', value: config.colorEndLight, description: 'Cor final do gradiente (modo claro)' },
         { key: 'bg_color_start_dark', value: config.colorStartDark, description: 'Cor inicial do gradiente (modo escuro)' },
         { key: 'bg_color_end_dark', value: config.colorEndDark, description: 'Cor final do gradiente (modo escuro)' },
-        { key: 'bg_intensity_start', value: String(config.intensityStart), description: 'Intensidade inicial do gradiente' },
-        { key: 'bg_intensity_end', value: String(config.intensityEnd), description: 'Intensidade final do gradiente' },
-        { key: 'bg_gradient_start', value: String(config.gradientStart), description: 'Posição de início do gradiente' },
-        { key: 'bg_gradient_end', value: String(config.gradientEnd), description: 'Posição de fim do gradiente' },
+        { key: 'bg_intensity_start_light', value: String(config.intensityStartLight), description: 'Intensidade inicial do gradiente (modo claro)' },
+        { key: 'bg_intensity_end_light', value: String(config.intensityEndLight), description: 'Intensidade final do gradiente (modo claro)' },
+        { key: 'bg_intensity_start_dark', value: String(config.intensityStartDark), description: 'Intensidade inicial do gradiente (modo escuro)' },
+        { key: 'bg_intensity_end_dark', value: String(config.intensityEndDark), description: 'Intensidade final do gradiente (modo escuro)' },
+        { key: 'bg_gradient_start_light', value: String(config.gradientStartLight), description: 'Posição de início do gradiente (modo claro)' },
+        { key: 'bg_gradient_end_light', value: String(config.gradientEndLight), description: 'Posição de fim do gradiente (modo claro)' },
+        { key: 'bg_gradient_start_dark', value: String(config.gradientStartDark), description: 'Posição de início do gradiente (modo escuro)' },
+        { key: 'bg_gradient_end_dark', value: String(config.gradientEndDark), description: 'Posição de fim do gradiente (modo escuro)' },
         { key: 'bg_apply_mobile', value: String(config.applyMobile), description: 'Aplicar em dispositivos móveis' },
         { key: 'bg_apply_tablet', value: String(config.applyTablet), description: 'Aplicar em tablets' },
         { key: 'bg_apply_desktop', value: String(config.applyDesktop), description: 'Aplicar em computadores' },
@@ -160,11 +180,13 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
 
   // Generate preview gradient
   const getPreviewGradient = (mode: 'light' | 'dark') => {
-    const startAlpha = config.intensityStart / 100;
-    const endAlpha = config.intensityEnd / 100;
+    const startAlpha = mode === 'light' ? config.intensityStartLight / 100 : config.intensityStartDark / 100;
+    const endAlpha = mode === 'light' ? config.intensityEndLight / 100 : config.intensityEndDark / 100;
     const colorStart = mode === 'light' ? config.colorStartLight : config.colorStartDark;
     const colorEnd = mode === 'light' ? config.colorEndLight : config.colorEndDark;
-    return `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${config.gradientEnd}%)`;
+    const gradientStart = mode === 'light' ? config.gradientStartLight : config.gradientStartDark;
+    const gradientEnd = mode === 'light' ? config.gradientEndLight : config.gradientEndDark;
+    return `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${gradientEnd}%)`;
   };
 
   return (
@@ -250,6 +272,69 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
                     </div>
                   </div>
                 </div>
+
+                {/* Light Mode Intensities */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Intensidade Inicial</Label>
+                      <span className="text-sm text-muted-foreground">{config.intensityStartLight}%</span>
+                    </div>
+                    <Slider
+                      value={[config.intensityStartLight]}
+                      onValueChange={([value]) => setConfig({ ...config, intensityStartLight: value })}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Intensidade Final</Label>
+                      <span className="text-sm text-muted-foreground">{config.intensityEndLight}%</span>
+                    </div>
+                    <Slider
+                      value={[config.intensityEndLight]}
+                      onValueChange={([value]) => setConfig({ ...config, intensityEndLight: value })}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </div>
+
+                {/* Light Mode Gradient Positions */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Início</Label>
+                      <span className="text-sm text-muted-foreground">{config.gradientStartLight}%</span>
+                    </div>
+                    <Slider
+                      value={[config.gradientStartLight]}
+                      onValueChange={([value]) => setConfig({ ...config, gradientStartLight: Math.min(value, config.gradientEndLight - 1) })}
+                      min={0}
+                      max={99}
+                      step={1}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Fim</Label>
+                      <span className="text-sm text-muted-foreground">{config.gradientEndLight}%</span>
+                    </div>
+                    <Slider
+                      value={[config.gradientEndLight]}
+                      onValueChange={([value]) => setConfig({ ...config, gradientEndLight: Math.max(value, config.gradientStartLight + 1) })}
+                      min={1}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Início: onde a cor inicial termina | Fim: onde a cor final começa
+                </p>
               </TabsContent>
 
               <TabsContent value="dark" className="space-y-4 mt-4">
@@ -303,71 +388,71 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
                     </div>
                   </div>
                 </div>
+
+                {/* Dark Mode Intensities */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Intensidade Inicial</Label>
+                      <span className="text-sm text-muted-foreground">{config.intensityStartDark}%</span>
+                    </div>
+                    <Slider
+                      value={[config.intensityStartDark]}
+                      onValueChange={([value]) => setConfig({ ...config, intensityStartDark: value })}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Intensidade Final</Label>
+                      <span className="text-sm text-muted-foreground">{config.intensityEndDark}%</span>
+                    </div>
+                    <Slider
+                      value={[config.intensityEndDark]}
+                      onValueChange={([value]) => setConfig({ ...config, intensityEndDark: value })}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </div>
+
+                {/* Dark Mode Gradient Positions */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Início</Label>
+                      <span className="text-sm text-muted-foreground">{config.gradientStartDark}%</span>
+                    </div>
+                    <Slider
+                      value={[config.gradientStartDark]}
+                      onValueChange={([value]) => setConfig({ ...config, gradientStartDark: Math.min(value, config.gradientEndDark - 1) })}
+                      min={0}
+                      max={99}
+                      step={1}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <Label>Fim</Label>
+                      <span className="text-sm text-muted-foreground">{config.gradientEndDark}%</span>
+                    </div>
+                    <Slider
+                      value={[config.gradientEndDark]}
+                      onValueChange={([value]) => setConfig({ ...config, gradientEndDark: Math.max(value, config.gradientStartDark + 1) })}
+                      min={1}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Início: onde a cor inicial termina | Fim: onde a cor final começa
+                </p>
               </TabsContent>
             </Tabs>
-
-            {/* Intensities */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Intensidade Inicial</Label>
-                  <span className="text-sm text-muted-foreground">{config.intensityStart}%</span>
-                </div>
-                <Slider
-                  value={[config.intensityStart]}
-                  onValueChange={([value]) => setConfig({ ...config, intensityStart: value })}
-                  min={0}
-                  max={100}
-                  step={1}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Intensidade Final</Label>
-                  <span className="text-sm text-muted-foreground">{config.intensityEnd}%</span>
-                </div>
-                <Slider
-                  value={[config.intensityEnd]}
-                  onValueChange={([value]) => setConfig({ ...config, intensityEnd: value })}
-                  min={0}
-                  max={100}
-                  step={1}
-                />
-              </div>
-            </div>
-
-            {/* Gradient Positions */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Início</Label>
-                  <span className="text-sm text-muted-foreground">{config.gradientStart}%</span>
-                </div>
-                <Slider
-                  value={[config.gradientStart]}
-                  onValueChange={([value]) => setConfig({ ...config, gradientStart: Math.min(value, config.gradientEnd - 1) })}
-                  min={0}
-                  max={99}
-                  step={1}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Fim</Label>
-                  <span className="text-sm text-muted-foreground">{config.gradientEnd}%</span>
-                </div>
-                <Slider
-                  value={[config.gradientEnd]}
-                  onValueChange={([value]) => setConfig({ ...config, gradientEnd: Math.max(value, config.gradientStart + 1) })}
-                  min={1}
-                  max={100}
-                  step={1}
-                />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Início: onde a cor inicial termina | Fim: onde a cor final começa (a transição acontece entre os dois pontos)
-            </p>
 
             {/* Device Selection */}
             <div className="space-y-3">

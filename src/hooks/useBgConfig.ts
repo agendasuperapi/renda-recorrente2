@@ -6,10 +6,14 @@ interface BackgroundConfig {
   colorEndLight: string;
   colorStartDark: string;
   colorEndDark: string;
-  intensityStart: number;
-  intensityEnd: number;
-  gradientStart: number;
-  gradientEnd: number;
+  intensityStartLight: number;
+  intensityEndLight: number;
+  intensityStartDark: number;
+  intensityEndDark: number;
+  gradientStartLight: number;
+  gradientEndLight: number;
+  gradientStartDark: number;
+  gradientEndDark: number;
   applyMobile: boolean;
   applyTablet: boolean;
   applyDesktop: boolean;
@@ -20,10 +24,14 @@ const defaultConfig: BackgroundConfig = {
   colorEndLight: "#00bf63",
   colorStartDark: "#00bf63",
   colorEndDark: "#00bf63",
-  intensityStart: 5,
-  intensityEnd: 15,
-  gradientStart: 0,
-  gradientEnd: 50,
+  intensityStartLight: 5,
+  intensityEndLight: 15,
+  intensityStartDark: 5,
+  intensityEndDark: 15,
+  gradientStartLight: 0,
+  gradientEndLight: 50,
+  gradientStartDark: 0,
+  gradientEndDark: 50,
   applyMobile: true,
   applyTablet: true,
   applyDesktop: true,
@@ -65,10 +73,14 @@ export function useBgConfig() {
           'bg_color_end_light',
           'bg_color_start_dark',
           'bg_color_end_dark',
-          'bg_intensity_start',
-          'bg_intensity_end',
-          'bg_gradient_start',
-          'bg_gradient_end',
+          'bg_intensity_start_light',
+          'bg_intensity_end_light',
+          'bg_intensity_start_dark',
+          'bg_intensity_end_dark',
+          'bg_gradient_start_light',
+          'bg_gradient_end_light',
+          'bg_gradient_start_dark',
+          'bg_gradient_end_dark',
           'bg_apply_mobile',
           'bg_apply_tablet',
           'bg_apply_desktop'
@@ -93,10 +105,14 @@ export function useBgConfig() {
             colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
             colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
             colorEndDark: settings.bg_color_end_dark || defaultConfig.colorEndDark,
-            intensityStart: parseInt(settings.bg_intensity_start || String(defaultConfig.intensityStart)),
-            intensityEnd: parseInt(settings.bg_intensity_end || String(defaultConfig.intensityEnd)),
-            gradientStart: parseInt(settings.bg_gradient_start || String(defaultConfig.gradientStart)),
-            gradientEnd: parseInt(settings.bg_gradient_end || String(defaultConfig.gradientEnd)),
+            intensityStartLight: parseInt(settings.bg_intensity_start_light || String(defaultConfig.intensityStartLight)),
+            intensityEndLight: parseInt(settings.bg_intensity_end_light || String(defaultConfig.intensityEndLight)),
+            intensityStartDark: parseInt(settings.bg_intensity_start_dark || String(defaultConfig.intensityStartDark)),
+            intensityEndDark: parseInt(settings.bg_intensity_end_dark || String(defaultConfig.intensityEndDark)),
+            gradientStartLight: parseInt(settings.bg_gradient_start_light || String(defaultConfig.gradientStartLight)),
+            gradientEndLight: parseInt(settings.bg_gradient_end_light || String(defaultConfig.gradientEndLight)),
+            gradientStartDark: parseInt(settings.bg_gradient_start_dark || String(defaultConfig.gradientStartDark)),
+            gradientEndDark: parseInt(settings.bg_gradient_end_dark || String(defaultConfig.gradientEndDark)),
             applyMobile: settings.bg_apply_mobile !== 'false',
             applyTablet: settings.bg_apply_tablet !== 'false',
             applyDesktop: settings.bg_apply_desktop !== 'false',
@@ -169,13 +185,16 @@ export function useBgConfig() {
   const getBackgroundStyle = useCallback((): React.CSSProperties | undefined => {
     if (!config || !shouldApply()) return undefined;
 
-    const startAlpha = config.intensityStart / 100;
-    const endAlpha = config.intensityEnd / 100;
+    const startAlpha = darkMode ? config.intensityStartDark / 100 : config.intensityStartLight / 100;
+    const endAlpha = darkMode ? config.intensityEndDark / 100 : config.intensityEndLight / 100;
     
     const colorStart = darkMode ? config.colorStartDark : config.colorStartLight;
     const colorEnd = darkMode ? config.colorEndDark : config.colorEndLight;
     
-    const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${config.gradientEnd}%)`;
+    const gradientStart = darkMode ? config.gradientStartDark : config.gradientStartLight;
+    const gradientEnd = darkMode ? config.gradientEndDark : config.gradientEndLight;
+    
+    const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${gradientEnd}%)`;
 
     return {
       background: gradient,
