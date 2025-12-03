@@ -8,15 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Calendar as CalendarIcon, DollarSign, TrendingUp, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
+import { DollarSign, TrendingUp, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { MonthPickerFilter } from "@/components/MonthPickerFilter";
 import {
   Pagination,
   PaginationContent,
@@ -412,55 +410,19 @@ const CommissionsMonthly = () => {
             </Select>
           )}
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !filters.mes_inicio && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.mes_inicio ? format(filters.mes_inicio, "MMMM 'de' yyyy", { locale: ptBR }) : "Mês início"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={filters.mes_inicio}
-                onSelect={(date) => setFilters(f => ({ ...f, mes_inicio: date ? startOfMonth(date) : undefined }))}
-                initialFocus
-                locale={ptBR}
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+          <MonthPickerFilter
+            value={filters.mes_inicio}
+            onChange={(date) => setFilters(f => ({ ...f, mes_inicio: date }))}
+            placeholder="Mês início"
+            mode="start"
+          />
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !filters.mes_fim && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.mes_fim ? format(filters.mes_fim, "MMMM 'de' yyyy", { locale: ptBR }) : "Mês fim"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={filters.mes_fim}
-                onSelect={(date) => setFilters(f => ({ ...f, mes_fim: date ? endOfMonth(date) : undefined }))}
-                initialFocus
-                locale={ptBR}
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+          <MonthPickerFilter
+            value={filters.mes_fim}
+            onChange={(date) => setFilters(f => ({ ...f, mes_fim: date }))}
+            placeholder="Mês fim"
+            mode="end"
+          />
 
           <Select value={itemsPerPage.toString()} onValueChange={(value) => {
             setItemsPerPage(Number(value));
