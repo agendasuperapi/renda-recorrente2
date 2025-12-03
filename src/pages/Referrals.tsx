@@ -53,7 +53,9 @@ const Referrals = () => {
   const isMobile = useIsMobile();
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, conversionRate: 0 });
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -120,11 +122,16 @@ const Referrals = () => {
   };
 
   const loadReferrals = async () => {
-    setLoading(true);
+    if (hasLoadedOnce) {
+      setIsFiltering(true);
+    } else {
+      setInitialLoading(true);
+    }
     try {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session) {
-        setLoading(false);
+        setInitialLoading(false);
+        setIsFiltering(false);
         return;
       }
 
@@ -164,7 +171,9 @@ const Referrals = () => {
     } catch (error) {
       console.error("Error loading referrals:", error);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      setIsFiltering(false);
+      setHasLoadedOnce(true);
     }
   };
 
@@ -244,7 +253,7 @@ const Referrals = () => {
     return <Badge variant={variants[status] || "secondary"}>{labels[status] || status}</Badge>;
   };
 
-  if (loading && referrals.length === 0) {
+  if (initialLoading && !hasLoadedOnce) {
     return <TableSkeleton columns={9} rows={10} showSearch />;
   }
 
