@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -17,6 +17,9 @@ import { Label } from "@/components/ui/label";
 import { SubAffiliateCommissionsDialog } from "@/components/SubAffiliateCommissionsDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface SubAffiliate {
   id: string;
@@ -54,8 +57,8 @@ const SubAffiliates = () => {
   const [planFilter, setPlanFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [levelFilter, setLevelFilter] = useState("all");
-  const [startDateFilter, setStartDateFilter] = useState("");
-  const [endDateFilter, setEndDateFilter] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState<Date | undefined>(undefined);
+  const [endDateFilter, setEndDateFilter] = useState<Date | undefined>(undefined);
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,11 +131,11 @@ const SubAffiliates = () => {
       }
 
       if (startDateFilter) {
-        query = query.gte('created_at', startDateFilter);
+        query = query.gte('created_at', format(startDateFilter, 'yyyy-MM-dd'));
       }
 
       if (endDateFilter) {
-        query = query.lte('created_at', endDateFilter + "T23:59:59");
+        query = query.lte('created_at', format(endDateFilter, 'yyyy-MM-dd') + "T23:59:59");
       }
 
       // Calcular range para paginação
@@ -185,8 +188,8 @@ const SubAffiliates = () => {
     setPlanFilter("all");
     setStatusFilter("all");
     setLevelFilter("all");
-    setStartDateFilter("");
-    setEndDateFilter("");
+    setStartDateFilter(undefined);
+    setEndDateFilter(undefined);
   };
 
   const handleSort = (column: string) => {
@@ -475,19 +478,55 @@ const SubAffiliates = () => {
             </SelectContent>
           </Select>
 
-          <Input
-            type="date"
-            placeholder="Data inicial"
-            value={startDateFilter}
-            onChange={(e) => setStartDateFilter(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !startDateFilter && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {startDateFilter ? format(startDateFilter, "dd/MM/yyyy") : "Data inicial"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={startDateFilter}
+                onSelect={setStartDateFilter}
+                initialFocus
+                locale={ptBR}
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
 
-          <Input
-            type="date"
-            placeholder="Data final"
-            value={endDateFilter}
-            onChange={(e) => setEndDateFilter(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !endDateFilter && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {endDateFilter ? format(endDateFilter, "dd/MM/yyyy") : "Data final"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={endDateFilter}
+                onSelect={setEndDateFilter}
+                initialFocus
+                locale={ptBR}
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
 
           <Select
             value={itemsPerPage.toString()}
