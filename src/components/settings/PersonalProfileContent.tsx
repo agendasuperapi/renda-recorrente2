@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
+import { DatePickerFilter } from "@/components/DatePickerFilter";
+import { format, parse } from "date-fns";
 
 export const PersonalProfileContent = () => {
   const { userId } = useAuth();
@@ -435,11 +437,11 @@ export const PersonalProfileContent = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="birth_date">Data de Nascimento</Label>
-                  <Input
-                    id="birth_date"
-                    type="date"
-                    value={formData.birth_date}
-                    onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+                  <DatePickerFilter
+                    value={formData.birth_date ? parse(formData.birth_date, 'yyyy-MM-dd', new Date()) : undefined}
+                    onChange={(date) => setFormData({ ...formData, birth_date: date ? format(date, 'yyyy-MM-dd') : '' })}
+                    placeholder="Selecionar data"
+                    className="w-full"
                   />
                 </div>
 
