@@ -567,16 +567,17 @@ const Dashboard = () => {
           </Card>
 
           <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-            <CardHeader className="px-0 lg:px-6">
-              <div className="flex items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between px-0 lg:px-6">
+              <div>
                 <CardTitle>Cupons principais</CardTitle>
-                <Link to="/coupons" className="text-sm text-primary hover:underline">
-                  Ver todos
-                </Link>
+                <p className="text-sm text-muted-foreground">
+                  Veja aqui seus cupons principais para compartilhar
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Veja aqui seus cupons principais para compartilhar
-              </p>
+              <Button variant="outline" size="sm" onClick={() => navigate('/coupons')} className="gap-2">
+                Ver todos
+                <ArrowRight className="w-4 h-4" />
+              </Button>
             </CardHeader>
             <CardContent className="px-0 lg:px-6">
               {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
