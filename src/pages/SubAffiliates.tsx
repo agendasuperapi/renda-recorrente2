@@ -39,7 +39,9 @@ interface SubAffiliate {
 const SubAffiliates = () => {
   const [subAffiliates, setSubAffiliates] = useState<SubAffiliate[]>([]);
   const [filteredData, setFilteredData] = useState<SubAffiliate[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [stats, setStats] = useState({ total: 0, commissions: 0 });
   const { toast } = useToast();
   const [selectedSubAffiliate, setSelectedSubAffiliate] = useState<SubAffiliate | null>(null);
@@ -84,7 +86,11 @@ const SubAffiliates = () => {
 
   const loadSubAffiliates = async () => {
     try {
-      setIsLoading(true);
+      if (hasLoadedOnce) {
+        setIsFiltering(true);
+      } else {
+        setInitialLoading(true);
+      }
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -167,7 +173,9 @@ const SubAffiliates = () => {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setInitialLoading(false);
+      setIsFiltering(false);
+      setHasLoadedOnce(true);
     }
   };
 
@@ -297,7 +305,7 @@ const SubAffiliates = () => {
     }
   };
 
-  if (isLoading) {
+  if (initialLoading && !hasLoadedOnce) {
     return (
       <div className="space-y-4 sm:space-y-6">
         <div>
