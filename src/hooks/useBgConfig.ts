@@ -2,8 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface BackgroundConfig {
-  colorStart: string;
-  colorEnd: string;
+  colorStartLight: string;
+  colorEndLight: string;
+  colorStartDark: string;
+  colorEndDark: string;
   intensityStart: number;
   intensityEnd: number;
   gradientStart: number;
@@ -14,8 +16,10 @@ interface BackgroundConfig {
 }
 
 const defaultConfig: BackgroundConfig = {
-  colorStart: "#00bf63",
-  colorEnd: "#00bf63",
+  colorStartLight: "#00bf63",
+  colorEndLight: "#00bf63",
+  colorStartDark: "#00bf63",
+  colorEndDark: "#00bf63",
   intensityStart: 5,
   intensityEnd: 15,
   gradientStart: 0,
@@ -41,9 +45,14 @@ const hexToRgba = (hex: string, alpha: number) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+const isDarkMode = (): boolean => {
+  return document.documentElement.classList.contains('dark');
+};
+
 export function useBgConfig() {
   const [config, setConfig] = useState<BackgroundConfig | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType);
+  const [darkMode, setDarkMode] = useState<boolean>(isDarkMode);
   const [loading, setLoading] = useState(true);
 
   const loadConfig = useCallback(async () => {
@@ -52,8 +61,10 @@ export function useBgConfig() {
         .from('app_settings')
         .select('key, value')
         .in('key', [
-          'bg_color_start',
-          'bg_color_end',
+          'bg_color_start_light',
+          'bg_color_end_light',
+          'bg_color_start_dark',
+          'bg_color_end_dark',
           'bg_intensity_start',
           'bg_intensity_end',
           'bg_gradient_start',
@@ -76,10 +87,12 @@ export function useBgConfig() {
         });
 
         // Only set config if we have at least the color settings
-        if (settings.bg_color_start) {
+        if (settings.bg_color_start_light || settings.bg_color_start_dark) {
           setConfig({
-            colorStart: settings.bg_color_start || defaultConfig.colorStart,
-            colorEnd: settings.bg_color_end || defaultConfig.colorEnd,
+            colorStartLight: settings.bg_color_start_light || defaultConfig.colorStartLight,
+            colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
+            colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
+            colorEndDark: settings.bg_color_end_dark || defaultConfig.colorEndDark,
             intensityStart: parseInt(settings.bg_intensity_start || String(defaultConfig.intensityStart)),
             intensityEnd: parseInt(settings.bg_intensity_end || String(defaultConfig.intensityEnd)),
             gradientStart: parseInt(settings.bg_gradient_start || String(defaultConfig.gradientStart)),
@@ -119,9 +132,20 @@ export function useBgConfig() {
 
     window.addEventListener('resize', handleResize);
 
+    // Observe theme changes
+    const observer = new MutationObserver(() => {
+      setDarkMode(isDarkMode());
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
     return () => {
       window.removeEventListener('background-config-change', handleConfigChange);
       window.removeEventListener('resize', handleResize);
+      observer.disconnect();
     };
   }, [loadConfig]);
 
@@ -148,17 +172,21 @@ export function useBgConfig() {
     const startAlpha = config.intensityStart / 100;
     const endAlpha = config.intensityEnd / 100;
     
-    const gradient = `linear-gradient(to bottom, ${hexToRgba(config.colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(config.colorEnd, endAlpha)} ${config.gradientEnd}%)`;
+    const colorStart = darkMode ? config.colorStartDark : config.colorStartLight;
+    const colorEnd = darkMode ? config.colorEndDark : config.colorEndLight;
+    
+    const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${config.gradientEnd}%)`;
 
     return {
       background: gradient,
     };
-  }, [config, shouldApply]);
+  }, [config, shouldApply, darkMode]);
 
   return {
     config,
     loading,
     deviceType,
+    darkMode,
     shouldApply: shouldApply(),
     backgroundStyle: getBackgroundStyle(),
   };

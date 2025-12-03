@@ -5,13 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Settings2, Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Settings2, Loader2, Sun, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
 interface BackgroundConfig {
-  colorStart: string;
-  colorEnd: string;
+  colorStartLight: string;
+  colorEndLight: string;
+  colorStartDark: string;
+  colorEndDark: string;
   intensityStart: number;
   intensityEnd: number;
   gradientStart: number;
@@ -22,8 +24,10 @@ interface BackgroundConfig {
 }
 
 const defaultConfig: BackgroundConfig = {
-  colorStart: "#00bf63",
-  colorEnd: "#00bf63",
+  colorStartLight: "#00bf63",
+  colorEndLight: "#00bf63",
+  colorStartDark: "#00bf63",
+  colorEndDark: "#00bf63",
   intensityStart: 5,
   intensityEnd: 15,
   gradientStart: 0,
@@ -57,8 +61,10 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
         .from('app_settings')
         .select('key, value')
         .in('key', [
-          'bg_color_start',
-          'bg_color_end',
+          'bg_color_start_light',
+          'bg_color_end_light',
+          'bg_color_start_dark',
+          'bg_color_end_dark',
           'bg_intensity_start',
           'bg_intensity_end',
           'bg_gradient_start',
@@ -77,8 +83,10 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
         });
 
         setConfig({
-          colorStart: settings.bg_color_start || defaultConfig.colorStart,
-          colorEnd: settings.bg_color_end || defaultConfig.colorEnd,
+          colorStartLight: settings.bg_color_start_light || defaultConfig.colorStartLight,
+          colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
+          colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
+          colorEndDark: settings.bg_color_end_dark || defaultConfig.colorEndDark,
           intensityStart: parseInt(settings.bg_intensity_start || String(defaultConfig.intensityStart)),
           intensityEnd: parseInt(settings.bg_intensity_end || String(defaultConfig.intensityEnd)),
           gradientStart: parseInt(settings.bg_gradient_start || String(defaultConfig.gradientStart)),
@@ -99,8 +107,10 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
     setSaving(true);
     try {
       const settings = [
-        { key: 'bg_color_start', value: config.colorStart, description: 'Cor inicial do gradiente de fundo' },
-        { key: 'bg_color_end', value: config.colorEnd, description: 'Cor final do gradiente de fundo' },
+        { key: 'bg_color_start_light', value: config.colorStartLight, description: 'Cor inicial do gradiente (modo claro)' },
+        { key: 'bg_color_end_light', value: config.colorEndLight, description: 'Cor final do gradiente (modo claro)' },
+        { key: 'bg_color_start_dark', value: config.colorStartDark, description: 'Cor inicial do gradiente (modo escuro)' },
+        { key: 'bg_color_end_dark', value: config.colorEndDark, description: 'Cor final do gradiente (modo escuro)' },
         { key: 'bg_intensity_start', value: String(config.intensityStart), description: 'Intensidade inicial do gradiente' },
         { key: 'bg_intensity_end', value: String(config.intensityEnd), description: 'Intensidade final do gradiente' },
         { key: 'bg_gradient_start', value: String(config.gradientStart), description: 'Posição de início do gradiente' },
@@ -149,10 +159,12 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
   };
 
   // Generate preview gradient
-  const getPreviewGradient = () => {
+  const getPreviewGradient = (mode: 'light' | 'dark') => {
     const startAlpha = config.intensityStart / 100;
     const endAlpha = config.intensityEnd / 100;
-    return `linear-gradient(to bottom, ${hexToRgba(config.colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(config.colorEnd, endAlpha)} ${config.gradientEnd}%)`;
+    const colorStart = mode === 'light' ? config.colorStartLight : config.colorStartDark;
+    const colorEnd = mode === 'light' ? config.colorEndLight : config.colorEndDark;
+    return `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${config.gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${config.gradientEnd}%)`;
   };
 
   return (
@@ -174,56 +186,125 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Preview */}
-            <div className="space-y-2">
-              <Label>Preview</Label>
-              <div 
-                className="h-32 rounded-lg border flex items-center justify-center text-muted-foreground"
-                style={{ background: getPreviewGradient() }}
-              >
-                <span className="bg-card/80 backdrop-blur-sm px-3 py-1 rounded text-sm">
-                  Preview do Gradiente
-                </span>
-              </div>
-            </div>
+            {/* Colors with Tabs for Light/Dark */}
+            <Tabs defaultValue="light" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="light" className="gap-2">
+                  <Sun className="h-4 w-4" />
+                  Modo Claro
+                </TabsTrigger>
+                <TabsTrigger value="dark" className="gap-2">
+                  <Moon className="h-4 w-4" />
+                  Modo Escuro
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="light" className="space-y-4 mt-4">
+                {/* Preview Light */}
+                <div className="space-y-2">
+                  <Label>Preview (Modo Claro)</Label>
+                  <div 
+                    className="h-24 rounded-lg border flex items-center justify-center bg-white"
+                    style={{ background: `white ${getPreviewGradient('light')}`.replace('white ', '') }}
+                  >
+                    <span className="bg-white/80 backdrop-blur-sm px-3 py-1 rounded text-sm text-gray-700">
+                      Preview do Gradiente
+                    </span>
+                  </div>
+                </div>
 
-            {/* Colors */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="colorStart">Cor Inicial</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="colorStart"
-                    type="color"
-                    value={config.colorStart}
-                    onChange={(e) => setConfig({ ...config, colorStart: e.target.value })}
-                    className="w-14 h-10 p-1 cursor-pointer"
-                  />
-                  <Input
-                    value={config.colorStart}
-                    onChange={(e) => setConfig({ ...config, colorStart: e.target.value })}
-                    className="flex-1 font-mono text-sm"
-                  />
+                {/* Light Mode Colors */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="colorStartLight">Cor Inicial</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="colorStartLight"
+                        type="color"
+                        value={config.colorStartLight}
+                        onChange={(e) => setConfig({ ...config, colorStartLight: e.target.value })}
+                        className="w-14 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={config.colorStartLight}
+                        onChange={(e) => setConfig({ ...config, colorStartLight: e.target.value })}
+                        className="flex-1 font-mono text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="colorEndLight">Cor Final</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="colorEndLight"
+                        type="color"
+                        value={config.colorEndLight}
+                        onChange={(e) => setConfig({ ...config, colorEndLight: e.target.value })}
+                        className="w-14 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={config.colorEndLight}
+                        onChange={(e) => setConfig({ ...config, colorEndLight: e.target.value })}
+                        className="flex-1 font-mono text-sm"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="colorEnd">Cor Final</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="colorEnd"
-                    type="color"
-                    value={config.colorEnd}
-                    onChange={(e) => setConfig({ ...config, colorEnd: e.target.value })}
-                    className="w-14 h-10 p-1 cursor-pointer"
-                  />
-                  <Input
-                    value={config.colorEnd}
-                    onChange={(e) => setConfig({ ...config, colorEnd: e.target.value })}
-                    className="flex-1 font-mono text-sm"
-                  />
+              </TabsContent>
+
+              <TabsContent value="dark" className="space-y-4 mt-4">
+                {/* Preview Dark */}
+                <div className="space-y-2">
+                  <Label>Preview (Modo Escuro)</Label>
+                  <div 
+                    className="h-24 rounded-lg border flex items-center justify-center bg-zinc-900"
+                    style={{ background: `#18181b ${getPreviewGradient('dark')}`.replace('#18181b ', '') }}
+                  >
+                    <span className="bg-zinc-800/80 backdrop-blur-sm px-3 py-1 rounded text-sm text-gray-200">
+                      Preview do Gradiente
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
+
+                {/* Dark Mode Colors */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="colorStartDark">Cor Inicial</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="colorStartDark"
+                        type="color"
+                        value={config.colorStartDark}
+                        onChange={(e) => setConfig({ ...config, colorStartDark: e.target.value })}
+                        className="w-14 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={config.colorStartDark}
+                        onChange={(e) => setConfig({ ...config, colorStartDark: e.target.value })}
+                        className="flex-1 font-mono text-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="colorEndDark">Cor Final</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="colorEndDark"
+                        type="color"
+                        value={config.colorEndDark}
+                        onChange={(e) => setConfig({ ...config, colorEndDark: e.target.value })}
+                        className="w-14 h-10 p-1 cursor-pointer"
+                      />
+                      <Input
+                        value={config.colorEndDark}
+                        onChange={(e) => setConfig({ ...config, colorEndDark: e.target.value })}
+                        className="flex-1 font-mono text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
 
             {/* Intensities */}
             <div className="space-y-4">
