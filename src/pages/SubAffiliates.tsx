@@ -444,11 +444,20 @@ const SubAffiliates = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
-              {uniqueStatuses.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
+              {uniqueStatuses.map((status) => {
+                const statusLabels: Record<string, string> = {
+                  active: "Ativo",
+                  trialing: "Teste",
+                  canceled: "Cancelado",
+                  past_due: "Atrasado",
+                  unpaid: "Não Pago",
+                };
+                return (
+                  <SelectItem key={status} value={status}>
+                    {statusLabels[status] || status}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
 
