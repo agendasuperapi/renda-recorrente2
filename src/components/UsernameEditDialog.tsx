@@ -198,7 +198,7 @@ export function UsernameEditDialog({
   };
 
   const formContent = (
-    <div className="space-y-4 py-4 px-4 md:px-0">
+    <div className="space-y-4 py-4 px-4 md:px-6 lg:px-0">
       <div className="relative">
         <Label htmlFor="new-username">Novo Nome de Usuário</Label>
         <div className="relative">
