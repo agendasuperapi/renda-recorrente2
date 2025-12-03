@@ -875,7 +875,7 @@ export const Sidebar = ({
       </Sheet>
       
       {/* Sidebar fixo para desktop - visível apenas em telas >= 1024px */}
-      <aside className="hidden lg:flex w-64 flex-col h-full flex-shrink-0" style={{
+      <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 w-64 flex-col z-40" style={{
       ...gradientStyle,
       color: currentTextColor
     }}>

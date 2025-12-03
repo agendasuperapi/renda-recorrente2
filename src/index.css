@@ -116,9 +116,10 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
-  /* Previne flash branco durante navegação e garante altura total */
+  /* Permite scroll natural no documento para que a barra de endereços do navegador diminua */
   html, body, #root {
-    @apply h-full;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
     background-color: hsl(var(--background));
   }
 }
