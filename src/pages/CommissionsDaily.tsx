@@ -9,14 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Calendar as CalendarIcon, Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
+import { Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
+import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
 import { format, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
   Pagination,
@@ -453,55 +452,17 @@ const CommissionsDaily = () => {
             </Select>
           )}
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !filters.data_inicio && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.data_inicio ? format(filters.data_inicio, "dd/MM/yyyy") : "Data início"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={filters.data_inicio}
-                onSelect={(date) => setFilters(f => ({ ...f, data_inicio: date }))}
-                initialFocus
-                locale={ptBR}
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+          <DatePickerFilter
+            value={filters.data_inicio}
+            onChange={(date) => setFilters(f => ({ ...f, data_inicio: date }))}
+            placeholder="Data início"
+          />
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !filters.data_fim && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.data_fim ? format(filters.data_fim, "dd/MM/yyyy") : "Data fim"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={filters.data_fim}
-                onSelect={(date) => setFilters(f => ({ ...f, data_fim: date }))}
-                initialFocus
-                locale={ptBR}
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+          <DatePickerFilter
+            value={filters.data_fim}
+            onChange={(date) => setFilters(f => ({ ...f, data_fim: date }))}
+            placeholder="Data fim"
+          />
 
           <Input
             placeholder="Cliente"
