@@ -240,7 +240,7 @@ const Auth = () => {
           title: "Login realizado com sucesso!",
           description: "Redirecionando...",
         });
-        navigate("/dashboard");
+        window.location.href = "/dashboard";
       } else {
         const { error } = await supabase.auth.signUp({
           email: validation.data.email,
@@ -259,7 +259,7 @@ const Auth = () => {
           title: "Cadastro realizado!",
           description: "Redirecionando...",
         });
-        navigate("/dashboard");
+        window.location.href = "/dashboard";
       }
     } catch (error: any) {
       toast({
