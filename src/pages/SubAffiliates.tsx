@@ -328,26 +328,26 @@ const SubAffiliates = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="p-3 sm:p-4 md:p-4">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-0">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Total de Sub-Afiliados
             </CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 pt-2">
             <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="p-3 sm:p-4 md:p-4">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-0">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Minhas Comissões (via Sub-Afiliados)
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 pt-2">
             <div className="text-xl sm:text-2xl font-bold text-success">
               {new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
@@ -375,16 +375,26 @@ const SubAffiliates = () => {
         </Button>
         
         {/* Layout mode selector - mobile/tablet */}
-        <Select value={layoutMode} onValueChange={(value: "compact" | "complete") => setLayoutMode(value)}>
-          <SelectTrigger className="w-auto gap-2">
-            {layoutMode === "compact" ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="compact">Compacto</SelectItem>
-            <SelectItem value="complete">Completo</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+          <Button
+            variant={layoutMode === "compact" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setLayoutMode("compact")}
+            className="h-8 px-3 gap-1.5"
+          >
+            <LayoutList className="h-4 w-4" />
+            <span className="hidden sm:inline">Compacto</span>
+          </Button>
+          <Button
+            variant={layoutMode === "complete" ? "secondary" : "ghost"}
+            size="sm"
+            onClick={() => setLayoutMode("complete")}
+            className="h-8 px-3 gap-1.5"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            <span className="hidden sm:inline">Completo</span>
+          </Button>
+        </div>
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
