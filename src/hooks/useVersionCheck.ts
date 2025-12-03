@@ -6,6 +6,8 @@ interface VersionCheckResult {
   hasUpdate: boolean;
   newVersion: string | null;
   currentVersion: string;
+  isCurrentVersionRegistered: boolean;
+  isChecking: boolean;
 }
 
 export const useVersionCheck = () => {
@@ -13,10 +15,26 @@ export const useVersionCheck = () => {
     hasUpdate: false,
     newVersion: null,
     currentVersion: APP_VERSION,
+    isCurrentVersionRegistered: true,
+    isChecking: true,
   });
 
   const checkVersion = async () => {
     try {
+      // Check if current version exists in database
+      const { data: currentVersionData, error: currentVersionError } = await (supabase as any)
+        .from("app_versions")
+        .select("version")
+        .eq("version", APP_VERSION)
+        .maybeSingle();
+
+      if (currentVersionError) {
+        console.error("Error checking current version:", currentVersionError);
+      }
+
+      const isCurrentVersionRegistered = !!currentVersionData;
+
+      // Get latest version
       const { data, error } = await (supabase as any)
         .from("app_versions")
         .select("version")
@@ -26,6 +44,7 @@ export const useVersionCheck = () => {
 
       if (error) {
         console.error("Error fetching version:", error);
+        setVersionInfo(prev => ({ ...prev, isChecking: false }));
         return;
       }
 
@@ -35,6 +54,8 @@ export const useVersionCheck = () => {
           hasUpdate: true,
           newVersion: null,
           currentVersion: APP_VERSION,
+          isCurrentVersionRegistered: false,
+          isChecking: false,
         });
         return;
       }
@@ -46,9 +67,12 @@ export const useVersionCheck = () => {
         hasUpdate,
         newVersion: hasUpdate ? latestVersion : null,
         currentVersion: APP_VERSION,
+        isCurrentVersionRegistered,
+        isChecking: false,
       });
     } catch (error) {
       console.error("Error checking version:", error);
+      setVersionInfo(prev => ({ ...prev, isChecking: false }));
     }
   };
 
