@@ -1646,6 +1646,7 @@ export type Database = {
           id: string
           instagram: string | null
           is_blocked: boolean | null
+          linkedin: string | null
           name: string
           neighborhood: string | null
           number: string | null
@@ -1656,9 +1657,11 @@ export type Database = {
           state: string | null
           street: string | null
           tiktok: string | null
+          twitter: string | null
           updated_at: string | null
           username: string | null
           withdrawal_day: number | null
+          youtube: string | null
         }
         Insert: {
           affiliate_code?: string | null
@@ -1679,6 +1682,7 @@ export type Database = {
           id: string
           instagram?: string | null
           is_blocked?: boolean | null
+          linkedin?: string | null
           name: string
           neighborhood?: string | null
           number?: string | null
@@ -1689,9 +1693,11 @@ export type Database = {
           state?: string | null
           street?: string | null
           tiktok?: string | null
+          twitter?: string | null
           updated_at?: string | null
           username?: string | null
           withdrawal_day?: number | null
+          youtube?: string | null
         }
         Update: {
           affiliate_code?: string | null
@@ -1712,6 +1718,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           is_blocked?: boolean | null
+          linkedin?: string | null
           name?: string
           neighborhood?: string | null
           number?: string | null
@@ -1722,9 +1729,11 @@ export type Database = {
           state?: string | null
           street?: string | null
           tiktok?: string | null
+          twitter?: string | null
           updated_at?: string | null
           username?: string | null
           withdrawal_day?: number | null
+          youtube?: string | null
         }
         Relationships: [
           {

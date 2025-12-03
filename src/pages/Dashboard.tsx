@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -568,7 +568,12 @@ const Dashboard = () => {
 
           <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
             <CardHeader className="px-0 lg:px-6">
-              <CardTitle>Cupons principais</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Cupons principais</CardTitle>
+                <Link to="/coupons" className="text-sm text-primary hover:underline">
+                  Ver todos
+                </Link>
+              </div>
               <p className="text-sm text-muted-foreground">
                 Veja aqui seus cupons principais para compartilhar
               </p>
