@@ -414,7 +414,7 @@ const Referrals = () => {
       </div>
 
       {isMobile ? (
-        <div className="space-y-3">
+        <div className="space-y-3 md:px-6">
           {referrals.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
