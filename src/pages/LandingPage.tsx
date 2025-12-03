@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -652,9 +653,14 @@ const LandingPage = () => {
       setWhatsappText(data.texto_telefone || "");
     }
   };
+  const isMobileLanding = useIsMobile();
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/";
+    if (isMobileLanding) {
+      window.location.href = "/";
+    } else {
+      navigate("/");
+    }
   };
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);

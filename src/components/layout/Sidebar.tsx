@@ -357,7 +357,11 @@ export const Sidebar = ({
       });
 
       // Redirecionar sempre, mesmo se a sessão não existir
-      window.location.href = '/';
+      if (isMobile) {
+        window.location.href = '/';
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error('Erro inesperado ao fazer logout:', error);
@@ -365,7 +369,11 @@ export const Sidebar = ({
       // Mesmo com erro, tentar limpar dados locais e redirecionar
       localStorage.clear();
       queryClient.clear();
-      window.location.href = '/';
+      if (isMobile) {
+        window.location.href = '/';
+      } else {
+        navigate('/');
+      }
     }
   };
   const getInitials = () => {

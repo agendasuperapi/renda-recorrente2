@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { APP_VERSION } from "@/config/version";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const authSchema = z.object({
   email: z
@@ -53,6 +54,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -240,7 +242,11 @@ const Auth = () => {
           title: "Login realizado com sucesso!",
           description: "Redirecionando...",
         });
-        window.location.href = "/dashboard";
+        if (isMobile) {
+          window.location.href = "/dashboard";
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         const { error } = await supabase.auth.signUp({
           email: validation.data.email,
@@ -259,7 +265,11 @@ const Auth = () => {
           title: "Cadastro realizado!",
           description: "Redirecionando...",
         });
-        window.location.href = "/dashboard";
+        if (isMobile) {
+          window.location.href = "/dashboard";
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (error: any) {
       toast({
