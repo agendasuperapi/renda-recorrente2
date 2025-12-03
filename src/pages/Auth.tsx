@@ -273,9 +273,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto overscroll-none ios-scroll-wrapper" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-      {/* PWA Status Bar Background para iOS */}
-      <div className="pwa-status-bar-bg" />
+    <div className="min-h-screen overflow-y-auto overscroll-none ios-scroll-wrapper">
       <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative">
         <div className="absolute top-4 left-4 z-10">
         <Button
