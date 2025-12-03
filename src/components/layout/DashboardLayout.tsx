@@ -172,11 +172,9 @@ export const DashboardLayout = () => {
 
   return (
     <>
-      {/* PWA Status Bar Background para iOS */}
-      <div className="pwa-status-bar-bg" />
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
-        <div className="flex min-h-screen bg-background" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+        <div className="flex min-h-screen bg-background">
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
           <main 
             className={`flex-1 min-h-screen ${isMobile ? 'px-3 pt-6 pb-20' : 'lg:ml-64 px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
