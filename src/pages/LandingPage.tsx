@@ -1887,7 +1887,44 @@ const LandingPage = () => {
           </div>
           <div className="border-t border-border pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
             <p>&copy; 2024 APP Renda Recorrente. Todos os direitos reservados.</p>
-            <p className="mt-2 text-muted-foreground/70">v{APP_VERSION}</p>
+            <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground/70">
+              <span>v{APP_VERSION}</span>
+              {versionInfo.hasUpdate && versionInfo.newVersion ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-6 text-xs px-2 gap-1"
+                  onClick={() => window.location.reload()}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Atualizar para v{versionInfo.newVersion}
+                </Button>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs px-2 gap-1 text-muted-foreground/70 hover:text-foreground"
+                        onClick={() => {
+                          toast({
+                            title: "Versão atualizada",
+                            description: `Você está usando a versão mais recente (v${APP_VERSION})`,
+                          });
+                        }}
+                      >
+                        <Check className="h-3 w-3 text-green-500" />
+                        Atualizado
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Clique para verificar atualizações</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </div>
         </div>
       </footer>
