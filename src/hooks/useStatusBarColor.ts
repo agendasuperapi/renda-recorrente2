@@ -1,80 +1,144 @@
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+// Cor fallback padrão
+const DEFAULT_COLOR = '#10b981';
 
 // Executar IMEDIATAMENTE quando o módulo é importado (antes de qualquer render)
 if (typeof document !== 'undefined') {
-  document.documentElement.style.backgroundColor = '#10b981';
+  document.documentElement.style.backgroundColor = DEFAULT_COLOR;
+}
+
+interface StatusBarConfig {
+  colorLight: string;
+  colorDark: string;
 }
 
 /**
  * Hook para gerenciar a cor da barra de status no iOS PWA
- * Força a cor #10b981 sempre, independente do estado de autenticação
+ * Busca cores do banco de dados e aplica baseado no tema atual
  */
 export const useStatusBarColor = () => {
-  useLayoutEffect(() => {
-    const color = '#10b981';
-    
-    // Função para atualizar a meta tag theme-color
-    const updateThemeColor = () => {
-      // Remover meta tags theme-color existentes
-      const existingMetaTags = document.querySelectorAll('meta[name="theme-color"]');
-      existingMetaTags.forEach(meta => meta.remove());
+  const [config, setConfig] = useState<StatusBarConfig>({
+    colorLight: DEFAULT_COLOR,
+    colorDark: DEFAULT_COLOR,
+  });
 
-      // Criar novas meta tags para light e dark mode
-      const lightMeta = document.createElement('meta');
-      lightMeta.name = 'theme-color';
-      lightMeta.setAttribute('media', '(prefers-color-scheme: light)');
-      lightMeta.content = color;
-      document.head.appendChild(lightMeta);
+  // Detectar se está no modo escuro
+  const getIsDarkMode = (): boolean => {
+    // Primeiro verifica se há classe 'dark' no documentElement (next-themes)
+    if (document.documentElement.classList.contains('dark')) {
+      return true;
+    }
+    // Senão, usa a preferência do sistema
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  };
 
-      const darkMeta = document.createElement('meta');
-      darkMeta.name = 'theme-color';
-      darkMeta.setAttribute('media', '(prefers-color-scheme: dark)');
-      darkMeta.content = color;
-      document.head.appendChild(darkMeta);
+  // Carregar configuração do banco de dados
+  const loadConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('key, value')
+        .in('key', ['status_bar_color_light', 'status_bar_color_dark']);
 
-      // Sempre atualizar o background do html para garantir consistência
-      document.documentElement.style.backgroundColor = color;
-    };
+      if (error) {
+        console.error('Erro ao carregar cores da barra de status:', error);
+        return;
+      }
 
-    // Definir cor IMEDIATAMENTE (sem esperar o useEffect completar)
-    updateThemeColor();
-    
-    // Também forçar atualização síncrona do background
-    document.documentElement.style.backgroundColor = color;
+      const newConfig: StatusBarConfig = {
+        colorLight: DEFAULT_COLOR,
+        colorDark: DEFAULT_COLOR,
+      };
 
-    // Observar mudanças na DOM para garantir que a cor seja mantida
-    const observer = new MutationObserver(() => {
-      const themeColorTags = document.querySelectorAll('meta[name="theme-color"]');
-      let needsUpdate = false;
-
-      themeColorTags.forEach(meta => {
-        const content = meta.getAttribute('content');
-        if (content && content !== color) {
-          needsUpdate = true;
+      data?.forEach((setting) => {
+        if (setting.key === 'status_bar_color_light') {
+          newConfig.colorLight = setting.value;
+        } else if (setting.key === 'status_bar_color_dark') {
+          newConfig.colorDark = setting.value;
         }
       });
 
-      if (needsUpdate || themeColorTags.length === 0) {
-        updateThemeColor();
-      }
+      setConfig(newConfig);
+    } catch (error) {
+      console.error('Erro ao carregar configuração:', error);
+    }
+  };
+
+  // Função para atualizar a meta tag theme-color
+  const updateThemeColor = (colorLight: string, colorDark: string) => {
+    const isDark = getIsDarkMode();
+    const color = isDark ? colorDark : colorLight;
+
+    // Remover meta tags theme-color existentes
+    const existingMetaTags = document.querySelectorAll('meta[name="theme-color"]');
+    existingMetaTags.forEach(meta => meta.remove());
+
+    // Criar novas meta tags para light e dark mode
+    const lightMeta = document.createElement('meta');
+    lightMeta.name = 'theme-color';
+    lightMeta.setAttribute('media', '(prefers-color-scheme: light)');
+    lightMeta.content = colorLight;
+    document.head.appendChild(lightMeta);
+
+    const darkMeta = document.createElement('meta');
+    darkMeta.name = 'theme-color';
+    darkMeta.setAttribute('media', '(prefers-color-scheme: dark)');
+    darkMeta.content = colorDark;
+    document.head.appendChild(darkMeta);
+
+    // Atualizar o background do html
+    document.documentElement.style.backgroundColor = color;
+  };
+
+  // Carregar configuração inicial
+  useEffect(() => {
+    loadConfig();
+
+    // Ouvir evento de configuração alterada
+    const handleConfigChanged = () => {
+      loadConfig();
+    };
+
+    window.addEventListener('status-bar-config-changed', handleConfigChanged);
+
+    return () => {
+      window.removeEventListener('status-bar-config-changed', handleConfigChanged);
+    };
+  }, []);
+
+  // Aplicar cores quando a configuração mudar
+  useLayoutEffect(() => {
+    updateThemeColor(config.colorLight, config.colorDark);
+
+    // Observar mudanças no tema (classe 'dark' no documentElement)
+    const observer = new MutationObserver(() => {
+      updateThemeColor(config.colorLight, config.colorDark);
     });
 
-    // Observar mudanças no head
-    observer.observe(document.head, {
-      childList: true,
+    observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['content']
+      attributeFilter: ['class']
     });
 
-    // Verificar mais frequentemente (200ms) para transições mais suaves
+    // Observar mudanças na preferência do sistema
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = () => {
+      updateThemeColor(config.colorLight, config.colorDark);
+    };
+    
+    mediaQuery.addEventListener('change', handleMediaChange);
+
+    // Verificar periodicamente para manter consistência
     const interval = setInterval(() => {
-      updateThemeColor();
-    }, 200);
+      updateThemeColor(config.colorLight, config.colorDark);
+    }, 500);
 
     return () => {
       observer.disconnect();
+      mediaQuery.removeEventListener('change', handleMediaChange);
       clearInterval(interval);
     };
-  }, []);
+  }, [config.colorLight, config.colorDark]);
 };
-
