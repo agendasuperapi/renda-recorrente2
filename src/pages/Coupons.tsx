@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList } from "lucide-react";
+import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -572,6 +572,19 @@ const Coupons = () => {
                                         <Button variant="outline" size="sm" onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')} disabled={!coupon.activatedCoupon}>
                                           <ExternalLink className="h-4 w-4 mr-2" />
                                           Abrir Link
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => {
+                                          const link = getAffiliateLink(coupon) || "";
+                                          const customCode = coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary);
+                                          const text = `Use meu cupom ${customCode} e aproveite o desconto! ${link}`;
+                                          if (navigator.share) {
+                                            navigator.share({ title: coupon.name, text, url: link });
+                                          } else {
+                                            handleCopy(text);
+                                          }
+                                        }} disabled={!coupon.activatedCoupon}>
+                                          <Share2 className="h-4 w-4 mr-2" />
+                                          Compartilhar
                                         </Button>
                                       </>}
                                   </div>}
