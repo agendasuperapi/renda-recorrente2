@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
@@ -10,12 +10,15 @@ import { BlockedUserDialog } from "@/components/BlockedUserDialog";
 import { UserProvider } from "@/contexts/UserContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBgConfig } from "@/hooks/useBgConfig";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const { backgroundStyle } = useBgConfig();
+  const { isCurrentVersionRegistered, isChecking: isCheckingVersion } = useVersionCheck();
   const [user, setUser] = useState<User | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -23,6 +26,18 @@ export const DashboardLayout = () => {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const initRef = useRef(false);
+
+  // Redirecionar super admin para /admin/versions se a versão atual não estiver cadastrada
+  useEffect(() => {
+    if (
+      isAdmin === true &&
+      !isCheckingVersion &&
+      !isCurrentVersionRegistered &&
+      location.pathname !== "/admin/versions"
+    ) {
+      navigate("/admin/versions");
+    }
+  }, [isAdmin, isCheckingVersion, isCurrentVersionRegistered, location.pathname, navigate]);
 
   const checkUserRole = async (userId: string): Promise<boolean> => {
     // Tentar ler do cache primeiro
