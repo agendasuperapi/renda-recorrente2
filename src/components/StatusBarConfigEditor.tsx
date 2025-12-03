@@ -3,6 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -19,15 +28,44 @@ interface StatusBarConfigEditorProps {
   onConfigSaved?: () => void;
 }
 
-interface StatusBarConfig {
-  colorLight: string;
-  colorDark: string;
+interface ModeConfig {
+  isGradient: boolean;
+  colorStart: string;
+  colorEnd: string;
+  intensityStart: number;
+  intensityEnd: number;
+  direction: string;
 }
 
-const defaultConfig: StatusBarConfig = {
-  colorLight: '#10b981',
-  colorDark: '#10b981',
+interface StatusBarConfig {
+  light: ModeConfig;
+  dark: ModeConfig;
+}
+
+const defaultModeConfig: ModeConfig = {
+  isGradient: false,
+  colorStart: '#10b981',
+  colorEnd: '#059669',
+  intensityStart: 100,
+  intensityEnd: 100,
+  direction: 'to bottom',
 };
+
+const defaultConfig: StatusBarConfig = {
+  light: { ...defaultModeConfig },
+  dark: { ...defaultModeConfig, colorStart: '#065f46', colorEnd: '#064e3b' },
+};
+
+const directionOptions = [
+  { value: 'to bottom', label: 'Para baixo ↓' },
+  { value: 'to top', label: 'Para cima ↑' },
+  { value: 'to right', label: 'Para direita →' },
+  { value: 'to left', label: 'Para esquerda ←' },
+  { value: 'to bottom right', label: 'Diagonal ↘' },
+  { value: 'to bottom left', label: 'Diagonal ↙' },
+  { value: 'to top right', label: 'Diagonal ↗' },
+  { value: 'to top left', label: 'Diagonal ↖' },
+];
 
 export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorProps) {
   const { toast } = useToast();
@@ -43,21 +81,35 @@ export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorPr
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
-        .in('key', ['status_bar_color_light', 'status_bar_color_dark']);
+        .like('key', 'status_bar_%');
 
       if (error) throw error;
 
-      const newConfig = { ...defaultConfig };
+      const newConfig: StatusBarConfig = JSON.parse(JSON.stringify(defaultConfig));
       
       data?.forEach((setting) => {
-        switch (setting.key) {
-          case 'status_bar_color_light':
-            newConfig.colorLight = setting.value;
-            break;
-          case 'status_bar_color_dark':
-            newConfig.colorDark = setting.value;
-            break;
-        }
+        const key = setting.key;
+        const value = setting.value;
+        
+        // Parse light mode settings
+        if (key === 'status_bar_light_is_gradient') newConfig.light.isGradient = value === 'true';
+        if (key === 'status_bar_light_color_start') newConfig.light.colorStart = value;
+        if (key === 'status_bar_light_color_end') newConfig.light.colorEnd = value;
+        if (key === 'status_bar_light_intensity_start') newConfig.light.intensityStart = parseInt(value) || 100;
+        if (key === 'status_bar_light_intensity_end') newConfig.light.intensityEnd = parseInt(value) || 100;
+        if (key === 'status_bar_light_direction') newConfig.light.direction = value;
+        
+        // Parse dark mode settings
+        if (key === 'status_bar_dark_is_gradient') newConfig.dark.isGradient = value === 'true';
+        if (key === 'status_bar_dark_color_start') newConfig.dark.colorStart = value;
+        if (key === 'status_bar_dark_color_end') newConfig.dark.colorEnd = value;
+        if (key === 'status_bar_dark_intensity_start') newConfig.dark.intensityStart = parseInt(value) || 100;
+        if (key === 'status_bar_dark_intensity_end') newConfig.dark.intensityEnd = parseInt(value) || 100;
+        if (key === 'status_bar_dark_direction') newConfig.dark.direction = value;
+        
+        // Legacy support - convert old format
+        if (key === 'status_bar_color_light') newConfig.light.colorStart = value;
+        if (key === 'status_bar_color_dark') newConfig.dark.colorStart = value;
       });
 
       setConfig(newConfig);
@@ -83,8 +135,23 @@ export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorPr
     setSaving(true);
     try {
       const settings = [
-        { key: 'status_bar_color_light', value: config.colorLight, description: 'Cor da barra de status no modo claro' },
-        { key: 'status_bar_color_dark', value: config.colorDark, description: 'Cor da barra de status no modo escuro' },
+        // Light mode
+        { key: 'status_bar_light_is_gradient', value: String(config.light.isGradient), description: 'Se usa gradiente no modo claro' },
+        { key: 'status_bar_light_color_start', value: config.light.colorStart, description: 'Cor inicial do gradiente modo claro' },
+        { key: 'status_bar_light_color_end', value: config.light.colorEnd, description: 'Cor final do gradiente modo claro' },
+        { key: 'status_bar_light_intensity_start', value: String(config.light.intensityStart), description: 'Intensidade inicial modo claro' },
+        { key: 'status_bar_light_intensity_end', value: String(config.light.intensityEnd), description: 'Intensidade final modo claro' },
+        { key: 'status_bar_light_direction', value: config.light.direction, description: 'Direção do gradiente modo claro' },
+        // Dark mode
+        { key: 'status_bar_dark_is_gradient', value: String(config.dark.isGradient), description: 'Se usa gradiente no modo escuro' },
+        { key: 'status_bar_dark_color_start', value: config.dark.colorStart, description: 'Cor inicial do gradiente modo escuro' },
+        { key: 'status_bar_dark_color_end', value: config.dark.colorEnd, description: 'Cor final do gradiente modo escuro' },
+        { key: 'status_bar_dark_intensity_start', value: String(config.dark.intensityStart), description: 'Intensidade inicial modo escuro' },
+        { key: 'status_bar_dark_intensity_end', value: String(config.dark.intensityEnd), description: 'Intensidade final modo escuro' },
+        { key: 'status_bar_dark_direction', value: config.dark.direction, description: 'Direção do gradiente modo escuro' },
+        // Legacy keys for backward compatibility
+        { key: 'status_bar_color_light', value: config.light.colorStart, description: 'Cor da barra de status no modo claro' },
+        { key: 'status_bar_color_dark', value: config.dark.colorStart, description: 'Cor da barra de status no modo escuro' },
       ];
 
       for (const setting of settings) {
@@ -117,14 +184,167 @@ export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorPr
     }
   };
 
-  const handleColorChange = (color: string, mode: 'light' | 'dark') => {
+  const updateModeConfig = (mode: 'light' | 'dark', updates: Partial<ModeConfig>) => {
     setConfig(prev => ({
       ...prev,
-      [mode === 'light' ? 'colorLight' : 'colorDark']: color,
+      [mode]: { ...prev[mode], ...updates },
     }));
   };
 
-  const currentColor = activeTab === 'light' ? config.colorLight : config.colorDark;
+  const generateBackground = (modeConfig: ModeConfig): string => {
+    if (!modeConfig.isGradient) {
+      return modeConfig.colorStart;
+    }
+    
+    const startAlpha = Math.round((modeConfig.intensityStart / 100) * 255).toString(16).padStart(2, '0');
+    const endAlpha = Math.round((modeConfig.intensityEnd / 100) * 255).toString(16).padStart(2, '0');
+    
+    return `linear-gradient(${modeConfig.direction}, ${modeConfig.colorStart}${startAlpha}, ${modeConfig.colorEnd}${endAlpha})`;
+  };
+
+  const currentConfig = activeTab === 'light' ? config.light : config.dark;
+
+  const renderModeContent = (mode: 'light' | 'dark') => {
+    const modeConfig = mode === 'light' ? config.light : config.dark;
+    const bgColor = mode === 'light' ? 'bg-gray-100' : 'bg-gray-900';
+    const textColor = mode === 'light' ? 'text-gray-500' : 'text-gray-400';
+
+    return (
+      <div className="space-y-4 mt-4">
+        {/* Toggle Gradiente */}
+        <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+          <div className="space-y-0.5">
+            <Label className="text-sm font-medium">Usar Gradiente</Label>
+            <p className="text-xs text-muted-foreground">Ativar para usar duas cores com transição</p>
+          </div>
+          <Switch
+            checked={modeConfig.isGradient}
+            onCheckedChange={(checked) => updateModeConfig(mode, { isGradient: checked })}
+          />
+        </div>
+
+        {/* Cor Inicial / Cor Única */}
+        <div className="space-y-2">
+          <Label>{modeConfig.isGradient ? 'Cor Inicial' : 'Cor da Barra'}</Label>
+          <div className="flex gap-3">
+            <Input
+              type="color"
+              value={modeConfig.colorStart}
+              onChange={(e) => updateModeConfig(mode, { colorStart: e.target.value })}
+              className="w-16 h-10 p-1 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={modeConfig.colorStart}
+              onChange={(e) => updateModeConfig(mode, { colorStart: e.target.value })}
+              placeholder="#10b981"
+              className="flex-1 font-mono"
+            />
+          </div>
+        </div>
+
+        {/* Campos adicionais para gradiente */}
+        {modeConfig.isGradient && (
+          <>
+            {/* Cor Final */}
+            <div className="space-y-2">
+              <Label>Cor Final</Label>
+              <div className="flex gap-3">
+                <Input
+                  type="color"
+                  value={modeConfig.colorEnd}
+                  onChange={(e) => updateModeConfig(mode, { colorEnd: e.target.value })}
+                  className="w-16 h-10 p-1 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={modeConfig.colorEnd}
+                  onChange={(e) => updateModeConfig(mode, { colorEnd: e.target.value })}
+                  placeholder="#059669"
+                  className="flex-1 font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Intensidade Inicial */}
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label>Intensidade Inicial</Label>
+                <span className="text-sm text-muted-foreground">{modeConfig.intensityStart}%</span>
+              </div>
+              <Slider
+                value={[modeConfig.intensityStart]}
+                onValueChange={([value]) => updateModeConfig(mode, { intensityStart: value })}
+                min={0}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </div>
+
+            {/* Intensidade Final */}
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label>Intensidade Final</Label>
+                <span className="text-sm text-muted-foreground">{modeConfig.intensityEnd}%</span>
+              </div>
+              <Slider
+                value={[modeConfig.intensityEnd]}
+                onValueChange={([value]) => updateModeConfig(mode, { intensityEnd: value })}
+                min={0}
+                max={100}
+                step={5}
+                className="w-full"
+              />
+            </div>
+
+            {/* Direção */}
+            <div className="space-y-2">
+              <Label>Direção do Gradiente</Label>
+              <Select
+                value={modeConfig.direction}
+                onValueChange={(value) => updateModeConfig(mode, { direction: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a direção" />
+                </SelectTrigger>
+                <SelectContent>
+                  {directionOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </>
+        )}
+
+        {/* Preview */}
+        <div className="space-y-2">
+          <Label className="text-sm text-muted-foreground">
+            Preview - Modo {mode === 'light' ? 'Claro' : 'Escuro'}
+          </Label>
+          <div className="relative rounded-xl overflow-hidden border shadow-lg">
+            <div 
+              className="h-7 flex items-center justify-between px-6 text-xs font-medium"
+              style={{ background: generateBackground(modeConfig) }}
+            >
+              <span className="text-white drop-shadow-sm">9:41</span>
+              <div className="flex items-center gap-1 text-white drop-shadow-sm">
+                <span>●●●●</span>
+                <span>WiFi</span>
+                <span>100%</span>
+              </div>
+            </div>
+            <div className={`h-32 ${bgColor} flex items-center justify-center`}>
+              <span className={`${textColor} text-sm`}>Conteúdo da página</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -138,8 +358,7 @@ export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorPr
             Cor da Barra de Status
           </DialogTitle>
           <DialogDescription>
-            Configure a cor da barra de status (hora, bateria, sinal) para modo claro e escuro.
-            Esta cor é exibida no topo do dispositivo em PWAs.
+            Configure a cor ou gradiente da barra de status para modo claro e escuro.
           </DialogDescription>
         </DialogHeader>
 
@@ -161,95 +380,19 @@ export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorPr
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="light" className="space-y-4 mt-4">
-                <div className="space-y-3">
-                  <Label>Cor da Barra de Status</Label>
-                  <div className="flex gap-3">
-                    <Input
-                      type="color"
-                      value={config.colorLight}
-                      onChange={(e) => handleColorChange(e.target.value, 'light')}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={config.colorLight}
-                      onChange={(e) => handleColorChange(e.target.value, 'light')}
-                      placeholder="#10b981"
-                      className="flex-1 font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Preview Modo Claro */}
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Preview - Modo Claro</Label>
-                  <div className="relative rounded-xl overflow-hidden border shadow-lg">
-                    <div 
-                      className="h-7 flex items-center justify-between px-6 text-xs font-medium"
-                      style={{ backgroundColor: config.colorLight }}
-                    >
-                      <span className="text-white">9:41</span>
-                      <div className="flex items-center gap-1 text-white">
-                        <span>●●●●</span>
-                        <span>WiFi</span>
-                        <span>100%</span>
-                      </div>
-                    </div>
-                    <div className="h-32 bg-gray-100 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">Conteúdo da página</span>
-                    </div>
-                  </div>
-                </div>
+              <TabsContent value="light">
+                {renderModeContent('light')}
               </TabsContent>
 
-              <TabsContent value="dark" className="space-y-4 mt-4">
-                <div className="space-y-3">
-                  <Label>Cor da Barra de Status</Label>
-                  <div className="flex gap-3">
-                    <Input
-                      type="color"
-                      value={config.colorDark}
-                      onChange={(e) => handleColorChange(e.target.value, 'dark')}
-                      className="w-16 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={config.colorDark}
-                      onChange={(e) => handleColorChange(e.target.value, 'dark')}
-                      placeholder="#10b981"
-                      className="flex-1 font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Preview Modo Escuro */}
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Preview - Modo Escuro</Label>
-                  <div className="relative rounded-xl overflow-hidden border shadow-lg">
-                    <div 
-                      className="h-7 flex items-center justify-between px-6 text-xs font-medium"
-                      style={{ backgroundColor: config.colorDark }}
-                    >
-                      <span className="text-white">9:41</span>
-                      <div className="flex items-center gap-1 text-white">
-                        <span>●●●●</span>
-                        <span>WiFi</span>
-                        <span>100%</span>
-                      </div>
-                    </div>
-                    <div className="h-32 bg-gray-900 flex items-center justify-center">
-                      <span className="text-gray-400 text-sm">Conteúdo da página</span>
-                    </div>
-                  </div>
-                </div>
+              <TabsContent value="dark">
+                {renderModeContent('dark')}
               </TabsContent>
             </Tabs>
 
             <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
               <p className="font-medium mb-1">💡 Dica</p>
               <p>A cor da barra de status é exibida no topo do dispositivo em aplicativos PWA instalados. 
-              Recomenda-se usar cores que combinem com o tema do seu app.</p>
+              Use gradientes para criar um efeito visual mais interessante.</p>
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
