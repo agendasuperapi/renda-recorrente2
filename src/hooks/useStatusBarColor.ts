@@ -6,7 +6,7 @@ const DEFAULT_COLOR = '#10b981';
 
 // Executar IMEDIATAMENTE quando o módulo é importado (antes de qualquer render)
 if (typeof document !== 'undefined') {
-  document.documentElement.style.backgroundColor = DEFAULT_COLOR;
+  document.documentElement.style.setProperty('--status-bar-bg', DEFAULT_COLOR);
 }
 
 interface StatusBarConfig {
@@ -81,8 +81,8 @@ export const useStatusBarColor = () => {
     themeMeta.content = color;
     document.head.appendChild(themeMeta);
 
-    // Atualizar o background do html
-    document.documentElement.style.backgroundColor = color;
+    // Atualizar a variável CSS que controla o background
+    document.documentElement.style.setProperty('--status-bar-bg', color);
   };
 
   // Carregar configuração inicial

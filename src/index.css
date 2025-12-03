@@ -8,6 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    --status-bar-bg: #10b981;
     --background: 0 0% 98%;
     --foreground: 210 24% 16%;
 
@@ -116,11 +117,11 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
-  /* Background verde fixo para toda a web (não apenas PWA) */
+  /* Background fixo para toda a web (cor configurável via variável CSS) */
   html, body {
     min-height: 100dvh;
     min-height: -webkit-fill-available;
-    background-color: #10b981 !important;
+    background-color: var(--status-bar-bg);
   }
   
   /* Container principal tem seu próprio background */
@@ -197,9 +198,9 @@ All colors MUST be HSL.
 /* iOS PWA - Background verde fixo para barra de status */
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    /* Background verde SEMPRE atrás de tudo - isso é o que a barra de status vai ver */
+    /* Background configurável atrás de tudo - isso é o que a barra de status vai ver */
     html, body {
-      background-color: #10b981 !important;
+      background-color: var(--status-bar-bg);
     }
     
     /* Container principal tem seu próprio background */
