@@ -71,22 +71,15 @@ export const useStatusBarColor = () => {
     const isDark = getIsDarkMode();
     const color = isDark ? colorDark : colorLight;
 
-    // Remover meta tags theme-color existentes
+    // Remover TODAS as meta tags theme-color existentes (incluindo com media queries)
     const existingMetaTags = document.querySelectorAll('meta[name="theme-color"]');
     existingMetaTags.forEach(meta => meta.remove());
 
-    // Criar novas meta tags para light e dark mode
-    const lightMeta = document.createElement('meta');
-    lightMeta.name = 'theme-color';
-    lightMeta.setAttribute('media', '(prefers-color-scheme: light)');
-    lightMeta.content = colorLight;
-    document.head.appendChild(lightMeta);
-
-    const darkMeta = document.createElement('meta');
-    darkMeta.name = 'theme-color';
-    darkMeta.setAttribute('media', '(prefers-color-scheme: dark)');
-    darkMeta.content = colorDark;
-    document.head.appendChild(darkMeta);
+    // Criar APENAS UMA meta tag sem media query - aplica diretamente a cor do tema atual
+    const themeMeta = document.createElement('meta');
+    themeMeta.name = 'theme-color';
+    themeMeta.content = color;
+    document.head.appendChild(themeMeta);
 
     // Atualizar o background do html
     document.documentElement.style.backgroundColor = color;
