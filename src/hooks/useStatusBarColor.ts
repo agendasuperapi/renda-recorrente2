@@ -26,12 +26,10 @@ export const useStatusBarColor = () => {
 
   // Detectar se está no modo escuro
   const getIsDarkMode = (): boolean => {
-    // Primeiro verifica se há classe 'dark' no documentElement (next-themes)
-    if (document.documentElement.classList.contains('dark')) {
-      return true;
-    }
-    // Senão, usa a preferência do sistema
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Verificar APENAS a classe 'dark' no documentElement (next-themes)
+    // NÃO usar fallback para preferência do sistema
+    // O next-themes já gerencia a classe baseado na escolha do usuário
+    return document.documentElement.classList.contains('dark');
   };
 
   // Carregar configuração do banco de dados
