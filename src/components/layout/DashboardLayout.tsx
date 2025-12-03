@@ -192,7 +192,7 @@ export const DashboardLayout = () => {
         <div className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)]">
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
           <main 
-            className={`flex-1 min-h-screen ${isMobile ? 'px-3 pt-6 pb-20' : 'lg:ml-64 px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
+            className={`flex-1 min-h-screen overflow-x-hidden ${isMobile ? 'px-3 pt-6 pb-20' : 'lg:ml-64 px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
             style={backgroundStyle}
           >
             {isLoading ? (
