@@ -328,7 +328,7 @@ const SubAffiliates = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-        <Card className="p-3 sm:p-4 md:p-4">
+        <Card className="p-3 sm:p-4 md:p-6">
           <CardHeader className="flex flex-row items-center justify-between pb-2 p-0">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Total de Sub-Afiliados
@@ -340,7 +340,7 @@ const SubAffiliates = () => {
           </CardContent>
         </Card>
 
-        <Card className="p-3 sm:p-4 md:p-4">
+        <Card className="p-3 sm:p-4 md:p-6">
           <CardHeader className="flex flex-row items-center justify-between pb-2 p-0">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
               Minhas Comissões (via Sub-Afiliados)
