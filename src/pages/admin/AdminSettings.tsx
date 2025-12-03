@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
+import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
 import { Loader2, RefreshCw } from "lucide-react";
 
 export default function AdminSettings() {
@@ -417,6 +418,35 @@ export default function AdminSettings() {
                 toast({
                   title: "Configurações salvas",
                   description: "O fundo das páginas foi atualizado",
+                });
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Cor da Barra de Status (PWA)</CardTitle>
+          <CardDescription>
+            Configure a cor da barra de status do dispositivo (hora, bateria, sinal) para PWAs instalados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="space-y-1">
+              <Label className="text-base">
+                Barra de Status
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Personalize a cor exibida no topo do dispositivo em modo claro e escuro
+              </p>
+            </div>
+            <StatusBarConfigEditor 
+              onConfigSaved={() => {
+                toast({
+                  title: "Configurações salvas",
+                  description: "A cor da barra de status foi atualizada",
                 });
               }}
             />
