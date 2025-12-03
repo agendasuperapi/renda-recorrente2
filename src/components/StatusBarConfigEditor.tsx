@@ -191,15 +191,35 @@ export function StatusBarConfigEditor({ onConfigSaved }: StatusBarConfigEditorPr
     }));
   };
 
+  // Converter hex para RGB
+  const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  };
+
   const generateBackground = (modeConfig: ModeConfig): string => {
     if (!modeConfig.isGradient) {
       return modeConfig.colorStart;
     }
     
-    const startAlpha = Math.round((modeConfig.intensityStart / 100) * 255).toString(16).padStart(2, '0');
-    const endAlpha = Math.round((modeConfig.intensityEnd / 100) * 255).toString(16).padStart(2, '0');
+    const startRgb = hexToRgb(modeConfig.colorStart);
+    const endRgb = hexToRgb(modeConfig.colorEnd);
     
-    return `linear-gradient(${modeConfig.direction}, ${modeConfig.colorStart}${startAlpha}, ${modeConfig.colorEnd}${endAlpha})`;
+    if (!startRgb || !endRgb) {
+      return modeConfig.colorStart; // Fallback para cor sólida
+    }
+    
+    const startAlpha = modeConfig.intensityStart / 100;
+    const endAlpha = modeConfig.intensityEnd / 100;
+    
+    const startColor = `rgba(${startRgb.r}, ${startRgb.g}, ${startRgb.b}, ${startAlpha})`;
+    const endColor = `rgba(${endRgb.r}, ${endRgb.g}, ${endRgb.b}, ${endAlpha})`;
+    
+    return `linear-gradient(${modeConfig.direction}, ${startColor}, ${endColor})`;
   };
 
   const currentConfig = activeTab === 'light' ? config.light : config.dark;
