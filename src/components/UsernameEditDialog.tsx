@@ -8,6 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
 
 interface UsernameEditDialogProps {
@@ -41,6 +50,7 @@ export function UsernameEditDialog({
   onSuccess,
 }: UsernameEditDialogProps) {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [newUsername, setNewUsername] = useState("");
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -187,85 +197,148 @@ export function UsernameEditDialog({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Editar Nome de Usuário</DialogTitle>
-          <DialogDescription>
-            Seu nome de usuário atual é: <strong>{currentUsername}</strong>
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <div className="relative">
-            <Label htmlFor="new-username">Novo Nome de Usuário</Label>
-            <div className="relative">
-              <Input
-                id="new-username"
-                value={newUsername}
-                onChange={(e) => handleUsernameChange(e.target.value)}
-                placeholder="novousername"
-                className={
-                  usernameAvailable === false
-                    ? "border-destructive"
-                    : usernameAvailable === true
-                    ? "border-green-500"
-                    : ""
-                }
-              />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                {checkingUsername && (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-                {!checkingUsername && usernameAvailable === true && (
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                )}
-                {!checkingUsername && usernameAvailable === false && (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-              </div>
-            </div>
-            {newUsername.length >= 6 && !checkingUsername && (
-              <p
-                className={`text-xs mt-1 ${
-                  usernameAvailable === true
-                    ? "text-green-600"
-                    : usernameAvailable === false
-                    ? "text-destructive"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {usernameAvailable === true && "✓ Nome de usuário disponível"}
-                {usernameAvailable === false && newUsername === currentUsername && "✗ Este é o seu nome de usuário atual"}
-                {usernameAvailable === false && newUsername !== currentUsername && "✗ Nome de usuário já está em uso"}
-              </p>
+  const formContent = (
+    <div className="space-y-4 py-4 px-4 md:px-0">
+      <div className="relative">
+        <Label htmlFor="new-username">Novo Nome de Usuário</Label>
+        <div className="relative">
+          <Input
+            id="new-username"
+            value={newUsername}
+            onChange={(e) => handleUsernameChange(e.target.value)}
+            placeholder="novousername"
+            className={
+              usernameAvailable === false
+                ? "border-destructive"
+                : usernameAvailable === true
+                ? "border-green-500"
+                : ""
+            }
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {checkingUsername && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             )}
-            {newUsername.length > 0 && newUsername.length < 6 && (
-              <p className="text-xs mt-1 text-muted-foreground">Mínimo 6 caracteres</p>
+            {!checkingUsername && usernameAvailable === true && (
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+            )}
+            {!checkingUsername && usernameAvailable === false && (
+              <XCircle className="h-4 w-4 text-destructive" />
             )}
           </div>
-
-          {hasCoupons && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Atenção:</strong> Você possui cupons cadastrados. Ao alterar seu nome de
-                usuário, todos os seus cupons serão excluídos e você precisará ativá-los novamente.
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
+        {newUsername.length >= 6 && !checkingUsername && (
+          <p
+            className={`text-xs mt-1 ${
+              usernameAvailable === true
+                ? "text-green-600"
+                : usernameAvailable === false
+                ? "text-destructive"
+                : "text-muted-foreground"
+            }`}
+          >
+            {usernameAvailable === true && "✓ Nome de usuário disponível"}
+            {usernameAvailable === false && newUsername === currentUsername && "✗ Este é o seu nome de usuário atual"}
+            {usernameAvailable === false && newUsername !== currentUsername && "✗ Nome de usuário já está em uso"}
+          </p>
+        )}
+        {newUsername.length > 0 && newUsername.length < 6 && (
+          <p className="text-xs mt-1 text-muted-foreground">Mínimo 6 caracteres</p>
+        )}
+      </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSaveClick} disabled={loading || usernameAvailable !== true}>
-            Salvar
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+      {hasCoupons && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Atenção:</strong> Você possui cupons cadastrados. Ao alterar seu nome de
+            usuário, todos os seus cupons serão excluídos e você precisará ativá-los novamente.
+          </AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
+
+  const footerContent = (
+    <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+      <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+        Cancelar
+      </Button>
+      <Button onClick={handleSaveClick} disabled={loading || usernameAvailable !== true}>
+        Salvar
+      </Button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+          <DrawerContent className="rounded-t-[20px]">
+            <DrawerHeader className="text-center">
+              <DrawerTitle>Editar Nome de Usuário</DrawerTitle>
+              <DrawerDescription>
+                Seu nome de usuário atual é: <strong>{currentUsername}</strong>
+              </DrawerDescription>
+            </DrawerHeader>
+            {formContent}
+            <DrawerFooter className="pt-2">
+              {footerContent}
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+
+        <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar alteração de username</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja alterar seu nome de usuário de <strong>{currentUsername}</strong> para <strong>{newUsername}</strong>?
+                {hasCoupons && (
+                  <>
+                    <br /><br />
+                    <span className="text-destructive font-semibold">
+                      Todos os seus cupons serão excluídos e você precisará ativá-los novamente.
+                    </span>
+                  </>
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleSave}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  "Confirmar"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Nome de Usuário</DialogTitle>
+            <DialogDescription>
+              Seu nome de usuário atual é: <strong>{currentUsername}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          {formContent}
+          <DialogFooter>
+            {footerContent}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
@@ -298,6 +371,6 @@ export function UsernameEditDialog({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Dialog>
+    </>
   );
 }
