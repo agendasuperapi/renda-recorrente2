@@ -8,12 +8,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Calendar, DollarSign, TrendingUp, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
+import { Calendar as CalendarIcon, DollarSign, TrendingUp, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -67,14 +70,16 @@ const CommissionsMonthly = () => {
   const [plans, setPlans] = useState<any[]>([]);
   
   // Filtros
-  const [filters, setFilters] = useState(() => {
-    const currentMonth = format(new Date(), 'yyyy-MM');
-    return {
-      product_id: "",
-      plan_id: "",
-      mes_inicio: currentMonth,
-      mes_fim: currentMonth,
-    };
+  const [filters, setFilters] = useState<{
+    product_id: string;
+    plan_id: string;
+    mes_inicio: Date | undefined;
+    mes_fim: Date | undefined;
+  }>({
+    product_id: "",
+    plan_id: "",
+    mes_inicio: startOfMonth(new Date()),
+    mes_fim: endOfMonth(new Date()),
   });
   const [totalFiltrado, setTotalFiltrado] = useState(0);
   
@@ -190,15 +195,11 @@ const CommissionsMonthly = () => {
       if (filters.plan_id && filters.plan_id.trim() && filters.plan_id !== " ") {
         query = query.eq("plan_id", filters.plan_id);
       }
-      if (filters.mes_inicio && filters.mes_inicio.trim()) {
-        // Converte yyyy-MM para yyyy-MM-01 (primeiro dia do mês)
-        query = query.gte("mes_referencia", `${filters.mes_inicio}-01`);
+      if (filters.mes_inicio) {
+        query = query.gte("mes_referencia", format(startOfMonth(filters.mes_inicio), "yyyy-MM-dd"));
       }
-      if (filters.mes_fim && filters.mes_fim.trim()) {
-        // Converte yyyy-MM para yyyy-MM-01 e adiciona 1 mês, depois subtrai 1 dia para pegar o último dia
-        const [year, month] = filters.mes_fim.split('-').map(Number);
-        const lastDay = new Date(year, month, 0).getDate();
-        query = query.lte("mes_referencia", `${filters.mes_fim}-${lastDay}`);
+      if (filters.mes_fim) {
+        query = query.lte("mes_referencia", format(endOfMonth(filters.mes_fim), "yyyy-MM-dd"));
       }
 
       // Paginação
@@ -216,13 +217,8 @@ const CommissionsMonthly = () => {
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
       
       // Calcular total filtrado usando função RPC
-      const mesInicio = filters.mes_inicio && filters.mes_inicio.trim() ? `${filters.mes_inicio}-01` : null;
-      let mesFim = null;
-      if (filters.mes_fim && filters.mes_fim.trim()) {
-        const [year, month] = filters.mes_fim.split('-').map(Number);
-        const lastDay = new Date(year, month, 0).getDate();
-        mesFim = `${filters.mes_fim}-${lastDay}`;
-      }
+      const mesInicio = filters.mes_inicio ? format(startOfMonth(filters.mes_inicio), "yyyy-MM-dd") : null;
+      const mesFim = filters.mes_fim ? format(endOfMonth(filters.mes_fim), "yyyy-MM-dd") : null;
       
       const { data: totalData } = await (supabase as any).rpc("get_commissions_monthly_total", {
         p_affiliate_id: userId,
@@ -245,12 +241,11 @@ const CommissionsMonthly = () => {
   };
 
   const clearFilters = () => {
-    const currentMonth = format(new Date(), 'yyyy-MM');
     setFilters({
       product_id: "",
       plan_id: "",
-      mes_inicio: currentMonth,
-      mes_fim: currentMonth,
+      mes_inicio: startOfMonth(new Date()),
+      mes_fim: endOfMonth(new Date()),
     });
     setCurrentPage(1);
     setPlans([]);
@@ -417,21 +412,55 @@ const CommissionsMonthly = () => {
             </Select>
           )}
 
-          <input
-            type="month"
-            placeholder="Mês início"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            value={filters.mes_inicio}
-            onChange={(e) => setFilters(f => ({ ...f, mes_inicio: e.target.value }))}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !filters.mes_inicio && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {filters.mes_inicio ? format(filters.mes_inicio, "MMMM 'de' yyyy", { locale: ptBR }) : "Mês início"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={filters.mes_inicio}
+                onSelect={(date) => setFilters(f => ({ ...f, mes_inicio: date ? startOfMonth(date) : undefined }))}
+                initialFocus
+                locale={ptBR}
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
 
-          <input
-            type="month"
-            placeholder="Mês fim"
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            value={filters.mes_fim}
-            onChange={(e) => setFilters(f => ({ ...f, mes_fim: e.target.value }))}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !filters.mes_fim && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {filters.mes_fim ? format(filters.mes_fim, "MMMM 'de' yyyy", { locale: ptBR }) : "Mês fim"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={filters.mes_fim}
+                onSelect={(date) => setFilters(f => ({ ...f, mes_fim: date ? endOfMonth(date) : undefined }))}
+                initialFocus
+                locale={ptBR}
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
 
           <Select value={itemsPerPage.toString()} onValueChange={(value) => {
             setItemsPerPage(Number(value));
