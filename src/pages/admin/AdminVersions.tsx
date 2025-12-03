@@ -82,11 +82,15 @@ export default function AdminVersions() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["app_versions"] });
-      toast.success("Versão cadastrada com sucesso!");
+      toast.success("Versão cadastrada com sucesso! Recarregando...");
       setVersion("");
       setDescription("");
       setChanges([]);
       setChangeInput("");
+      // Refresh para reconhecer a nova versão
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     },
     onError: (error: any) => {
       toast.error(error.message || "Erro ao cadastrar versão");
