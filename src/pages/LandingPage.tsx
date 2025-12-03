@@ -694,7 +694,9 @@ const LandingPage = () => {
     // Navega para o dashboard correspondente
     navigate(showAdminMenu && isAdmin ? '/admin/dashboard' : '/dashboard');
   };
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      {/* PWA Status Bar Background para iOS */}
+      <div className="pwa-status-bar-bg" />
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur" style={{ backgroundColor: '#10b981' }}>
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">

@@ -213,6 +213,17 @@ All colors MUST be HSL.
       touch-action: pan-y;
     }
     
+    /* PWA Status Bar Background - Área segura para notch/status bar */
+    .pwa-status-bar-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: env(safe-area-inset-top, 0px);
+      background-color: hsl(160 84% 39%); /* #10b981 */
+      z-index: 9999;
+    }
+    
     /* ScrollView wrapper - scroll nativo iOS */
     .ios-scroll-wrapper {
       -webkit-overflow-scrolling: touch;
