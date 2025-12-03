@@ -194,10 +194,12 @@ export function useBgConfig() {
     const gradientStart = darkMode ? config.gradientStartDark : config.gradientStartLight;
     const gradientEnd = darkMode ? config.gradientEndDark : config.gradientEndLight;
     
-    const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${gradientStart}%, ${hexToRgba(colorEnd, endAlpha)} ${gradientEnd}%)`;
+    const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${gradientStart}vh, ${hexToRgba(colorEnd, endAlpha)} ${gradientEnd}vh)`;
 
     return {
       background: gradient,
+      backgroundAttachment: 'fixed' as const,
+      backgroundSize: '100% 100vh',
     };
   }, [config, shouldApply, darkMode]);
 
