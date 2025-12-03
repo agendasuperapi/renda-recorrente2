@@ -121,7 +121,7 @@ All colors MUST be HSL.
   html, body {
     min-height: 100dvh;
     min-height: -webkit-fill-available;
-    background-color: var(--status-bar-bg);
+    background: var(--status-bar-bg);
   }
   
   /* Container principal tem seu próprio background */
@@ -200,7 +200,7 @@ All colors MUST be HSL.
   @media (display-mode: standalone) {
     /* Background configurável atrás de tudo - isso é o que a barra de status vai ver */
     html, body {
-      background-color: var(--status-bar-bg);
+      background: var(--status-bar-bg);
     }
     
     /* Container principal tem seu próprio background */
