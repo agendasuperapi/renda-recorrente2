@@ -4,36 +4,49 @@ import { cn } from "@/lib/utils";
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
+const isIOSDevice = (): boolean => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent) || 
+         (userAgent.includes('mac') && 'ontouchend' in document);
+};
+
+const isStandalonePWA = (): boolean => {
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         (window.navigator as any).standalone === true;
+};
+
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, onTouchStart, onClick, ...props }, ref) => {
-    const handleIOSFocus = (target: HTMLTextAreaElement) => {
-      // Técnica combinada para iOS PWA - força o teclado a aparecer
-      // Verifica se está em modo standalone (PWA instalado)
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                          (window.navigator as any).standalone === true;
+    const handleIOSPWAFocus = (target: HTMLTextAreaElement) => {
+      if (!isIOSDevice() || !isStandalonePWA()) return;
       
-      if (isStandalone) {
-        requestAnimationFrame(() => {
-          target.blur();
-          requestAnimationFrame(() => {
-            target.focus();
-            setTimeout(() => {
-              if (document.activeElement !== target) {
-                target.focus();
-              }
-            }, 100);
-          });
-        });
-      }
+      const tempInput = document.createElement('input');
+      tempInput.style.position = 'absolute';
+      tempInput.style.top = `${target.getBoundingClientRect().top}px`;
+      tempInput.style.left = '0';
+      tempInput.style.height = '0';
+      tempInput.style.width = '0';
+      tempInput.style.opacity = '0';
+      tempInput.style.fontSize = '16px';
+      
+      document.body.appendChild(tempInput);
+      tempInput.focus();
+      
+      setTimeout(() => {
+        target.focus();
+        if (document.body.contains(tempInput)) {
+          document.body.removeChild(tempInput);
+        }
+      }, 50);
     };
 
     const handleTouchStart = (e: React.TouchEvent<HTMLTextAreaElement>) => {
-      handleIOSFocus(e.currentTarget);
+      handleIOSPWAFocus(e.currentTarget);
       onTouchStart?.(e);
     };
 
     const handleClick = (e: React.MouseEvent<HTMLTextAreaElement>) => {
-      handleIOSFocus(e.currentTarget);
+      handleIOSPWAFocus(e.currentTarget);
       onClick?.(e);
     };
 
