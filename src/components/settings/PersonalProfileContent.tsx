@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video } from "lucide-react";
+import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { format, parse } from "date-fns";
@@ -36,6 +36,9 @@ export const PersonalProfileContent = () => {
     instagram: "",
     facebook: "",
     tiktok: "",
+    youtube: "",
+    twitter: "",
+    linkedin: "",
   });
 
   const [cpfStatus, setCpfStatus] = useState<{
@@ -67,30 +70,34 @@ export const PersonalProfileContent = () => {
       setLoadingProfile(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok")
+        .select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin")
         .eq("id", userId)
         .single();
 
       if (error) throw error;
 
       if (data) {
+        const profileData = data as any;
         setFormData({
-          name: data.name || "",
-          username: data.username || "",
-          cpf: formatCPF(data.cpf || ""),
-          phone: formatPhone(data.phone || ""),
-          birth_date: data.birth_date || "",
-          gender: data.gender || "",
-          cep: formatCEP(data.cep || ""),
-          street: data.street || "",
-          number: data.number || "",
-          complement: data.complement || "",
-          neighborhood: data.neighborhood || "",
-          city: data.city || "",
-          state: data.state || "",
-          instagram: data.instagram || "",
-          facebook: data.facebook || "",
-          tiktok: data.tiktok || "",
+          name: profileData.name || "",
+          username: profileData.username || "",
+          cpf: formatCPF(profileData.cpf || ""),
+          phone: formatPhone(profileData.phone || ""),
+          birth_date: profileData.birth_date || "",
+          gender: profileData.gender || "",
+          cep: formatCEP(profileData.cep || ""),
+          street: profileData.street || "",
+          number: profileData.number || "",
+          complement: profileData.complement || "",
+          neighborhood: profileData.neighborhood || "",
+          city: profileData.city || "",
+          state: profileData.state || "",
+          instagram: profileData.instagram || "",
+          facebook: profileData.facebook || "",
+          tiktok: profileData.tiktok || "",
+          youtube: profileData.youtube || "",
+          twitter: profileData.twitter || "",
+          linkedin: profileData.linkedin || "",
         });
       }
     } catch (error: any) {
@@ -307,6 +314,9 @@ export const PersonalProfileContent = () => {
           instagram: formData.instagram || null,
           facebook: formData.facebook || null,
           tiktok: formData.tiktok || null,
+          youtube: formData.youtube || null,
+          twitter: formData.twitter || null,
+          linkedin: formData.linkedin || null,
         })
         .eq("id", userId);
 
@@ -579,6 +589,45 @@ export const PersonalProfileContent = () => {
                     value={formData.tiktok}
                     onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
                     placeholder="@seuusuario"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="youtube" className="flex items-center gap-2">
+                    <Youtube className="h-4 w-4" />
+                    YouTube
+                  </Label>
+                  <Input
+                    id="youtube"
+                    value={formData.youtube}
+                    onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
+                    placeholder="youtube.com/@seucanal"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="twitter" className="flex items-center gap-2">
+                    <Twitter className="h-4 w-4" />
+                    X (Twitter)
+                  </Label>
+                  <Input
+                    id="twitter"
+                    value={formData.twitter}
+                    onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                    placeholder="@seuusuario"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="linkedin" className="flex items-center gap-2">
+                    <Linkedin className="h-4 w-4" />
+                    LinkedIn
+                  </Label>
+                  <Input
+                    id="linkedin"
+                    value={formData.linkedin}
+                    onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                    placeholder="linkedin.com/in/seuusuario"
                   />
                 </div>
               </TabsContent>
