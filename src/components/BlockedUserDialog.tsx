@@ -10,8 +10,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const BlockedUserDialog = () => {
+  const isMobile = useIsMobile();
   const [isBlocked, setIsBlocked] = useState(false);
   const [blockedMessage, setBlockedMessage] = useState("");
   const navigate = useNavigate();
@@ -72,7 +74,11 @@ export const BlockedUserDialog = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/auth";
+    if (isMobile) {
+      window.location.href = "/auth";
+    } else {
+      navigate("/auth");
+    }
   };
 
   return (
