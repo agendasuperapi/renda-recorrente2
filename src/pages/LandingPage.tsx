@@ -12,7 +12,9 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
 import { CookieConsent } from "@/components/CookieConsent";
-import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut } from "lucide-react";
+import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw } from "lucide-react";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import * as LucideIcons from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
@@ -143,6 +145,7 @@ const LandingPage = () => {
   const {
     theme
   } = useTheme();
+  const versionInfo = useVersionCheck();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
@@ -767,12 +770,52 @@ const LandingPage = () => {
                       className="h-12 mb-2" 
                     />
                   )}
-                  <span 
-                    className="text-xs opacity-70"
-                    style={{ color: currentSidebarTextColor }}
-                  >
-                    v{APP_VERSION}
-                  </span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          className="flex items-center justify-center gap-2 text-xs opacity-70 cursor-pointer hover:opacity-100 transition-opacity"
+                          style={{ color: currentSidebarTextColor }}
+                        >
+                          <span>v{APP_VERSION}</span>
+                          {versionInfo.hasUpdate ? (
+                            <X className="h-3.5 w-3.5 text-red-500" />
+                          ) : (
+                            <Check className="h-3.5 w-3.5 text-green-500" />
+                          )}
+                          {versionInfo.hasUpdate && (
+                            <Badge 
+                              variant="default" 
+                              className="text-[10px] px-1 py-0 h-4 cursor-pointer"
+                              onClick={() => window.location.reload()}
+                            >
+                              <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
+                              Atualizar
+                            </Badge>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      {versionInfo.hasUpdate ? (
+                        <TooltipContent>
+                          {versionInfo.newVersion ? (
+                            <>
+                              <p>Nova versão disponível: v{versionInfo.newVersion}</p>
+                              <p className="text-xs">Clique para atualizar</p>
+                            </>
+                          ) : (
+                            <>
+                              <p>Nenhuma versão registrada no banco</p>
+                              <p className="text-xs">Registre a versão atual em Admin → Versões</p>
+                            </>
+                          )}
+                        </TooltipContent>
+                      ) : (
+                        <TooltipContent>
+                          <p>Versão atualizada</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
 
                 <nav className="flex flex-col gap-1 px-3 flex-1">
