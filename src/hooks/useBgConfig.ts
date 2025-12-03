@@ -197,9 +197,9 @@ export function useBgConfig() {
     const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${gradientStart}vh, ${hexToRgba(colorEnd, endAlpha)} ${gradientEnd}vh)`;
 
     return {
-      background: gradient,
+      background: `${gradient}, ${hexToRgba(colorEnd, endAlpha)}`,
       backgroundAttachment: 'fixed' as const,
-      backgroundSize: '100% 100vh',
+      backgroundRepeat: 'no-repeat' as const,
     };
   }, [config, shouldApply, darkMode]);
 
