@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
@@ -327,28 +328,28 @@ const SubAffiliates = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-        <Card className="p-3 sm:p-4 md:p-6">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 p-0">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:px-6 lg:px-0">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Total de Sub-Afiliados
             </CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
-          <CardContent className="p-0 pt-2">
-            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
-        <Card className="p-3 sm:p-4 md:p-6">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 p-0">
-            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Minhas Comissões (via Sub-Afiliados)
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-success" />
           </CardHeader>
-          <CardContent className="p-0 pt-2">
-            <div className="text-xl sm:text-2xl font-bold text-success">
+          <CardContent>
+            <div className="text-2xl font-bold text-success">
               {new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
@@ -359,7 +360,7 @@ const SubAffiliates = () => {
       </div>
 
       {/* Botão de filtros mobile/tablet */}
-      <div className="lg:hidden flex items-center justify-between">
+      <div className="lg:hidden flex items-center justify-between md:px-6">
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
@@ -375,26 +376,14 @@ const SubAffiliates = () => {
         </Button>
         
         {/* Layout mode selector - mobile/tablet */}
-        <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
-          <Button
-            variant={layoutMode === "compact" ? "secondary" : "ghost"}
-            size="sm"
-            onClick={() => setLayoutMode("compact")}
-            className="h-8 px-3 gap-1.5"
-          >
+        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
+          <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
             <LayoutList className="h-4 w-4" />
-            <span className="hidden sm:inline">Compacto</span>
-          </Button>
-          <Button
-            variant={layoutMode === "complete" ? "secondary" : "ghost"}
-            size="sm"
-            onClick={() => setLayoutMode("complete")}
-            className="h-8 px-3 gap-1.5"
-          >
+          </ToggleGroupItem>
+          <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
             <LayoutGrid className="h-4 w-4" />
-            <span className="hidden sm:inline">Completo</span>
-          </Button>
-        </div>
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
