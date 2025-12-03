@@ -654,7 +654,7 @@ const LandingPage = () => {
   };
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/");
+    window.location.href = "/";
   };
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
