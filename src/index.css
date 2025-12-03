@@ -116,8 +116,15 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 
-  /* Permite scroll natural no documento para que a barra de endereços do navegador diminua */
-  html, body, #root {
+  /* Background verde fixo para toda a web (não apenas PWA) */
+  html, body {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    background-color: #10b981 !important;
+  }
+  
+  /* Container principal tem seu próprio background */
+  #root {
     min-height: 100dvh;
     min-height: -webkit-fill-available;
     background-color: hsl(var(--background));
