@@ -273,8 +273,9 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto overscroll-none ios-scroll-wrapper">
-      <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative">
+    <div className="min-h-screen bg-[#10b981] pt-[env(safe-area-inset-top)]">
+      <div className="min-h-screen overflow-y-auto overscroll-none ios-scroll-wrapper">
+        <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative">
         <div className="absolute top-4 left-4 z-10">
         <Button
           variant="ghost"
@@ -448,6 +449,7 @@ const Auth = () => {
           </div>
         </div>
       </div>
+        </div>
       </div>
     </div>
   );

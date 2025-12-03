@@ -6,8 +6,10 @@ import { useEffect } from 'react';
  */
 export const useStatusBarColor = () => {
   useEffect(() => {
+    const color = '#10b981';
+    
     // Função para atualizar a meta tag theme-color
-    const updateThemeColor = (color: string) => {
+    const updateThemeColor = () => {
       // Remover meta tags theme-color existentes
       const existingMetaTags = document.querySelectorAll('meta[name="theme-color"]');
       existingMetaTags.forEach(meta => meta.remove());
@@ -25,15 +27,15 @@ export const useStatusBarColor = () => {
       darkMeta.content = color;
       document.head.appendChild(darkMeta);
 
-      // Para iOS PWA, também atualizar o background do html
-      if (window.matchMedia('(display-mode: standalone)').matches || 
-          (window.navigator as any).standalone === true) {
-        document.documentElement.style.backgroundColor = color;
-      }
+      // Sempre atualizar o background do html para garantir consistência
+      document.documentElement.style.backgroundColor = color;
     };
 
-    // Definir cor inicial
-    updateThemeColor('#10b981');
+    // Definir cor IMEDIATAMENTE (sem esperar o useEffect completar)
+    updateThemeColor();
+    
+    // Também forçar atualização síncrona do background
+    document.documentElement.style.backgroundColor = color;
 
     // Observar mudanças na DOM para garantir que a cor seja mantida
     const observer = new MutationObserver(() => {
@@ -42,13 +44,13 @@ export const useStatusBarColor = () => {
 
       themeColorTags.forEach(meta => {
         const content = meta.getAttribute('content');
-        if (content && content !== '#10b981') {
+        if (content && content !== color) {
           needsUpdate = true;
         }
       });
 
       if (needsUpdate || themeColorTags.length === 0) {
-        updateThemeColor('#10b981');
+        updateThemeColor();
       }
     });
 
@@ -59,10 +61,10 @@ export const useStatusBarColor = () => {
       attributeFilter: ['content']
     });
 
-    // Também verificar periodicamente (fallback)
+    // Verificar mais frequentemente (200ms) para transições mais suaves
     const interval = setInterval(() => {
-      updateThemeColor('#10b981');
-    }, 1000);
+      updateThemeColor();
+    }, 200);
 
     return () => {
       observer.disconnect();
