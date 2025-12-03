@@ -190,6 +190,25 @@ All colors MUST be HSL.
 /* iOS PWA - viewport dinâmico e scroll natural */
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
+    /* Barra de status com cor sólida #10b981 no iOS PWA */
+    /* Com black-translucent, a barra fica transparente e mostra o conteúdo por trás */
+    html {
+      background-color: #10b981;
+    }
+    
+    /* Garantir que a área da barra de status tenha a cor sólida */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: env(safe-area-inset-top, 44px);
+      background-color: #10b981;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    
     /* Usar viewport dinâmico para iOS PWA */
     .min-h-screen {
       min-height: 100dvh;
