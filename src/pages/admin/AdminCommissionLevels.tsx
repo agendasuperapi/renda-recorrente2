@@ -357,8 +357,8 @@ const AdminCommissionLevels = () => {
       </Card>
 
       {selectedPlanId && (
-        <Card>
-        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-3 md:p-6">
+        <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 lg:!p-6">
           <CardTitle className="text-base md:text-lg">Percentuais por Nível</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -419,7 +419,7 @@ const AdminCommissionLevels = () => {
             </DialogContent>
           </Dialog>
         </CardHeader>
-        <CardContent className="p-2 md:p-6">
+        <CardContent className="!p-0 lg:!p-6">
           {/* Layout Mobile - Cards */}
           <div className="lg:hidden space-y-2">
             {levels.length === 0 ? (
@@ -428,7 +428,7 @@ const AdminCommissionLevels = () => {
               </div>
             ) : (
               levels.map((level) => (
-                <Card key={level.id} className="p-3">
+                <Card key={level.id} className="p-3 lg:p-3 bg-card lg:bg-card border lg:border shadow-sm lg:shadow-sm">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-base">Nível {level.level}</h3>
