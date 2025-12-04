@@ -266,8 +266,7 @@ export default function AdminPayments() {
       {/* Filtros e Tabela */}
       <Card>
         <CardHeader>
-          <CardTitle>Todos os Pagamentos</CardTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
             <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
             <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
             <Input type="date" placeholder="Data inicial" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full lg:w-[160px]" />
