@@ -250,7 +250,7 @@ const Withdrawals = () => {
     });
   };
   if (profileLoading || commissionsLoading) {
-    return <div className="space-y-6">
+    return <div className="space-y-6 p-4 sm:p-6">
         <Skeleton className="h-20 w-full" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Skeleton className="h-32" />
@@ -259,7 +259,7 @@ const Withdrawals = () => {
         </div>
       </div>;
   }
-  return <div className="space-y-3 md:space-y-6 pb-4">
+  return <div className="space-y-3 md:space-y-6 pb-4 p-4 sm:p-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Saques</h1>
