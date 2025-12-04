@@ -363,33 +363,74 @@ export default function AdminPayments() {
                       <Skeleton className="h-24 w-full" />
                     </CardContent>
                   </Card>)}
-              </div> : <TableSkeleton columns={viewMode === "compact" ? 5 : 8} rows={10} /> : isMobile ? <div className="space-y-2">
-              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => (
-                <div 
-                  key={payment.id} 
-                  className="flex items-center justify-between py-3 px-1 border-b last:border-b-0 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => handleViewDetails(payment)}
-                >
-                  <div className="flex-1 min-w-0 space-y-0.5">
-                    <p className="font-medium text-sm truncate">{payment.user_name || "N/A"}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="truncate">{payment.plan_name || "N/A"}</span>
-                      <span>•</span>
-                      <span>{format(new Date(payment.payment_date), "dd/MM/yy", { locale: ptBR })}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Badge variant="outline" className="text-xs">
-                      {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : "Atualização"}
-                    </Badge>
-                    <span className="font-bold text-sm">
-                      {Number(payment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                    </span>
-                  </div>
-                </div>
-              )) : <div className="py-8 text-center text-muted-foreground">
-                  Nenhum pagamento encontrado
-                </div>}
+              </div> : <TableSkeleton columns={viewMode === "compact" ? 5 : 8} rows={10} /> : isMobile ? <div className="space-y-3">
+              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => <Card key={payment.id}>
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{payment.user_name || "N/A"}</p>
+                          {viewMode === "complete" && <p className="text-xs text-muted-foreground truncate">{payment.user_email || "N/A"}</p>}
+                        </div>
+                        {viewMode === "complete" && (
+                          <Badge variant={payment.status === "paid" ? "default" : "destructive"} className="flex-shrink-0">
+                            {payment.status === "paid" ? "Pago" : payment.status}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Plano:</span>
+                          <p className="font-medium truncate">{payment.plan_name || "N/A"}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Valor:</span>
+                          <p className="font-bold text-sm">{Number(payment.amount).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL"
+                    })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Data:</span>
+                          <p className="font-medium">{format(new Date(payment.payment_date), "dd/MM/yy HH:mm", {
+                      locale: ptBR
+                    })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Tipo:</span>
+                          <Badge variant="outline" className="text-xs">
+                            {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : payment.billing_reason === "subscription_update" ? "Atualização" : payment.billing_reason || "N/A"}
+                          </Badge>
+                        </div>
+                        {viewMode === "complete" && (
+                          <div>
+                            <span className="text-muted-foreground">Ambiente:</span>
+                            <Badge variant={payment.environment === "production" ? "default" : "secondary"} className="text-xs">
+                              {payment.environment === "production" ? "Prod" : "Test"}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      {viewMode === "complete" && (payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code) && <div className="text-xs">
+                          <span className="text-muted-foreground">Afiliado/Cupom: </span>
+                          <span className="font-medium">{payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code}</span>
+                        </div>}
+
+                      {viewMode === "complete" && (
+                        <div className="flex justify-end items-center pt-2 border-t">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(payment)}>
+                            <Eye className="w-4 h-4 mr-1" />
+                            Ver
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>) : <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground">
+                    Nenhum pagamento encontrado
+                  </CardContent>
+                </Card>}
             </div> : viewMode === "compact" ? (
               <div className="rounded-md border overflow-x-auto">
                 <Table>
