@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X, Save, Calendar } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X, Save, Calendar, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const WEEKDAYS = [
   { value: 1, label: "Segunda-feira" },
@@ -61,6 +62,8 @@ const AdminUsers = () => {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [withdrawalDay, setWithdrawalDay] = useState<number | null>(null);
   const [isEditingWithdrawal, setIsEditingWithdrawal] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
   const queryClient = useQueryClient();
 
   const { data: usersData, isLoading } = useQuery({
@@ -244,9 +247,35 @@ const AdminUsers = () => {
           </Button>
         </div>
 
+        {/* Mobile Control Bar */}
+        <div className="flex items-center justify-between lg:hidden">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-2"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filtros
+          </Button>
+          <ToggleGroup
+            type="single"
+            value={layoutMode}
+            onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}
+            className="border rounded-lg"
+          >
+            <ToggleGroupItem value="compact" aria-label="Modo compacto" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+              <LayoutList className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="complete" aria-label="Modo completo" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+
         {/* Filtros */}
-        <Card>
-          <CardContent className="p-4 sm:p-6">
+        <Card className={`${!showFilters ? 'hidden lg:block' : ''} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg`}>
+          <CardContent className="!p-0 lg:!p-6">
             <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
               <div className="relative flex-1 min-w-0 lg:max-w-sm">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -305,10 +334,10 @@ const AdminUsers = () => {
         </Card>
 
         {/* Tabela */}
-        <Card>
-          <CardContent className="p-2 md:p-6">
+        <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+          <CardContent className="!p-0 lg:!p-6">
             {/* Layout Mobile - Cards */}
-            <div className="lg:hidden space-y-2">
+            <div className="lg:hidden space-y-3">
               {isLoading ? (
                 <>
                   {[...Array(5)].map((_, i) => (
@@ -322,47 +351,79 @@ const AdminUsers = () => {
                 </>
               ) : users && users.length > 0 ? (
                 users.map((user) => (
-                  <Card key={user.id} className="p-3">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-base">{user.name}</h3>
-                          <p className="text-sm text-muted-foreground">{user.email || "-"}</p>
+                  layoutMode === "compact" ? (
+                    <Card key={user.id} className="p-3">
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{user.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{user.email || "-"}</p>
+                          </div>
+                          <div className="text-right text-xs">
+                            <p className="text-muted-foreground">{user.role === "super_admin" ? "Admin" : "Afiliado"}</p>
+                            <p className="text-muted-foreground">
+                              {user.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "-"}
+                            </p>
+                          </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(user)}
-                          className="shrink-0"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-between">
+                          <Badge variant={user.is_blocked ? "destructive" : "default"}>
+                            {user.is_blocked ? "Bloqueado" : "Ativo"}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleViewDetails(user)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Username:</span>
-                          <p className="font-medium">{user.username || "-"}</p>
+                    </Card>
+                  ) : (
+                    <Card key={user.id} className="p-3">
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-base">{user.name}</h3>
+                            <p className="text-sm text-muted-foreground">{user.email || "-"}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewDetails(user)}
+                            className="shrink-0"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground">Telefone:</span>
-                          <p className="font-medium">{user.phone || "-"}</p>
+                        
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Username:</span>
+                            <p className="font-medium">{user.username || "-"}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Telefone:</span>
+                            <p className="font-medium">{user.phone || "-"}</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
-                          {user.role === "super_admin" ? "Admin" : "Afiliado"}
-                        </Badge>
-                        <Badge variant={user.is_blocked ? "destructive" : "default"}>
-                          {user.is_blocked ? "Bloqueado" : "Ativo"}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground self-center">
-                          {user.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "-"}
-                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
+                            {user.role === "super_admin" ? "Admin" : "Afiliado"}
+                          </Badge>
+                          <Badge variant={user.is_blocked ? "destructive" : "default"}>
+                            {user.is_blocked ? "Bloqueado" : "Ativo"}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground self-center">
+                            {user.created_at ? format(new Date(user.created_at), "dd/MM/yyyy") : "-"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  )
                 ))
               ) : (
                 <Card className="p-8">
