@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -55,6 +55,8 @@ export default function AdminPayments() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [sortColumn, setSortColumn] = useState<SortColumn>("payment_date");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"compact" | "complete">("compact");
   const debouncedSearch = useDebounce(searchTerm, 300);
   const {
     data: payments,
@@ -263,9 +265,40 @@ export default function AdminPayments() {
         </Card>
       </div>
 
+      {/* Barra de controle mobile/tablet */}
+      <div className="flex items-center justify-between lg:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+        </Button>
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+          <Button
+            variant={viewMode === "complete" ? "default" : "ghost"}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setViewMode("complete")}
+          >
+            <LayoutList className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "compact" ? "default" : "ghost"}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setViewMode("compact")}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {/* Filtros */}
-      <Card>
-        <CardContent className="pt-6">
+      <Card className={`${!showFilters && 'hidden lg:block'} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm`}>
+        <CardContent className="pt-6 px-0 lg:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
             <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
             <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
@@ -319,16 +352,42 @@ export default function AdminPayments() {
       </Card>
 
       {/* Tabela */}
-      <Card>
-        <CardContent className="pt-6">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
+        <CardContent className="pt-6 px-0 lg:px-6">
           {isLoading ? isMobile ? <div className="space-y-3">
                 {[...Array(10)].map((_, i) => <Card key={i}>
                     <CardContent className="p-4">
-                      <Skeleton className="h-24 w-full" />
+                      <Skeleton className="h-16 w-full" />
                     </CardContent>
                   </Card>)}
               </div> : <TableSkeleton columns={8} rows={10} /> : isMobile ? <div className="space-y-3">
-              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => <Card key={payment.id}>
+              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => 
+                viewMode === "compact" ? (
+                  // Modo Compacto
+                  <Card key={payment.id} className="bg-card">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{payment.user_name || "N/A"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{payment.plan_name || "N/A"}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(payment.payment_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                          </p>
+                          <p className="font-bold text-sm text-primary">
+                            {Number(payment.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => handleViewDetails(payment)}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  // Modo Completo
+                  <Card key={payment.id}>
                     <CardContent className="p-4 space-y-3">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
@@ -381,7 +440,9 @@ export default function AdminPayments() {
                         </Button>
                       </div>
                     </CardContent>
-                  </Card>) : <Card>
+                  </Card>
+                )
+              ) : <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
                     Nenhum pagamento encontrado
                   </CardContent>
