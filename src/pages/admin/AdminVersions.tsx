@@ -391,14 +391,14 @@ export default function AdminVersions() {
       </Card>
 
       {/* Versions List */}
-      <Card>
-        <CardHeader>
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardHeader className="px-0 lg:px-6">
           <CardTitle>Histórico de Versões</CardTitle>
           <CardDescription>
             Todas as versões cadastradas no sistema
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="!p-0 lg:!p-6">
           {isLoading ? (
             <p>Carregando...</p>
           ) : versions && versions.length > 0 ? (
