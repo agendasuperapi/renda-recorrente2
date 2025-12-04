@@ -277,7 +277,7 @@ const AdminAffiliates = () => {
                 </>
               ) : paginatedAffiliates && paginatedAffiliates.length > 0 ? (
                 paginatedAffiliates.map((affiliate) => (
-                  <Card key={affiliate.id}>
+                  <Card key={affiliate.id} className="w-full">
                     <CardContent className="p-0">
                       {/* Modo Compacto */}
                       {layoutMode === "compact" && (
