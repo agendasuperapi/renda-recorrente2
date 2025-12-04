@@ -476,27 +476,23 @@ export const PersonalProfileContent = () => {
               <TabsContent value="personal" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-3 pb-4 border-b">
-                  <div className="relative">
-                    <Avatar className="h-24 w-24">
+                  <div 
+                    className="relative cursor-pointer group"
+                    onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                  >
+                    <Avatar className="h-24 w-24 transition-opacity group-hover:opacity-80">
                       <AvatarImage src={avatarUrl || undefined} alt={formData.name} />
                       <AvatarFallback className="text-2xl">
                         {formData.name?.charAt(0)?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="secondary"
-                      className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingAvatar}
-                    >
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                       {uploadingAvatar ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-6 w-6 text-white animate-spin" />
                       ) : (
-                        <Camera className="h-4 w-4" />
+                        <Camera className="h-6 w-6 text-white" />
                       )}
-                    </Button>
+                    </div>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -505,7 +501,7 @@ export const PersonalProfileContent = () => {
                       onChange={handleAvatarSelect}
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">Clique no ícone para alterar a foto</p>
+                  <p className="text-sm text-muted-foreground">Clique na foto para alterar</p>
                 </div>
 
                 <div className="space-y-1.5 sm:space-y-2">
