@@ -64,7 +64,7 @@ const AdminCoupons = () => {
   const [showZeroConfirmation, setShowZeroConfirmation] = useState(false);
   const [pendingFormValues, setPendingFormValues] = useState<CouponFormValues | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("complete");
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
