@@ -435,14 +435,14 @@ const Coupons = () => {
                   </SelectItem>)}
               </SelectContent>
             </Select>
-            {isMobile && <ToggleGroup type="single" value={layoutMode} onValueChange={v => v && setLayoutMode(v)} className="border rounded-lg">
-                <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
-                  <LayoutList className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
-                  <LayoutGrid className="h-4 w-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>}
+            <ToggleGroup type="single" value={layoutMode} onValueChange={v => v && setLayoutMode(v)} className="border rounded-lg">
+              <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+                <LayoutList className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
           {allCoupons.length === 0 ? <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
@@ -587,6 +587,56 @@ const Coupons = () => {
                 const isActivated = !!coupon.activatedCoupon;
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
+                
+                if (layoutMode === "compact") {
+                  return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold truncate">{coupon.name}</span>
+                        {coupon.is_primary && <Badge className="bg-yellow-500 text-white text-xs">Principal</Badge>}
+                        <Badge variant="outline" className="text-xs">
+                          {coupon.type === "percentage" && `${coupon.value}%`}
+                          {coupon.type === "days" && `${coupon.value} dias`}
+                          {coupon.type === "free_trial" && `${coupon.value} dias`}
+                        </Badge>
+                        {isActivated ? (
+                          <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Liberado</Badge>
+                        ) : (
+                          <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-xs">Não Liberado</Badge>
+                        )}
+                        {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
+                        {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
+                      </div>
+                      <code className="text-sm font-mono text-muted-foreground">
+                        {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                      </code>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button variant="outline" size="sm" onClick={() => {
+                        setSelectedCoupon(coupon);
+                        setDetailsOpen(true);
+                      }}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Ver Detalhes
+                      </Button>
+                      {isActivated && isActive && <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copiar
+                      </Button>}
+                      {isActivated ? isActive ? <Button variant="outline" size="sm" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Inativar
+                      </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                        <Check className="h-4 w-4 mr-2" />
+                        Ativar
+                      </Button> : <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                        <Check className="h-4 w-4 mr-2" />
+                        Liberar
+                      </Button>}
+                    </div>
+                  </div>;
+                }
+                
                 return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" : ""} ${!isActivated ? "bg-orange-50 dark:bg-orange-950/20 border-orange-300 dark:border-orange-700" : "hover:bg-accent/50"}`}>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
@@ -791,7 +841,58 @@ const Coupons = () => {
             const isActivated = !!coupon.activatedCoupon;
             const isActive = coupon.activatedCoupon?.is_active;
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
-            return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" : "hover:bg-accent/50"}`}>
+            
+            if (layoutMode === "compact") {
+              return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold truncate">{coupon.name}</span>
+                    {coupon.is_primary && <Badge className="bg-yellow-500 text-white text-xs">Principal</Badge>}
+                    <Badge variant="outline" className="text-xs">
+                      {coupon.type === "percentage" && `${coupon.value}%`}
+                      {coupon.type === "days" && `${coupon.value} dias`}
+                      {coupon.type === "free_trial" && `${coupon.value} dias`}
+                    </Badge>
+                    {coupon.products && <Badge variant="secondary" className="text-xs">{coupon.products.nome}</Badge>}
+                    {isActivated ? (
+                      <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Liberado</Badge>
+                    ) : (
+                      <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-xs">Não Liberado</Badge>
+                    )}
+                    {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
+                    {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
+                  </div>
+                  <code className="text-sm font-mono text-muted-foreground">
+                    {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                  </code>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button variant="outline" size="sm" onClick={() => {
+                    setSelectedCoupon(coupon);
+                    setDetailsOpen(true);
+                  }}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver Detalhes
+                  </Button>
+                  {isActivated && isActive && <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copiar
+                  </Button>}
+                  {isActivated ? isActive ? <Button variant="outline" size="sm" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Inativar
+                  </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                    <Check className="h-4 w-4 mr-2" />
+                    Ativar
+                  </Button> : <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                    <Check className="h-4 w-4 mr-2" />
+                    Liberar
+                  </Button>}
+                </div>
+              </div>;
+            }
+            
+            return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" : ""} ${!isActivated ? "bg-orange-50 dark:bg-orange-950/20 border-orange-300 dark:border-orange-700" : "hover:bg-accent/50"}`}>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold">{coupon.name}</h3>
@@ -804,6 +905,11 @@ const Coupons = () => {
                             {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
                           </Badge>
                           {coupon.products && <Badge variant="secondary">{coupon.products.nome}</Badge>}
+                          {isActivated ? (
+                            <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Liberado</Badge>
+                          ) : (
+                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400">Não Liberado</Badge>
+                          )}
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
                               Ativo
                             </Badge>}
