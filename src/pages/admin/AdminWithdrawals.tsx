@@ -558,8 +558,7 @@ export default function AdminWithdrawals() {
       {/* Filtros e Tabela */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Todos os Saques</CardTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-2 sm:gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-2 sm:gap-4">
             <Input placeholder="Buscar por afiliado..." value={searchTerm} onChange={e => {
             setSearchTerm(e.target.value);
             setCurrentPage(1);
