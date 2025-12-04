@@ -258,7 +258,7 @@ const Referrals = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Indicações</h1>
         <p className="text-muted-foreground">
@@ -332,7 +332,7 @@ const Referrals = () => {
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
-      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-transparent lg:bg-card rounded-none lg:rounded-lg border-0 lg:border shadow-none lg:shadow-sm p-0 lg:p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
           <Button
@@ -423,6 +423,8 @@ const Referrals = () => {
       </div>
 
       {isMobile ? (
+        <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+          <CardContent className="!p-0 lg:!p-6">
         <div className="space-y-3">
           {referrals.length === 0 ? (
             <Card>
@@ -576,8 +578,10 @@ const Referrals = () => {
             </div>
           )}
         </div>
+          </CardContent>
+        </Card>
       ) : (
-        <Card>
+        <Card className="rounded-none lg:rounded-lg">
           <CardContent className="pt-6">
             <Table>
               <TableHeader>
