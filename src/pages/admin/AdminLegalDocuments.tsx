@@ -114,7 +114,7 @@ const AdminLegalDocuments = () => {
 
   if (loading) {
     return (
-      <div className="space-y-3 p-2 md:p-0">
+      <div className="space-y-3 p-4 sm:p-6">
         <h1 className="text-2xl md:text-3xl font-bold">Termos e Privacidade</h1>
         <p className="text-sm md:text-base text-muted-foreground">Carregando...</p>
       </div>
@@ -122,7 +122,7 @@ const AdminLegalDocuments = () => {
   }
 
   return (
-    <div className="space-y-3 md:space-y-6 p-2 md:p-0">
+    <div className="space-y-3 md:space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Termos e Privacidade</h1>
         <p className="text-sm md:text-base text-muted-foreground">
