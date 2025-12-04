@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User, Filter, List, LayoutGrid } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -55,6 +55,8 @@ export default function AdminPayments() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [sortColumn, setSortColumn] = useState<SortColumn>("payment_date");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"compact" | "complete">("complete");
   const debouncedSearch = useDebounce(searchTerm, 300);
   const {
     data: payments,
@@ -266,55 +268,89 @@ export default function AdminPayments() {
       {/* Filtros */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
-            <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
-            <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
-            <Input type="date" placeholder="Data inicial" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full lg:w-[160px]" />
-            <Input type="date" placeholder="Data final" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full lg:w-[160px]" />
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full lg:w-[180px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="paid">Pago</SelectItem>
-                <SelectItem value="pending">Pendente</SelectItem>
-                <SelectItem value="failed">Falhou</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-              <SelectTrigger className="w-full lg:w-[180px]">
-                <SelectValue placeholder="Ambiente" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos ambientes</SelectItem>
-                <SelectItem value="production">Produção</SelectItem>
-                <SelectItem value="test">Teste</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={itemsPerPage.toString()} onValueChange={value => {
-              setItemsPerPage(Number(value));
-              setCurrentPage(1);
-            }}>
-              <SelectTrigger className="w-full lg:w-[140px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 por página</SelectItem>
-                <SelectItem value="20">20 por página</SelectItem>
-                <SelectItem value="50">50 por página</SelectItem>
-                <SelectItem value="100">100 por página</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full lg:w-auto">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Atualizar
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <Button 
+              variant={showFilters ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => setShowFilters(!showFilters)}
+              className="gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filtros
             </Button>
-            <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
-              <FilterX className="h-4 w-4 mr-2" />
-              Limpar filtros
-            </Button>
+            <div className="flex items-center gap-1 ml-auto">
+              <Button
+                variant={viewMode === "compact" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("compact")}
+                className="gap-2"
+              >
+                <List className="h-4 w-4" />
+                <span className="hidden sm:inline">Compacto</span>
+              </Button>
+              <Button
+                variant={viewMode === "complete" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("complete")}
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden sm:inline">Completo</span>
+              </Button>
+            </div>
           </div>
+
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
+              <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
+              <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
+              <Input type="date" placeholder="Data inicial" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full lg:w-[160px]" />
+              <Input type="date" placeholder="Data final" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full lg:w-[160px]" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full lg:w-[180px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  <SelectItem value="paid">Pago</SelectItem>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="failed">Falhou</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
+                <SelectTrigger className="w-full lg:w-[180px]">
+                  <SelectValue placeholder="Ambiente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos ambientes</SelectItem>
+                  <SelectItem value="production">Produção</SelectItem>
+                  <SelectItem value="test">Teste</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={itemsPerPage.toString()} onValueChange={value => {
+                setItemsPerPage(Number(value));
+                setCurrentPage(1);
+              }}>
+                <SelectTrigger className="w-full lg:w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                  <SelectItem value="100">100 por página</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full lg:w-auto">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Atualizar
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
+                <FilterX className="h-4 w-4 mr-2" />
+                Limpar filtros
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -327,17 +363,19 @@ export default function AdminPayments() {
                       <Skeleton className="h-24 w-full" />
                     </CardContent>
                   </Card>)}
-              </div> : <TableSkeleton columns={8} rows={10} /> : isMobile ? <div className="space-y-3">
+              </div> : <TableSkeleton columns={viewMode === "compact" ? 5 : 8} rows={10} /> : isMobile ? <div className="space-y-3">
               {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => <Card key={payment.id}>
                     <CardContent className="p-4 space-y-3">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{payment.user_name || "N/A"}</p>
-                          <p className="text-xs text-muted-foreground truncate">{payment.user_email || "N/A"}</p>
+                          {viewMode === "complete" && <p className="text-xs text-muted-foreground truncate">{payment.user_email || "N/A"}</p>}
                         </div>
-                        <Badge variant={payment.status === "paid" ? "default" : "destructive"} className="flex-shrink-0">
-                          {payment.status === "paid" ? "Pago" : payment.status}
-                        </Badge>
+                        {viewMode === "complete" && (
+                          <Badge variant={payment.status === "paid" ? "default" : "destructive"} className="flex-shrink-0">
+                            {payment.status === "paid" ? "Pago" : payment.status}
+                          </Badge>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -359,34 +397,104 @@ export default function AdminPayments() {
                     })}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Ambiente:</span>
-                          <Badge variant={payment.environment === "production" ? "default" : "secondary"} className="text-xs">
-                            {payment.environment === "production" ? "Prod" : "Test"}
+                          <span className="text-muted-foreground">Tipo:</span>
+                          <Badge variant="outline" className="text-xs">
+                            {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : payment.billing_reason === "subscription_update" ? "Atualização" : payment.billing_reason || "N/A"}
                           </Badge>
                         </div>
+                        {viewMode === "complete" && (
+                          <div>
+                            <span className="text-muted-foreground">Ambiente:</span>
+                            <Badge variant={payment.environment === "production" ? "default" : "secondary"} className="text-xs">
+                              {payment.environment === "production" ? "Prod" : "Test"}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
 
-                      {(payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code) && <div className="text-xs">
+                      {viewMode === "complete" && (payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code) && <div className="text-xs">
                           <span className="text-muted-foreground">Afiliado/Cupom: </span>
                           <span className="font-medium">{payment.affiliate_name || payment.coupon_custom_code || payment.coupon_code}</span>
                         </div>}
 
-                      <div className="flex justify-between items-center pt-2 border-t">
-                        <Badge variant="outline" className="text-xs">
-                          {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : payment.billing_reason === "subscription_update" ? "Atualização" : payment.billing_reason || "N/A"}
-                        </Badge>
-                        <Button variant="ghost" size="sm" onClick={() => handleViewDetails(payment)}>
-                          <Eye className="w-4 h-4 mr-1" />
-                          Ver
-                        </Button>
-                      </div>
+                      {viewMode === "complete" && (
+                        <div className="flex justify-end items-center pt-2 border-t">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(payment)}>
+                            <Eye className="w-4 h-4 mr-1" />
+                            Ver
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>) : <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
                     Nenhum pagamento encontrado
                   </CardContent>
                 </Card>}
-            </div> : <div className="rounded-md border overflow-x-auto">
+            </div> : viewMode === "compact" ? (
+              <div className="rounded-md border overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        <button onClick={() => handleSort("user_name")} className="flex items-center hover:text-foreground transition-colors font-medium">
+                          Nome
+                          <SortIcon column="user_name" />
+                        </button>
+                      </TableHead>
+                      <TableHead>
+                        <button onClick={() => handleSort("plan_name")} className="flex items-center hover:text-foreground transition-colors font-medium">
+                          Plano
+                          <SortIcon column="plan_name" />
+                        </button>
+                      </TableHead>
+                      <TableHead>
+                        <button onClick={() => handleSort("payment_date")} className="flex items-center hover:text-foreground transition-colors font-medium">
+                          Data
+                          <SortIcon column="payment_date" />
+                        </button>
+                      </TableHead>
+                      <TableHead>
+                        <button onClick={() => handleSort("amount")} className="flex items-center hover:text-foreground transition-colors font-medium">
+                          Valor
+                          <SortIcon column="amount" />
+                        </button>
+                      </TableHead>
+                      <TableHead>Tipo</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => (
+                      <TableRow key={payment.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleViewDetails(payment)}>
+                        <TableCell className="font-medium">{payment.user_name || "N/A"}</TableCell>
+                        <TableCell>{payment.plan_name || "N/A"}</TableCell>
+                        <TableCell className="text-xs">
+                          {format(new Date(payment.payment_date), "dd/MM/yy", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell className="font-semibold">
+                          {Number(payment.amount).toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                          })}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-xs">
+                            {payment.billing_reason === "subscription_create" ? "Nova" : payment.billing_reason === "subscription_cycle" ? "Renovação" : payment.billing_reason === "subscription_update" ? "Atualização" : payment.billing_reason || "N/A"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          Nenhum pagamento encontrado
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -476,7 +584,8 @@ export default function AdminPayments() {
                     </TableRow>}
                 </TableBody>
               </Table>
-            </div>}
+            </div>
+            )}
           
           {totalCount > 0 && <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-3">
               <p className="text-sm text-muted-foreground order-2 sm:order-1">
