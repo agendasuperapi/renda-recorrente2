@@ -163,7 +163,7 @@ const AdminCpfApis = () => {
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full md:w-auto">
+            <Button className="w-full md:w-auto border border-white">
               <Plus className="mr-2 h-4 w-4" />
               Nova API
             </Button>
