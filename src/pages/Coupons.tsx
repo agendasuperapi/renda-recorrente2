@@ -524,7 +524,7 @@ const Coupons = () => {
                 const isActivated = !!coupon.activatedCoupon;
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
-                return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" : "hover:bg-accent/50"}`}>
+                return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-800" : ""} ${!isActivated ? "bg-orange-50 dark:bg-orange-950/20 border-orange-300 dark:border-orange-700" : "hover:bg-accent/50"}`}>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
                                 <h3 className="font-semibold">{coupon.name}</h3>
@@ -536,6 +536,11 @@ const Coupons = () => {
                                 {coupon.type === "days" && `${coupon.value} dias`}
                                 {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
                               </Badge>
+                              {isActivated ? (
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Liberado</Badge>
+                              ) : (
+                                <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400">Não Liberado</Badge>
+                              )}
                               {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
                                   Ativo
                                 </Badge>}
