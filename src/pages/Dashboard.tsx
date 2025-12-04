@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useIsMobile } from "@/hooks/use-mobile";
 interface DashboardStats {
   affiliate_id: string;
   comissao_hoje: number;
@@ -61,6 +63,7 @@ const Dashboard = () => {
   const [recentCommissions, setRecentCommissions] = useState<RecentCommission[]>([]);
   const [dailyChartData, setDailyChartData] = useState<DailyChartData[]>([]);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   useEffect(() => {
     const loadDashboardData = async () => {
       setLoading(true);
@@ -317,87 +320,172 @@ const Dashboard = () => {
     }
   };
   return <div className="space-y-4 sm:space-y-6">
-      {/* Modal de Boas-vindas */}
-      <Dialog open={showWelcome} onOpenChange={handleCloseWelcome}>
-        <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden max-h-[90vh] overflow-y-auto">
-          <VisuallyHidden>
-            <DialogTitle>Bem-vindo ao sistema</DialogTitle>
-          </VisuallyHidden>
-          <div className="p-4 sm:p-8 text-center space-y-3 sm:space-y-4">
-            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-in zoom-in duration-500" />
+      {/* Modal de Boas-vindas - Drawer no mobile, Dialog no desktop */}
+      {isMobile ? (
+        <Drawer open={showWelcome} onOpenChange={handleCloseWelcome}>
+          <DrawerContent className="max-h-[90vh]">
+            <VisuallyHidden>
+              <DrawerTitle>Bem-vindo ao sistema</DrawerTitle>
+            </VisuallyHidden>
+            <div className="overflow-y-auto">
+              <div className="p-4 text-center space-y-3">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-10 h-10 text-primary animate-in zoom-in duration-500" />
+                </div>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Bem-vindo{userName ? `, ${userName}` : ""}!
+                </h2>
+                <p className="text-base text-muted-foreground">
+                  Sua assinatura foi ativada com sucesso. Agora você tem acesso a todos os recursos da plataforma!
+                </p>
+              </div>
+
+              <div className="px-4 pb-6 space-y-4">
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Próximos Passos:</h3>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-foreground mb-1">1. Complete seu perfil</h4>
+                        <p className="text-xs text-muted-foreground">
+                          Adicione suas informações pessoais e configure suas preferências
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Users className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-foreground mb-1">2. Explore o Dashboard</h4>
+                        <p className="text-xs text-muted-foreground">
+                          Conheça todas as ferramentas e recursos disponíveis para você
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Trophy className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-foreground mb-1">3. Comece a ganhar</h4>
+                        <p className="text-xs text-muted-foreground">
+                          Utilize suas ferramentas de afiliado e comece a gerar comissões
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Button onClick={handleCloseWelcome} className="w-full h-10 text-sm font-semibold group" size="lg">
+                    Começar agora
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                  
+                  <Button onClick={() => {
+                    handleCloseWelcome();
+                    navigate("/profile");
+                  }} variant="outline" className="w-full h-10 text-sm" size="lg">
+                    Completar Perfil
+                  </Button>
+                </div>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  Precisa de ajuda? Entre em contato com nosso suporte a qualquer momento.
+                </p>
+              </div>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Bem-vindo{userName ? `, ${userName}` : ""}!
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground">
-              Sua assinatura foi ativada com sucesso. Agora você tem acesso a todos os recursos da plataforma!
-            </p>
-          </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={showWelcome} onOpenChange={handleCloseWelcome}>
+          <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <VisuallyHidden>
+              <DialogTitle>Bem-vindo ao sistema</DialogTitle>
+            </VisuallyHidden>
+            <div className="p-8 text-center space-y-4">
+              <div className="mx-auto w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-12 h-12 text-primary animate-in zoom-in duration-500" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Bem-vindo{userName ? `, ${userName}` : ""}!
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Sua assinatura foi ativada com sucesso. Agora você tem acesso a todos os recursos da plataforma!
+              </p>
+            </div>
 
-          <div className="px-4 sm:px-8 pb-4 sm:pb-8 space-y-4 sm:space-y-6">
-            <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-lg sm:text-xl font-semibold text-foreground">Próximos Passos:</h3>
-              
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+            <div className="px-8 pb-8 space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-foreground">Próximos Passos:</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <BookOpen className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-base text-foreground mb-1">1. Complete seu perfil</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Adicione suas informações pessoais e configure suas preferências
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm sm:text-base text-foreground mb-1">1. Complete seu perfil</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Adicione suas informações pessoais e configure suas preferências
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Users className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-base text-foreground mb-1">2. Explore o Dashboard</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Conheça todas as ferramentas e recursos disponíveis para você
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm sm:text-base text-foreground mb-1">2. Explore o Dashboard</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Conheça todas as ferramentas e recursos disponíveis para você
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm sm:text-base text-foreground mb-1">3. Comece a ganhar</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Utilize suas ferramentas de afiliado e comece a gerar comissões
-                    </p>
+                  <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Trophy className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-base text-foreground mb-1">3. Comece a ganhar</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Utilize suas ferramentas de afiliado e comece a gerar comissões
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-2 sm:space-y-3">
-              <Button onClick={handleCloseWelcome} className="w-full h-10 sm:h-12 text-sm sm:text-base font-semibold group" size="lg">
-                Começar agora
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              
-              <Button onClick={() => {
-              handleCloseWelcome();
-              navigate("/profile");
-            }} variant="outline" className="w-full h-10 sm:h-12 text-sm sm:text-base" size="lg">
-                Completar Perfil
-              </Button>
-            </div>
+              <div className="space-y-3">
+                <Button onClick={handleCloseWelcome} className="w-full h-12 text-base font-semibold group" size="lg">
+                  Começar agora
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                
+                <Button onClick={() => {
+                  handleCloseWelcome();
+                  navigate("/profile");
+                }} variant="outline" className="w-full h-12 text-base" size="lg">
+                  Completar Perfil
+                </Button>
+              </div>
 
-            <p className="text-center text-xs sm:text-sm text-muted-foreground">
-              Precisa de ajuda? Entre em contato com nosso suporte a qualquer momento.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
+              <p className="text-center text-sm text-muted-foreground">
+                Precisa de ajuda? Entre em contato com nosso suporte a qualquer momento.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Dashboard Content */}
       {loading ? <DashboardSkeleton /> : <>
