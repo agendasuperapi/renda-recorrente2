@@ -358,7 +358,7 @@ const AdminCoupons = () => {
   const totalUses = couponsList.reduce((sum, c) => sum + (c.current_uses || 0), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Gestão de Cupons</h1>
