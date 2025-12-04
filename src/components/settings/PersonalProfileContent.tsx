@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,14 +9,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History, X } from "lucide-react";
+import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History, X, Camera } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+interface UsernameHistoryItem {
+  id: string;
+  username: string;
+  new_username: string | null;
+  changed_at: string;
+}
 
 interface UsernameHistoryItem {
   id: string;
@@ -32,6 +41,11 @@ export const PersonalProfileContent = () => {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [showAvatarCropDialog, setShowAvatarCropDialog] = useState(false);
+  const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [usernameHistory, setUsernameHistory] = useState<UsernameHistoryItem[]>([]);
   
   const [formData, setFormData] = useState({
@@ -101,7 +115,7 @@ export const PersonalProfileContent = () => {
       setLoadingProfile(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin")
+        .select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin, avatar_url")
         .eq("id", userId)
         .single();
 
@@ -109,6 +123,7 @@ export const PersonalProfileContent = () => {
 
       if (data) {
         const profileData = data as any;
+        setAvatarUrl(profileData.avatar_url || null);
         setFormData({
           name: profileData.name || "",
           username: profileData.username || "",
@@ -306,6 +321,65 @@ export const PersonalProfileContent = () => {
     }
   };
 
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor, selecione uma imagem");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarImageSrc(reader.result as string);
+      setShowAvatarCropDialog(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedAvatar = async (croppedBlob: Blob) => {
+    if (!userId) return;
+    
+    setUploadingAvatar(true);
+    try {
+      const fileName = `${userId}/avatar-${Date.now()}.jpg`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, croppedBlob, {
+          cacheControl: "3600",
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+
+      const newAvatarUrl = urlData.publicUrl;
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: newAvatarUrl })
+        .eq("id", userId);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(newAvatarUrl);
+      toast.success("Foto de perfil atualizada!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast.error("Erro ao atualizar foto de perfil");
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -400,6 +474,40 @@ export const PersonalProfileContent = () => {
               </TabsList>
 
               <TabsContent value="personal" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+                {/* Avatar Section */}
+                <div className="flex flex-col items-center gap-3 pb-4 border-b">
+                  <div className="relative">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage src={avatarUrl || undefined} alt={formData.name} />
+                      <AvatarFallback className="text-2xl">
+                        {formData.name?.charAt(0)?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="secondary"
+                      className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                    >
+                      {uploadingAvatar ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Camera className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarSelect}
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Clique no ícone para alterar a foto</p>
+                </div>
+
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="name" className="text-sm">Nome Completo *</Label>
                   <Input
@@ -772,6 +880,13 @@ export const PersonalProfileContent = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      <AvatarCropDialog
+        open={showAvatarCropDialog}
+        onOpenChange={setShowAvatarCropDialog}
+        imageSrc={avatarImageSrc}
+        onCropComplete={handleCroppedAvatar}
+      />
     </>
   );
 };
