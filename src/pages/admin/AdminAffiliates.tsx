@@ -264,7 +264,7 @@ const AdminAffiliates = () => {
       <Card className="lg:bg-card bg-transparent border-0 lg:border shadow-none lg:shadow-sm">
         <CardContent className="lg:pt-6 p-0 lg:p-6">
           {isMobile ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {isLoading ? (
                 <>
                   {[...Array(10)].map((_, i) => (
