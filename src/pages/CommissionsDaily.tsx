@@ -323,7 +323,7 @@ const CommissionsDaily = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:px-6 lg:px-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -380,7 +380,7 @@ const CommissionsDaily = () => {
       )}
 
       {/* Botão de filtros mobile/tablet */}
-      <div className="lg:hidden flex items-center justify-between md:px-6">
+      <div className="lg:hidden flex items-center justify-between">
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
@@ -407,7 +407,7 @@ const CommissionsDaily = () => {
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
-      <div className={`bg-card rounded-lg border p-6 md:mx-6 lg:mx-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
           <Button
