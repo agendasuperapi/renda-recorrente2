@@ -265,7 +265,7 @@ export const Sidebar = ({
         // Buscar plano do usuário através de subscriptions
         const {
           data: subscription
-        } = await supabase.from('subscriptions').select('plan_id, current_period_start, current_period_end, status, cancel_at_period_end, plans(name, is_free, commission_percentage)').eq('user_id', user.id).eq('status', 'active').order('created_at', {
+        } = await supabase.from('subscriptions').select('plan_id, current_period_start, current_period_end, status, cancel_at_period_end, plans(name, is_free, commission_percentage)').eq('user_id', user.id).in('status', ['active', 'trialing', 'past_due']).order('created_at', {
           ascending: false
         }).limit(1).maybeSingle();
         if (subscription && subscription.plans) {
