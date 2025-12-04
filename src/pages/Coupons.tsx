@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
@@ -43,142 +42,6 @@ interface GroupedProduct {
   iconDark?: string | null;
   coupons: AvailableCoupon[];
 }
-
-// Component for coupon details content (used in both Dialog and Drawer)
-const CouponDetailsContent = ({
-  coupon,
-  profile,
-  generateCustomCode,
-  getAffiliateLink,
-  handleCopy,
-  deactivateCoupon,
-  reactivateCoupon,
-  activateCoupon,
-  handleActivateCoupon,
-  setDetailsOpen
-}: {
-  coupon: AvailableCoupon;
-  profile: { username: string | null } | null | undefined;
-  generateCustomCode: (username: string, code?: string, isPrimary?: boolean) => string;
-  getAffiliateLink: (coupon: any) => string | null;
-  handleCopy: (text: string) => void;
-  deactivateCoupon: any;
-  reactivateCoupon: any;
-  activateCoupon: any;
-  handleActivateCoupon: (couponId: string, couponCode: string, isPrimary: boolean, productId: string) => void;
-  setDetailsOpen: (open: boolean) => void;
-}) => {
-  return (
-    <div className="px-4 pb-6 space-y-4">
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2 items-center">
-          <h3 className="font-semibold text-lg">{coupon.name}</h3>
-          {coupon.is_primary && <Badge className="bg-yellow-500 text-white">Principal</Badge>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">
-            {coupon.type === "percentage" && `${coupon.value}%`}
-            {coupon.type === "days" && `${coupon.value} dias`}
-            {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
-          </Badge>
-          {coupon.products && <Badge variant="secondary">{coupon.products.nome}</Badge>}
-          {coupon.activatedCoupon?.is_active && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Ativo</Badge>}
-          {coupon.activatedCoupon && !coupon.activatedCoupon.is_active && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">Inativo</Badge>}
-        </div>
-      </div>
-
-      <p className="text-sm text-muted-foreground">
-        {coupon.description || "Sem descrição"}
-      </p>
-
-      <div className="space-y-3">
-        <div>
-          <span className="text-sm text-muted-foreground block mb-1">Seu cupom:</span>
-          <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-2 rounded block">
-            {coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false)}
-          </code>
-        </div>
-
-        {getAffiliateLink(coupon) && coupon.activatedCoupon?.is_active && (
-          <div>
-            <span className="text-sm text-muted-foreground block mb-1">Link de afiliado:</span>
-            <code className="text-sm bg-muted px-3 py-2 rounded block break-all">
-              {getAffiliateLink(coupon)}
-            </code>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-2 pt-2">
-        {coupon.activatedCoupon ? (
-          <>
-            {coupon.activatedCoupon.is_active && (
-              <>
-                <Button variant="outline" className="flex-1" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copiar Cupom
-                </Button>
-                {getAffiliateLink(coupon) && (
-                  <>
-                    <Button variant="outline" className="flex-1" onClick={() => handleCopy(getAffiliateLink(coupon) || "")}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copiar Link
-                    </Button>
-                    <Button variant="outline" className="flex-1" onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')}>
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Abrir link
-                    </Button>
-                    <Button variant="outline" className="flex-1" onClick={() => {
-                      const link = getAffiliateLink(coupon) || "";
-                      if (navigator.share) {
-                        navigator.share({
-                          title: `Cupom ${coupon.activatedCoupon?.custom_code}`,
-                          text: `Use meu cupom de desconto!`,
-                          url: link
-                        });
-                      } else {
-                        handleCopy(link);
-                      }
-                    }}>
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Compartilhar
-                    </Button>
-                  </>
-                )}
-              </>
-            )}
-            {coupon.activatedCoupon.is_active ? (
-              <Button variant="outline" className="w-full" onClick={() => {
-                deactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
-                setDetailsOpen(false);
-              }} disabled={deactivateCoupon.isPending}>
-                <XCircle className="h-4 w-4 mr-2" />
-                Inativar Cupom
-              </Button>
-            ) : (
-              <Button variant="outline" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => {
-                reactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
-                setDetailsOpen(false);
-              }} disabled={reactivateCoupon.isPending}>
-                <Check className="h-4 w-4 mr-2" />
-                Ativar Cupom
-              </Button>
-            )}
-          </>
-        ) : (
-          <Button className="w-full" onClick={() => {
-            handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id);
-            setDetailsOpen(false);
-          }} disabled={activateCoupon.isPending || !profile?.username}>
-            <Check className="h-4 w-4 mr-2" />
-            Liberar Cupom
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-};
-
 const Coupons = () => {
   const isMobile = useIsMobile();
   const {
@@ -1114,48 +977,108 @@ const Coupons = () => {
         </CardContent>
       </Card>
 
-      {/* Coupon Details - Dialog for Desktop, Drawer for Mobile */}
-      {isMobile ? (
-        <Drawer open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DrawerContent className="max-h-[85vh]">
-            <DrawerHeader className="pb-2 relative">
-              <DrawerTitle className="text-center">Detalhes do Cupom</DrawerTitle>
-            </DrawerHeader>
-            {selectedCoupon && <CouponDetailsContent 
-              coupon={selectedCoupon}
-              profile={profile}
-              generateCustomCode={generateCustomCode}
-              getAffiliateLink={getAffiliateLink}
-              handleCopy={handleCopy}
-              deactivateCoupon={deactivateCoupon}
-              reactivateCoupon={reactivateCoupon}
-              activateCoupon={activateCoupon}
-              handleActivateCoupon={handleActivateCoupon}
-              setDetailsOpen={setDetailsOpen}
-            />}
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Detalhes do Cupom</DialogTitle>
-            </DialogHeader>
-            {selectedCoupon && <CouponDetailsContent 
-              coupon={selectedCoupon}
-              profile={profile}
-              generateCustomCode={generateCustomCode}
-              getAffiliateLink={getAffiliateLink}
-              handleCopy={handleCopy}
-              deactivateCoupon={deactivateCoupon}
-              reactivateCoupon={reactivateCoupon}
-              activateCoupon={activateCoupon}
-              handleActivateCoupon={handleActivateCoupon}
-              setDetailsOpen={setDetailsOpen}
-            />}
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* Coupon Details Drawer */}
+      <Drawer open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="pb-2 relative">
+            <DrawerTitle className="text-center">Detalhes do Cupom</DrawerTitle>
+            
+          </DrawerHeader>
+          {selectedCoupon && <div className="px-4 pb-6 space-y-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <h3 className="font-semibold text-lg">{selectedCoupon.name}</h3>
+                  {selectedCoupon.is_primary && <Badge className="bg-yellow-500 text-white">Principal</Badge>}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">
+                    {selectedCoupon.type === "percentage" && `${selectedCoupon.value}%`}
+                    {selectedCoupon.type === "days" && `${selectedCoupon.value} dias`}
+                    {selectedCoupon.type === "free_trial" && `${selectedCoupon.value} dias grátis`}
+                  </Badge>
+                  {selectedCoupon.products && <Badge variant="secondary">{selectedCoupon.products.nome}</Badge>}
+                  {selectedCoupon.activatedCoupon?.is_active && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Ativo</Badge>}
+                  {selectedCoupon.activatedCoupon && !selectedCoupon.activatedCoupon.is_active && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">Inativo</Badge>}
+                </div>
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                {selectedCoupon.description || "Sem descrição"}
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <span className="text-sm text-muted-foreground block mb-1">Seu cupom:</span>
+                  <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-2 rounded block">
+                    {selectedCoupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", selectedCoupon.code, selectedCoupon.is_primary || false)}
+                  </code>
+                </div>
+
+                {getAffiliateLink(selectedCoupon) && selectedCoupon.activatedCoupon?.is_active && <div>
+                    <span className="text-sm text-muted-foreground block mb-1">Link de afiliado:</span>
+                    <code className="text-sm bg-muted px-3 py-2 rounded block break-all">
+                      {getAffiliateLink(selectedCoupon)}
+                    </code>
+                  </div>}
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {selectedCoupon.activatedCoupon ? <>
+                    {selectedCoupon.activatedCoupon.is_active && <>
+                        <Button variant="outline" className="flex-1" onClick={() => handleCopy(selectedCoupon.activatedCoupon?.custom_code || "")}>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Copiar Cupom
+                        </Button>
+                        {getAffiliateLink(selectedCoupon) && <>
+                            <Button variant="outline" className="flex-1" onClick={() => handleCopy(getAffiliateLink(selectedCoupon) || "")}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copiar Link
+                            </Button>
+                            <Button variant="outline" className="flex-1" onClick={() => window.open(getAffiliateLink(selectedCoupon) || "", '_blank')}>
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Abrir link
+                            </Button>
+                            <Button variant="outline" className="flex-1" onClick={() => {
+                              const link = getAffiliateLink(selectedCoupon) || "";
+                              if (navigator.share) {
+                                navigator.share({
+                                  title: `Cupom ${selectedCoupon.activatedCoupon?.custom_code}`,
+                                  text: `Use meu cupom de desconto!`,
+                                  url: link
+                                });
+                              } else {
+                                handleCopy(link);
+                              }
+                            }}>
+                              <Share2 className="h-4 w-4 mr-2" />
+                              Compartilhar
+                            </Button>
+                          </>}
+                      </>}
+                    {selectedCoupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full" onClick={() => {
+                deactivateCoupon.mutate(selectedCoupon.activatedCoupon?.id || "");
+                setDetailsOpen(false);
+              }} disabled={deactivateCoupon.isPending}>
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Inativar Cupom
+                      </Button> : <Button variant="outline" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => {
+                reactivateCoupon.mutate(selectedCoupon.activatedCoupon?.id || "");
+                setDetailsOpen(false);
+              }} disabled={reactivateCoupon.isPending}>
+                        <Check className="h-4 w-4 mr-2" />
+                        Ativar Cupom
+                      </Button>}
+                  </> : <Button className="w-full" onClick={() => {
+              handleActivateCoupon(selectedCoupon.id, selectedCoupon.code, selectedCoupon.is_primary || false, selectedCoupon.product_id);
+              setDetailsOpen(false);
+            }} disabled={activateCoupon.isPending || !profile?.username}>
+                    <Check className="h-4 w-4 mr-2" />
+                    Liberar Cupom
+                  </Button>}
+              </div>
+            </div>}
+        </DrawerContent>
+      </Drawer>
 
     </div>;
 };
