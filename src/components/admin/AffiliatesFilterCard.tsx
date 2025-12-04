@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, RefreshCw, FilterX } from "lucide-react";
+import { Search, RefreshCw, FilterX, X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -28,6 +28,8 @@ interface AffiliatesFilterCardProps {
   plansData?: string[];
   onRefresh: () => void;
   onResetFilters: () => void;
+  showFilters?: boolean;
+  onCloseFilters?: () => void;
 }
 
 export function AffiliatesFilterCard({
@@ -48,11 +50,23 @@ export function AffiliatesFilterCard({
   plansData,
   onRefresh,
   onResetFilters,
+  showFilters = true,
+  onCloseFilters,
 }: AffiliatesFilterCardProps) {
   return (
-    <Card>
-      <CardHeader className="pb-4">
+    <Card className={`${showFilters ? 'block' : 'hidden lg:block'}`}>
+      <CardHeader className="pb-4 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-medium">Filtros</CardTitle>
+        {onCloseFilters && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onCloseFilters}
+            className="lg:hidden h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Linha 1: Busca + Filtros principais */}

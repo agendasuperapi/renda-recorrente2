@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Eye, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -53,6 +54,8 @@ const AdminAffiliates = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [selectedAffiliateId, setSelectedAffiliateId] = useState<string | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
+  const [showFilters, setShowFilters] = useState(false);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
@@ -201,6 +204,32 @@ const AdminAffiliates = () => {
         </p>
       </div>
 
+      {/* Botão de filtros e toggle de layout - mobile/tablet */}
+      <div className="lg:hidden flex items-center justify-between">
+        <Button
+          variant="outline"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+          {(searchTerm || planFilter !== "all" || periodFilter !== "all" || statusFilter !== "all" || startDate || endDate) && (
+            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+              !
+            </Badge>
+          )}
+        </Button>
+        
+        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
+          <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+            <LayoutList className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       <AffiliatesFilterCard
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -228,6 +257,8 @@ const AdminAffiliates = () => {
         plansData={plansData}
         onRefresh={handleRefresh}
         onResetFilters={handleResetFilters}
+        showFilters={showFilters}
+        onCloseFilters={() => setShowFilters(false)}
       />
 
       <Card>
@@ -247,67 +278,116 @@ const AdminAffiliates = () => {
               ) : paginatedAffiliates && paginatedAffiliates.length > 0 ? (
                 paginatedAffiliates.map((affiliate) => (
                   <Card key={affiliate.id}>
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <Avatar className="h-10 w-10 flex-shrink-0">
-                            {affiliate.avatar_url && (
-                              <AvatarImage src={affiliate.avatar_url} alt={affiliate.name} />
-                            )}
-                            <AvatarFallback className="bg-primary text-primary-foreground">
-                              {getInitials(affiliate.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{affiliate.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{affiliate.email || "-"}</p>
-                            <p className="text-xs text-muted-foreground truncate">@{affiliate.username || "-"}</p>
+                    <CardContent className="p-0">
+                      {/* Modo Compacto */}
+                      {layoutMode === "compact" && (
+                        <div className="p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Avatar className="h-10 w-10 flex-shrink-0">
+                                {affiliate.avatar_url && (
+                                  <AvatarImage src={affiliate.avatar_url} alt={affiliate.name} />
+                                )}
+                                <AvatarFallback className="bg-primary text-primary-foreground">
+                                  {getInitials(affiliate.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm truncate">{affiliate.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <p className="text-xs text-muted-foreground truncate max-w-[80px]">{affiliate.plan_name}</p>
+                                <Badge variant={getStatusBadge(affiliate.plan_status)} className="text-[10px] h-5">
+                                  {affiliate.plan_status === "active" 
+                                    ? "Ativo" 
+                                    : affiliate.plan_status === "trialing" 
+                                      ? "Teste" 
+                                      : "Inativo"}
+                                </Badge>
+                              </div>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 flex-shrink-0"
+                                onClick={() => handleViewDetails(affiliate.id)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <Badge variant={getStatusBadge(affiliate.plan_status)} className="flex-shrink-0">
-                          {affiliate.plan_status === "active" 
-                            ? "Ativo" 
-                            : affiliate.plan_status === "trialing" 
-                              ? "Em teste" 
-                              : "Inativo"}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-muted-foreground">Plano:</span>
-                          <p className="font-medium truncate">{affiliate.plan_name}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Período:</span>
-                          <p className="font-medium truncate">
-                            {affiliate.plan_period === "daily" ? "Diário" : affiliate.plan_period === "monthly" ? "Mensal" : affiliate.plan_period === "annual" ? "Anual" : affiliate.plan_period}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Cadastro:</span>
-                          <p className="font-medium">{affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Dia de Saque:</span>
-                          <p className="font-medium">{getWeekdayLabel(affiliate.withdrawal_day)}</p>
-                        </div>
-                      </div>
+                      )}
 
-                      <div className="flex justify-between items-center pt-2 border-t">
-                        <div className="text-xs">
-                          <span className="text-muted-foreground">Indicações: </span>
-                          <span className="font-bold">{affiliate.referrals_count}</span>
+                      {/* Modo Completo */}
+                      {layoutMode === "complete" && (
+                        <div className="p-4 space-y-3">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Avatar className="h-10 w-10 flex-shrink-0">
+                                {affiliate.avatar_url && (
+                                  <AvatarImage src={affiliate.avatar_url} alt={affiliate.name} />
+                                )}
+                                <AvatarFallback className="bg-primary text-primary-foreground">
+                                  {getInitials(affiliate.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm truncate">{affiliate.name}</p>
+                                <p className="text-xs text-muted-foreground truncate">{affiliate.email || "-"}</p>
+                                <p className="text-xs text-muted-foreground truncate">@{affiliate.username || "-"}</p>
+                              </div>
+                            </div>
+                            <Badge variant={getStatusBadge(affiliate.plan_status)} className="flex-shrink-0">
+                              {affiliate.plan_status === "active" 
+                                ? "Ativo" 
+                                : affiliate.plan_status === "trialing" 
+                                  ? "Em teste" 
+                                  : "Inativo"}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Plano:</span>
+                              <p className="font-medium truncate">{affiliate.plan_name}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Período:</span>
+                              <p className="font-medium truncate">
+                                {affiliate.plan_period === "daily" ? "Diário" : affiliate.plan_period === "monthly" ? "Mensal" : affiliate.plan_period === "annual" ? "Anual" : affiliate.plan_period}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Cadastro:</span>
+                              <p className="font-medium">{affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Dia de Saque:</span>
+                              <p className="font-medium">{getWeekdayLabel(affiliate.withdrawal_day)}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center pt-2 border-t">
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">Indicações: </span>
+                              <span className="font-bold">{affiliate.referrals_count}</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleViewDetails(affiliate.id)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Ver
+                            </Button>
+                          </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewDetails(affiliate.id)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          Ver
-                        </Button>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))
