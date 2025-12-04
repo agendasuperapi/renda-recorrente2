@@ -11,6 +11,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBgConfig } from "@/hooks/useBgConfig";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { usePreventOverscroll } from "@/hooks/usePreventOverscroll";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ export const DashboardLayout = () => {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const initRef = useRef(false);
+  const scrollContainerRef = usePreventOverscroll(true);
 
   // Redirecionar super admin para /admin/versions se a versão atual não estiver cadastrada
   useEffect(() => {
@@ -189,7 +191,11 @@ export const DashboardLayout = () => {
     <div className="min-h-screen bg-[#10b981]">
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
-        <div className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)]" style={{ overscrollBehavior: 'none' }}>
+        <div 
+          ref={scrollContainerRef}
+          className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)] overflow-y-auto" 
+          style={{ overscrollBehavior: 'none' }}
+        >
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
           <main 
             className={`flex-1 min-h-screen overflow-x-hidden ${isMobile ? 'px-3 pt-6 pb-20' : 'lg:ml-64 px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
