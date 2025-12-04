@@ -415,7 +415,7 @@ const Coupons = () => {
           onSuccess={async () => {
             await queryClient.refetchQueries({ queryKey: ["profile", userId] });
             await queryClient.refetchQueries({ queryKey: ["available-coupons", userId] });
-            await queryClient.refetchQueries({ queryKey: ["affiliate-coupons", userId] });
+            await queryClient.refetchQueries({ queryKey: ["activated-coupons", userId] });
           }}
         />
       )}
