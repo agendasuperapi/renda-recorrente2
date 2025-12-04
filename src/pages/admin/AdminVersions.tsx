@@ -406,7 +406,7 @@ export default function AdminVersions() {
               {versions.map((v) => (
                 <div
                   key={v.id}
-                  className={`border rounded-lg p-3 md:p-4 space-y-3 md:space-y-2 ${
+                  className={`border rounded-lg p-3 md:p-4 space-y-3 md:space-y-2 bg-card lg:bg-transparent ${
                     editingVersionId === v.id ? "bg-accent/50" : ""
                   }`}
                 >
