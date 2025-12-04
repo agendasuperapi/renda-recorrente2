@@ -611,41 +611,49 @@ const Coupons = () => {
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
                 if (layoutMode === "compact") {
-                  return <div key={coupon.id} className={`flex items-center gap-3 p-3 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-sm truncate">{coupon.name}</span>
-                                  {isActivated ? (
-                                    <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Liberado</Badge>
-                                  ) : (
-                                    <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-xs shrink-0">Não Liberado</Badge>
-                                  )}
-                                  {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Ativo</Badge>}
-                                  {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs shrink-0">Inativo</Badge>}
-                                </div>
-                                <code className="text-xs font-mono text-muted-foreground">
-                                  {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                                </code>
-                              </div>
-                              <div className="flex items-center gap-1.5 shrink-0">
-                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                  return <div key={coupon.id} className={`p-3 border rounded-lg bg-card space-y-2 ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
+                    {/* Linha 1: Nome e botão de detalhes */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-sm">{coupon.name}</span>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
                         setSelectedCoupon(coupon);
                         setDetailsOpen(true);
                       }}>
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                                {isActivated && isActive && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                                    <Copy className="h-3.5 w-3.5" />
-                                  </Button>}
-                                {isActivated ? isActive ? <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
-                                      <XCircle className="h-3.5 w-3.5" />
-                                    </Button> : <Button variant="outline" size="icon" className="h-8 w-8 bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
-                                      <Check className="h-3.5 w-3.5" />
-                                    </Button> : <Button size="icon" className="h-8 w-8" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
-                                    <Check className="h-3.5 w-3.5" />
-                                  </Button>}
-                              </div>
-                            </div>;
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Linha 2: Badges de status */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {isActivated ? (
+                        <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Liberado</Badge>
+                      ) : (
+                        <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-[10px]">Não Liberado</Badge>
+                      )}
+                      {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Ativo</Badge>}
+                      {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-[10px]">Inativo</Badge>}
+                    </div>
+                    
+                    {/* Linha 3: Código e ações */}
+                    <div className="flex items-center justify-between gap-2 bg-muted/50 rounded px-2 py-1.5">
+                      <code className="text-xs font-mono text-muted-foreground truncate flex-1">
+                        {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                      </code>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {isActivated && isActive && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>}
+                        {isActivated ? isActive ? <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                              <XCircle className="h-3.5 w-3.5" />
+                            </Button> : <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                              <Check className="h-3.5 w-3.5" />
+                            </Button> : <Button size="sm" className="h-7 text-xs" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                            <Check className="h-3.5 w-3.5 mr-1" />
+                            Liberar
+                          </Button>}
+                      </div>
+                    </div>
+                  </div>;
                 }
                 return <Card key={coupon.id} className={`${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
                             <CardContent className="p-4 space-y-3">
@@ -887,36 +895,50 @@ const Coupons = () => {
             const isActive = coupon.activatedCoupon?.is_active;
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             if (layoutMode === "compact") {
-              return <div key={coupon.id} className={`flex items-center gap-3 p-3 border rounded-lg ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}`}>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm truncate">{coupon.name}</span>
-                            {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Ativo</Badge>}
-                            {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs shrink-0">Inativo</Badge>}
-                          </div>
-                          <code className="text-xs font-mono text-muted-foreground">
-                            {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                          </code>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+              return <div key={coupon.id} className={`p-3 border rounded-lg bg-card space-y-2 ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
+                {/* Linha 1: Nome e botão de detalhes */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-sm">{coupon.name}</span>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
                     setSelectedCoupon(coupon);
                     setDetailsOpen(true);
                   }}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {isActivated && isActive && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>}
-                          {isActivated ? isActive ? <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
-                                <XCircle className="h-3.5 w-3.5" />
-                              </Button> : <Button variant="outline" size="icon" className="h-8 w-8 bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
-                                <Check className="h-3.5 w-3.5" />
-                              </Button> : <Button size="icon" className="h-8 w-8" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
-                              <Check className="h-3.5 w-3.5" />
-                            </Button>}
-                        </div>
-                      </div>;
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                {/* Linha 2: Badges de status */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {isActivated ? (
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Liberado</Badge>
+                  ) : (
+                    <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-[10px]">Não Liberado</Badge>
+                  )}
+                  {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Ativo</Badge>}
+                  {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-[10px]">Inativo</Badge>}
+                  {coupon.products && <Badge variant="secondary" className="text-[10px]">{coupon.products.nome}</Badge>}
+                </div>
+                
+                {/* Linha 3: Código e ações */}
+                <div className="flex items-center justify-between gap-2 bg-muted/50 rounded px-2 py-1.5">
+                  <code className="text-xs font-mono text-muted-foreground truncate flex-1">
+                    {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                  </code>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {isActivated && isActive && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>}
+                    {isActivated ? isActive ? <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                          <XCircle className="h-3.5 w-3.5" />
+                        </Button> : <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                          <Check className="h-3.5 w-3.5" />
+                        </Button> : <Button size="sm" className="h-7 text-xs" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                        <Check className="h-3.5 w-3.5 mr-1" />
+                        Liberar
+                      </Button>}
+                  </div>
+                </div>
+              </div>;
             }
             return <Card key={coupon.id} className={isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}>
                       <CardContent className="p-4 space-y-3">
