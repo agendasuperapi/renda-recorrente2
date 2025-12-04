@@ -54,8 +54,8 @@ export function AffiliatesFilterCard({
   onCloseFilters,
 }: AffiliatesFilterCardProps) {
   return (
-    <Card className={`${showFilters ? 'block' : 'hidden lg:block'}`}>
-      <CardHeader className="pb-4 flex flex-row items-center justify-between">
+    <Card className={`${showFilters ? 'block' : 'hidden lg:block'} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg`}>
+      <CardHeader className="!p-0 !pb-4 lg:!p-6 lg:!pb-4 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-medium">Filtros</CardTitle>
         {onCloseFilters && (
           <Button
@@ -68,7 +68,7 @@ export function AffiliatesFilterCard({
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="!p-0 lg:!p-6 !pt-0 lg:!pt-0 space-y-4">
         {/* Linha 1: Busca + Filtros principais */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="relative sm:col-span-2 lg:col-span-2">

@@ -196,7 +196,7 @@ const AdminAffiliates = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Afiliados</h1>
         <p className="text-muted-foreground">
@@ -261,8 +261,8 @@ const AdminAffiliates = () => {
         onCloseFilters={() => setShowFilters(false)}
       />
 
-      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-        <CardContent className="p-0 lg:pt-6 lg:px-6 lg:pb-6">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardContent className="!p-0 lg:!p-6">
           {isMobile ? (
             <div className="space-y-3 w-full">
               {isLoading ? (
