@@ -190,7 +190,7 @@ export const Sidebar = ({
   const [showAvatarCropDialog, setShowAvatarCropDialog] = useState(false);
   const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const versionInfo = useVersionCheck();
+  const { checkVersion, ...versionInfo } = useVersionCheck();
 
   // Salvar preferência de menu no localStorage e notificar BottomNav
   useEffect(() => {
@@ -529,9 +529,14 @@ export const Sidebar = ({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center justify-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity">
+                <div 
+                  className="flex items-center justify-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity"
+                  onClick={() => checkVersion()}
+                >
                   <span>v{APP_VERSION}</span>
-                  {versionInfo.hasUpdate ? (
+                  {versionInfo.isChecking ? (
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  ) : versionInfo.hasUpdate ? (
                     <X className="h-3.5 w-3.5 text-red-500" />
                   ) : (
                     <Check className="h-3.5 w-3.5 text-green-500" />
@@ -540,7 +545,10 @@ export const Sidebar = ({
                     <Badge 
                       variant="default" 
                       className="text-[10px] px-1 py-0 h-4 cursor-pointer"
-                      onClick={() => window.location.reload()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.reload();
+                      }}
                     >
                       <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
                       Atualizar
@@ -565,6 +573,7 @@ export const Sidebar = ({
               ) : (
                 <TooltipContent>
                   <p>Versão atualizada</p>
+                  <p className="text-xs">Clique para verificar atualizações</p>
                 </TooltipContent>
               )}
             </Tooltip>
