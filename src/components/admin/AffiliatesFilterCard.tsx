@@ -68,7 +68,7 @@ export function AffiliatesFilterCard({
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 md:p-6">
         {/* Linha 1: Busca + Filtros principais */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="relative sm:col-span-2 lg:col-span-2">
