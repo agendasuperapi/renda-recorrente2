@@ -412,10 +412,10 @@ const Coupons = () => {
           onOpenChange={setUsernameDialogOpen}
           currentUsername={profile.username}
           userId={userId}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ["profile", userId] });
-            queryClient.invalidateQueries({ queryKey: ["available-coupons", userId] });
-            queryClient.invalidateQueries({ queryKey: ["affiliate-coupons", userId] });
+          onSuccess={async () => {
+            await queryClient.refetchQueries({ queryKey: ["profile", userId] });
+            await queryClient.refetchQueries({ queryKey: ["available-coupons", userId] });
+            await queryClient.refetchQueries({ queryKey: ["affiliate-coupons", userId] });
           }}
         />
       )}
