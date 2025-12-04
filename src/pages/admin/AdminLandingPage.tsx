@@ -1451,7 +1451,7 @@ const AdminLandingPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-3 lg:p-6 space-y-4 lg:space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-4 lg:space-y-6">
       <div className="flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold">Configuração da Landing Page</h1>
