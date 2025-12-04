@@ -244,47 +244,44 @@ const AdminUsers = () => {
           </Button>
         </div>
 
+        {/* Filtros */}
         <Card>
-          <CardHeader className="p-3 md:p-6">
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col md:flex-row gap-3 md:gap-4">
-                <div className="relative flex-1 min-w-full md:min-w-[300px]">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar por nome, email, username ou código..."
-                    className="pl-9"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="flex-1 md:w-[180px]">
-                      <SelectValue placeholder="Filtrar Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="active">Ativos</SelectItem>
-                      <SelectItem value="blocked">Bloqueados</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                    setItemsPerPage(Number(value));
-                    setCurrentPage(1);
-                  }}>
-                    <SelectTrigger className="flex-1 md:w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="5">5 por página</SelectItem>
-                      <SelectItem value="10">10 por página</SelectItem>
-                      <SelectItem value="25">25 por página</SelectItem>
-                      <SelectItem value="50">50 por página</SelectItem>
-                      <SelectItem value="100">100 por página</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
+              <div className="relative flex-1 min-w-0 lg:max-w-sm">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, email, username ou código..."
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full lg:w-[180px]">
+                  <SelectValue placeholder="Filtrar Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="active">Ativos</SelectItem>
+                  <SelectItem value="blocked">Bloqueados</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                setItemsPerPage(Number(value));
+                setCurrentPage(1);
+              }}>
+                <SelectTrigger className="w-full lg:w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 por página</SelectItem>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="25">25 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                  <SelectItem value="100">100 por página</SelectItem>
+                </SelectContent>
+              </Select>
               <div className="flex gap-2">
                 <Button 
                   variant="outline" 
@@ -297,14 +294,18 @@ const AdminUsers = () => {
                 <Button 
                   variant="outline"
                   onClick={handleResetFilters}
-                  className="flex-1 md:flex-none"
+                  className="flex-1 lg:flex-none"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
                 </Button>
               </div>
             </div>
-          </CardHeader>
+          </CardContent>
+        </Card>
+
+        {/* Tabela */}
+        <Card>
           <CardContent className="p-2 md:p-6">
             {/* Layout Mobile - Cards */}
             <div className="lg:hidden space-y-2">
