@@ -163,6 +163,7 @@ export type Database = {
           coupon_id: string
           created_at: string | null
           custom_code: string | null
+          deleted_at: string | null
           id: string
           is_active: boolean | null
           product_id: string | null
@@ -172,6 +173,7 @@ export type Database = {
           coupon_id: string
           created_at?: string | null
           custom_code?: string | null
+          deleted_at?: string | null
           id?: string
           is_active?: boolean | null
           product_id?: string | null
@@ -181,6 +183,7 @@ export type Database = {
           coupon_id?: string
           created_at?: string | null
           custom_code?: string | null
+          deleted_at?: string | null
           id?: string
           is_active?: boolean | null
           product_id?: string | null
