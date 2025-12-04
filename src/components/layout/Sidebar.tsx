@@ -800,7 +800,7 @@ export const Sidebar = ({
                               ? "bg-green-500 text-white" 
                               : "bg-secondary text-secondary-foreground"
                           }`}>
-                            {userSubscription.cancel_at_period_end ? "Cancelamento solicitado" : userSubscription.status === "active" ? "Ativo" : userSubscription.status}
+                            {userSubscription.cancel_at_period_end ? "Cancelamento solicitado" : userSubscription.status === "active" ? "Ativo" : userSubscription.status === "trialing" ? "Em teste" : userSubscription.status === "past_due" ? "Pagamento pendente" : userSubscription.status}
                           </div>
                         </div>
                       </div>
