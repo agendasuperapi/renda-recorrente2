@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
@@ -327,6 +327,13 @@ const Dashboard = () => {
             <VisuallyHidden>
               <DrawerTitle>Bem-vindo ao sistema</DrawerTitle>
             </VisuallyHidden>
+            <button
+              onClick={handleCloseWelcome}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <X className="h-5 w-5" />
+              <span className="sr-only">Fechar</span>
+            </button>
             <div className="overflow-y-auto">
               <div className="p-4 text-center space-y-3">
                 <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
