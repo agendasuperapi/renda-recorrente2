@@ -319,7 +319,7 @@ const Dashboard = () => {
       console.log("[Dashboard] Resultado update has_seen_welcome_dashboard:", error);
     }
   };
-  return <div className="space-y-4 sm:space-y-6">
+  return <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Modal de Boas-vindas - Drawer no mobile, Dialog no desktop */}
       {isMobile ? (
         <Drawer open={showWelcome} onOpenChange={handleCloseWelcome}>
