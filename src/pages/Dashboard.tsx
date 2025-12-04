@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
@@ -678,55 +678,86 @@ const Dashboard = () => {
               {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                   Nenhum cupom disponível no momento
                 </div> : <div className="space-y-3">
-                  {primaryCoupons.map(coupon => <div key={coupon.id} className="flex flex-col gap-3 p-3 sm:p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                      {/* Header com ícone, nome e botões */}
-                      <div className="flex items-center gap-3">
-                        {/* Ícone do App */}
-                        {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover dark:hidden" /> : null}
-                        {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover hidden dark:block" /> : null}
-                        {!coupon.product_icone_light && !coupon.product_icone_dark && <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm sm:text-base">
-                            {coupon.product_nome.charAt(0)}
-                          </div>}
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-sm sm:text-base text-foreground">
-                            {coupon.product_nome}
+                  {primaryCoupons.map(coupon => {
+                    const isReleased = !!coupon.affiliate_coupon_id;
+                    
+                    return (
+                      <div key={coupon.id} className={`flex flex-col gap-3 p-3 sm:p-4 rounded-lg border transition-colors ${isReleased ? 'bg-card hover:bg-accent/50' : 'bg-muted/30 border-dashed'}`}>
+                        {/* Header com ícone, nome e botões */}
+                        <div className="flex items-center gap-3">
+                          {/* Ícone do App */}
+                          {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover dark:hidden ${!isReleased ? 'opacity-50' : ''}`} /> : null}
+                          {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover hidden dark:block ${!isReleased ? 'opacity-50' : ''}`} /> : null}
+                          {!coupon.product_icone_light && !coupon.product_icone_dark && <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm sm:text-base ${!isReleased ? 'opacity-50' : ''}`}>
+                              {coupon.product_nome.charAt(0)}
+                            </div>}
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-semibold text-sm sm:text-base ${isReleased ? 'text-foreground' : 'text-muted-foreground'}`}>
+                              {coupon.product_nome}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {coupon.name}
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground mt-0.5">
-                            {coupon.name}
-                          </div>
+
+                          {/* Botões de Ação - Desktop */}
+                          {isReleased ? (
+                            <div className="hidden lg:flex gap-2 flex-shrink-0">
+                              <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
+                                {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                                Copiar
+                              </Button>
+                              <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
+                                <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                Compartilhar
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="hidden lg:block flex-shrink-0">
+                              <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="gap-2 text-xs sm:text-sm">
+                                <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                Liberar cupom
+                              </Button>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Botões de Ação - Desktop */}
-                        <div className="hidden lg:flex gap-2 flex-shrink-0">
-                          <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
-                            {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                            Copiar
-                          </Button>
-                          <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
-                            <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                            Compartilhar
-                          </Button>
-                        </div>
-                      </div>
+                        {/* URL do Cupom ou Mensagem de liberação */}
+                        {isReleased ? (
+                          <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
+                            {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
+                          </div>
+                        ) : (
+                          <div className="px-2.5 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-xs flex items-center gap-2">
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Cupom não liberado. Acesse a página de cupons para liberar.</span>
+                          </div>
+                        )}
 
-                      {/* URL do Cupom */}
-                      <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
-                        {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
+                        {/* Botões de Ação - Mobile */}
+                        {isReleased ? (
+                          <div className="flex gap-2 lg:hidden">
+                            <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
+                              {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                              Copiar
+                            </Button>
+                            <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
+                              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              Compartilhar
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="lg:hidden">
+                            <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="w-full gap-2 text-xs sm:text-sm">
+                              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              Liberar cupom
+                            </Button>
+                          </div>
+                        )}
                       </div>
-
-                      {/* Botões de Ação - Mobile */}
-                      <div className="flex gap-2 lg:hidden">
-                        <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
-                          {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                          Copiar
-                        </Button>
-                        <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
-                          <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          Compartilhar
-                        </Button>
-                      </div>
-                    </div>)}
+                    );
+                  })}
                 </div>}
             </CardContent>
           </Card>
