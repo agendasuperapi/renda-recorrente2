@@ -878,64 +878,33 @@ const SubAffiliates = () => {
 
                       {/* Tablet Layout - Complete */}
                       {layoutMode === "complete" && (
-                        <div className="hidden md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:p-4">
-                          {/* Avatar + Nome */}
-                          <div className="flex items-center gap-3 min-w-[200px]">
-                            <Avatar className="h-9 w-9 flex-shrink-0">
-                              <AvatarImage src={sub.avatar_url || undefined} />
-                              <AvatarFallback className="text-xs">
-                                {sub.name?.charAt(0).toUpperCase() || '?'}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                              <div className="font-medium text-sm truncate">{sub.name}</div>
-                              {sub.username && (
-                                <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>
-                              )}
-                              <div className="text-xs text-muted-foreground truncate">{sub.email}</div>
-                            </div>
-                          </div>
-
-                          {/* Info Grid - 3 colunas, 2 linhas */}
-                          <div className="grid grid-cols-3 gap-x-4 gap-y-1 text-xs">
-                            <div>
-                              <span className="text-muted-foreground">Plano: </span>
-                              <span className="font-medium">{sub.plan_name || "-"}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-muted-foreground">Nível: </span>
-                              {getLevelBadge(sub.level)}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-muted-foreground">Status: </span>
-                              {getStatusBadge(sub.status)}
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Cadastro: </span>
-                              <span>{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Indicações: </span>
-                              <span className="font-medium">{sub.referrals_count}</span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Com. Sub: </span>
-                              <span className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</span>
-                            </div>
-                          </div>
-
-                          {/* Comissão + Ação */}
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
-                              <div className="text-sm font-bold text-success whitespace-nowrap">
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                        <div className="hidden md:block md:p-4 space-y-3">
+                          {/* Linha 1: Avatar, Nome, Status e Botão */}
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <Avatar className="h-11 w-11 flex-shrink-0">
+                                <AvatarImage src={sub.avatar_url || undefined} />
+                                <AvatarFallback>
+                                  {sub.name?.charAt(0).toUpperCase() || '?'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm">{sub.name}</span>
+                                  {getLevelBadge(sub.level)}
+                                  {getStatusBadge(sub.status)}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  {sub.username && <span>@{sub.username}</span>}
+                                  {sub.username && sub.email && <span>•</span>}
+                                  <span className="truncate">{sub.email}</span>
+                                </div>
                               </div>
                             </div>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 flex-shrink-0"
+                              className="h-9 w-9 flex-shrink-0"
                               onClick={() => {
                                 setSelectedSubAffiliate(sub);
                                 setDialogOpen(true);
@@ -944,6 +913,30 @@ const SubAffiliates = () => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
+                          </div>
+
+                          {/* Linha 2: Estatísticas em grid */}
+                          <div className="grid grid-cols-5 gap-2 bg-muted/50 rounded-lg px-3 py-2 text-center">
+                            <div>
+                              <div className="text-[10px] text-muted-foreground uppercase">Plano</div>
+                              <div className="text-xs font-medium truncate">{sub.plan_name || "-"}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground uppercase">Cadastro</div>
+                              <div className="text-xs font-medium">{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground uppercase">Indicações</div>
+                              <div className="text-xs font-semibold">{sub.referrals_count}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground uppercase">Com. Sub</div>
+                              <div className="text-xs font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-muted-foreground uppercase">Minha Com.</div>
+                              <div className="text-xs font-bold text-success">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}</div>
+                            </div>
                           </div>
                         </div>
                       )}
