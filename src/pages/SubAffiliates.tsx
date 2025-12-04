@@ -339,7 +339,7 @@ const SubAffiliates = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sub Afiliados</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
@@ -406,7 +406,7 @@ const SubAffiliates = () => {
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
-      <div className={`bg-card rounded-lg border p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-transparent lg:bg-card rounded-none lg:rounded-lg border-0 lg:border shadow-none lg:shadow-sm p-0 lg:p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
           <Button
@@ -527,8 +527,8 @@ const SubAffiliates = () => {
         </div>
       </div>
 
-      <Card className="border-0 shadow-none bg-transparent lg:border lg:shadow-sm lg:bg-card">
-        <CardContent className="space-y-4 px-0 pb-3 lg:p-6">
+      <Card className="border-0 shadow-none bg-transparent lg:border lg:shadow-sm lg:bg-card rounded-none lg:rounded-lg">
+        <CardContent className="!p-0 lg:!p-6 space-y-4">
 
           {/* Desktop - Tabela */}
           {!isMobile && (
