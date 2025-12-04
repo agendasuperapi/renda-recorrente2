@@ -34,13 +34,9 @@ export const usePreventOverscroll = (enabled: boolean = true) => {
       const isAtTop = scrollTop <= 0;
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
 
-      // Prevenir overscroll no topo (puxando para baixo) - apenas se realmente no topo
-      if (isAtTop && !isAtBottom && deltaY > 0) {
-        e.preventDefault();
-        return;
-      }
+      // Pull-to-refresh nativo habilitado no topo - NÃO prevenir
 
-      // Prevenir overscroll no final (puxando para cima) - apenas se realmente no final
+      // Prevenir overscroll APENAS no final (puxando para cima)
       if (isAtBottom && !isAtTop && deltaY < 0) {
         e.preventDefault();
         return;
