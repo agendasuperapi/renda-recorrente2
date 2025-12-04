@@ -6,18 +6,30 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin } from "lucide-react";
+import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface UsernameHistoryItem {
+  id: string;
+  username: string;
+  new_username: string | null;
+  changed_at: string;
+}
 
 export const PersonalProfileContent = () => {
   const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [usernameHistory, setUsernameHistory] = useState<UsernameHistoryItem[]>([]);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -62,8 +74,24 @@ export const PersonalProfileContent = () => {
   useEffect(() => {
     if (userId) {
       loadProfile();
+      loadUsernameHistory();
     }
   }, [userId]);
+
+  const loadUsernameHistory = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("username_history")
+        .select("id, username, new_username, changed_at")
+        .eq("user_id", userId)
+        .order("changed_at", { ascending: false });
+
+      if (error) throw error;
+      setUsernameHistory(data || []);
+    } catch (error) {
+      console.error("Error loading username history:", error);
+    }
+  };
 
   const loadProfile = async () => {
     try {
@@ -400,6 +428,17 @@ export const PersonalProfileContent = () => {
                     >
                       Editar
                     </Button>
+                    {usernameHistory.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowHistoryDialog(true)}
+                        title="Ver histórico de alterações"
+                      >
+                        <History className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                   {usernameStatus.checking && (
                     <p className="text-sm text-muted-foreground">Verificando...</p>
@@ -650,9 +689,43 @@ export const PersonalProfileContent = () => {
         userId={userId || ""}
         onSuccess={() => {
           loadProfile();
+          loadUsernameHistory();
           setShowUsernameDialog(false);
         }}
       />
+
+      <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Histórico de Usernames</DialogTitle>
+            <DialogDescription>
+              Veja todas as alterações de username realizadas
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[400px] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead>Username Antigo</TableHead>
+                  <TableHead>Username Novo</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {usernameHistory.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="text-sm">
+                      {format(new Date(item.changed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">{item.username}</TableCell>
+                    <TableCell className="font-mono text-sm">{item.new_username || "-"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

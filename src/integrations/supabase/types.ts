@@ -2671,18 +2671,21 @@ export type Database = {
         Row: {
           changed_at: string
           id: string
+          new_username: string | null
           user_id: string
           username: string
         }
         Insert: {
           changed_at?: string
           id?: string
+          new_username?: string | null
           user_id: string
           username: string
         }
         Update: {
           changed_at?: string
           id?: string
+          new_username?: string | null
           user_id?: string
           username?: string
         }
