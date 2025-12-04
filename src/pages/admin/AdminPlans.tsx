@@ -634,7 +634,7 @@ const AdminPlans = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Button onClick={handleNewPlan} className="w-full sm:w-auto">
+              <Button onClick={handleNewPlan} className="w-full sm:w-auto border border-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Plano
               </Button>
