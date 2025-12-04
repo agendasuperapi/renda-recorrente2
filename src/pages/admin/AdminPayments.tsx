@@ -355,8 +355,8 @@ export default function AdminPayments() {
       </Card>
 
       {/* Tabela */}
-      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-        <CardContent className="p-0 lg:p-6 lg:pt-6">
+      <Card>
+        <CardContent className="pt-6">
           {isLoading ? isMobile ? <div className="space-y-3">
                 {[...Array(10)].map((_, i) => <Card key={i}>
                     <CardContent className="p-4">
