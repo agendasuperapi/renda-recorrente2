@@ -146,7 +146,7 @@ const Coupons = () => {
           coupons(*, products(nome))
         `)
         .eq("affiliate_id", userId)
-        .is("deleted_at", null) // Filtrar apenas cupons não excluídos
+        .filter("deleted_at", "is", null) // Filtrar apenas cupons não excluídos (soft delete)
         .order("created_at", {
           ascending: false
         });
