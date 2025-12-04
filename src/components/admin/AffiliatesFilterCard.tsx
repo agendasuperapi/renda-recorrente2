@@ -55,19 +55,18 @@ export function AffiliatesFilterCard({
         <CardTitle className="text-lg font-medium">Filtros</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Busca */}
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nome, email ou username..."
-            className="pl-9"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
+        {/* Linha 1: Busca + Filtros principais */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="relative sm:col-span-2 lg:col-span-2">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome, email ou username..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
+          </div>
 
-        {/* Filtros em grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Select value={planFilter} onValueChange={onPlanFilterChange}>
             <SelectTrigger>
               <SelectValue placeholder="Plano" />
@@ -103,25 +102,10 @@ export function AffiliatesFilterCard({
               <SelectItem value="inactive">Inativo</SelectItem>
             </SelectContent>
           </Select>
-
-          <Select
-            value={itemsPerPage.toString()} 
-            onValueChange={(value) => onItemsPerPageChange(Number(value))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Itens por página" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10 por página</SelectItem>
-              <SelectItem value="20">20 por página</SelectItem>
-              <SelectItem value="50">50 por página</SelectItem>
-              <SelectItem value="100">100 por página</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
-        {/* Datas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Linha 2: Datas + Items por página + Ações */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
           <div className="space-y-1.5">
             <label className="text-sm text-muted-foreground">Data início</label>
             <Input
@@ -138,18 +122,32 @@ export function AffiliatesFilterCard({
               onChange={(e) => onEndDateChange(e.target.value)}
             />
           </div>
-        </div>
 
-        {/* Ações */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          <Button variant="outline" size="sm" onClick={onRefresh}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Atualizar
-          </Button>
-          <Button variant="outline" size="sm" onClick={onResetFilters}>
-            <FilterX className="h-4 w-4 mr-2" />
-            Limpar filtros
-          </Button>
+          <Select
+            value={itemsPerPage.toString()} 
+            onValueChange={(value) => onItemsPerPageChange(Number(value))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Itens por página" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 por página</SelectItem>
+              <SelectItem value="20">20 por página</SelectItem>
+              <SelectItem value="50">50 por página</SelectItem>
+              <SelectItem value="100">100 por página</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="flex gap-2 lg:col-span-2">
+            <Button variant="outline" size="sm" onClick={onRefresh}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Atualizar
+            </Button>
+            <Button variant="outline" size="sm" onClick={onResetFilters}>
+              <FilterX className="h-4 w-4 mr-2" />
+              Limpar filtros
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
