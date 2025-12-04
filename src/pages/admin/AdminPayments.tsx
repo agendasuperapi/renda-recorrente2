@@ -263,9 +263,9 @@ export default function AdminPayments() {
         </Card>
       </div>
 
-      {/* Filtros e Tabela */}
+      {/* Filtros */}
       <Card>
-        <CardHeader>
+        <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
             <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
             <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
@@ -293,9 +293,9 @@ export default function AdminPayments() {
               </SelectContent>
             </Select>
             <Select value={itemsPerPage.toString()} onValueChange={value => {
-            setItemsPerPage(Number(value));
-            setCurrentPage(1);
-          }}>
+              setItemsPerPage(Number(value));
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-full lg:w-[140px]">
                 <SelectValue />
               </SelectTrigger>
@@ -315,8 +315,12 @@ export default function AdminPayments() {
               Limpar filtros
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
+        </CardContent>
+      </Card>
+
+      {/* Tabela */}
+      <Card>
+        <CardContent className="pt-6">
           {isLoading ? isMobile ? <div className="space-y-3">
                 {[...Array(10)].map((_, i) => <Card key={i}>
                     <CardContent className="p-4">
