@@ -261,7 +261,7 @@ const AdminAffiliates = () => {
         onCloseFilters={() => setShowFilters(false)}
       />
 
-      <Card>
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
         <CardContent className="p-0 lg:pt-6 lg:px-6 lg:pb-6">
           {isMobile ? (
             <div className="space-y-3 w-full">
