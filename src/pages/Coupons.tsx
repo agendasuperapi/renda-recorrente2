@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
@@ -51,10 +52,11 @@ interface CouponDetailsContentProps {
   getAffiliateLink: (coupon: AvailableCoupon) => string | null;
   handleCopy: (text: string) => void;
   handleActivateCoupon: (couponId: string, baseCode: string, isPrimary: boolean, productId: string) => void;
-  deactivateCoupon: any;
+  handleDeactivateClick: (couponId: string) => void;
   reactivateCoupon: any;
   activateCoupon: any;
   setDetailsOpen: (open: boolean) => void;
+  isPendingDeactivate: boolean;
 }
 
 const CouponDetailsContent = ({
@@ -64,10 +66,11 @@ const CouponDetailsContent = ({
   getAffiliateLink,
   handleCopy,
   handleActivateCoupon,
-  deactivateCoupon,
+  handleDeactivateClick,
   reactivateCoupon,
   activateCoupon,
   setDetailsOpen,
+  isPendingDeactivate,
 }: CouponDetailsContentProps) => (
   <div className="px-4 pb-6 space-y-4">
     <div className="space-y-2">
@@ -141,9 +144,8 @@ const CouponDetailsContent = ({
           </>}
         </>}
         {coupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => {
-          deactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
-          setDetailsOpen(false);
-        }} disabled={deactivateCoupon.isPending}>
+          handleDeactivateClick(coupon.activatedCoupon?.id || "");
+        }} disabled={isPendingDeactivate}>
           <XCircle className="h-4 w-4 mr-2" />
           Inativar Cupom
         </Button> : <Button variant="outline" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => {
@@ -175,6 +177,8 @@ const Coupons = () => {
   const [selectedCoupon, setSelectedCoupon] = useState<AvailableCoupon | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
+  const [deactivateConfirmOpen, setDeactivateConfirmOpen] = useState(false);
+  const [couponToDeactivate, setCouponToDeactivate] = useState<string | null>(null);
   const {
     userId
   } = useAuth();
@@ -423,6 +427,21 @@ const Coupons = () => {
       description: "O código foi copiado para a área de transferência"
     });
   };
+  
+  const handleDeactivateClick = (couponId: string) => {
+    setCouponToDeactivate(couponId);
+    setDeactivateConfirmOpen(true);
+  };
+
+  const confirmDeactivate = () => {
+    if (couponToDeactivate) {
+      deactivateCoupon.mutate(couponToDeactivate);
+      setDetailsOpen(false);
+    }
+    setDeactivateConfirmOpen(false);
+    setCouponToDeactivate(null);
+  };
+
   const isLoading = profileLoading || couponsLoading || activatedLoading;
 
   // Create a map of activated coupons by coupon_id for quick lookup
@@ -610,7 +629,7 @@ const Coupons = () => {
                                 {isActivated && isActive && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
                                     <Copy className="h-3.5 w-3.5" />
                                   </Button>}
-                                {isActivated ? isActive ? <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                                {isActivated ? isActive ? <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                       <XCircle className="h-3.5 w-3.5" />
                                     </Button> : <Button variant="outline" size="icon" className="h-8 w-8 bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                       <Check className="h-3.5 w-3.5" />
@@ -676,7 +695,7 @@ const Coupons = () => {
                                             </Button>
                                           </>}
                                       </>}
-                                    {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                                    {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                         <XCircle className="h-3 w-3 mr-1" />
                                         Inativar
                                       </Button> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
@@ -745,7 +764,7 @@ const Coupons = () => {
                         <Copy className="h-4 w-4 mr-2" />
                         Copiar
                       </Button>}
-                      {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                      {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                         <XCircle className="h-4 w-4 mr-2" />
                         Inativar
                       </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
@@ -838,7 +857,7 @@ const Coupons = () => {
                                         </Button>
                                       </>}
                                   </div>}
-                                  {isActive ? <Button variant="outline" size="sm" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                                  {isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                       <XCircle className="h-4 w-4 mr-2" />
                                       Inativar
                                     </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
@@ -881,7 +900,7 @@ const Coupons = () => {
                           {isActivated && isActive && <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
                               <Copy className="h-3.5 w-3.5" />
                             </Button>}
-                          {isActivated ? isActive ? <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                          {isActivated ? isActive ? <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                 <XCircle className="h-3.5 w-3.5" />
                               </Button> : <Button variant="outline" size="icon" className="h-8 w-8 bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                 <Check className="h-3.5 w-3.5" />
@@ -943,7 +962,7 @@ const Coupons = () => {
                                       </Button>
                                     </>}
                                 </>}
-                              {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                              {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                   <XCircle className="h-3 w-3 mr-1" />
                                   Inativar
                                 </Button> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
@@ -1000,7 +1019,7 @@ const Coupons = () => {
                     <Copy className="h-4 w-4 mr-2" />
                     Copiar
                   </Button>}
-                  {isActivated ? isActive ? <Button variant="outline" size="sm" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                  {isActivated ? isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                     <XCircle className="h-4 w-4 mr-2" />
                     Inativar
                   </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
@@ -1081,7 +1100,7 @@ const Coupons = () => {
                                    </Button>
                                   </>}
                               </div>}
-                             {isActive ? <Button variant="outline" size="sm" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                             {isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                 <XCircle className="h-4 w-4 mr-2" />
                                 Inativar
                               </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
@@ -1113,10 +1132,11 @@ const Coupons = () => {
               getAffiliateLink={getAffiliateLink}
               handleCopy={handleCopy}
               handleActivateCoupon={handleActivateCoupon}
-              deactivateCoupon={deactivateCoupon}
+              handleDeactivateClick={handleDeactivateClick}
               reactivateCoupon={reactivateCoupon}
               activateCoupon={activateCoupon}
               setDetailsOpen={setDetailsOpen}
+              isPendingDeactivate={deactivateCoupon.isPending}
             />}
           </DrawerContent>
         </Drawer>
@@ -1133,14 +1153,32 @@ const Coupons = () => {
               getAffiliateLink={getAffiliateLink}
               handleCopy={handleCopy}
               handleActivateCoupon={handleActivateCoupon}
-              deactivateCoupon={deactivateCoupon}
+              handleDeactivateClick={handleDeactivateClick}
               reactivateCoupon={reactivateCoupon}
               activateCoupon={activateCoupon}
               setDetailsOpen={setDetailsOpen}
+              isPendingDeactivate={deactivateCoupon.isPending}
             />}
           </DialogContent>
         </Dialog>
       )}
+      {/* Deactivate Confirmation Dialog */}
+      <AlertDialog open={deactivateConfirmOpen} onOpenChange={setDeactivateConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Inativação</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja inativar este cupom? Você poderá ativá-lo novamente depois.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeactivate} className="bg-red-600 hover:bg-red-700">
+              Inativar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>;
 };
