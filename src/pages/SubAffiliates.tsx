@@ -704,7 +704,8 @@ const SubAffiliates = () => {
                     <CardContent className="p-0">
                       {/* Mobile Layout - Compact */}
                       {layoutMode === "compact" && (
-                        <div className="md:hidden p-4">
+                        <div className="md:hidden p-4 space-y-3">
+                          {/* Linha 1: Avatar, Nome e Botão */}
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                               <Avatar className="h-10 w-10 flex-shrink-0">
@@ -714,25 +715,20 @@ const SubAffiliates = () => {
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-sm truncate">{sub.name}</div>
+                                <div className="font-semibold text-sm">{sub.name}</div>
                                 {sub.username && (
-                                  <div className="text-xs text-muted-foreground truncate">
+                                  <div className="text-xs text-muted-foreground">
                                     @{sub.username}
                                   </div>
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <div className="text-center">
-                                <div className="text-[10px] text-muted-foreground">Indicações</div>
-                                <div className="font-semibold text-sm">{sub.referrals_count}</div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
-                                <div className="font-bold text-sm text-success">
-                                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
-                                </div>
-                              </div>
+                            <div className="flex items-center gap-2">
+                              {sub.level && (
+                                <Badge variant="outline" className="text-xs">
+                                  N{sub.level}
+                                </Badge>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -745,6 +741,21 @@ const SubAffiliates = () => {
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Linha 2: Estatísticas */}
+                          <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2">
+                            <div className="text-center flex-1">
+                              <div className="text-[10px] text-muted-foreground uppercase">Indicações</div>
+                              <div className="font-semibold text-sm">{sub.referrals_count}</div>
+                            </div>
+                            <div className="w-px h-6 bg-border" />
+                            <div className="text-center flex-1">
+                              <div className="text-[10px] text-muted-foreground uppercase">Minha Comissão</div>
+                              <div className="font-bold text-sm text-success">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                              </div>
                             </div>
                           </div>
                         </div>
