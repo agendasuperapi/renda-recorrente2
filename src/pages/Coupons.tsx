@@ -144,9 +144,12 @@ const Coupons = () => {
       } = await supabase.from("affiliate_coupons").select(`
           *,
           coupons(*, products(nome))
-        `).eq("affiliate_id", userId).order("created_at", {
-        ascending: false
-      });
+        `)
+        .eq("affiliate_id", userId)
+        .is("deleted_at", null) // Filtrar apenas cupons não excluídos
+        .order("created_at", {
+          ascending: false
+        });
       if (error) throw error;
       return data as any[];
     },

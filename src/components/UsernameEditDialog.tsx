@@ -68,10 +68,12 @@ export function UsernameEditDialog({
 
   const checkForCoupons = async () => {
     try {
+      // Verificar apenas cupons ativos (não excluídos)
       const { data, error } = await supabase
         .from("affiliate_coupons")
         .select("id")
         .eq("affiliate_id", userId)
+        .is("deleted_at", null)
         .limit(1);
 
       if (error) throw error;
@@ -158,14 +160,35 @@ export function UsernameEditDialog({
     setLoading(true);
 
     try {
-      // 1. Excluir todos os cupons do afiliado
+      // 1. Soft-delete cupons ativos do afiliado (marcar como excluídos e gerar código único)
       if (hasCoupons) {
-        const { error: deleteCouponsError } = await supabase
+        const now = new Date().toISOString();
+        
+        // Buscar cupons ativos (não excluídos) do afiliado
+        const { data: activeCoupons, error: fetchError } = await supabase
           .from("affiliate_coupons")
-          .delete()
-          .eq("affiliate_id", userId);
+          .select("id, custom_code")
+          .eq("affiliate_id", userId)
+          .is("deleted_at", null);
 
-        if (deleteCouponsError) throw deleteCouponsError;
+        if (fetchError) throw fetchError;
+
+        // Atualizar cada cupom ativo com soft-delete
+        if (activeCoupons && activeCoupons.length > 0) {
+          for (const coupon of activeCoupons) {
+            const uniqueCode = `${coupon.custom_code}_${Date.now()}`;
+            const { error: updateCouponError } = await supabase
+              .from("affiliate_coupons")
+              .update({ 
+                custom_code: uniqueCode,
+                deleted_at: now,
+                is_active: false
+              })
+              .eq("id", coupon.id);
+
+            if (updateCouponError) throw updateCouponError;
+          }
+        }
       }
 
       // 2. Atualizar o username
@@ -179,7 +202,7 @@ export function UsernameEditDialog({
       toast({
         title: "Username atualizado",
         description: hasCoupons
-          ? "Seu username foi atualizado e todos os cupons foram excluídos. Você precisará ativá-los novamente."
+          ? "Seu username foi atualizado e seus cupons anteriores foram desativados. Você precisará ativá-los novamente."
           : "Seu username foi atualizado com sucesso!",
       });
 
