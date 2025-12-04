@@ -330,14 +330,14 @@ const AdminCpfApis = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="p-3 md:p-6">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardHeader className="!p-0 !pb-4 md:!pt-4 lg:!p-6">
           <CardTitle className="text-base md:text-lg">APIs Cadastradas</CardTitle>
           <CardDescription className="text-sm">
             As APIs são consultadas por ordem de prioridade
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-2 md:p-6">
+        <CardContent className="!p-0 lg:!p-6">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin" />
