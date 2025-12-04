@@ -61,7 +61,7 @@ export default function AdminWithdrawals() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
-  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("complete");
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
   const {
     toast
   } = useToast();
