@@ -1102,8 +1102,9 @@ const AdminCoupons = () => {
         )}
       </div>
 
+      {/* Filtros */}
       <Card>
-        <CardHeader>
+        <CardContent className="p-4 sm:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="relative sm:col-span-2 lg:col-span-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -1138,8 +1139,12 @@ const AdminCoupons = () => {
               </SelectContent>
             </Select>
           </div>
-        </CardHeader>
-        <CardContent>
+        </CardContent>
+      </Card>
+
+      {/* Tabela */}
+      <Card>
+        <CardContent className="p-4 sm:p-6">
           {isLoading ? (
             <div className="text-center py-8">Carregando...</div>
           ) : filteredCoupons.length === 0 ? (
