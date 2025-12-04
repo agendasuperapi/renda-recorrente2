@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw, Check, X } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw, Check, X, Camera, Loader2 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { toast as sonnerToast } from "sonner";
 interface SidebarProps {
   user: SupabaseUser | null;
   isAdmin: boolean;
@@ -184,6 +186,10 @@ export const Sidebar = ({
   const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showAvatarCropDialog, setShowAvatarCropDialog] = useState(false);
+  const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const versionInfo = useVersionCheck();
 
   // Salvar preferência de menu no localStorage e notificar BottomNav
@@ -321,6 +327,67 @@ export const Sidebar = ({
       };
     }
   }, [user?.id]);
+
+  // Avatar handling functions
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith("image/")) {
+      sonnerToast.error("Por favor, selecione uma imagem válida");
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarImageSrc(reader.result as string);
+      setShowAvatarCropDialog(true);
+    };
+    reader.readAsDataURL(file);
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleCroppedAvatar = async (croppedImage: Blob) => {
+    if (!user?.id) return;
+    
+    setUploadingAvatar(true);
+    try {
+      const fileName = `profiles/${user.id}-${Date.now()}.jpg`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(fileName, croppedImage, {
+          contentType: "image/jpeg",
+          upsert: true,
+        });
+      
+      if (uploadError) throw uploadError;
+      
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(fileName);
+      
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: urlData.publicUrl })
+        .eq("id", user.id);
+      
+      if (updateError) throw updateError;
+      
+      setAvatarUrl(urlData.publicUrl);
+      sonnerToast.success("Foto atualizada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar avatar:", error);
+      sonnerToast.error("Erro ao atualizar foto");
+    } finally {
+      setUploadingAvatar(false);
+      setShowAvatarCropDialog(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       // Limpar cache de role ao fazer logout
@@ -741,13 +808,33 @@ export const Sidebar = ({
               </DialogHeader>
               
               <div className="flex flex-col items-center gap-6 py-4">
-                {/* Avatar Grande */}
-                <Avatar className="!w-[120px] !h-[120px]">
-                  {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
-                  <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
+                {/* Avatar Grande - Clicável */}
+                <div 
+                  className="relative cursor-pointer group"
+                  onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                >
+                  <Avatar className="!w-[120px] !h-[120px] transition-opacity group-hover:opacity-80">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
+                    <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    {uploadingAvatar ? (
+                      <Loader2 className="h-8 w-8 text-white animate-spin" />
+                    ) : (
+                      <Camera className="h-8 w-8 text-white" />
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarSelect}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Clique na foto para alterar</p>
                 
                 {/* Card de Plano em Destaque */}
                 {userPlan && (
@@ -820,6 +907,14 @@ export const Sidebar = ({
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Avatar Crop Dialog */}
+          <AvatarCropDialog
+            open={showAvatarCropDialog}
+            onOpenChange={setShowAvatarCropDialog}
+            imageSrc={avatarImageSrc}
+            onCropComplete={handleCroppedAvatar}
+          />
           
           <div className="flex flex-col items-center text-center w-full gap-1 px-3">
             
