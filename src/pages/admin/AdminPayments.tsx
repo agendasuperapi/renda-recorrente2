@@ -297,8 +297,8 @@ export default function AdminPayments() {
       </div>
 
       {/* Filtros */}
-      <Card className={`${!showFilters && 'hidden lg:block'} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm`}>
-        <CardContent className="p-0 lg:p-6">
+      <Card className={`${!showFilters && 'hidden lg:block'} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg`}>
+        <CardContent className="!p-0 lg:!p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
             <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
             <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
@@ -352,8 +352,8 @@ export default function AdminPayments() {
       </Card>
 
       {/* Tabela */}
-      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-        <CardContent className="p-0 lg:p-6">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardContent className="!p-0 lg:!p-6">
           {isLoading ? isMobile ? <div className="space-y-3">
                 {[...Array(10)].map((_, i) => <Card key={i}>
                     <CardContent className="p-4">
