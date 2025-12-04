@@ -140,7 +140,7 @@ const CouponDetailsContent = ({
             </Button>
           </>}
         </>}
-        {coupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full" onClick={() => {
+        {coupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => {
           deactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
           setDetailsOpen(false);
         }} disabled={deactivateCoupon.isPending}>
