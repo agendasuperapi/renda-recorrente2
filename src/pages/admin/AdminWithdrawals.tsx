@@ -555,9 +555,9 @@ export default function AdminWithdrawals() {
         </Card>
       </div>
 
-      {/* Filtros e Tabela */}
+      {/* Filtros */}
       <Card>
-        <CardHeader>
+        <CardContent className="p-4 sm:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-2 sm:gap-4">
             <Input placeholder="Buscar por afiliado..." value={searchTerm} onChange={e => {
             setSearchTerm(e.target.value);
@@ -597,7 +597,11 @@ export default function AdminWithdrawals() {
               Atualizar
             </Button>
           </div>
-        </CardHeader>
+        </CardContent>
+      </Card>
+
+      {/* Tabela */}
+      <Card>
         <CardContent className="p-0 sm:p-6">
           {isLoading ? <div className="px-4 sm:px-0">
               <TableSkeleton columns={7} rows={10} />
