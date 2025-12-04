@@ -7,7 +7,7 @@ import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CheckCircle, XCircle, Clock, Eye, RefreshCw, ImagePlus, Undo2, X, FileText, Percent } from "lucide-react";
+import { DollarSign, Calendar, CheckCircle, XCircle, Clock, Eye, RefreshCw, ImagePlus, Undo2, X, FileText, Percent, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 type Withdrawal = {
   id: string;
   affiliate_id: string;
@@ -59,6 +60,8 @@ export default function AdminWithdrawals() {
   const [viewerImageUrl, setViewerImageUrl] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [showFilters, setShowFilters] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("complete");
   const {
     toast
   } = useToast();
@@ -555,9 +558,35 @@ export default function AdminWithdrawals() {
         </Card>
       </div>
 
+      {/* Mobile Control Bar */}
+      <div className="flex items-center justify-between lg:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+        </Button>
+        <ToggleGroup
+          type="single"
+          value={layoutMode}
+          onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}
+          className="border rounded-lg"
+        >
+          <ToggleGroupItem value="compact" aria-label="Modo compacto" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+            <LayoutList className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="complete" aria-label="Modo completo" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       {/* Filtros */}
-      <Card>
-        <CardContent className="p-4 sm:p-6">
+      <Card className={`${!showFilters ? 'hidden lg:block' : ''} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg`}>
+        <CardContent className="!p-0 lg:!p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-2 sm:gap-4">
             <Input placeholder="Buscar por afiliado..." value={searchTerm} onChange={e => {
             setSearchTerm(e.target.value);
@@ -601,13 +630,13 @@ export default function AdminWithdrawals() {
       </Card>
 
       {/* Tabela */}
-      <Card>
-        <CardContent className="p-0 sm:p-6">
-          {isLoading ? <div className="px-4 sm:px-0">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardContent className="!p-0 lg:!p-6">
+          {isLoading ? <div className="px-4 lg:px-0">
               <TableSkeleton columns={7} rows={10} />
             </div> : <>
               {/* Desktop Table */}
-              <div className="hidden sm:block rounded-md border overflow-x-auto">
+              <div className="hidden lg:block rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -668,8 +697,32 @@ export default function AdminWithdrawals() {
               </div>
 
               {/* Mobile Cards */}
-              <div className="sm:hidden space-y-3 px-3">
-                {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <Card key={withdrawal.id} className={`overflow-hidden ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
+              <div className="lg:hidden space-y-3">
+                {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => (
+                  layoutMode === "compact" ? (
+                    <Card key={withdrawal.id} className={`overflow-hidden ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{withdrawal.profiles?.name || "N/A"}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {format(new Date(withdrawal.requested_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-primary">
+                              {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                            </p>
+                          </div>
+                          {getStatusBadge(withdrawal.status)}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleViewDetails(withdrawal)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card key={withdrawal.id} className={`overflow-hidden ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
                       <CardContent className="p-3">
                         <div className="space-y-2">
                           <div className="flex justify-between items-start">
@@ -683,10 +736,7 @@ export default function AdminWithdrawals() {
                           <div className="flex justify-between items-center py-2 border-t border-b">
                             <span className="text-xs text-muted-foreground">Valor</span>
                             <span className="font-bold text-base">
-                              {Number(withdrawal.amount).toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL"
-                      })}
+                              {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                             </span>
                           </div>
 
@@ -694,17 +744,13 @@ export default function AdminWithdrawals() {
                             <div>
                               <p className="text-muted-foreground">Solicitação</p>
                               <p className="font-medium">
-                                {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", {
-                          locale: ptBR
-                        })}
+                                {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}
                               </p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Pagamento</p>
                               <p className="font-medium">
-                                {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", {
-                          locale: ptBR
-                        }) : "-"}
+                                {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}
                               </p>
                             </div>
                           </div>
@@ -721,14 +767,16 @@ export default function AdminWithdrawals() {
                           </Button>
                         </div>
                       </CardContent>
-                    </Card>) : <div className="text-center py-8 text-muted-foreground text-sm">
+                    </Card>
+                  )
+                )) : <div className="text-center py-8 text-muted-foreground text-sm">
                     Nenhum saque encontrado
                   </div>}
               </div>
             </>}
           
           {/* Paginação */}
-          {!isLoading && withdrawals && withdrawals.length > 0 && totalPages > 1 && <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-3 sm:px-6 py-4 border-t">
+          {!isLoading && withdrawals && withdrawals.length > 0 && totalPages > 1 && <div className="flex flex-col lg:flex-row items-center justify-between gap-4 px-3 lg:px-6 py-4 border-t">
               <p className="text-sm text-muted-foreground">
                 Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, totalCount || 0)} de {totalCount || 0} registros
               </p>
