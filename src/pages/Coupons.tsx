@@ -571,28 +571,28 @@ const Coupons = () => {
 
       {/* All Coupons */}
       <Card className="lg:bg-card lg:border bg-transparent border-0 shadow-none lg:shadow-sm">
+        <div className="mt-4 mb-4 flex flex-wrap items-center gap-3">
+          <Select value={productFilter} onValueChange={setProductFilter}>
+            <SelectTrigger className="w-full sm:w-[250px]">
+              <SelectValue placeholder="Filtrar por produto" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os produtos</SelectItem>
+              {products?.map(product => <SelectItem key={product.id} value={product.id}>
+                  {product.nome}
+                </SelectItem>)}
+            </SelectContent>
+          </Select>
+          <ToggleGroup type="single" value={layoutMode} onValueChange={v => v && setLayoutMode(v)} className="border rounded-lg">
+            <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+              <LayoutList className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
         <CardContent className="p-0 lg:p-6 lg:pt-0 -mx-4 sm:-mx-6 lg:mx-0">
-          <div className="mt-4 mb-4 flex flex-wrap items-center gap-3 px-4 sm:px-6 lg:px-0">
-            <Select value={productFilter} onValueChange={setProductFilter}>
-              <SelectTrigger className="w-full sm:w-[250px]">
-                <SelectValue placeholder="Filtrar por produto" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os produtos</SelectItem>
-                {products?.map(product => <SelectItem key={product.id} value={product.id}>
-                    {product.nome}
-                  </SelectItem>)}
-              </SelectContent>
-            </Select>
-            <ToggleGroup type="single" value={layoutMode} onValueChange={v => v && setLayoutMode(v)} className="border rounded-lg">
-              <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
-                <LayoutList className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
-                <LayoutGrid className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
           {allCoupons.length === 0 ? <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
               <p>Nenhum cupom disponível</p>
