@@ -160,21 +160,8 @@ export function UsernameEditDialog({
     setLoading(true);
 
     try {
-      // 1. Salvar username atual no histórico
-      const { error: historyError } = await supabase
-        .from("username_history" as any)
-        .insert({
-          user_id: userId,
-          username: currentUsername,
-          changed_at: new Date().toISOString()
-        });
-
-      if (historyError) {
-        console.error("Erro ao salvar histórico:", historyError);
-        // Não bloqueia a alteração se falhar o histórico
-      }
-
-      // 2. Soft-delete cupons ativos do afiliado (marcar como excluídos e gerar código único)
+      // 1. Soft-delete cupons ativos do afiliado (marcar como excluídos e gerar código único)
+      // Obs: O histórico de username é salvo automaticamente via trigger no banco
       if (hasCoupons) {
         const now = new Date().toISOString();
         
@@ -205,7 +192,7 @@ export function UsernameEditDialog({
         }
       }
 
-      // 3. Atualizar o username
+      // 2. Atualizar o username (trigger salva histórico automaticamente)
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ username: newUsername })

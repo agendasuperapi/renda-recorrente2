@@ -2667,6 +2667,56 @@ export type Database = {
           },
         ]
       }
+      username_history: {
+        Row: {
+          changed_at: string
+          id: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          changed_at?: string
+          id?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          changed_at?: string
+          id?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "username_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "username_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "username_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "username_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+        ]
+      }
       withdrawals: {
         Row: {
           affiliate_id: string
