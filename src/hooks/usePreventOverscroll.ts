@@ -26,17 +26,22 @@ export const usePreventOverscroll = (enabled: boolean = true) => {
       const deltaY = currentY - startY;
 
       const { scrollTop, scrollHeight, clientHeight } = container;
+      
+      // Só prevenir se há conteúdo scrollável
+      const hasScrollableContent = scrollHeight > clientHeight;
+      if (!hasScrollableContent) return;
+      
       const isAtTop = scrollTop <= 0;
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
 
-      // Prevenir overscroll no topo (puxando para baixo)
-      if (isAtTop && deltaY > 0) {
+      // Prevenir overscroll no topo (puxando para baixo) - apenas se realmente no topo
+      if (isAtTop && !isAtBottom && deltaY > 0) {
         e.preventDefault();
         return;
       }
 
-      // Prevenir overscroll no final (puxando para cima)
-      if (isAtBottom && deltaY < 0) {
+      // Prevenir overscroll no final (puxando para cima) - apenas se realmente no final
+      if (isAtBottom && !isAtTop && deltaY < 0) {
         e.preventDefault();
         return;
       }
