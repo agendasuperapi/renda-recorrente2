@@ -343,7 +343,7 @@ export const PersonalProfileContent = () => {
     
     setUploadingAvatar(true);
     try {
-      const fileName = `${userId}/avatar-${Date.now()}.jpg`;
+      const fileName = `profiles/${userId}-${Date.now()}.jpg`;
       
       const { error: uploadError } = await supabase.storage
         .from("avatars")
