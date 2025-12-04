@@ -264,7 +264,7 @@ const AdminAffiliates = () => {
       <Card>
         <CardContent className="p-0 lg:pt-6 lg:px-6 lg:pb-6">
           {isMobile ? (
-            <div className="space-y-3">
+            <div className="space-y-3 w-full">
               {isLoading ? (
                 <>
                   {[...Array(10)].map((_, i) => (
