@@ -571,8 +571,8 @@ const Coupons = () => {
 
       {/* All Coupons */}
       <Card className="lg:bg-card lg:border bg-transparent border-0 shadow-none lg:shadow-sm">
-        <CardContent className="p-0 lg:p-6 lg:pt-0">
-          <div className="mt-4 mb-4 flex flex-wrap items-center gap-3">
+        <CardContent className="p-0 lg:p-6 lg:pt-0 -mx-4 sm:-mx-6 lg:mx-0">
+          <div className="mt-4 mb-4 flex flex-wrap items-center gap-3 px-4 sm:px-6 lg:px-0">
             <Select value={productFilter} onValueChange={setProductFilter}>
               <SelectTrigger className="w-full sm:w-[250px]">
                 <SelectValue placeholder="Filtrar por produto" />
