@@ -290,7 +290,7 @@ const AdminProducts = () => {
     <div className="space-y-6 p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-foreground">Produtos</h1>
-          <Button onClick={handleNewProduct} className="gap-2">
+          <Button onClick={handleNewProduct} className="gap-2 border border-white">
             <Plus className="w-4 h-4" />
             Novo Produto
           </Button>
