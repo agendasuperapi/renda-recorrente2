@@ -6,11 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, BarChart3, PieChart as PieChartIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
+
+const EmptyChartState = ({ icon: Icon, message }: { icon: any; message: string }) => (
+  <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
+    <Icon className="w-12 h-12 mb-3 opacity-30" />
+    <p className="text-sm">{message}</p>
+  </div>
+);
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--success))', 'hsl(var(--warning))', 'hsl(var(--destructive))'];
 
@@ -241,29 +248,33 @@ const Performance = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={commissionChartData}>
-                <XAxis 
-                  dataKey="date" 
-                  className="text-[10px] sm:text-xs"
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <YAxis 
-                  className="text-[10px] sm:text-xs"
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
-                  formatter={(value: any) => [formatCurrency(value), 'Comissão']}
-                />
-                <Bar dataKey="value" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {commissionChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={commissionChartData}>
+                  <XAxis 
+                    dataKey="date" 
+                    className="text-[10px] sm:text-xs"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <YAxis 
+                    className="text-[10px] sm:text-xs"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                    formatter={(value: any) => [formatCurrency(value), 'Comissão']}
+                  />
+                  <Bar dataKey="value" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChartState icon={BarChart3} message="Nenhuma comissão no período selecionado" />
+            )}
           </CardContent>
         </Card>
 
@@ -288,29 +299,33 @@ const Performance = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={salesChartDataClean}>
-                <XAxis 
-                  dataKey="date" 
-                  className="text-[10px] sm:text-xs"
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <YAxis 
-                  className="text-[10px] sm:text-xs"
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
-                  formatter={(value: any) => [value, 'Vendas']}
-                />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {salesChartDataClean.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={salesChartDataClean}>
+                  <XAxis 
+                    dataKey="date" 
+                    className="text-[10px] sm:text-xs"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <YAxis 
+                    className="text-[10px] sm:text-xs"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                    formatter={(value: any) => [value, 'Vendas']}
+                  />
+                  <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChartState icon={BarChart3} message="Nenhuma venda no período selecionado" />
+            )}
           </CardContent>
         </Card>
 
@@ -320,30 +335,34 @@ const Performance = () => {
             <CardTitle className="text-base sm:text-lg">Comissões por Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={commissionByProductData}
-                  cx="50%"
-                  cy="45%"
-                  labelLine={false}
-                  outerRadius={70}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {commissionByProductData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: any) => formatCurrency(value)} />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={36}
-                  formatter={(value, entry: any) => `${value}: ${formatCurrency(entry.payload.value)}`}
-                  wrapperStyle={{ fontSize: '11px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {commissionByProductData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={commissionByProductData}
+                    cx="50%"
+                    cy="45%"
+                    labelLine={false}
+                    outerRadius={70}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {commissionByProductData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: any) => formatCurrency(value)} />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value, entry: any) => `${value}: ${formatCurrency(entry.payload.value)}`}
+                    wrapperStyle={{ fontSize: '11px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChartState icon={PieChartIcon} message="Nenhuma comissão por produto encontrada" />
+            )}
           </CardContent>
         </Card>
 
@@ -353,30 +372,34 @@ const Performance = () => {
             <CardTitle className="text-base sm:text-lg">Vendas por Produto</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={salesByProductData}
-                  cx="50%"
-                  cy="45%"
-                  labelLine={false}
-                  outerRadius={70}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {salesByProductData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={36}
-                  formatter={(value, entry: any) => `${value}: ${entry.payload.value} vendas`}
-                  wrapperStyle={{ fontSize: '11px' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {salesByProductData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={salesByProductData}
+                    cx="50%"
+                    cy="45%"
+                    labelLine={false}
+                    outerRadius={70}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {salesByProductData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value, entry: any) => `${value}: ${entry.payload.value} vendas`}
+                    wrapperStyle={{ fontSize: '11px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChartState icon={PieChartIcon} message="Nenhuma venda por produto encontrada" />
+            )}
           </CardContent>
         </Card>
       </div>
