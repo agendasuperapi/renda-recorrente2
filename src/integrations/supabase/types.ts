@@ -160,33 +160,42 @@ export type Database = {
       affiliate_coupons: {
         Row: {
           affiliate_id: string
+          coupon_code_at_creation: string | null
           coupon_id: string
           created_at: string | null
           custom_code: string | null
+          custom_code_history: string | null
           deleted_at: string | null
           id: string
           is_active: boolean | null
           product_id: string | null
+          username_at_creation: string | null
         }
         Insert: {
           affiliate_id: string
+          coupon_code_at_creation?: string | null
           coupon_id: string
           created_at?: string | null
           custom_code?: string | null
+          custom_code_history?: string | null
           deleted_at?: string | null
           id?: string
           is_active?: boolean | null
           product_id?: string | null
+          username_at_creation?: string | null
         }
         Update: {
           affiliate_id?: string
+          coupon_code_at_creation?: string | null
           coupon_id?: string
           created_at?: string | null
           custom_code?: string | null
+          custom_code_history?: string | null
           deleted_at?: string | null
           id?: string
           is_active?: boolean | null
           product_id?: string | null
+          username_at_creation?: string | null
         }
         Relationships: [
           {
