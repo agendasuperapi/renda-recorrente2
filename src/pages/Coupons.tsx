@@ -287,11 +287,13 @@ const Coupons = () => {
     mutationFn: async ({
       couponId,
       customCode,
-      productId
+      productId,
+      couponCode
     }: {
       couponId: string;
       customCode: string;
       productId: string;
+      couponCode: string;
     }) => {
       if (!profile?.id) throw new Error("Perfil não encontrado");
       const {
@@ -302,7 +304,10 @@ const Coupons = () => {
         coupon_id: couponId,
         custom_code: customCode,
         product_id: productId,
-        is_active: true
+        is_active: true,
+        username_at_creation: profile.username,
+        coupon_code_at_creation: couponCode,
+        custom_code_history: customCode
       }).select().single();
       if (error) throw error;
       return data;
@@ -417,7 +422,8 @@ const Coupons = () => {
     activateCoupon.mutate({
       couponId,
       customCode,
-      productId
+      productId,
+      couponCode
     });
   };
   const handleCopy = (text: string) => {
