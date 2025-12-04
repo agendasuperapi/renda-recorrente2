@@ -58,7 +58,9 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    return localStorage.getItem("lastLoggedEmail") || "";
+  });
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -237,6 +239,9 @@ const Auth = () => {
         });
 
         if (error) throw error;
+
+        // Salva o email para preencher automaticamente no próximo login
+        localStorage.setItem("lastLoggedEmail", validation.data.email);
 
         toast({
           title: "Login realizado com sucesso!",
