@@ -358,7 +358,7 @@ const AdminCommissionLevels = () => {
 
       {selectedPlanId && (
         <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
-        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 lg:!p-6">
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 !pb-4 lg:!p-6">
           <CardTitle className="text-base md:text-lg">Percentuais por Nível</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
