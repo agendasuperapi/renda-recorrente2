@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X, Landmark, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -388,8 +388,14 @@ const AdminBankAccounts = () => {
 
         <Tabs defaultValue="banks" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="banks">Bancos</TabsTrigger>
-            <TabsTrigger value="accounts">Contas</TabsTrigger>
+            <TabsTrigger value="banks" className="gap-2">
+              <Landmark className="h-4 w-4" />
+              Bancos
+            </TabsTrigger>
+            <TabsTrigger value="accounts" className="gap-2">
+              <Wallet className="h-4 w-4" />
+              Contas
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="banks" className="space-y-4">
