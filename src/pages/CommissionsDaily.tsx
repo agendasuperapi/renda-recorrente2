@@ -522,7 +522,7 @@ const CommissionsDaily = () => {
               </div>
             )}
             {isMobile ? (
-              <div className="space-y-3">
+              <div className="space-y-3 md:-mx-6 lg:mx-0">
                 {commissions.length === 0 ? (
                   <Card>
                     <CardContent className="py-8 text-center text-muted-foreground">
