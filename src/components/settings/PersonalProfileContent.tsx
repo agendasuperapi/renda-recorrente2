@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History } from "lucide-react";
+import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History, X } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { format, parse } from "date-fns";
@@ -700,11 +700,19 @@ export const PersonalProfileContent = () => {
       {isMobile ? (
         <Drawer open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
           <DrawerContent>
-            <DrawerHeader>
+            <DrawerHeader className="relative">
               <DrawerTitle>Histórico de Usernames</DrawerTitle>
               <DrawerDescription>
                 Veja todas as alterações de username realizadas
               </DrawerDescription>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-4"
+                onClick={() => setShowHistoryDialog(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </DrawerHeader>
             <div className="max-h-[60vh] overflow-y-auto px-4 pb-4">
               <Table>
