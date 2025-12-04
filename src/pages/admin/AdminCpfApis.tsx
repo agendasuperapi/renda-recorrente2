@@ -154,7 +154,7 @@ const AdminCpfApis = () => {
   };
 
   return (
-    <div className="space-y-3 md:space-y-6 p-2 md:p-0">
+    <div className="space-y-3 md:space-y-6 p-2 md:p-6 lg:p-0">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">APIs de CPF</h1>
