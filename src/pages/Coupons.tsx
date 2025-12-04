@@ -410,6 +410,7 @@ const Coupons = () => {
     return null;
   };
   const handleActivateCoupon = (couponId: string, couponCode: string, isPrimary: boolean, productId: string) => {
+    console.log('handleActivateCoupon called with:', { couponId, couponCode, isPrimary, productId });
     if (!profile?.username) {
       toast({
         title: "Erro",
@@ -419,6 +420,7 @@ const Coupons = () => {
       return;
     }
     const customCode = generateCustomCode(profile.username, couponCode, isPrimary);
+    console.log('Saving to DB:', { couponCode, customCode, username: profile.username });
     activateCoupon.mutate({
       couponId,
       customCode,
