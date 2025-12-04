@@ -234,7 +234,7 @@ const AdminUsers = () => {
     setStatusFilter("all");
     setCurrentPage(1);
   };
-  return <div className="space-y-3 md:space-y-4 p-2 md:p-0">
+  return <div className="space-y-3 md:space-y-4 p-4 sm:p-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
