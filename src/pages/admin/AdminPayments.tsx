@@ -182,7 +182,7 @@ export default function AdminPayments() {
     }
     return sortDirection === "asc" ? <ArrowUp className="h-4 w-4 ml-1" /> : <ArrowDown className="h-4 w-4 ml-1" />;
   };
-  return <div className="space-y-6 sm:p-6">
+  return <div className="space-y-6 p-4 sm:p-6">
       <div>
         <h1 className="text-3xl font-bold">Pagamentos</h1>
         <p className="text-muted-foreground">Gerenciamento de todos os pagamentos do sistema</p>
@@ -298,7 +298,7 @@ export default function AdminPayments() {
 
       {/* Filtros */}
       <Card className={`${!showFilters && 'hidden lg:block'} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm`}>
-        <CardContent className="pt-6 px-0 lg:px-6">
+        <CardContent className="p-0 lg:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-4">
             <Input placeholder="Buscar por invoice, usuário ou plano..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full lg:max-w-sm" />
             <Input placeholder="Filtrar por afiliado/cupom..." value={affiliateFilter} onChange={e => setAffiliateFilter(e.target.value)} className="w-full lg:max-w-sm" />
@@ -353,7 +353,7 @@ export default function AdminPayments() {
 
       {/* Tabela */}
       <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-        <CardContent className="pt-6 px-0 lg:px-6">
+        <CardContent className="p-0 lg:p-6">
           {isLoading ? isMobile ? <div className="space-y-3">
                 {[...Array(10)].map((_, i) => <Card key={i}>
                     <CardContent className="p-4">
