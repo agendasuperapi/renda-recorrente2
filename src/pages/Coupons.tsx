@@ -399,10 +399,15 @@ const Coupons = () => {
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
                 if (layoutMode === "compact") {
-                  return <div key={coupon.id} className={`flex items-center gap-3 p-3 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}`}>
+                  return <div key={coupon.id} className={`flex items-center gap-3 p-3 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="font-semibold text-sm truncate">{coupon.name}</span>
+                                  {isActivated ? (
+                                    <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Liberado</Badge>
+                                  ) : (
+                                    <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-xs shrink-0">Não Liberado</Badge>
+                                  )}
                                   {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs shrink-0">Ativo</Badge>}
                                   {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs shrink-0">Inativo</Badge>}
                                 </div>
@@ -430,7 +435,7 @@ const Coupons = () => {
                               </div>
                             </div>;
                 }
-                return <Card key={coupon.id} className={isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}>
+                return <Card key={coupon.id} className={`${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""} ${!isActivated ? "border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/20" : ""}`}>
                             <CardContent className="p-4 space-y-3">
                               <div className="flex flex-wrap gap-1.5 items-start">
                                 <h3 className="font-semibold text-sm flex-1">{coupon.name}</h3>
@@ -440,6 +445,11 @@ const Coupons = () => {
                                   {coupon.type === "days" && `${coupon.value}d`}
                                   {coupon.type === "free_trial" && `${coupon.value}d grátis`}
                                 </Badge>
+                                {isActivated ? (
+                                  <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Liberado</Badge>
+                                ) : (
+                                  <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-xs">Não Liberado</Badge>
+                                )}
                                 {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
                                 {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
                               </div>
