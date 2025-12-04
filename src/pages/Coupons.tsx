@@ -745,7 +745,7 @@ const Coupons = () => {
                         <Copy className="h-4 w-4 mr-2" />
                         Copiar
                       </Button>}
-                      {isActivated ? isActive ? <Button variant="outline" size="sm" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                      {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => deactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                         <XCircle className="h-4 w-4 mr-2" />
                         Inativar
                       </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
