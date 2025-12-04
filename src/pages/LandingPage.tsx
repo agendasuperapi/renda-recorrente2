@@ -146,7 +146,7 @@ const LandingPage = () => {
   const {
     theme
   } = useTheme();
-  const versionInfo = useVersionCheck();
+  const { checkVersion, ...versionInfo } = useVersionCheck();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
@@ -764,15 +764,32 @@ const LandingPage = () => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="flex items-center justify-center gap-2 text-xs opacity-70 cursor-pointer hover:opacity-100 transition-opacity" style={{
-                        color: currentSidebarTextColor
-                      }}>
+                        <div 
+                          className="flex items-center justify-center gap-2 text-xs opacity-70 cursor-pointer hover:opacity-100 transition-opacity" 
+                          style={{ color: currentSidebarTextColor }}
+                          onClick={() => checkVersion()}
+                        >
                           <span>v{APP_VERSION}</span>
-                          {versionInfo.hasUpdate ? <X className="h-3.5 w-3.5 text-red-500" /> : <Check className="h-3.5 w-3.5 text-green-500" />}
-                          {versionInfo.hasUpdate && <Badge variant="default" className="text-[10px] px-1 py-0 h-4 cursor-pointer" onClick={() => window.location.reload()}>
+                          {versionInfo.isChecking ? (
+                            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                          ) : versionInfo.hasUpdate ? (
+                            <X className="h-3.5 w-3.5 text-red-500" />
+                          ) : (
+                            <Check className="h-3.5 w-3.5 text-green-500" />
+                          )}
+                          {versionInfo.hasUpdate && (
+                            <Badge 
+                              variant="default" 
+                              className="text-[10px] px-1 py-0 h-4 cursor-pointer" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.location.reload();
+                              }}
+                            >
                               <RefreshCw className="h-2.5 w-2.5 mr-0.5" />
                               Atualizar
-                            </Badge>}
+                            </Badge>
+                          )}
                         </div>
                       </TooltipTrigger>
                       {versionInfo.hasUpdate ? <TooltipContent>
@@ -1832,7 +1849,13 @@ const LandingPage = () => {
           <div className="border-t border-border pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
             <p>© 2025 APP Renda Recorrente. Todos os direitos reservados.</p>
             <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground/70">
-              <span>v{APP_VERSION}</span>
+              <span 
+                className="cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={() => checkVersion()}
+              >
+                v{APP_VERSION}
+                {versionInfo.isChecking && <RefreshCw className="h-3 w-3 ml-1 inline animate-spin" />}
+              </span>
               {versionInfo.hasUpdate && versionInfo.newVersion ? <Button variant="outline" size="sm" className="h-6 text-xs px-2 gap-1" onClick={() => window.location.reload()}>
                   <RefreshCw className="h-3 w-3" />
                   Atualizar para v{versionInfo.newVersion}
@@ -1840,11 +1863,12 @@ const LandingPage = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-6 text-xs px-2 gap-1 text-muted-foreground/70 hover:text-foreground" onClick={() => {
-                    toast({
-                      title: "Versão atualizada",
-                      description: `Você está usando a versão mais recente (v${APP_VERSION})`
-                    });
-                  }}>
+                        checkVersion();
+                        toast({
+                          title: "Verificando versão...",
+                          description: `Versão atual: v${APP_VERSION}`
+                        });
+                      }}>
                         <Check className="h-3 w-3 text-green-500" />
                         Atualizado
                       </Button>

@@ -20,6 +20,7 @@ export const useVersionCheck = () => {
   });
 
   const checkVersion = async () => {
+    setVersionInfo(prev => ({ ...prev, isChecking: true }));
     try {
       // Check if current version exists in database
       const { data: currentVersionData, error: currentVersionError } = await (supabase as any)
@@ -85,5 +86,5 @@ export const useVersionCheck = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return versionInfo;
+  return { ...versionInfo, checkVersion };
 };
