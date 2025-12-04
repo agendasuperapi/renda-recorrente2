@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import logo from "@/assets/logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
@@ -809,113 +810,228 @@ export const Sidebar = ({
               </div>
             </div>}
           
-          {/* Dialog de Detalhes do Perfil */}
-          <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Meu Perfil</DialogTitle>
-              </DialogHeader>
-              
-              <div className="flex flex-col items-center gap-6 py-4">
-                {/* Avatar Grande - Clicável */}
-                <div 
-                  className="relative cursor-pointer group"
-                  onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-                >
-                  <Avatar className="!w-[120px] !h-[120px] transition-opacity group-hover:opacity-80">
-                    {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
-                    <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
-                      {getInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    {uploadingAvatar ? (
-                      <Loader2 className="h-8 w-8 text-white animate-spin" />
-                    ) : (
-                      <Camera className="h-8 w-8 text-white" />
-                    )}
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarSelect}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">Clique na foto para alterar</p>
+          {/* Dialog/Drawer de Detalhes do Perfil */}
+          {isMobile ? (
+            <Drawer open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+              <DrawerContent className="max-h-[90vh]">
+                <DrawerHeader className="border-b relative">
+                  <DrawerTitle className="text-center">Meu Perfil</DrawerTitle>
+                  <DrawerClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                    <X className="h-5 w-5" />
+                    <span className="sr-only">Fechar</span>
+                  </DrawerClose>
+                </DrawerHeader>
                 
-                {/* Card de Plano em Destaque */}
-                {userPlan && (
-                  <div className="w-full p-3 rounded-xl border text-center space-y-1 shadow-lg bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
-                    <div className="flex items-center justify-center gap-1.5 text-base font-bold text-slate-700 dark:text-slate-300">
-                      {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
-                      <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
+                <div className="overflow-y-auto px-4 pb-8 pt-4">
+                  <div className="flex flex-col items-center gap-6">
+                    {/* Avatar Grande - Clicável */}
+                    <div 
+                      className="relative cursor-pointer group"
+                      onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                    >
+                      <Avatar className="!w-[120px] !h-[120px] transition-opacity group-hover:opacity-80">
+                        {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
+                        <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        {uploadingAvatar ? (
+                          <Loader2 className="h-8 w-8 text-white animate-spin" />
+                        ) : (
+                          <Camera className="h-8 w-8 text-white" />
+                        )}
+                      </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarSelect}
+                      />
                     </div>
-                    {!userPlan.is_free && userPlan.plan_name && (
-                      <p className="text-slate-600 dark:text-slate-400 text-xs">{userPlan.plan_name}</p>
+                    <p className="text-xs text-muted-foreground">Clique na foto para alterar</p>
+                    
+                    {/* Card de Plano em Destaque */}
+                    {userPlan && (
+                      <div className="w-full p-3 rounded-xl border text-center space-y-1 shadow-lg bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                        <div className="flex items-center justify-center gap-1.5 text-base font-bold text-slate-700 dark:text-slate-300">
+                          {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
+                          <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
+                        </div>
+                        {!userPlan.is_free && userPlan.plan_name && (
+                          <p className="text-slate-600 dark:text-slate-400 text-xs">{userPlan.plan_name}</p>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-                
-                {/* Informações */}
-                <div className="w-full space-y-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Nome Completo</p>
-                    <p className="text-sm font-medium">{userName || user.user_metadata?.name || "Não informado"}</p>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Email</p>
-                    <p className="text-sm font-medium break-all">{user.email}</p>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Plano</p>
-                    <p className="text-sm font-medium">
-                      {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "Pro")}
-                    </p>
-                  </div>
-                  
-                  {userSubscription ? (
-                    <>
+                    
+                    {/* Informações */}
+                    <div className="w-full space-y-4">
                       <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Período</p>
+                        <p className="text-xs text-muted-foreground">Nome Completo</p>
+                        <p className="text-sm font-medium">{userName || user.user_metadata?.name || "Não informado"}</p>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Email</p>
+                        <p className="text-sm font-medium break-all">{user.email}</p>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Plano</p>
                         <p className="text-sm font-medium">
-                          {format(new Date(userSubscription.current_period_start), "dd/MM/yyyy", { locale: ptBR })} - {format(new Date(userSubscription.current_period_end), "dd/MM/yyyy", { locale: ptBR })}
+                          {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "Pro")}
                         </p>
                       </div>
                       
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Situação</p>
-                        <div className="flex items-center gap-2">
-                          <div className={`px-2 py-1 rounded text-xs font-semibold ${
-                            userSubscription.cancel_at_period_end 
-                              ? "bg-destructive text-destructive-foreground" 
-                              : userSubscription.status === "active" 
-                              ? "bg-green-500 text-white" 
-                              : "bg-secondary text-secondary-foreground"
-                          }`}>
-                            {userSubscription.cancel_at_period_end ? "Cancelamento solicitado" : userSubscription.status === "active" ? "Ativo" : userSubscription.status === "trialing" ? "Em teste" : userSubscription.status === "past_due" ? "Pagamento pendente" : userSubscription.status}
+                      {userSubscription ? (
+                        <>
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">Período</p>
+                            <p className="text-sm font-medium">
+                              {format(new Date(userSubscription.current_period_start), "dd/MM/yyyy", { locale: ptBR })} - {format(new Date(userSubscription.current_period_end), "dd/MM/yyyy", { locale: ptBR })}
+                            </p>
                           </div>
+                          
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">Situação</p>
+                            <div className="flex items-center gap-2">
+                              <div className={`px-2 py-1 rounded text-xs font-semibold ${
+                                userSubscription.cancel_at_period_end 
+                                  ? "bg-destructive text-destructive-foreground" 
+                                  : userSubscription.status === "active" 
+                                  ? "bg-green-500 text-white" 
+                                  : "bg-secondary text-secondary-foreground"
+                              }`}>
+                                {userSubscription.cancel_at_period_end ? "Cancelamento solicitado" : userSubscription.status === "active" ? "Ativo" : userSubscription.status === "trialing" ? "Em teste" : userSubscription.status === "past_due" ? "Pagamento pendente" : userSubscription.status}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">Comissão</p>
+                            <p className="text-lg font-semibold text-primary">{userSubscription.commission_percentage}%</p>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Validade</p>
+                          <p className="text-sm font-medium">Ilimitado</p>
                         </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Meu Perfil</DialogTitle>
+                </DialogHeader>
+                
+                <div className="flex flex-col items-center gap-6 py-4">
+                  {/* Avatar Grande - Clicável */}
+                  <div 
+                    className="relative cursor-pointer group"
+                    onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                  >
+                    <Avatar className="!w-[120px] !h-[120px] transition-opacity group-hover:opacity-80">
+                      {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
+                      <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      {uploadingAvatar ? (
+                        <Loader2 className="h-8 w-8 text-white animate-spin" />
+                      ) : (
+                        <Camera className="h-8 w-8 text-white" />
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarSelect}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Clique na foto para alterar</p>
+                  
+                  {/* Card de Plano em Destaque */}
+                  {userPlan && (
+                    <div className="w-full p-3 rounded-xl border text-center space-y-1 shadow-lg bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                      <div className="flex items-center justify-center gap-1.5 text-base font-bold text-slate-700 dark:text-slate-300">
+                        {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
+                        <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
                       </div>
-                      
-                      <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground">Comissão</p>
-                        <p className="text-lg font-semibold text-primary">{userSubscription.commission_percentage}%</p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Validade</p>
-                      <p className="text-sm font-medium">Ilimitado</p>
+                      {!userPlan.is_free && userPlan.plan_name && (
+                        <p className="text-slate-600 dark:text-slate-400 text-xs">{userPlan.plan_name}</p>
+                      )}
                     </div>
                   )}
+                  
+                  {/* Informações */}
+                  <div className="w-full space-y-4">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Nome Completo</p>
+                      <p className="text-sm font-medium">{userName || user.user_metadata?.name || "Não informado"}</p>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Email</p>
+                      <p className="text-sm font-medium break-all">{user.email}</p>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Plano</p>
+                      <p className="text-sm font-medium">
+                        {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "Pro")}
+                      </p>
+                    </div>
+                    
+                    {userSubscription ? (
+                      <>
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Período</p>
+                          <p className="text-sm font-medium">
+                            {format(new Date(userSubscription.current_period_start), "dd/MM/yyyy", { locale: ptBR })} - {format(new Date(userSubscription.current_period_end), "dd/MM/yyyy", { locale: ptBR })}
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Situação</p>
+                          <div className="flex items-center gap-2">
+                            <div className={`px-2 py-1 rounded text-xs font-semibold ${
+                              userSubscription.cancel_at_period_end 
+                                ? "bg-destructive text-destructive-foreground" 
+                                : userSubscription.status === "active" 
+                                ? "bg-green-500 text-white" 
+                                : "bg-secondary text-secondary-foreground"
+                            }`}>
+                              {userSubscription.cancel_at_period_end ? "Cancelamento solicitado" : userSubscription.status === "active" ? "Ativo" : userSubscription.status === "trialing" ? "Em teste" : userSubscription.status === "past_due" ? "Pagamento pendente" : userSubscription.status}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Comissão</p>
+                          <p className="text-lg font-semibold text-primary">{userSubscription.commission_percentage}%</p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Validade</p>
+                        <p className="text-sm font-medium">Ilimitado</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          )}
 
           {/* Avatar Crop Dialog */}
           <AvatarCropDialog
