@@ -706,7 +706,7 @@ export const Sidebar = ({
           {/* Card com Avatar e Badge */}
           {userPlan && <div 
               onClick={() => setProfileDialogOpen(true)}
-              className={cn("flex items-center gap-3 px-2 py-2 rounded-xl w-full shadow-lg border mx-2 cursor-pointer transition-transform hover:scale-[1.02]", userPlan.is_free ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" : "bg-gradient-to-r from-amber-400 to-orange-500 border-amber-500")}
+              className="flex items-center gap-3 px-2 py-2 rounded-xl w-full shadow-lg border mx-2 cursor-pointer transition-transform hover:scale-[1.02] bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600"
             >
               <Avatar className="w-12 h-12 flex-shrink-0">
                 {avatarUrl && <AvatarImage src={avatarUrl} alt={user.user_metadata?.name || "Avatar"} />}
@@ -718,16 +718,16 @@ export const Sidebar = ({
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <div className={cn("flex items-center gap-1.5 text-sm font-bold", userPlan.is_free ? "text-slate-700 dark:text-slate-300" : "text-white")}>
+                <div className="flex items-center gap-1.5 text-sm font-bold text-slate-700 dark:text-slate-300">
                   {userPlan.is_free ? <>
                       <Zap className="w-4 h-4" />
                       <span>PLANO FREE</span>
                     </> : <>
-                      <Star className="w-4 h-4" />
+                      <Crown className="w-4 h-4 text-amber-500" />
                       <span>PLANO PRO</span>
                     </>}
                 </div>
-                <p className={cn("text-xs truncate", userPlan.is_free ? "text-slate-600 dark:text-slate-400" : "text-white/90")}>
+                <p className="text-xs truncate text-slate-600 dark:text-slate-400">
                   {user.email}
                 </p>
               </div>
@@ -751,21 +751,13 @@ export const Sidebar = ({
                 
                 {/* Card de Plano em Destaque */}
                 {userPlan && (
-                  <div className={cn(
-                    "w-full p-3 rounded-xl border text-center space-y-1 shadow-lg",
-                    userPlan.is_free 
-                      ? "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600" 
-                      : "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-500"
-                  )}>
-                    <div className={cn(
-                      "flex items-center justify-center gap-1.5 text-base font-bold",
-                      userPlan.is_free ? "text-slate-700 dark:text-slate-300" : "text-white"
-                    )}>
-                      {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Star className="w-4 h-4" />}
+                  <div className="w-full p-3 rounded-xl border text-center space-y-1 shadow-lg bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
+                    <div className="flex items-center justify-center gap-1.5 text-base font-bold text-slate-700 dark:text-slate-300">
+                      {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
                       <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
                     </div>
                     {!userPlan.is_free && userPlan.plan_name && (
-                      <p className="text-white/90 text-xs">{userPlan.plan_name}</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs">{userPlan.plan_name}</p>
                     )}
                   </div>
                 )}
