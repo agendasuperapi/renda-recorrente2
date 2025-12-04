@@ -405,7 +405,7 @@ const AdminBankAccounts = () => {
               </p>
               {isMobile ? (
                 <Drawer open={openBankDialog} onOpenChange={setOpenBankDialog}>
-                  <Button onClick={resetBankForm} size="sm" className="w-full sm:w-auto">
+                  <Button onClick={resetBankForm} size="sm" className="w-full sm:w-auto border border-white">
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Banco
                   </Button>
