@@ -756,7 +756,7 @@ const LandingPage = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-72 flex flex-col p-0 border-l-0 bg-background" style={{
               ...sidebarGradientStyle,
-              backgroundColor: sidebarColorStart
+              backgroundColor: '#10b981'
             }}>
                 {/* Logo e Versão no topo */}
                 <div className="flex flex-col items-center pt-6 pb-4 px-4">
