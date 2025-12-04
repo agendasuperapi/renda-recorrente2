@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
-import { PullToRefresh } from "@/components/PullToRefresh";
 import LandingPage from "./pages/LandingPage";
 import LandingTestimonials from "./pages/LandingTestimonials";
 import SignupFunnel from "./pages/SignupFunnel";
@@ -68,7 +67,6 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <TooltipProvider>
-          <PullToRefresh />
           <Toaster />
           <Sonner />
           <BrowserRouter>

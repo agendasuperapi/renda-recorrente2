@@ -193,8 +193,7 @@ export const DashboardLayout = () => {
       <UserProvider value={{ userId: user?.id || null }}>
         <div 
           ref={scrollContainerRef}
-          className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)] overflow-y-auto" 
-          style={{ overscrollBehavior: 'none' }}
+          className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)] overflow-y-auto"
         >
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
           <main 

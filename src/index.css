@@ -201,8 +201,7 @@ All colors MUST be HSL.
     /* Background configurável atrás de tudo - isso é o que a barra de status vai ver */
     html, body {
       background: var(--status-bar-bg);
-      overscroll-behavior: none;
-      overscroll-behavior-y: none;
+      /* Pull-to-refresh nativo habilitado no topo */
     }
     
     /* Container principal tem seu próprio background */
@@ -234,7 +233,6 @@ All colors MUST be HSL.
     .ios-scroll-wrapper {
       -webkit-overflow-scrolling: touch;
       overflow-y: auto;
-      overscroll-behavior: none;
     }
     
     /* Garantir que formulários sejam focáveis */
