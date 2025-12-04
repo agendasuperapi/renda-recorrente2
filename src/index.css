@@ -201,6 +201,8 @@ All colors MUST be HSL.
     /* Background configurável atrás de tudo - isso é o que a barra de status vai ver */
     html, body {
       background: var(--status-bar-bg);
+      overscroll-behavior: none;
+      overscroll-behavior-y: none;
     }
     
     /* Container principal tem seu próprio background */
