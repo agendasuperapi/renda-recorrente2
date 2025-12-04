@@ -10,24 +10,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { format } from "date-fns";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -36,17 +22,28 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
-const WEEKDAYS = [
-  { value: 1, label: "Segunda-feira" },
-  { value: 2, label: "Terça-feira" },
-  { value: 3, label: "Quarta-feira" },
-  { value: 4, label: "Quinta-feira" },
-  { value: 5, label: "Sexta-feira" },
-  { value: 6, label: "Sábado" },
-  { value: 0, label: "Domingo" },
-];
-
+const WEEKDAYS = [{
+  value: 1,
+  label: "Segunda-feira"
+}, {
+  value: 2,
+  label: "Terça-feira"
+}, {
+  value: 3,
+  label: "Quarta-feira"
+}, {
+  value: 4,
+  label: "Quinta-feira"
+}, {
+  value: 5,
+  label: "Sexta-feira"
+}, {
+  value: 6,
+  label: "Sábado"
+}, {
+  value: 0,
+  label: "Domingo"
+}];
 const AdminUsers = () => {
   const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,64 +62,63 @@ const AdminUsers = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
   const queryClient = useQueryClient();
-
-  const { data: usersData, isLoading } = useQuery({
+  const {
+    data: usersData,
+    isLoading
+  } = useQuery({
     queryKey: ["admin-users", debouncedSearch, statusFilter, currentPage, itemsPerPage, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
-
-      let query = supabase
-        .from("view_admin_users")
-        .select("*", { count: "exact" })
-        .order(sortColumn, { ascending: sortDirection === "asc" })
-        .range(from, to);
-
+      let query = supabase.from("view_admin_users").select("*", {
+        count: "exact"
+      }).order(sortColumn, {
+        ascending: sortDirection === "asc"
+      }).range(from, to);
       if (debouncedSearch) {
-        query = query.or(
-          `name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%,affiliate_code.ilike.%${debouncedSearch}%`
-        );
+        query = query.or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%,affiliate_code.ilike.%${debouncedSearch}%`);
       }
-
       if (statusFilter === "active") {
         query = query.eq("is_blocked", false);
       } else if (statusFilter === "blocked") {
         query = query.eq("is_blocked", true);
       }
-
-      const { data, error, count } = await query;
+      const {
+        data,
+        error,
+        count
+      } = await query;
       if (error) throw error;
-      
-      return { users: data || [], total: count || 0 };
-    },
+      return {
+        users: data || [],
+        total: count || 0
+      };
+    }
   });
-
   const users = usersData?.users || [];
   const totalCount = usersData?.total || 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
-
-  const { data: activities, isLoading: activitiesLoading } = useQuery({
+  const {
+    data: activities,
+    isLoading: activitiesLoading
+  } = useQuery({
     queryKey: ["user-activities", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser?.id) return [];
-      
-      const { data, error } = await supabase
-        .from("activities")
-        .select("*")
-        .eq("user_id", selectedUser.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
-
+      const {
+        data,
+        error
+      } = await supabase.from("activities").select("*").eq("user_id", selectedUser.id).order("created_at", {
+        ascending: false
+      }).limit(50);
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedUser?.id,
+    enabled: !!selectedUser?.id
   });
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
   const handleViewDetails = (user: any) => {
     setSelectedUser(user);
     setIsBlocked(user.is_blocked || false);
@@ -131,82 +127,89 @@ const AdminUsers = () => {
     setIsEditingWithdrawal(false);
     setIsDetailsOpen(true);
   };
-
   const updateBlockStatusMutation = useMutation({
-    mutationFn: async ({ userId, isBlocked, message }: { userId: string; isBlocked: boolean; message?: string }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          is_blocked: isBlocked,
-          blocked_message: message || null,
-          blocked_at: isBlocked ? new Date().toISOString() : null,
-          blocked_by: isBlocked ? user?.id : null,
-        })
-        .eq("id", userId);
-
+    mutationFn: async ({
+      userId,
+      isBlocked,
+      message
+    }: {
+      userId: string;
+      isBlocked: boolean;
+      message?: string;
+    }) => {
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        is_blocked: isBlocked,
+        blocked_message: message || null,
+        blocked_at: isBlocked ? new Date().toISOString() : null,
+        blocked_by: isBlocked ? user?.id : null
+      }).eq("id", userId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-users"]
+      });
       toast.success("Status do usuário atualizado com sucesso!");
     },
-    onError: (error) => {
+    onError: error => {
       console.error("Error updating user status:", error);
       toast.error("Erro ao atualizar status do usuário");
-    },
+    }
   });
-
   const updateWithdrawalDayMutation = useMutation({
     mutationFn: async (newDay: number) => {
       if (!selectedUser) throw new Error("User ID not found");
-      
-      const { error } = await supabase
-        .from("profiles")
-        .update({ withdrawal_day: newDay })
-        .eq("id", selectedUser.id);
-      
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        withdrawal_day: newDay
+      }).eq("id", selectedUser.id);
       if (error) throw error;
     },
     onSuccess: (_, newDay) => {
       toast.success("Dia de saque atualizado com sucesso!");
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      setSelectedUser({ ...selectedUser, withdrawal_day: newDay });
+      queryClient.invalidateQueries({
+        queryKey: ["admin-users"]
+      });
+      setSelectedUser({
+        ...selectedUser,
+        withdrawal_day: newDay
+      });
       setIsEditingWithdrawal(false);
     },
-    onError: (error) => {
+    onError: error => {
       console.error("Error updating withdrawal day:", error);
       toast.error("Erro ao atualizar dia de saque");
-    },
+    }
   });
-
   const handleSaveBlockStatus = () => {
     if (!selectedUser) return;
-    
     if (isBlocked && !editedBlockMessage.trim()) {
       toast.error("Por favor, insira uma mensagem de bloqueio");
       return;
     }
-
     updateBlockStatusMutation.mutate({
       userId: selectedUser.id,
       isBlocked: isBlocked,
-      message: editedBlockMessage,
+      message: editedBlockMessage
     });
   };
-
   const handleSaveWithdrawalDay = () => {
     if (withdrawalDay !== null && withdrawalDay !== undefined) {
       updateWithdrawalDayMutation.mutate(withdrawalDay);
     }
   };
-
   const getWeekdayLabel = (day: number | null) => {
     if (day === null || day === undefined) return "-";
     return WEEKDAYS.find(w => w.value === day)?.label || "-";
   };
-
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -216,24 +219,22 @@ const AdminUsers = () => {
     }
     setCurrentPage(1);
   };
-
-  const SortIcon = ({ column }: { column: string }) => {
+  const SortIcon = ({
+    column
+  }: {
+    column: string;
+  }) => {
     if (sortColumn !== column) {
       return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    return sortDirection === "asc" ? 
-      <ArrowUp className="ml-2 h-4 w-4" /> : 
-      <ArrowDown className="ml-2 h-4 w-4" />;
+    return sortDirection === "asc" ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
   };
-
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
     setCurrentPage(1);
   };
-
-  return (
-    <div className="space-y-3 md:space-y-4 p-2 md:p-0">
+  return <div className="space-y-3 md:space-y-4 p-2 md:p-0">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
@@ -241,29 +242,16 @@ const AdminUsers = () => {
               Gerencie todos os afiliados e administradores
             </p>
           </div>
-          <Button className="gap-2 w-full md:w-auto">
-            <UserPlus className="h-4 w-4" />
-            Adicionar Usuário
-          </Button>
+          
         </div>
 
         {/* Mobile Control Bar */}
         <div className="flex items-center justify-between lg:hidden">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="gap-2"
-          >
+          <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="gap-2">
             <SlidersHorizontal className="h-4 w-4" />
             Filtros
           </Button>
-          <ToggleGroup
-            type="single"
-            value={layoutMode}
-            onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}
-            className="border rounded-lg"
-          >
+          <ToggleGroup type="single" value={layoutMode} onValueChange={value => value && setLayoutMode(value as "compact" | "complete")} className="border rounded-lg">
             <ToggleGroupItem value="compact" aria-label="Modo compacto" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
               <LayoutList className="h-4 w-4" />
             </ToggleGroupItem>
@@ -279,12 +267,7 @@ const AdminUsers = () => {
             <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
               <div className="relative flex-1 min-w-0 lg:max-w-sm">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por nome, email, username ou código..."
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <Input placeholder="Buscar por nome, email, username ou código..." className="pl-9" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full lg:w-[180px]">
@@ -296,10 +279,10 @@ const AdminUsers = () => {
                   <SelectItem value="blocked">Bloqueados</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                setItemsPerPage(Number(value));
-                setCurrentPage(1);
-              }}>
+              <Select value={itemsPerPage.toString()} onValueChange={value => {
+            setItemsPerPage(Number(value));
+            setCurrentPage(1);
+          }}>
                 <SelectTrigger className="w-full lg:w-[140px]">
                   <SelectValue />
                 </SelectTrigger>
@@ -312,19 +295,12 @@ const AdminUsers = () => {
                 </SelectContent>
               </Select>
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  onClick={() => queryClient.invalidateQueries({ queryKey: ["admin-users"] })}
-                  className="shrink-0"
-                >
+                <Button variant="outline" size="icon" onClick={() => queryClient.invalidateQueries({
+              queryKey: ["admin-users"]
+            })} className="shrink-0">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={handleResetFilters}
-                  className="flex-1 lg:flex-none"
-                >
+                <Button variant="outline" onClick={handleResetFilters} className="flex-1 lg:flex-none">
                   <X className="h-4 w-4 mr-2" />
                   Limpar filtros
                 </Button>
@@ -338,21 +314,14 @@ const AdminUsers = () => {
           <CardContent className="!p-0 lg:!p-6">
             {/* Layout Mobile - Cards */}
             <div className="lg:hidden space-y-3">
-              {isLoading ? (
-                <>
-                  {[...Array(5)].map((_, i) => (
-                    <Card key={i} className="p-4">
+              {isLoading ? <>
+                  {[...Array(5)].map((_, i) => <Card key={i} className="p-4">
                       <Skeleton className="h-6 w-32 mb-2" />
                       <Skeleton className="h-4 w-full mb-1" />
                       <Skeleton className="h-4 w-3/4 mb-2" />
                       <Skeleton className="h-8 w-full" />
-                    </Card>
-                  ))}
-                </>
-              ) : users && users.length > 0 ? (
-                users.map((user) => (
-                  layoutMode === "compact" ? (
-                    <Card key={user.id} className="p-3">
+                    </Card>)}
+                </> : users && users.length > 0 ? users.map(user => layoutMode === "compact" ? <Card key={user.id} className="p-3">
                       <div className="space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
@@ -370,31 +339,19 @@ const AdminUsers = () => {
                           <Badge variant={user.is_blocked ? "destructive" : "default"}>
                             {user.is_blocked ? "Bloqueado" : "Ativo"}
                           </Badge>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleViewDetails(user)}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewDetails(user)}>
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    </Card>
-                  ) : (
-                    <Card key={user.id} className="p-3">
+                    </Card> : <Card key={user.id} className="p-3">
                       <div className="space-y-2">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h3 className="font-semibold text-base">{user.name}</h3>
                             <p className="text-sm text-muted-foreground">{user.email || "-"}</p>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(user)}
-                            className="shrink-0"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(user)} className="shrink-0">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
@@ -422,16 +379,11 @@ const AdminUsers = () => {
                           </span>
                         </div>
                       </div>
-                    </Card>
-                  )
-                ))
-              ) : (
-                <Card className="p-8">
+                    </Card>) : <Card className="p-8">
                   <p className="text-center text-muted-foreground">
                     Nenhum usuário encontrado
                   </p>
-                </Card>
-              )}
+                </Card>}
             </div>
 
             {/* Layout Desktop - Table */}
@@ -465,10 +417,8 @@ const AdminUsers = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
-                  <>
-                    {[...Array(5)].map((_, i) => (
-                      <TableRow key={i}>
+                {isLoading ? <>
+                    {[...Array(5)].map((_, i) => <TableRow key={i}>
                         <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
@@ -477,12 +427,8 @@ const AdminUsers = () => {
                         <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                         <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-8 w-20" /></TableCell>
-                      </TableRow>
-                    ))}
-                  </>
-                ) : users && users.length > 0 ? (
-                  users.map((user) => (
-                    <TableRow key={user.id}>
+                      </TableRow>)}
+                  </> : users && users.length > 0 ? users.map(user => <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.email || "-"}</TableCell>
                       <TableCell>{user.username || "-"}</TableCell>
@@ -501,103 +447,68 @@ const AdminUsers = () => {
                       </TableCell>
                       <TableCell>{user.phone || "-"}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewDetails(user)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleViewDetails(user)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
+                    </TableRow>) : <TableRow>
                     <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                       Nenhum usuário encontrado
                     </TableCell>
-                  </TableRow>
-                )}
+                  </TableRow>}
               </TableBody>
             </Table>
             </div>
 
-            {users && users.length > 0 && (
-              <div className="flex flex-col md:flex-row items-center justify-between gap-2 mt-3">
+            {users && users.length > 0 && <div className="flex flex-col md:flex-row items-center justify-between gap-2 mt-3">
                 <p className="text-xs md:text-sm text-muted-foreground text-center md:text-left">
                   Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount} usuários
                 </p>
                 <Pagination>
                   <PaginationContent className="flex-wrap justify-center">
                     <PaginationItem>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                         <ChevronLeft className="h-4 w-4" />
                         <span className="hidden md:inline ml-1">Anterior</span>
                       </Button>
                     </PaginationItem>
                     
                     {/* Show fewer page numbers on mobile */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => {
-                        // On mobile, only show current, first, last, and adjacent pages
-                        if (window.innerWidth < 768) {
-                          return page === 1 || 
-                                 page === totalPages || 
-                                 page === currentPage || 
-                                 page === currentPage - 1 || 
-                                 page === currentPage + 1;
-                        }
-                        return true;
-                      })
-                      .map((page, index, array) => (
-                        <PaginationItem key={page}>
-                          {index > 0 && array[index - 1] !== page - 1 && (
-                            <span className="px-2">...</span>
-                          )}
-                          <Button
-                            variant={currentPage === page ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handlePageChange(page)}
-                            className="min-w-[2.5rem]"
-                          >
+                    {Array.from({
+                length: totalPages
+              }, (_, i) => i + 1).filter(page => {
+                // On mobile, only show current, first, last, and adjacent pages
+                if (window.innerWidth < 768) {
+                  return page === 1 || page === totalPages || page === currentPage || page === currentPage - 1 || page === currentPage + 1;
+                }
+                return true;
+              }).map((page, index, array) => <PaginationItem key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && <span className="px-2">...</span>}
+                          <Button variant={currentPage === page ? "default" : "outline"} size="sm" onClick={() => handlePageChange(page)} className="min-w-[2.5rem]">
                             {page}
                           </Button>
-                        </PaginationItem>
-                      ))}
+                        </PaginationItem>)}
 
                     <PaginationItem>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
                         <span className="hidden md:inline mr-1">Próxima</span>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>
-              </div>
-            )}
+              </div>}
           </CardContent>
         </Card>
 
-        {isMobile ? (
-          <Drawer open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        {isMobile ? <Drawer open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <DrawerContent className="max-h-[90vh]">
               <DrawerHeader className="pb-3">
                 <DrawerTitle>Detalhes do Usuário</DrawerTitle>
               </DrawerHeader>
               
               <ScrollArea className="h-[calc(90vh-8rem)] px-3">
-                {selectedUser && (
-                  <div className="space-y-3 pb-4">
+                {selectedUser && <div className="space-y-3 pb-4">
                     {/* Informações Básicas */}
                     <div>
                       <h3 className="text-base md:text-lg font-semibold mb-2">Informações Básicas</h3>
@@ -694,50 +605,28 @@ const AdminUsers = () => {
                         </div>
                         <div className="md:col-span-2">
                           <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
-                          {isEditingWithdrawal ? (
-                            <div className="flex flex-col md:flex-row gap-2">
-                              <select
-                                value={withdrawalDay ?? ""}
-                                onChange={(e) => setWithdrawalDay(Number(e.target.value))}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                              >
+                          {isEditingWithdrawal ? <div className="flex flex-col md:flex-row gap-2">
+                              <select value={withdrawalDay ?? ""} onChange={e => setWithdrawalDay(Number(e.target.value))} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                                 <option value="">Selecione...</option>
-                                {WEEKDAYS.map((day) => (
-                                  <option key={day.value} value={day.value}>
+                                {WEEKDAYS.map(day => <option key={day.value} value={day.value}>
                                     {day.label}
-                                  </option>
-                                ))}
+                                  </option>)}
                               </select>
-                              <Button
-                                size="sm"
-                                onClick={handleSaveWithdrawalDay}
-                                disabled={updateWithdrawalDayMutation.isPending}
-                              >
+                              <Button size="sm" onClick={handleSaveWithdrawalDay} disabled={updateWithdrawalDayMutation.isPending}>
                                 Salvar
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setIsEditingWithdrawal(false);
-                                  setWithdrawalDay(selectedUser.withdrawal_day);
-                                }}
-                              >
+                              <Button size="sm" variant="outline" onClick={() => {
+                      setIsEditingWithdrawal(false);
+                      setWithdrawalDay(selectedUser.withdrawal_day);
+                    }}>
                                 Cancelar
                               </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
+                            </div> : <div className="flex items-center gap-2">
                               <p className="font-medium">{getWeekdayLabel(selectedUser.withdrawal_day)}</p>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setIsEditingWithdrawal(true)}
-                              >
+                              <Button size="sm" variant="outline" onClick={() => setIsEditingWithdrawal(true)}>
                                 Editar
                               </Button>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                       </div>
                     </div>
@@ -766,8 +655,7 @@ const AdminUsers = () => {
                     <Separator />
 
                     {/* Controle de Bloqueio */}
-                    {selectedUser?.role !== "super_admin" && (
-                      <>
+                    {selectedUser?.role !== "super_admin" && <>
                         <div>
                           <h3 className="text-base md:text-lg font-semibold mb-2">Controle de Bloqueio</h3>
                           <div className="space-y-3">
@@ -778,59 +666,34 @@ const AdminUsers = () => {
                                   {isBlocked ? "Usuário está bloqueado" : "Usuário está ativo"}
                                 </p>
                               </div>
-                              <Switch
-                                id="block-status"
-                                checked={isBlocked}
-                                onCheckedChange={setIsBlocked}
-                              />
+                              <Switch id="block-status" checked={isBlocked} onCheckedChange={setIsBlocked} />
                             </div>
 
-                            {isBlocked && (
-                              <div className="space-y-2">
+                            {isBlocked && <div className="space-y-2">
                                 <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
-                                <Textarea
-                                  id="blockMessage"
-                                  placeholder="Digite a mensagem que será exibida ao usuário..."
-                                  value={editedBlockMessage}
-                                  onChange={(e) => setEditedBlockMessage(e.target.value)}
-                                  rows={4}
-                                />
-                              </div>
-                            )}
+                                <Textarea id="blockMessage" placeholder="Digite a mensagem que será exibida ao usuário..." value={editedBlockMessage} onChange={e => setEditedBlockMessage(e.target.value)} rows={4} />
+                              </div>}
 
-                            <Button 
-                              onClick={handleSaveBlockStatus}
-                              className="w-full"
-                              disabled={updateBlockStatusMutation.isPending}
-                            >
+                            <Button onClick={handleSaveBlockStatus} className="w-full" disabled={updateBlockStatusMutation.isPending}>
                               {updateBlockStatusMutation.isPending ? "Salvando..." : "Salvar Alterações"}
                             </Button>
 
-                            {selectedUser?.blocked_at && (
-                              <p className="text-xs text-muted-foreground text-center">
+                            {selectedUser?.blocked_at && <p className="text-xs text-muted-foreground text-center">
                                 Bloqueado em: {format(new Date(selectedUser.blocked_at), "dd/MM/yyyy HH:mm")}
-                              </p>
-                            )}
+                              </p>}
                           </div>
                         </div>
 
                         <Separator />
-                      </>
-                    )}
+                      </>}
 
                     {/* Histórico de Atividades */}
                     <div>
                       <h3 className="text-base md:text-lg font-semibold mb-2">Histórico de Atividades</h3>
-                      {activitiesLoading ? (
-                        <div className="space-y-2">
-                          {[...Array(3)].map((_, i) => (
-                            <Skeleton key={i} className="h-16 w-full" />
-                          ))}
-                        </div>
-                      ) : activities && activities.length > 0 ? (
-                        <div className="space-y-3">
-                          {activities.map((activity) => (
-                            <div key={activity.id} className="border rounded-lg p-3">
+                      {activitiesLoading ? <div className="space-y-2">
+                          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                        </div> : activities && activities.length > 0 ? <div className="space-y-3">
+                          {activities.map(activity => <div key={activity.id} className="border rounded-lg p-3">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <p className="font-medium">{activity.activity_type}</p>
@@ -840,30 +703,22 @@ const AdminUsers = () => {
                                   {format(new Date(activity.created_at), "dd/MM/yyyy HH:mm")}
                                 </p>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">
+                            </div>)}
+                        </div> : <p className="text-sm text-muted-foreground text-center py-4">
                           Nenhuma atividade registrada
-                        </p>
-                      )}
+                        </p>}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </ScrollArea>
             </DrawerContent>
-          </Drawer>
-        ) : (
-          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          </Drawer> : <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] md:w-full">
               <DialogHeader>
                 <DialogTitle>Detalhes do Usuário</DialogTitle>
               </DialogHeader>
               
               <ScrollArea className="h-[calc(90vh-8rem)] pr-2 md:pr-4">
-                {selectedUser && (
-                  <div className="space-y-3 md:space-y-4">
+                {selectedUser && <div className="space-y-3 md:space-y-4">
                     {/* Informações Básicas */}
                     <div>
                       <h3 className="text-base md:text-lg font-semibold mb-3">Informações Básicas</h3>
@@ -960,50 +815,28 @@ const AdminUsers = () => {
                         </div>
                         <div className="md:col-span-2">
                           <p className="text-sm text-muted-foreground mb-2">Dia de Saque</p>
-                          {isEditingWithdrawal ? (
-                            <div className="flex flex-col md:flex-row gap-2">
-                              <select
-                                value={withdrawalDay ?? ""}
-                                onChange={(e) => setWithdrawalDay(Number(e.target.value))}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                              >
+                          {isEditingWithdrawal ? <div className="flex flex-col md:flex-row gap-2">
+                              <select value={withdrawalDay ?? ""} onChange={e => setWithdrawalDay(Number(e.target.value))} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                                 <option value="">Selecione...</option>
-                                {WEEKDAYS.map((day) => (
-                                  <option key={day.value} value={day.value}>
+                                {WEEKDAYS.map(day => <option key={day.value} value={day.value}>
                                     {day.label}
-                                  </option>
-                                ))}
+                                  </option>)}
                               </select>
-                              <Button
-                                size="sm"
-                                onClick={handleSaveWithdrawalDay}
-                                disabled={updateWithdrawalDayMutation.isPending}
-                              >
+                              <Button size="sm" onClick={handleSaveWithdrawalDay} disabled={updateWithdrawalDayMutation.isPending}>
                                 Salvar
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setIsEditingWithdrawal(false);
-                                  setWithdrawalDay(selectedUser.withdrawal_day);
-                                }}
-                              >
+                              <Button size="sm" variant="outline" onClick={() => {
+                      setIsEditingWithdrawal(false);
+                      setWithdrawalDay(selectedUser.withdrawal_day);
+                    }}>
                                 Cancelar
                               </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
+                            </div> : <div className="flex items-center gap-2">
                               <p className="font-medium">{getWeekdayLabel(selectedUser.withdrawal_day)}</p>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setIsEditingWithdrawal(true)}
-                              >
+                              <Button size="sm" variant="outline" onClick={() => setIsEditingWithdrawal(true)}>
                                 Editar
                               </Button>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                       </div>
                     </div>
@@ -1032,8 +865,7 @@ const AdminUsers = () => {
                     <Separator />
 
                     {/* Controle de Bloqueio */}
-                    {selectedUser?.role !== "super_admin" && (
-                      <>
+                    {selectedUser?.role !== "super_admin" && <>
                         <div>
                           <h3 className="text-base md:text-lg font-semibold mb-3">Controle de Bloqueio</h3>
                           <div className="space-y-4">
@@ -1044,59 +876,34 @@ const AdminUsers = () => {
                                   {isBlocked ? "Usuário está bloqueado" : "Usuário está ativo"}
                                 </p>
                               </div>
-                              <Switch
-                                id="block-status"
-                                checked={isBlocked}
-                                onCheckedChange={setIsBlocked}
-                              />
+                              <Switch id="block-status" checked={isBlocked} onCheckedChange={setIsBlocked} />
                             </div>
 
-                            {isBlocked && (
-                              <div className="space-y-2">
+                            {isBlocked && <div className="space-y-2">
                                 <Label htmlFor="blockMessage">Mensagem de Bloqueio</Label>
-                                <Textarea
-                                  id="blockMessage"
-                                  placeholder="Digite a mensagem que será exibida ao usuário..."
-                                  value={editedBlockMessage}
-                                  onChange={(e) => setEditedBlockMessage(e.target.value)}
-                                  rows={4}
-                                />
-                              </div>
-                            )}
+                                <Textarea id="blockMessage" placeholder="Digite a mensagem que será exibida ao usuário..." value={editedBlockMessage} onChange={e => setEditedBlockMessage(e.target.value)} rows={4} />
+                              </div>}
 
-                            <Button 
-                              onClick={handleSaveBlockStatus}
-                              className="w-full"
-                              disabled={updateBlockStatusMutation.isPending}
-                            >
+                            <Button onClick={handleSaveBlockStatus} className="w-full" disabled={updateBlockStatusMutation.isPending}>
                               {updateBlockStatusMutation.isPending ? "Salvando..." : "Salvar Alterações"}
                             </Button>
 
-                            {selectedUser?.blocked_at && (
-                              <p className="text-xs text-muted-foreground text-center">
+                            {selectedUser?.blocked_at && <p className="text-xs text-muted-foreground text-center">
                                 Bloqueado em: {format(new Date(selectedUser.blocked_at), "dd/MM/yyyy HH:mm")}
-                              </p>
-                            )}
+                              </p>}
                           </div>
                         </div>
 
                         <Separator />
-                      </>
-                    )}
+                      </>}
 
                     {/* Histórico de Atividades */}
                     <div>
                       <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
-                      {activitiesLoading ? (
-                        <div className="space-y-2">
-                          {[...Array(3)].map((_, i) => (
-                            <Skeleton key={i} className="h-16 w-full" />
-                          ))}
-                        </div>
-                      ) : activities && activities.length > 0 ? (
-                        <div className="space-y-3">
-                          {activities.map((activity) => (
-                            <div key={activity.id} className="border rounded-lg p-3">
+                      {activitiesLoading ? <div className="space-y-2">
+                          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                        </div> : activities && activities.length > 0 ? <div className="space-y-3">
+                          {activities.map(activity => <div key={activity.id} className="border rounded-lg p-3">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <p className="font-medium">{activity.activity_type}</p>
@@ -1106,23 +913,15 @@ const AdminUsers = () => {
                                   {format(new Date(activity.created_at), "dd/MM/yyyy HH:mm")}
                                 </p>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">
+                            </div>)}
+                        </div> : <p className="text-sm text-muted-foreground text-center py-4">
                           Nenhuma atividade registrada
-                        </p>
-                      )}
+                        </p>}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </ScrollArea>
             </DialogContent>
-          </Dialog>
-        )}
-      </div>
-  );
+          </Dialog>}
+      </div>;
 };
-
 export default AdminUsers;
