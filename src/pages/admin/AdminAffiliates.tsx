@@ -262,7 +262,7 @@ const AdminAffiliates = () => {
       />
 
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-0 lg:pt-6 lg:px-6 lg:pb-6">
           {isMobile ? (
             <div className="space-y-3">
               {isLoading ? (
