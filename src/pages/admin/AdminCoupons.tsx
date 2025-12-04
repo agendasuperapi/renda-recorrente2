@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, Edit, Trash2, CalendarIcon, Minus, X } from "lucide-react";
+import { Plus, Search, Edit, Trash2, CalendarIcon, Minus, X, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const couponTypeLabels = {
   percentage: "% de desconto",
@@ -62,6 +63,8 @@ const AdminCoupons = () => {
   const [dateInputValue, setDateInputValue] = useState("");
   const [showZeroConfirmation, setShowZeroConfirmation] = useState(false);
   const [pendingFormValues, setPendingFormValues] = useState<CouponFormValues | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("complete");
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
 
@@ -1102,9 +1105,35 @@ const AdminCoupons = () => {
         )}
       </div>
 
+      {/* Mobile Control Bar */}
+      <div className="flex items-center justify-between lg:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <SlidersHorizontal className="h-4 w-4" />
+          Filtros
+        </Button>
+        <ToggleGroup
+          type="single"
+          value={layoutMode}
+          onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}
+          className="border rounded-lg"
+        >
+          <ToggleGroupItem value="compact" aria-label="Modo compacto" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+            <LayoutList className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="complete" aria-label="Modo completo" className="px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       {/* Filtros */}
-      <Card>
-        <CardContent className="p-4 sm:p-6">
+      <Card className={`${!showFilters ? 'hidden lg:block' : ''} bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg`}>
+        <CardContent className="!p-0 lg:!p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="relative sm:col-span-2 lg:col-span-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -1143,8 +1172,8 @@ const AdminCoupons = () => {
       </Card>
 
       {/* Tabela */}
-      <Card>
-        <CardContent className="p-4 sm:p-6">
+      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+        <CardContent className="!p-0 lg:!p-6">
           {isLoading ? (
             <div className="text-center py-8">Carregando...</div>
           ) : filteredCoupons.length === 0 ? (
@@ -1249,81 +1278,113 @@ const AdminCoupons = () => {
                    </div>
 
                    {/* Mobile/Tablet Cards */}
-                   <div className="lg:hidden space-y-4">
+                   <div className="lg:hidden space-y-3">
                      {productData.coupons.map((coupon: any) => (
-                       <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
-                         <CardContent className="pt-6">
-                           <div className="space-y-3">
-                             <div className="flex items-start justify-between gap-3">
-                               <div className="flex-1 min-w-0">
-                                 <div className="font-mono font-bold text-lg mb-1 truncate">{coupon.code}</div>
-                                 <div className="font-medium text-sm">{coupon.name}</div>
-                                 {coupon.description && (
-                                   <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                     {coupon.description}
+                       layoutMode === "compact" ? (
+                         <Card key={coupon.id} className={`overflow-hidden ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
+                           <CardContent className="p-3">
+                             <div className="space-y-2">
+                               <div className="flex items-start justify-between gap-2">
+                                 <div className="min-w-0 flex-1">
+                                   <p className="font-mono font-bold text-sm truncate">{coupon.code}</p>
+                                   <p className="text-xs text-muted-foreground truncate">{coupon.name}</p>
+                                 </div>
+                                 <div className="text-right text-xs">
+                                   <p className="text-muted-foreground">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</p>
+                                   <p className="font-semibold text-primary">{coupon.value}</p>
+                                 </div>
+                               </div>
+                               <div className="flex items-center justify-between">
+                                 <div className="flex gap-1 flex-wrap">
+                                   {coupon.is_primary && (
+                                     <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-xs">
+                                       Principal
+                                     </Badge>
+                                   )}
+                                   <Badge 
+                                     variant={coupon.is_active ? "default" : "secondary"}
+                                     className={`text-xs ${!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}`}
+                                   >
+                                     {coupon.is_active ? "Ativo" : "Inativo"}
+                                   </Badge>
+                                 </div>
+                                 <div className="flex gap-1">
+                                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(coupon)}>
+                                     <Edit className="h-4 w-4" />
+                                   </Button>
+                                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(coupon.id)}>
+                                     <Trash2 className="h-4 w-4" />
+                                   </Button>
+                                 </div>
+                               </div>
+                             </div>
+                           </CardContent>
+                         </Card>
+                       ) : (
+                         <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
+                           <CardContent className="pt-6">
+                             <div className="space-y-3">
+                               <div className="flex items-start justify-between gap-3">
+                                 <div className="flex-1 min-w-0">
+                                   <div className="font-mono font-bold text-lg mb-1 truncate">{coupon.code}</div>
+                                   <div className="font-medium text-sm">{coupon.name}</div>
+                                   {coupon.description && (
+                                     <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                       {coupon.description}
+                                     </div>
+                                   )}
+                                 </div>
+                                 <div className="flex gap-2 flex-shrink-0">
+                                   <Button variant="ghost" size="icon" onClick={() => handleEdit(coupon)} className="h-8 w-8">
+                                     <Edit className="h-4 w-4" />
+                                   </Button>
+                                   <Button variant="ghost" size="icon" onClick={() => handleDelete(coupon.id)} className="h-8 w-8">
+                                     <Trash2 className="h-4 w-4" />
+                                   </Button>
+                                 </div>
+                               </div>
+                               
+                               <div className="grid grid-cols-2 gap-2 text-sm">
+                                 <div>
+                                   <span className="text-muted-foreground">Tipo:</span>
+                                   <div className="font-medium">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</div>
+                                 </div>
+                                 <div>
+                                   <span className="text-muted-foreground">Valor:</span>
+                                   <div className="font-medium">{coupon.value}</div>
+                                 </div>
+                                 <div>
+                                   <span className="text-muted-foreground">Usos:</span>
+                                   <div className="font-medium">
+                                     {coupon.current_uses || 0}
+                                     {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
                                    </div>
+                                 </div>
+                                 <div>
+                                   <span className="text-muted-foreground">Validade:</span>
+                                   <div className="font-medium text-xs">
+                                     {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                                   </div>
+                                 </div>
+                               </div>
+                               
+                               <div className="flex gap-2 flex-wrap">
+                                 <Badge 
+                                   variant={coupon.is_active ? "default" : "secondary"}
+                                   className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}
+                                 >
+                                   {coupon.is_active ? "Ativo" : "Inativo"}
+                                 </Badge>
+                                 {coupon.is_primary && (
+                                   <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                                     Principal
+                                   </Badge>
                                  )}
                                </div>
-                               <div className="flex gap-2 flex-shrink-0">
-                                 <Button
-                                   variant="ghost"
-                                   size="icon"
-                                   onClick={() => handleEdit(coupon)}
-                                   className="h-8 w-8"
-                                 >
-                                   <Edit className="h-4 w-4" />
-                                 </Button>
-                                 <Button
-                                   variant="ghost"
-                                   size="icon"
-                                   onClick={() => handleDelete(coupon.id)}
-                                   className="h-8 w-8"
-                                 >
-                                   <Trash2 className="h-4 w-4" />
-                                 </Button>
-                               </div>
                              </div>
-                             
-                             <div className="grid grid-cols-2 gap-2 text-sm">
-                               <div>
-                                 <span className="text-muted-foreground">Tipo:</span>
-                                 <div className="font-medium">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</div>
-                               </div>
-                               <div>
-                                 <span className="text-muted-foreground">Valor:</span>
-                                 <div className="font-medium">{coupon.value}</div>
-                               </div>
-                               <div>
-                                 <span className="text-muted-foreground">Usos:</span>
-                                 <div className="font-medium">
-                                   {coupon.current_uses || 0}
-                                   {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
-                                 </div>
-                               </div>
-                               <div>
-                                 <span className="text-muted-foreground">Validade:</span>
-                                 <div className="font-medium text-xs">
-                                   {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
-                                 </div>
-                               </div>
-                             </div>
-                             
-                             <div className="flex gap-2 flex-wrap">
-                               <Badge 
-                                 variant={coupon.is_active ? "default" : "secondary"}
-                                 className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}
-                               >
-                                 {coupon.is_active ? "Ativo" : "Inativo"}
-                               </Badge>
-                               {coupon.is_primary && (
-                                 <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                                   Principal
-                                 </Badge>
-                               )}
-                             </div>
-                           </div>
-                         </CardContent>
-                       </Card>
+                           </CardContent>
+                         </Card>
+                       )
                      ))}
                    </div>
                 </div>
@@ -1416,87 +1477,119 @@ const AdminCoupons = () => {
               </div>
 
               {/* Mobile/Tablet Cards */}
-              <div className="lg:hidden space-y-4">
+              <div className="lg:hidden space-y-3">
                 {filteredCoupons.map((coupon: any) => (
-                  <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
-                    <CardContent className="pt-6">
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-mono font-bold text-lg mb-1 truncate">{coupon.code}</div>
-                            <div className="font-medium text-sm">{coupon.name}</div>
-                            {coupon.description && (
-                              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                {coupon.description}
+                  layoutMode === "compact" ? (
+                    <Card key={coupon.id} className={`overflow-hidden ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
+                      <CardContent className="p-3">
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-mono font-bold text-sm truncate">{coupon.code}</p>
+                              <p className="text-xs text-muted-foreground truncate">{coupon.name}</p>
+                            </div>
+                            <div className="text-right text-xs">
+                              <p className="text-muted-foreground">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</p>
+                              <p className="font-semibold text-primary">{coupon.value}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-1 flex-wrap">
+                              {coupon.is_primary && (
+                                <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-xs">
+                                  Principal
+                                </Badge>
+                              )}
+                              <Badge 
+                                variant={coupon.is_active ? "default" : "secondary"}
+                                className={`text-xs ${!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}`}
+                              >
+                                {coupon.is_active ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(coupon)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDelete(coupon.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
+                      <CardContent className="pt-6">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-mono font-bold text-lg mb-1 truncate">{coupon.code}</div>
+                              <div className="font-medium text-sm">{coupon.name}</div>
+                              {coupon.description && (
+                                <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                  {coupon.description}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2 flex-shrink-0">
+                              <Button variant="ghost" size="icon" onClick={() => handleEdit(coupon)} className="h-8 w-8">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDelete(coupon.id)} className="h-8 w-8">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Produto:</span>
+                              <div className="font-medium text-xs truncate">
+                                {coupon.products?.nome || <span className="text-muted-foreground">Todos</span>}
                               </div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Tipo:</span>
+                              <div className="font-medium text-xs">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Valor:</span>
+                              <div className="font-medium">{coupon.value}</div>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Usos:</span>
+                              <div className="font-medium">
+                                {coupon.current_uses || 0}
+                                {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
+                              </div>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">Validade:</span>
+                              <div className="font-medium text-xs">
+                                {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2 flex-wrap">
+                            <Badge 
+                              variant={coupon.is_active ? "default" : "secondary"}
+                              className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}
+                            >
+                              {coupon.is_active ? "Ativo" : "Inativo"}
+                            </Badge>
+                            {coupon.is_primary && (
+                              <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
+                                Principal
+                              </Badge>
                             )}
                           </div>
-                          <div className="flex gap-2 flex-shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(coupon)}
-                              className="h-8 w-8"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(coupon.id)}
-                              className="h-8 w-8"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Produto:</span>
-                            <div className="font-medium text-xs truncate">
-                              {coupon.products?.nome || <span className="text-muted-foreground">Todos</span>}
-                            </div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Tipo:</span>
-                            <div className="font-medium text-xs">{couponTypeLabels[coupon.type as keyof typeof couponTypeLabels]}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Valor:</span>
-                            <div className="font-medium">{coupon.value}</div>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Usos:</span>
-                            <div className="font-medium">
-                              {coupon.current_uses || 0}
-                              {coupon.max_uses ? ` / ${coupon.max_uses}` : ""}
-                            </div>
-                          </div>
-                          <div className="col-span-2">
-                            <span className="text-muted-foreground">Validade:</span>
-                            <div className="font-medium text-xs">
-                              {coupon.valid_until ? format(new Date(coupon.valid_until), "dd/MM/yyyy") : "Sem limite"}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge 
-                            variant={coupon.is_active ? "default" : "secondary"}
-                            className={!coupon.is_active ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400" : ""}
-                          >
-                            {coupon.is_active ? "Ativo" : "Inativo"}
-                          </Badge>
-                          {coupon.is_primary && (
-                            <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600">
-                              Principal
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  )
                 ))}
               </div>
             </>
