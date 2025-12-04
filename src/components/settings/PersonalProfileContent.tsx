@@ -7,9 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
@@ -24,6 +26,7 @@ interface UsernameHistoryItem {
 }
 
 export const PersonalProfileContent = () => {
+  const isMobile = useIsMobile();
   const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -694,38 +697,73 @@ export const PersonalProfileContent = () => {
         }}
       />
 
-      <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Histórico de Usernames</DialogTitle>
-            <DialogDescription>
-              Veja todas as alterações de username realizadas
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[400px] overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Username Antigo</TableHead>
-                  <TableHead>Username Novo</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {usernameHistory.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="text-sm">
-                      {format(new Date(item.changed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">{item.username}</TableCell>
-                    <TableCell className="font-mono text-sm">{item.new_username || "-"}</TableCell>
+      {isMobile ? (
+        <Drawer open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Histórico de Usernames</DrawerTitle>
+              <DrawerDescription>
+                Veja todas as alterações de username realizadas
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="max-h-[60vh] overflow-y-auto px-4 pb-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Antigo</TableHead>
+                    <TableHead>Novo</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </DialogContent>
-      </Dialog>
+                </TableHeader>
+                <TableBody>
+                  {usernameHistory.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="text-xs">
+                        {format(new Date(item.changed_at), "dd/MM/yy HH:mm", { locale: ptBR })}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">{item.username}</TableCell>
+                      <TableCell className="font-mono text-xs">{item.new_username || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Histórico de Usernames</DialogTitle>
+              <DialogDescription>
+                Veja todas as alterações de username realizadas
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[400px] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Username Antigo</TableHead>
+                    <TableHead>Username Novo</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {usernameHistory.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="text-sm">
+                        {format(new Date(item.changed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">{item.username}</TableCell>
+                      <TableCell className="font-mono text-sm">{item.new_username || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };
