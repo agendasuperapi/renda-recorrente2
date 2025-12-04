@@ -1,10 +1,9 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, ChevronLeft, ChevronRight, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Eye, FilterX } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -13,6 +12,7 @@ import { ptBR } from "date-fns/locale";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AffiliateDetailsDialog } from "@/components/AffiliateDetailsDialog";
+import { AffiliatesFilterCard } from "@/components/admin/AffiliatesFilterCard";
 
 // Interface para tipagem da view
 interface AdminAffiliate {
@@ -35,13 +35,6 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 type SortColumn = "name" | "email" | "created_at" | "referrals_count" | null;
 type SortDirection = "asc" | "desc";
@@ -208,109 +201,37 @@ const AdminAffiliates = () => {
         </p>
       </div>
 
+      <AffiliatesFilterCard
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        planFilter={planFilter}
+        onPlanFilterChange={handleFilterChange(setPlanFilter)}
+        periodFilter={periodFilter}
+        onPeriodFilterChange={handleFilterChange(setPeriodFilter)}
+        statusFilter={statusFilter}
+        onStatusFilterChange={handleFilterChange(setStatusFilter)}
+        startDate={startDate}
+        onStartDateChange={(value) => {
+          setStartDate(value);
+          setCurrentPage(1);
+        }}
+        endDate={endDate}
+        onEndDateChange={(value) => {
+          setEndDate(value);
+          setCurrentPage(1);
+        }}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(value) => {
+          setItemsPerPage(value);
+          setCurrentPage(1);
+        }}
+        plansData={plansData}
+        onRefresh={handleRefresh}
+        onResetFilters={handleResetFilters}
+      />
+
       <Card>
-        <CardHeader>
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-4 md:grid md:grid-cols-4 lg:flex">
-              <div className="relative w-full md:col-span-4 lg:flex-1 lg:min-w-[280px]">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por nome, email ou username..."
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-              <Select value={planFilter} onValueChange={handleFilterChange(setPlanFilter)}>
-                <SelectTrigger className="w-full lg:w-[180px]">
-                  <SelectValue placeholder="Plano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os planos</SelectItem>
-                  {plansData?.map(plan => (
-                    <SelectItem key={plan} value={plan}>{plan}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={periodFilter} onValueChange={handleFilterChange(setPeriodFilter)}>
-                <SelectTrigger className="w-full lg:w-[180px]">
-                  <SelectValue placeholder="Período" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os períodos</SelectItem>
-                  <SelectItem value="daily">Diário</SelectItem>
-                  <SelectItem value="monthly">Mensal</SelectItem>
-                  <SelectItem value="annual">Anual</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={statusFilter} onValueChange={handleFilterChange(setStatusFilter)}>
-                <SelectTrigger className="w-full lg:w-[180px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os status</SelectItem>
-                  <SelectItem value="active">Ativo</SelectItem>
-                  <SelectItem value="trialing">Em teste</SelectItem>
-                  <SelectItem value="inactive">Inativo</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Input
-                type="date"
-                placeholder="Data início"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full lg:w-[160px]"
-              />
-
-              <Input
-                type="date"
-                placeholder="Data fim"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full lg:w-[160px]"
-              />
-
-              <Select
-                value={itemsPerPage.toString()} 
-                onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="w-full lg:w-[140px]">
-                  <SelectValue placeholder="Itens por página" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10 por página</SelectItem>
-                  <SelectItem value="20">20 por página</SelectItem>
-                  <SelectItem value="50">50 por página</SelectItem>
-                  <SelectItem value="100">100 por página</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button variant="outline" size="sm" onClick={handleRefresh} className="w-full lg:w-auto">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Atualizar
-              </Button>
-
-              <Button variant="outline" size="sm" onClick={handleResetFilters} className="w-full lg:w-auto">
-                <FilterX className="h-4 w-4 mr-2" />
-                Limpar filtros
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {isMobile ? (
             <div className="space-y-3">
               {isLoading ? (
