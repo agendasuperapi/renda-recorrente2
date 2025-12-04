@@ -376,7 +376,7 @@ const AdminCoupons = () => {
           }}>
             <DrawerTrigger asChild>
               <Button 
-                className="gap-2 w-full sm:w-auto"
+                className="gap-2 w-full sm:w-auto border border-white"
                 onClick={() => {
                   setEditingCoupon(null);
                   form.reset({
