@@ -196,7 +196,10 @@ const Auth = () => {
 
   const getGradientStyle = (blockName: string) => {
     const config = gradientConfigs[blockName];
-    if (!config) return {};
+    if (!config) {
+      // Fallback to #10b981 when custom colors can't be loaded
+      return { background: '#10b981' };
+    }
     
     const startAlpha = config.intensity_start / 100;
     const endAlpha = config.intensity_end / 100;
