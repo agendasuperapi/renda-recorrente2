@@ -32,8 +32,8 @@ const Settings = () => {
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Segurança</span>
-              <span className="sm:hidden">Senha</span>
+              <span className="hidden sm:inline">Conta</span>
+              <span className="sm:hidden">Conta</span>
             </TabsTrigger>
           </TabsList>
 
