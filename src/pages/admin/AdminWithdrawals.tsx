@@ -1294,9 +1294,9 @@ export default function AdminWithdrawals() {
 
       {/* Dialog de Visualização de Imagem */}
       <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 overflow-hidden">
-          <div className="relative w-full h-full flex items-center justify-center bg-black/95">
-            <img src={viewerImageUrl || ""} alt="Comprovante de pagamento em tamanho completo" className="max-w-full max-h-[95vh] object-contain" />
+        <DialogContent className="max-w-[500px] p-2 overflow-hidden">
+          <div className="relative flex items-center justify-center bg-black/95 rounded-lg overflow-hidden">
+            <img src={viewerImageUrl || ""} alt="Imagem ampliada" className="max-w-full max-h-[500px] object-contain" />
           </div>
         </DialogContent>
       </Dialog>
