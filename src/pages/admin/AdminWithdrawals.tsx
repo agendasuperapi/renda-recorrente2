@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { PixQRCode } from "@/components/PixQRCode";
 type Withdrawal = {
   id: string;
   affiliate_id: string;
@@ -1130,6 +1131,18 @@ export default function AdminWithdrawals() {
                         <p className="text-red-600">{selectedWithdrawal.rejected_reason}</p>
                       </div>}
                   </div>
+
+                  {selectedWithdrawal.status === "approved" && (
+                    <div className="pt-4 border-t">
+                      <PixQRCode
+                        pixKey={selectedWithdrawal.pix_key}
+                        pixType={selectedWithdrawal.pix_type}
+                        amount={Number(selectedWithdrawal.amount)}
+                        recipientName={selectedWithdrawal.profiles?.name || "Afiliado"}
+                        transactionId={selectedWithdrawal.id}
+                      />
+                    </div>
+                  )}
 
                   {selectedWithdrawal.status === "pending" && <div className="space-y-2 pt-4 border-t">
                       <Textarea placeholder="Motivo da rejeição (se aplicável)" value={rejectReason} onChange={e => setRejectReason(e.target.value)} className="min-h-[80px]" />
