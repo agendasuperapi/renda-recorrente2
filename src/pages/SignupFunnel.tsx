@@ -541,18 +541,6 @@ export default function SignupFunnel() {
             className="h-16 object-contain"
           />
         </div>
-
-        {isDevModeActive && (
-          <div className="flex justify-end mb-4">
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={handleDisableDevMode}
-            >
-              🔧 Desativar Modo Dev
-            </Button>
-          </div>
-        )}
         
         {renderProgressBar()}
 
@@ -877,7 +865,7 @@ export default function SignupFunnel() {
         )}
 
         {isDevModeActive && (
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center gap-2 mt-4">
             <Button 
               variant="outline" 
               size="sm"
@@ -887,6 +875,13 @@ export default function SignupFunnel() {
             >
               {isDarkMode() ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
               {isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={handleDisableDevMode}
+            >
+              🔧 Desativar Modo Dev
             </Button>
           </div>
         )}
