@@ -505,14 +505,13 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2 space-y-0">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+                <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <CardHeader className="p-0 pb-2 space-y-0">
                 <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Comissão do dia
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/50 z-10">
-                  <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
@@ -522,14 +521,13 @@ const Dashboard = () => {
             </Card>
 
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-sky-200/60 dark:bg-sky-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
+                <DollarSign className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão últimos 7 dias
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-sky-100 dark:bg-sky-900/50 z-10">
-                  <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
@@ -539,14 +537,13 @@ const Dashboard = () => {
             </Card>
 
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-violet-200/60 dark:bg-violet-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
+                <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão do mês
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-violet-100 dark:bg-violet-900/50 z-10">
-                  <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">
@@ -556,14 +553,13 @@ const Dashboard = () => {
             </Card>
 
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-4 pb-4">
+                <Wallet className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão disponível para saque
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-amber-100 dark:bg-amber-900/50 z-10">
-                  <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
@@ -575,14 +571,13 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-rose-200/60 dark:bg-rose-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-rose-200/60 dark:bg-rose-800/40 flex items-end justify-start pl-4 pb-4">
+                <DollarSign className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão pendente
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-rose-100 dark:bg-rose-900/50 z-10">
-                  <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
@@ -592,14 +587,13 @@ const Dashboard = () => {
             </Card>
 
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-teal-200/60 dark:bg-teal-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-teal-200/60 dark:bg-teal-800/40 flex items-end justify-start pl-4 pb-4">
+                <Coins className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total já sacado
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-teal-100 dark:bg-teal-900/50 z-10">
-                  <Coins className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
@@ -609,7 +603,9 @@ const Dashboard = () => {
             </Card>
 
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-blue-200/60 dark:bg-blue-800/40" />
+              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-blue-200/60 dark:bg-blue-800/40 flex items-end justify-start pl-4 pb-4">
+                <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
               <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Seu dia de solicitar saque
@@ -625,12 +621,11 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-purple-200/60 dark:bg-purple-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-5 pb-5">
+                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-muted-foreground">Quant. de Indicações</CardTitle>
-                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-purple-100 dark:bg-purple-900/50 z-10">
-                  <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
@@ -638,12 +633,11 @@ const Dashboard = () => {
             </Card>
 
             <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-pink-200/60 dark:bg-pink-800/40" />
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+              <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-pink-200/60 dark:bg-pink-800/40 flex items-end justify-start pl-5 pb-5">
+                <Users className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+              </div>
+              <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
-                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 z-10">
-                  <Users className="h-5 w-5 text-pink-600 dark:text-pink-400" />
-                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
