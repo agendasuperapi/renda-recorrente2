@@ -611,7 +611,7 @@ const Coupons = () => {
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
                 if (layoutMode === "compact") {
-                  return <div key={coupon.id} className={`p-3 border rounded-lg bg-card space-y-2 ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-900/20" : ""}`}>
+                  return <div key={coupon.id} className={`p-3 border rounded-lg bg-card space-y-2 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                     {/* Linha 1: Nome e botão de detalhes */}
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold text-sm">{coupon.name}</span>
@@ -655,7 +655,7 @@ const Coupons = () => {
                     </div>
                   </div>;
                 }
-                return <Card key={coupon.id} className={`${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-900/20" : ""}`}>
+                return <Card key={coupon.id} className={`${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                             <CardContent className="p-4 space-y-3">
                               <div className="flex flex-wrap gap-1.5 items-start">
                                 <h3 className="font-semibold text-sm flex-1">{coupon.name}</h3>
@@ -746,7 +746,7 @@ const Coupons = () => {
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
                 
                 if (layoutMode === "compact") {
-                  return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-900/20" : ""}`}>
+                  return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold truncate">{coupon.name}</span>
@@ -794,7 +794,7 @@ const Coupons = () => {
                   </div>;
                 }
                 
-                return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-800" : ""} ${!isActivated ? "bg-orange-50 dark:bg-orange-900/20 border-orange-400 dark:border-orange-500/50" : "hover:bg-accent/50"}`}>
+                return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
                                 <h3 className="font-semibold">{coupon.name}</h3>
@@ -895,7 +895,7 @@ const Coupons = () => {
             const isActive = coupon.activatedCoupon?.is_active;
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             if (layoutMode === "compact") {
-              return <div key={coupon.id} className={`p-3 border rounded-lg bg-card space-y-2 ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-900/20" : ""}`}>
+              return <div key={coupon.id} className={`p-3 border rounded-lg bg-card space-y-2 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                 {/* Linha 1: Nome e botão de detalhes */}
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-sm">{coupon.name}</span>
@@ -1014,7 +1014,7 @@ const Coupons = () => {
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             
             if (layoutMode === "compact") {
-              return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500/50 bg-orange-50 dark:bg-orange-900/20" : ""}`}>
+              return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold truncate">{coupon.name}</span>
@@ -1063,7 +1063,7 @@ const Coupons = () => {
               </div>;
             }
             
-            return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-800" : ""} ${!isActivated ? "bg-orange-50 dark:bg-orange-900/20 border-orange-400 dark:border-orange-500/50" : "hover:bg-accent/50"}`}>
+            return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold">{coupon.name}</h3>
