@@ -17,7 +17,7 @@ import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twi
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
-import { generateAvatarPaths } from "@/lib/avatarUtils";
+import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -555,13 +555,13 @@ export const PersonalProfileContent = () => {
 
                 {/* Avatar Preview Dialog */}
                 <Dialog open={showAvatarPreview} onOpenChange={setShowAvatarPreview}>
-                  <DialogContent className="max-w-md p-2">
+                  <DialogContent className="max-w-2xl p-2">
                     <DialogHeader className="sr-only">
                       <DialogTitle>Foto do perfil</DialogTitle>
                     </DialogHeader>
                     {avatarUrl && (
                       <img 
-                        src={avatarUrl} 
+                        src={getAvatarOriginalUrl(avatarUrl) || avatarUrl} 
                         alt={formData.name} 
                         className="w-full h-auto rounded-lg"
                       />
