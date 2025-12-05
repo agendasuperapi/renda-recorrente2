@@ -42,6 +42,7 @@ export const PersonalProfileContent = () => {
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   const [showAvatarCropDialog, setShowAvatarCropDialog] = useState(false);
+  const [showAvatarPreview, setShowAvatarPreview] = useState(false);
   const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -476,23 +477,30 @@ export const PersonalProfileContent = () => {
               <TabsContent value="personal" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-3 pb-4 border-b">
-                  <div 
-                    className="relative cursor-pointer group"
-                    onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-                  >
-                    <Avatar className="h-48 w-48 transition-opacity group-hover:opacity-80">
-                      <AvatarImage src={avatarUrl || undefined} alt={formData.name} />
-                      <AvatarFallback className="text-5xl">
-                        {formData.name?.charAt(0)?.toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      {uploadingAvatar ? (
-                        <Loader2 className="h-12 w-12 text-white animate-spin" />
-                      ) : (
-                        <Camera className="h-12 w-12 text-white" />
-                      )}
+                  <div className="relative">
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => avatarUrl && setShowAvatarPreview(true)}
+                    >
+                      <Avatar className="h-48 w-48 transition-opacity hover:opacity-90">
+                        <AvatarImage src={avatarUrl || undefined} alt={formData.name} />
+                        <AvatarFallback className="text-5xl">
+                          {formData.name?.charAt(0)?.toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
+                    <button
+                      type="button"
+                      className="absolute bottom-2 right-2 p-2.5 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+                      onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                    >
+                      {uploadingAvatar ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Camera className="h-5 w-5" />
+                      )}
+                    </button>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -501,8 +509,26 @@ export const PersonalProfileContent = () => {
                       onChange={handleAvatarSelect}
                     />
                   </div>
-                  <p className="text-sm text-muted-foreground">Clique na foto para alterar</p>
+                  <p className="text-sm text-muted-foreground">
+                    {avatarUrl ? "Clique na foto para ampliar" : "Clique no ícone para adicionar foto"}
+                  </p>
                 </div>
+
+                {/* Avatar Preview Dialog */}
+                <Dialog open={showAvatarPreview} onOpenChange={setShowAvatarPreview}>
+                  <DialogContent className="max-w-md p-2">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>Foto do perfil</DialogTitle>
+                    </DialogHeader>
+                    {avatarUrl && (
+                      <img 
+                        src={avatarUrl} 
+                        alt={formData.name} 
+                        className="w-full h-auto rounded-lg"
+                      />
+                    )}
+                  </DialogContent>
+                </Dialog>
 
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="name" className="text-sm">Nome Completo *</Label>
