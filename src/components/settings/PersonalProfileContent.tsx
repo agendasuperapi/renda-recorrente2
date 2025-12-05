@@ -554,7 +554,7 @@ export const PersonalProfileContent = () => {
         <Card>
           
           <CardContent>
-            <Tabs defaultValue="personal" className="w-full">
+            <Tabs defaultValue="personal" className="w-full pt-4 sm:pt-0">
               <TabsList className="grid w-full grid-cols-3 h-auto">
                 <TabsTrigger value="personal" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
                   <User className="h-3 w-3 sm:h-4 sm:w-4" />
