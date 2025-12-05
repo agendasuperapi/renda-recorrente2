@@ -41,12 +41,12 @@ const Withdrawals = () => {
     return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
   };
 
-  // Buscar dados do perfil
+  // Buscar dados do perfil para saques (queryKey específica para não conflitar com outras queries)
   const {
     data: profile,
     isLoading: profileLoading
   } = useQuery({
-    queryKey: ['profile', userId],
+    queryKey: ['profile-withdrawals', userId],
     queryFn: async () => {
       const {
         data,
@@ -55,7 +55,8 @@ const Withdrawals = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!userId
+    enabled: !!userId,
+    staleTime: 0, // Sempre buscar dados frescos
   });
 
   // Buscar configurações
@@ -337,7 +338,13 @@ const Withdrawals = () => {
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
             <div className="text-lg md:text-2xl font-bold">
-              {formatCpf(profile?.cpf) || 'Não cadastrado'}
+              {profileLoading ? (
+                <Skeleton className="h-7 w-36" />
+              ) : profile?.cpf ? (
+                formatCpf(profile.cpf)
+              ) : (
+                'Não cadastrado'
+              )}
             </div>
             <p className="text-xs text-muted-foreground mt-1 md:mt-2">
               Pagamentos nesta chave
