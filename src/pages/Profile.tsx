@@ -9,7 +9,7 @@ import { User, CheckCircle2, XCircle, Loader2, Edit2, Camera } from "lucide-reac
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
-import { generateAvatarPaths } from "@/lib/avatarUtils";
+import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Select,
@@ -653,10 +653,10 @@ const Profile = () => {
 
         {/* Avatar Preview Dialog */}
         <Dialog open={viewAvatarOpen} onOpenChange={setViewAvatarOpen}>
-          <DialogContent className="max-w-2xl p-0">
+          <DialogContent className="max-w-2xl p-2">
             <div className="relative w-full aspect-square">
               <img 
-                src={profile.avatar_url} 
+                src={getAvatarOriginalUrl(profile.avatar_url) || profile.avatar_url} 
                 alt={profile.name}
                 className="w-full h-full object-contain rounded-lg"
               />
