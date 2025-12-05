@@ -595,12 +595,16 @@ const Coupons = () => {
       </Card>
 
       {/* All Coupons */}
-      <Card className="lg:bg-card lg:border bg-transparent border-0 shadow-none lg:shadow-sm">
-        <CardContent className="p-0 lg:p-6 pt-4 md:-mx-6 lg:mx-0">
-          {allCoupons.length === 0 ? <div className="text-center py-12 text-muted-foreground">
-              <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p>Nenhum cupom disponível</p>
-            </div> : productFilter === "all" && groupedByProduct ? isMobile ? <div className="space-y-6">
+      {allCoupons.length === 0 ? <Card>
+        <CardContent className="p-6">
+          <div className="text-center py-12 text-muted-foreground">
+            <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
+            <p>Nenhum cupom disponível</p>
+          </div>
+        </CardContent>
+      </Card> : productFilter === "all" && groupedByProduct ? isMobile ? <Card className="bg-transparent border-0 shadow-none">
+        <CardContent className="p-0 pt-4 -mx-6">
+          <div className="space-y-6">
                 {Object.entries(groupedByProduct).map(([productKey, productData]) => <div key={productKey}>
                     <div className="flex items-center gap-2 mb-3 pb-2 border-b">
                       {(productData.iconLight || productData.iconDark) && <img src={productData.iconLight || productData.iconDark || ''} alt={productData.name} className="w-8 h-8 rounded-full object-cover" />}
@@ -732,7 +736,9 @@ const Coupons = () => {
               })}
                     </div>
                   </div>)}
-              </div> : <div className="space-y-6">
+              </div>
+        </CardContent>
+      </Card> : <div className="space-y-6">
                 {Object.entries(groupedByProduct).map(([productKey, productData]) => <Card key={productKey}>
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3 mb-4 pb-2 border-b">
@@ -1151,8 +1157,6 @@ const Coupons = () => {
                     </div>;
           })}
               </div>}
-        </CardContent>
-      </Card>
 
       {/* Coupon Details - Dialog for Desktop, Drawer for Mobile */}
       {isMobile ? (
