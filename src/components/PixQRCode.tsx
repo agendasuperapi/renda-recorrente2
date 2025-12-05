@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, CheckCircle, QrCode, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -164,87 +164,60 @@ export function PixQRCode({ pixKey, pixType, amount, recipientName, transactionI
 
   if (isLoading) {
     return (
-      <Card className="border-2 border-primary/30 bg-primary/5">
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="mt-2 text-sm text-muted-foreground">Gerando QR Code...</p>
+      <Card className="border border-primary/30 bg-primary/5">
+        <CardContent className="flex flex-col items-center justify-center py-4">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <p className="mt-1 text-xs text-muted-foreground">Gerando QR Code...</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-2 border-primary/30 bg-primary/5">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <QrCode className="h-5 w-5 text-primary" />
-          QR Code PIX para Pagamento
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Card className="border border-primary/30 bg-primary/5">
+      <CardContent className="p-3 space-y-2">
+        <div className="flex items-center gap-1.5 text-xs font-medium text-primary">
+          <QrCode className="h-4 w-4" />
+          PIX - {Number(amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        </div>
+        
         {/* QR Code */}
         <div className="flex justify-center">
           {qrCodeBase64 ? (
             <img
               src={qrCodeBase64}
               alt="QR Code PIX"
-              className="w-48 h-48 rounded-lg border-4 border-background shadow-lg"
+              className="w-32 h-32 rounded border-2 border-background shadow"
             />
           ) : (
-            <div className="w-48 h-48 bg-muted rounded-lg flex items-center justify-center">
-              <p className="text-sm text-muted-foreground">Erro ao gerar QR</p>
+            <div className="w-32 h-32 bg-muted rounded flex items-center justify-center">
+              <p className="text-xs text-muted-foreground">Erro</p>
             </div>
           )}
         </div>
 
-        {/* Valor */}
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">Valor do saque</p>
-          <p className="text-2xl font-bold text-primary">
-            {Number(amount).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-          </p>
+        {/* Chave PIX compacta */}
+        <div className="bg-background rounded p-2 text-xs">
+          <span className="text-muted-foreground">{pixType.toUpperCase()}: </span>
+          <span className="font-mono">{pixKey}</span>
         </div>
 
-        {/* Chave PIX */}
-        <div className="bg-background rounded-lg p-3 space-y-1">
-          <p className="text-xs text-muted-foreground">Chave PIX ({pixType.toUpperCase()})</p>
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-mono text-sm truncate flex-1">{pixKey}</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopyPixKey}
-              className="h-7 px-2"
-            >
-              <Copy className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Beneficiário */}
-        <div className="text-center">
-          <p className="text-xs text-muted-foreground">Beneficiário</p>
-          <p className="text-sm font-medium">{recipientName}</p>
-        </div>
-
-        {/* Botão Copiar Código PIX */}
+        {/* Botão Copiar */}
         <Button
           onClick={handleCopyBrCode}
-          className="w-full"
+          className="w-full h-8 text-xs"
+          size="sm"
           variant={copied ? "secondary" : "default"}
         >
           {copied ? (
             <>
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Código Copiado!
+              <CheckCircle className="h-3 w-3 mr-1" />
+              Copiado!
             </>
           ) : (
             <>
-              <Copy className="h-4 w-4 mr-2" />
-              Copiar Código PIX (Copia e Cola)
+              <Copy className="h-3 w-3 mr-1" />
+              Copiar Código PIX
             </>
           )}
         </Button>

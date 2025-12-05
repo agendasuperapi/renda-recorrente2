@@ -1074,66 +1074,64 @@ export default function AdminWithdrawals() {
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="details" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Afiliado</p>
-                      <p className="font-medium">{selectedWithdrawal.profiles?.name}</p>
-                      <p className="text-xs text-muted-foreground">{selectedWithdrawal.profiles?.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Status</p>
-                      {getStatusBadge(selectedWithdrawal.status)}
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Valor</p>
-                      <p className="font-bold text-lg">
-                        {Number(selectedWithdrawal.amount).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL"
-                  })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Data Solicitação</p>
-                      <p className="font-medium">
-                        {format(new Date(selectedWithdrawal.requested_date), "dd/MM/yyyy HH:mm", {
-                    locale: ptBR
-                  })}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Chave PIX</p>
-                      <p className="font-mono text-sm">{selectedWithdrawal.pix_key}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Tipo PIX</p>
-                      <p className="uppercase">{selectedWithdrawal.pix_type}</p>
-                    </div>
-                    {selectedWithdrawal.approved_date && <div>
-                        <p className="text-sm text-muted-foreground">Data Aprovação</p>
-                        <p className="font-medium">
-                          {format(new Date(selectedWithdrawal.approved_date), "dd/MM/yyyy HH:mm", {
-                    locale: ptBR
-                  })}
+                <TabsContent value="details" className="space-y-3">
+                  <div className={`grid gap-4 ${selectedWithdrawal.status === "approved" ? "md:grid-cols-2" : ""}`}>
+                    {/* Info Grid */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Afiliado</p>
+                        <p className="font-medium truncate">{selectedWithdrawal.profiles?.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Status</p>
+                        {getStatusBadge(selectedWithdrawal.status)}
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Valor</p>
+                        <p className="font-bold text-base">
+                          {Number(selectedWithdrawal.amount).toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL"
+                          })}
                         </p>
-                      </div>}
-                    {selectedWithdrawal.paid_date && <div>
-                        <p className="text-sm text-muted-foreground">Data Pagamento</p>
-                        <p className="font-medium">
-                          {format(new Date(selectedWithdrawal.paid_date), "dd/MM/yyyy HH:mm", {
-                    locale: ptBR
-                  })}
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Solicitação</p>
+                        <p className="font-medium text-xs">
+                          {format(new Date(selectedWithdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}
                         </p>
-                      </div>}
-                    {selectedWithdrawal.rejected_reason && <div className="col-span-2">
-                        <p className="text-sm text-muted-foreground">Motivo da Rejeição</p>
-                        <p className="text-red-600">{selectedWithdrawal.rejected_reason}</p>
-                      </div>}
-                  </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Chave PIX ({selectedWithdrawal.pix_type})</p>
+                        <p className="font-mono text-xs truncate">{selectedWithdrawal.pix_key}</p>
+                      </div>
+                      {selectedWithdrawal.approved_date && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Aprovação</p>
+                          <p className="font-medium text-xs">
+                            {format(new Date(selectedWithdrawal.approved_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                      )}
+                      {selectedWithdrawal.paid_date && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Pagamento</p>
+                          <p className="font-medium text-xs">
+                            {format(new Date(selectedWithdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                      )}
+                      {selectedWithdrawal.rejected_reason && (
+                        <div className="col-span-2">
+                          <p className="text-xs text-muted-foreground">Motivo Rejeição</p>
+                          <p className="text-red-600 text-xs">{selectedWithdrawal.rejected_reason}</p>
+                        </div>
+                      )}
+                    </div>
 
-                  {selectedWithdrawal.status === "approved" && (
-                    <div className="pt-4 border-t">
+                    {/* PIX QR Code - ao lado quando aprovado */}
+                    {selectedWithdrawal.status === "approved" && (
                       <PixQRCode
                         pixKey={selectedWithdrawal.pix_key}
                         pixType={selectedWithdrawal.pix_type}
@@ -1141,55 +1139,56 @@ export default function AdminWithdrawals() {
                         recipientName={selectedWithdrawal.profiles?.name || "Afiliado"}
                         transactionId={selectedWithdrawal.id}
                       />
-                    </div>
+                    )}
+                  </div>
+
+                  {selectedWithdrawal.status === "pending" && (
+                    <Textarea 
+                      placeholder="Motivo da rejeição (se aplicável)" 
+                      value={rejectReason} 
+                      onChange={e => setRejectReason(e.target.value)} 
+                      className="min-h-[60px]" 
+                    />
                   )}
 
-                  {selectedWithdrawal.status === "pending" && <div className="space-y-2 pt-4 border-t">
-                      <Textarea placeholder="Motivo da rejeição (se aplicável)" value={rejectReason} onChange={e => setRejectReason(e.target.value)} className="min-h-[80px]" />
-                    </div>}
-
-                  {(selectedWithdrawal.status === "approved" || selectedWithdrawal.status === "paid") && <div className="space-y-4 pt-4 border-t">
-                      <div>
-                        <Label htmlFor="payment-proof">
-                          {selectedWithdrawal.status === "paid" ? "Comprovantes anexados" : "Anexar Comprovantes de Pagamento PIX"}
+                  {(selectedWithdrawal.status === "approved" || selectedWithdrawal.status === "paid") && (
+                    <div className="space-y-2 pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">
+                          {selectedWithdrawal.status === "paid" ? "Comprovantes" : "Anexar Comprovantes"}
                         </Label>
-                        {selectedWithdrawal.status !== "paid" && <div className="mt-2">
+                        {selectedWithdrawal.status !== "paid" && (
+                          <>
                             <input id="payment-proof" type="file" accept="image/*" multiple onChange={handleAddProof} className="hidden" />
-                            <Button type="button" variant="outline" onClick={() => document.getElementById('payment-proof')?.click()} className="w-full">
-                              <ImagePlus className="h-4 w-4 mr-2" />
-                              Adicionar Comprovantes
+                            <Button type="button" variant="outline" size="sm" onClick={() => document.getElementById('payment-proof')?.click()}>
+                              <ImagePlus className="h-3 w-3 mr-1" />
+                              Adicionar
                             </Button>
-                          </div>}
+                          </>
+                        )}
                       </div>
                       
-                      {(paymentProofs.length > 0 && selectedWithdrawal.status !== "paid" || selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.length > 0) && <div className="space-y-2">
-                          <p className="text-sm font-medium">
-                            Comprovantes de Pagamento ({paymentProofs.length > 0 ? paymentProofs.length : selectedWithdrawal.payment_proof_url?.length || 0})
-                          </p>
-                          <div className="grid grid-cols-4 gap-2">
-                            {paymentProofs.length > 0 && selectedWithdrawal.status !== "paid" && paymentProofs.map(proof => <div key={proof.id} className="relative group">
-                                <img src={proof.previewUrl} alt="Pré-visualização do comprovante" className="w-full h-24 object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity" onClick={() => {
-                      setViewerImageUrl(proof.previewUrl);
-                      setImageViewerOpen(true);
-                    }} />
-                                <Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleRemoveProof(proof.id)}>
-                                  <XCircle className="h-3 w-3" />
-                                </Button>
-                              </div>)}
-                            
-                            {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url && selectedWithdrawal.payment_proof_url.map((url, index) => <div key={index} className="relative">
-                                <img src={url} alt={`Comprovante ${index + 1}`} className="w-full h-24 object-cover rounded-lg border border-border cursor-pointer hover:opacity-80 transition-opacity" onClick={() => {
-                      setViewerImageUrl(url);
-                      setImageViewerOpen(true);
-                    }} />
-                              </div>)}
-                          </div>
-                        </div>}
+                      {(paymentProofs.length > 0 || (selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url?.length)) && (
+                        <div className="grid grid-cols-5 gap-2">
+                          {paymentProofs.length > 0 && selectedWithdrawal.status !== "paid" && paymentProofs.map(proof => (
+                            <div key={proof.id} className="relative group">
+                              <img src={proof.previewUrl} alt="Comprovante" className="w-full h-16 object-cover rounded border cursor-pointer hover:opacity-80" onClick={() => { setViewerImageUrl(proof.previewUrl); setImageViewerOpen(true); }} />
+                              <Button type="button" variant="destructive" size="icon" className="absolute top-0 right-0 h-5 w-5 opacity-0 group-hover:opacity-100" onClick={() => handleRemoveProof(proof.id)}>
+                                <XCircle className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                          {selectedWithdrawal.status === "paid" && selectedWithdrawal.payment_proof_url?.map((url, index) => (
+                            <img key={index} src={url} alt={`Comprovante ${index + 1}`} className="w-full h-16 object-cover rounded border cursor-pointer hover:opacity-80" onClick={() => { setViewerImageUrl(url); setImageViewerOpen(true); }} />
+                          ))}
+                        </div>
+                      )}
                       
-                      {selectedWithdrawal.status === "paid" && (!selectedWithdrawal.payment_proof_url || selectedWithdrawal.payment_proof_url.length === 0) && <p className="text-xs text-muted-foreground">
-                          Nenhum comprovante anexado
-                        </p>}
-                    </div>}
+                      {selectedWithdrawal.status === "paid" && !selectedWithdrawal.payment_proof_url?.length && (
+                        <p className="text-xs text-muted-foreground">Nenhum comprovante</p>
+                      )}
+                    </div>
+                  )}
 
                   <DialogFooter>
                     {selectedWithdrawal.status === "pending" && <>
