@@ -24,7 +24,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
+import { generateAvatarPaths } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -381,25 +382,35 @@ export const Sidebar = ({
     }
   };
 
-  const handleCroppedAvatar = async (croppedImage: Blob) => {
+  const handleCroppedAvatar = async (images: AvatarSizes) => {
     if (!user?.id) return;
     
     setUploadingAvatar(true);
     try {
-      const fileName = `profiles/${user.id}-${Date.now()}.jpg`;
+      const paths = generateAvatarPaths(user.id);
       
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(fileName, croppedImage, {
-          contentType: "image/jpeg",
-          upsert: true,
-        });
+      // Upload both versions in parallel
+      const [thumbUpload, originalUpload] = await Promise.all([
+        supabase.storage
+          .from("avatars")
+          .upload(paths.thumb, images.thumb, {
+            contentType: "image/jpeg",
+            upsert: true,
+          }),
+        supabase.storage
+          .from("avatars")
+          .upload(paths.original, images.original, {
+            contentType: "image/jpeg",
+            upsert: true,
+          }),
+      ]);
       
-      if (uploadError) throw uploadError;
+      if (thumbUpload.error) throw thumbUpload.error;
+      if (originalUpload.error) throw originalUpload.error;
       
       const { data: urlData } = supabase.storage
         .from("avatars")
-        .getPublicUrl(fileName);
+        .getPublicUrl(paths.original);
       
       const { error: updateError } = await supabase
         .from("profiles")

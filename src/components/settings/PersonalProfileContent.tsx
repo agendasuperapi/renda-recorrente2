@@ -15,8 +15,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Loader2, User, MapPin, Share2, Instagram, Facebook, Video, Youtube, Twitter, Linkedin, History, X, Camera } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
-import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
+import { generateAvatarPaths } from "@/lib/avatarUtils";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -366,25 +367,36 @@ export const PersonalProfileContent = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleCroppedAvatar = async (croppedBlob: Blob) => {
+  const handleCroppedAvatar = async (images: AvatarSizes) => {
     if (!userId) return;
     
     setUploadingAvatar(true);
     try {
-      const fileName = `profiles/${userId}-${Date.now()}.jpg`;
+      const paths = generateAvatarPaths(userId);
       
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(fileName, croppedBlob, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+      // Upload both versions in parallel
+      const [thumbUpload, originalUpload] = await Promise.all([
+        supabase.storage
+          .from("avatars")
+          .upload(paths.thumb, images.thumb, {
+            cacheControl: "3600",
+            upsert: true,
+          }),
+        supabase.storage
+          .from("avatars")
+          .upload(paths.original, images.original, {
+            cacheControl: "3600",
+            upsert: true,
+          }),
+      ]);
 
-      if (uploadError) throw uploadError;
+      if (thumbUpload.error) throw thumbUpload.error;
+      if (originalUpload.error) throw originalUpload.error;
 
+      // Store the original URL in the database (thumb can be derived from it)
       const { data: urlData } = supabase.storage
         .from("avatars")
-        .getPublicUrl(fileName);
+        .getPublicUrl(paths.original);
 
       const newAvatarUrl = urlData.publicUrl;
 
