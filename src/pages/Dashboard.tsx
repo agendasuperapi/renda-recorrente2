@@ -784,14 +784,14 @@ const Dashboard = () => {
       
 
       <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between px-0 lg:px-6">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-0 lg:px-6">
           <div>
             <CardTitle>Comissões recentes</CardTitle>
             <p className="text-sm text-muted-foreground">
               Veja aqui suas últimas comissões
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/commissions-daily')} className="gap-2">
+          <Button variant="outline" size="sm" onClick={() => navigate('/commissions-daily')} className="gap-2 w-fit">
             Ver todas
             <ArrowRight className="w-4 h-4" />
           </Button>
