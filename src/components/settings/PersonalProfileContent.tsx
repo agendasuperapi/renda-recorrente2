@@ -480,17 +480,17 @@ export const PersonalProfileContent = () => {
                     className="relative cursor-pointer group"
                     onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
                   >
-                    <Avatar className="h-24 w-24 transition-opacity group-hover:opacity-80">
+                    <Avatar className="h-48 w-48 transition-opacity group-hover:opacity-80">
                       <AvatarImage src={avatarUrl || undefined} alt={formData.name} />
-                      <AvatarFallback className="text-2xl">
+                      <AvatarFallback className="text-5xl">
                         {formData.name?.charAt(0)?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                       {uploadingAvatar ? (
-                        <Loader2 className="h-6 w-6 text-white animate-spin" />
+                        <Loader2 className="h-12 w-12 text-white animate-spin" />
                       ) : (
-                        <Camera className="h-6 w-6 text-white" />
+                        <Camera className="h-12 w-12 text-white" />
                       )}
                     </div>
                     <input
