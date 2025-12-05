@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, FileCode } from "lucide-react";
+import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, FileCode, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -19,7 +19,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { APP_VERSION } from "@/config/version";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Version {
   id: string;
@@ -49,18 +57,40 @@ export default function AdminVersions() {
   // Delete confirmation
   const [deletingVersionId, setDeletingVersionId] = useState<string | null>(null);
 
-  const { data: versions, isLoading } = useQuery({
-    queryKey: ["app_versions"],
+  // Filter and pagination states
+  const [searchFilter, setSearchFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const debouncedSearch = useDebounce(searchFilter, 300);
+
+  const { data: versionsData, isLoading } = useQuery({
+    queryKey: ["app_versions", debouncedSearch, currentPage, pageSize],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      let query = (supabase as any)
         .from("app_versions")
-        .select("*")
-        .order("released_at", { ascending: false });
+        .select("*", { count: "exact" });
+
+      // Apply search filter
+      if (debouncedSearch) {
+        query = query.or(`version.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`);
+      }
+
+      // Apply pagination
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      const { data, error, count } = await query
+        .order("released_at", { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
-      return data as Version[];
+      return { versions: data as Version[], total: count || 0 };
     },
   });
+
+  const versions = versionsData?.versions;
+  const totalCount = versionsData?.total || 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const createVersionMutation = useMutation({
     mutationFn: async (newVersion: {
@@ -251,8 +281,35 @@ export default function AdminVersions() {
     }
   };
 
-  const latestDbVersion = versions?.[0]?.version;
+  // For sync status, we need to check the latest version without filters
+  const { data: latestVersion } = useQuery({
+    queryKey: ["app_versions_latest"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("app_versions")
+        .select("version")
+        .order("released_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data?.version || null;
+    },
+  });
+
+  const latestDbVersion = latestVersion;
   const isSynced = latestDbVersion === APP_VERSION;
+
+  // Reset to first page when search changes
+  const handleSearchChange = (value: string) => {
+    setSearchFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setCurrentPage(1);
+  };
 
   return (
     <div className="container mx-auto p-3 md:p-6 space-y-4 md:space-y-6">
@@ -393,10 +450,36 @@ export default function AdminVersions() {
       {/* Versions List */}
       <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
         <CardHeader className="px-0 lg:px-6">
-          <CardTitle>Histórico de Versões</CardTitle>
-          <CardDescription>
-            Todas as versões cadastradas no sistema
-          </CardDescription>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <CardTitle>Histórico de Versões</CardTitle>
+              <CardDescription>
+                {totalCount > 0 ? `${totalCount} versões cadastradas no sistema` : "Nenhuma versão cadastrada"}
+              </CardDescription>
+            </div>
+            <div className="flex flex-col md:flex-row gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar versão..."
+                  value={searchFilter}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-9 w-full md:w-[200px]"
+                />
+              </div>
+              <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+                <SelectTrigger className="w-full md:w-[130px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 por página</SelectItem>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="!p-0 lg:!p-6">
           {isLoading ? (
@@ -595,8 +678,40 @@ export default function AdminVersions() {
             </div>
           ) : (
             <p className="text-muted-foreground">
-              Nenhuma versão cadastrada ainda.
+              {debouncedSearch ? "Nenhuma versão encontrada com este filtro." : "Nenhuma versão cadastrada ainda."}
             </p>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Mostrando {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalCount)} de {totalCount}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Anterior
+                </Button>
+                <span className="text-sm px-2">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Próxima
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
