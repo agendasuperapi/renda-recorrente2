@@ -41,6 +41,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminVersions from "./pages/admin/AdminVersions";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminAffiliates from "./pages/admin/AdminAffiliates";
+import AdminCadastros from "./pages/admin/AdminCadastros";
 import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import Payments from "./pages/Payments";
@@ -117,6 +118,7 @@ const App = () => {
               <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/versions" element={<AdminVersions />} />
+              <Route path="/admin/cadastros" element={<AdminCadastros />} />
             </Route>
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

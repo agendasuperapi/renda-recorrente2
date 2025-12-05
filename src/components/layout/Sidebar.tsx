@@ -108,23 +108,6 @@ const adminMenuItems = [{
   label: "Eventos Stripe",
   path: "/admin/stripe-events"
 }];
-const cadastrosMenuItems = [{
-  icon: Package,
-  label: "Produtos",
-  path: "/admin/products"
-}, {
-  icon: Ticket,
-  label: "Cupons",
-  path: "/admin/coupons"
-}, {
-  icon: Building2,
-  label: "Banco e Contas",
-  path: "/admin/bank-accounts"
-}, {
-  icon: CreditCard,
-  label: "Planos e Preços",
-  path: "/admin/plans"
-}];
 export const Sidebar = ({
   user,
   isAdmin,
@@ -159,8 +142,6 @@ export const Sidebar = ({
   } | null>(null);
   const [isDarkTheme, setIsDarkTheme] = useState(document.documentElement.classList.contains('dark'));
   const [sidebarTimeout, setSidebarTimeout] = useState(false);
-  const [cadastrosMenuOpen, setCadastrosMenuOpen] = useState(false);
-  
   const [commissionsMenuOpen, setCommissionsMenuOpen] = useState(false);
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
@@ -737,45 +718,30 @@ export const Sidebar = ({
           </>}
 
         {isAdmin && showAdminMenu && <>
-            <Collapsible open={cadastrosMenuOpen} onOpenChange={setCadastrosMenuOpen}>
-              <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
-            backgroundColor: `${accentColor}15`,
-            color: currentTextColor
-          }} onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = `${accentColor}30`;
-          }} onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = `${accentColor}15`;
-          }}>
-                <PlusSquare size={18} />
-                <span className="flex-1 text-left">Cadastros</span>
-                <ChevronDown size={16} className="transition-transform" style={{
-              transform: cadastrosMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-            }} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pl-4 space-y-1 mt-1">
-                {cadastrosMenuItems.map(item => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-                backgroundColor: isActive ? accentColor : `${accentColor}15`,
+            <Link 
+              to="/admin/cadastros" 
+              onClick={() => closeSidebar?.()} 
+              className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
+              style={{
+                backgroundColor: location.pathname === "/admin/cadastros" ? accentColor : `${accentColor}15`,
                 color: currentTextColor
-              }} onMouseEnter={e => {
-                if (!isActive) {
+              }} 
+              onMouseEnter={e => {
+                if (location.pathname !== "/admin/cadastros") {
                   e.currentTarget.style.backgroundColor = `${accentColor}30`;
                 }
-              }} onMouseLeave={e => {
-                if (!isActive) {
+              }} 
+              onMouseLeave={e => {
+                if (location.pathname !== "/admin/cadastros") {
                   e.currentTarget.style.backgroundColor = `${accentColor}15`;
                 }
-              }}>
-                      <Icon size={18} />
-                      {item.label}
-                    </Link>;
-            })}
-              </CollapsibleContent>
-            </Collapsible>
+              }}
+            >
+              <PlusSquare size={18} />
+              <span>Cadastros</span>
+            </Link>
 
-            <Link 
+            <Link
               to="/admin/settings" 
               onClick={() => closeSidebar?.()} 
               className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
