@@ -94,8 +94,8 @@ export default function SignupFunnel() {
   const [editingGradient, setEditingGradient] = useState(false);
   const [gradientConfig, setGradientConfig] = useState<GradientConfig>({
     block_name: 'signup_funnel',
-    color_start: '#00bf63',
-    color_end: '#00bf63',
+    color_start: '#10b981',
+    color_end: '#10b981',
     intensity_start: 10,
     intensity_end: 30,
     gradient_start_position: 0,

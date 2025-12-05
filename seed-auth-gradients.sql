@@ -4,5 +4,5 @@ VALUES
   ('auth_left_panel', '#00bf63', '#00bf63', 10, 30, 0, '#000000', '#000000', '#000000', '#ffffff', '#000000', '#ffffff'),
   ('auth_right_panel', '#00bf63', '#00bf63', 5, 15, 0, '#000000', '#000000', '#000000', '#ffffff', '#000000', '#ffffff'),
   ('auth_form_card', '#ffffff', '#ffffff', 80, 80, 0, '#000000', '#000000', '#000000', '#ffffff', '#000000', '#ffffff'),
-  ('signup_funnel', '#00bf63', '#00bf63', 10, 30, 0, '#000000', '#000000', '#000000', '#ffffff', '#000000', '#ffffff')
+  ('signup_funnel', '#10b981', '#10b981', 10, 30, 0, '#000000', '#000000', '#000000', '#ffffff', '#000000', '#ffffff')
 ON CONFLICT (block_name) DO NOTHING;
