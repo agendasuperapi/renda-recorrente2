@@ -307,7 +307,9 @@ const Coupons = () => {
     enabled: !!userId
   });
 
-  const isProPlan = affiliateSubscription?.plans?.name?.toUpperCase() === "PRO";
+  // Check if plan name contains "PRO" (case insensitive)
+  const planName = (affiliateSubscription?.plans as any)?.name || "";
+  const isProPlan = planName.toUpperCase().includes("PRO");
 
   // Fetch minimum sales setting for Renda product
   const { data: minSalesSetting } = useQuery({
