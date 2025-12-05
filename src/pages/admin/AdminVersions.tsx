@@ -458,7 +458,7 @@ export default function AdminVersions() {
               </CardDescription>
             </div>
             <div className="flex flex-col md:flex-row gap-2">
-              <div className="relative">
+              <form onSubmit={(e) => e.preventDefault()} className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar versão..."
@@ -466,7 +466,7 @@ export default function AdminVersions() {
                   onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-9 w-full md:w-[200px]"
                 />
-              </div>
+              </form>
               <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
                 <SelectTrigger className="w-full md:w-[130px]">
                   <SelectValue />
