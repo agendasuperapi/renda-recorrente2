@@ -741,8 +741,8 @@ const Coupons = () => {
                     </div>
                     
                     {/* Linha 3: Código e ações */}
-                    <div className="flex items-center justify-between gap-2 bg-muted/50 rounded px-2 py-1.5">
-                      <code className="text-xs font-mono text-muted-foreground truncate flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <code className="text-xs font-mono text-muted-foreground truncate flex-1 bg-muted/50 rounded px-2 py-1">
                         {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                       </code>
                       <div className="flex items-center gap-1 shrink-0">
