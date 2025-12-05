@@ -246,15 +246,19 @@ export default function AdminWithdrawals() {
         }
       } else if (status === "rejected") {
         updateData.rejected_reason = rejectedReason;
+      } else if (status === "pending") {
+        // Estornando aprovação - limpar dados de aprovação
+        updateData.approved_date = null;
+        updateData.approved_by = null;
       }
       const {
         error
       } = await supabase.from("withdrawals").update(updateData).eq("id", id);
       if (error) throw error;
 
-      // Se foi aprovado ou pago, atualizar as comissões para 'withdrawn'
-      if (status === "approved" || status === "paid") {
-        if (withdrawal?.commission_ids?.length) {
+      // Atualizar as comissões baseado no status
+      if (withdrawal?.commission_ids?.length) {
+        if (status === "approved" || status === "paid") {
           // Se está revertendo de "paid" para "approved", voltar comissões para "available"
           const commissionStatus = withdrawal.status === "paid" && status === "approved" ? "available" : "withdrawn";
           const commissionUpdate: any = {
@@ -268,6 +272,12 @@ export default function AdminWithdrawals() {
             commissionUpdate.withdrawal_id = id;
           }
           await supabase.from("commissions").update(commissionUpdate).in("id", withdrawal.commission_ids);
+        } else if (status === "pending") {
+          // Estornando aprovação - voltar comissões para "available"
+          await supabase.from("commissions").update({
+            status: "available",
+            withdrawal_id: null
+          }).in("id", withdrawal.commission_ids);
         }
       }
       return {
@@ -419,6 +429,12 @@ export default function AdminWithdrawals() {
     updateWithdrawalMutation.mutate({
       id,
       status: "approved"
+    });
+  };
+  const handleRevertApproval = (id: string) => {
+    updateWithdrawalMutation.mutate({
+      id,
+      status: "pending"
     });
   };
   const statsData = {
@@ -1174,7 +1190,7 @@ export default function AdminWithdrawals() {
                         </Button>
                       </>}
                     {selectedWithdrawal.status === "approved" && <>
-                        <Button variant="outline" onClick={() => handleRevert(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
+                        <Button variant="outline" onClick={() => handleRevertApproval(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
                           <Undo2 className="h-4 w-4 mr-2" />
                           Estornar Aprovação
                         </Button>
