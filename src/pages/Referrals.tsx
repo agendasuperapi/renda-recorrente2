@@ -459,19 +459,23 @@ const Referrals = () => {
                           <p className="font-medium truncate">{referral.plan_name || "-"}</p>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center pt-1">
-                        <span className="text-xs text-muted-foreground">
-                          {formatDate(referral.created_at)}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setExpandedCardId(referral.id)}
-                          className="h-7 gap-1 text-xs"
-                        >
-                          <Eye className="h-3 w-3" />
-                          Ver mais
-                        </Button>
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                        <div>
+                          <span className="text-muted-foreground">
+                            {formatDate(referral.created_at)}
+                          </span>
+                        </div>
+                        <div className="flex justify-end">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpandedCardId(referral.id)}
+                            className="h-7 gap-1 text-xs"
+                          >
+                            <Eye className="h-3 w-3" />
+                            Ver mais
+                          </Button>
+                        </div>
                       </div>
                     </>
                   ) : (
