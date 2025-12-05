@@ -7,8 +7,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff, Palette } from "lucide-react";
 import { z } from "zod";
+import { GradientEditor } from "@/components/GradientEditor";
+
+interface GradientConfig {
+  block_name: string;
+  color_start: string;
+  color_end: string;
+  intensity_start: number;
+  intensity_end: number;
+  gradient_start_position: number;
+  text_color?: string;
+  heading_color?: string;
+  text_color_light?: string;
+  text_color_dark?: string;
+  heading_color_light?: string;
+  heading_color_dark?: string;
+}
 
 interface Plan {
   id: string;
@@ -72,6 +88,23 @@ export default function SignupFunnel() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [testNumber, setTestNumber] = useState<number | null>(null);
+  
+  // Gradient customization state
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [editingGradient, setEditingGradient] = useState(false);
+  const [gradientConfig, setGradientConfig] = useState<GradientConfig>({
+    block_name: 'signup_funnel',
+    color_start: '#00bf63',
+    color_end: '#00bf63',
+    intensity_start: 10,
+    intensity_end: 30,
+    gradient_start_position: 0,
+    text_color_light: '#000000',
+    text_color_dark: '#ffffff',
+    heading_color_light: '#000000',
+    heading_color_dark: '#ffffff',
+  });
+  const [previewConfig, setPreviewConfig] = useState<GradientConfig | null>(null);
 
   useEffect(() => {
     if (planId) {
@@ -83,6 +116,66 @@ export default function SignupFunnel() {
       }
     }
   }, [planId]);
+
+  // Fetch gradient config and check admin status
+  useEffect(() => {
+    const fetchGradientConfig = async () => {
+      const { data } = await supabase
+        .from('landing_block_gradients' as any)
+        .select('*')
+        .eq('block_name', 'signup_funnel')
+        .single();
+      
+      if (data) {
+        setGradientConfig(data as unknown as GradientConfig);
+      }
+    };
+
+    const checkAdminRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        
+        if (roles?.some(r => (r.role as string) === 'super_admin' || (r.role as string) === 'admin')) {
+          setIsAdmin(true);
+        }
+      }
+    };
+
+    fetchGradientConfig();
+    checkAdminRole();
+  }, []);
+
+  const isDarkMode = () => document.documentElement.classList.contains('dark');
+
+  const getGradientStyle = (config: GradientConfig) => {
+    const hexToRgba = (hex: string, alpha: number) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    const startAlpha = config.intensity_start / 100;
+    const endAlpha = config.intensity_end / 100;
+
+    return {
+      background: `linear-gradient(to bottom, ${hexToRgba(config.color_start, startAlpha)} ${config.gradient_start_position}%, ${hexToRgba(config.color_end, endAlpha)} 100%)`,
+    };
+  };
+
+  const getTextColor = (config: GradientConfig) => {
+    return isDarkMode() ? config.text_color_dark || '#ffffff' : config.text_color_light || '#000000';
+  };
+
+  const getHeadingColor = (config: GradientConfig) => {
+    return isDarkMode() ? config.heading_color_dark || '#ffffff' : config.heading_color_light || '#000000';
+  };
+
+  const activeConfig = previewConfig || gradientConfig;
 
   const fetchTestNumber = async () => {
     try {
@@ -437,10 +530,20 @@ export default function SignupFunnel() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen py-12 px-4" style={getGradientStyle(activeConfig)}>
       <div className="container max-w-2xl mx-auto">
-        {isDevModeActive && (
-          <div className="flex justify-end mb-4">
+        <div className="flex justify-end gap-2 mb-4">
+          {isAdmin && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setEditingGradient(true)}
+            >
+              <Palette className="w-4 h-4 mr-2" />
+              Personalizar
+            </Button>
+          )}
+          {isDevModeActive && (
             <Button 
               variant="destructive" 
               size="sm"
@@ -448,21 +551,21 @@ export default function SignupFunnel() {
             >
               🔧 Desativar Modo Dev
             </Button>
-          </div>
-        )}
+          )}
+        </div>
         
         {renderProgressBar()}
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">
+            <CardTitle className="text-2xl" style={{ color: getHeadingColor(activeConfig) }}>
               {currentStep === 1 && "Qual é o seu nome?"}
               {currentStep === 2 && "Qual é o seu telefone?"}
               {currentStep === 3 && "Qual é o seu email?"}
               {currentStep === 4 && "Crie sua senha"}
               {currentStep === 5 && "Confirme seus dados"}
             </CardTitle>
-            <CardDescription>
+            <CardDescription style={{ color: getTextColor(activeConfig) }}>
               {currentStep === 1 && "Digite seu nome completo para começar"}
               {currentStep === 2 && "Informe seu telefone para contato"}
               {currentStep === 3 && "Digite o email que você usará para acessar"}
@@ -760,6 +863,23 @@ export default function SignupFunnel() {
           </CardFooter>
         </Card>
       </div>
+
+      {editingGradient && (
+        <GradientEditor
+          blockName="signup_funnel"
+          config={activeConfig}
+          onSave={(newConfig) => {
+            setGradientConfig(newConfig);
+            setPreviewConfig(null);
+            setEditingGradient(false);
+          }}
+          onClose={() => {
+            setPreviewConfig(null);
+            setEditingGradient(false);
+          }}
+          onPreview={(config) => setPreviewConfig(config)}
+        />
+      )}
     </div>
   );
 }
