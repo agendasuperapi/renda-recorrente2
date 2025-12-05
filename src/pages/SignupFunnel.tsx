@@ -488,16 +488,16 @@ export default function SignupFunnel() {
 
   const renderProgressBar = () => (
     <div className="mb-8">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-center items-center gap-2 mb-2">
         {[1, 2, 3, 4].map((step) => (
-          <div key={step} className="flex items-center flex-1">
+          <div key={step} className="flex items-center">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
               currentStep >= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
             }`}>
               {currentStep > step ? <Check className="w-5 h-5" /> : step}
             </div>
             {step < 4 && (
-              <div className={`flex-1 h-1 mx-2 transition-colors ${
+              <div className={`w-12 h-1 mx-2 transition-colors ${
                 currentStep > step ? 'bg-primary' : 'bg-muted'
               }`} />
             )}
