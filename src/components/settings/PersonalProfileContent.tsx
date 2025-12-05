@@ -238,10 +238,30 @@ export const PersonalProfileContent = () => {
     
     const cleanCpf = formatted.replace(/\D/g, "");
     if (cleanCpf.length === 11) {
-      await checkCpfAvailability(formatted);
-      
-      // Após verificar disponibilidade, consultar dados do CPF
+      // Primeiro verifica se o CPF está disponível
+      setCpfStatus({ checking: true, available: null, existingUser: null });
+
       try {
+        const { data: availabilityData, error: availabilityError } = await supabase.functions.invoke('check-cpf-availability', {
+          body: { cpf: cleanCpf, userId }
+        });
+
+        if (availabilityError) throw availabilityError;
+
+        const isAvailable = availabilityData.available;
+        setCpfStatus({
+          checking: false,
+          available: isAvailable,
+          existingUser: availabilityData.existingUser,
+        });
+
+        // Só consulta e preenche os dados se o CPF estiver disponível
+        if (!isAvailable) {
+          toast.error("Este CPF já está cadastrado em outra conta");
+          return;
+        }
+
+        // CPF disponível, consultar dados
         const { data, error } = await supabase.functions.invoke('consultar-cpf', {
           body: { 
             cpf: cleanCpf,
@@ -278,8 +298,8 @@ export const PersonalProfileContent = () => {
           }
         }
       } catch (error) {
-        console.error('Erro ao consultar CPF:', error);
-        // Não mostra erro para o usuário, apenas não preenche automaticamente
+        console.error('Erro ao verificar/consultar CPF:', error);
+        setCpfStatus({ checking: false, available: null, existingUser: null });
       }
     } else {
       setCpfStatus({ checking: false, available: null, existingUser: null });
