@@ -324,45 +324,51 @@ const CommissionsDaily = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+            <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Hoje
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{formatCurrency(stats.hoje)}</div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(stats.hoje)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats.count_hoje} {stats.count_hoje === 1 ? 'comissão' : 'comissões'}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
+            <Calendar className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+          </div>
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Últimos 7 dias
             </CardTitle>
-            <Calendar className="h-4 w-4 text-info" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-info">{formatCurrency(stats.ultimos_7_dias)}</div>
+            <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">{formatCurrency(stats.ultimos_7_dias)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats.count_7_dias} {stats.count_7_dias === 1 ? 'comissão' : 'comissões'}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Card className="relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
+            <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          </div>
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Este Mês
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.este_mes)}</div>
+            <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{formatCurrency(stats.este_mes)}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {stats.count_mes} {stats.count_mes === 1 ? 'comissão' : 'comissões'}
             </p>
