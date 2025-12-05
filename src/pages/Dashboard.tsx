@@ -625,7 +625,7 @@ const Dashboard = () => {
                 <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
               <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-muted-foreground">Quant. de Indicações</CardTitle>
+                <CardTitle className="text-sm sm:text-base text-muted-foreground">Quant. de Indicações</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
@@ -637,7 +637,7 @@ const Dashboard = () => {
                 <Users className="h-6 w-6 text-pink-600 dark:text-pink-400" />
               </div>
               <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
+                <CardTitle className="text-sm sm:text-base text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
