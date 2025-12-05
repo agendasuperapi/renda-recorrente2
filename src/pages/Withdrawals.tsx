@@ -274,29 +274,33 @@ const Withdrawals = () => {
       {!canWithdraw}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+        <Card className="relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+            <CircleDollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Disponível
             </CardTitle>
-            <CircleDollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-success">
+            <div className="text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               R$ {commissionsData?.available.toFixed(2) || '0,00'}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+        <Card className="relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
+            <Clock className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+          </div>
+          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Pendente
             </CardTitle>
-            <Clock className="h-4 w-4 text-info" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-info">
+            <div className="text-xl md:text-2xl font-bold text-sky-600 dark:text-sky-400">
               R$ {commissionsData?.pending.toFixed(2) || '0,00'}
             </div>
             <p className="text-xs text-muted-foreground mt-1 hidden md:block">
@@ -305,15 +309,17 @@ const Withdrawals = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+        <Card className="relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
+            <TrendingUp className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          </div>
+          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
               Sacado
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold">
+            <div className="text-xl md:text-2xl font-bold text-violet-600 dark:text-violet-400">
               R$ {commissionsData?.paid.toFixed(2) || '0,00'}
             </div>
           </CardContent>
@@ -329,12 +335,14 @@ const Withdrawals = () => {
         </Alert>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+        <Card className="border-primary/20 bg-primary/5 relative overflow-hidden">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-primary/20 dark:bg-primary/30 flex items-end justify-start pl-4 pb-4">
+            <img src={pixIcon} alt="PIX" className="h-5 w-5" />
+          </div>
+          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium">
               Chave PIX (CPF)
             </CardTitle>
-            <img src={pixIcon} alt="PIX" className="h-4 w-4 md:h-5 md:w-5" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
             <div className="text-lg md:text-2xl font-bold">
@@ -352,12 +360,14 @@ const Withdrawals = () => {
           </CardContent>
         </Card>
 
-        <Card className={isWithdrawalDay ? "border-success/20 bg-success/5" : "border-destructive/20 bg-destructive/5"}>
-          <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-4 md:p-6">
+        <Card className={`relative overflow-hidden ${isWithdrawalDay ? "border-success/20 bg-success/5" : "border-destructive/20 bg-destructive/5"}`}>
+          <div className={`absolute -top-6 -right-6 h-24 w-24 rounded-full flex items-end justify-start pl-4 pb-4 ${isWithdrawalDay ? "bg-emerald-200/60 dark:bg-emerald-800/40" : "bg-rose-200/60 dark:bg-rose-800/40"}`}>
+            <Calendar className={`h-5 w-5 ${isWithdrawalDay ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`} />
+          </div>
+          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
             <CardTitle className="text-xs md:text-sm font-medium">
               Dia de Saque
             </CardTitle>
-            <Calendar className={isWithdrawalDay ? "h-4 w-4 md:h-5 md:w-5 text-success" : "h-4 w-4 md:h-5 md:w-5 text-destructive"} />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
             {isWithdrawalDay ? <>
