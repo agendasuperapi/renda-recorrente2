@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff, Palette } from "lucide-react";
 import { z } from "zod";
 import { GradientEditor } from "@/components/GradientEditor";
+import logoVerde from "@/assets/logo-renda-verde.png";
+import logoBranco from "@/assets/logo-renda-branco.png";
 
 interface GradientConfig {
   block_name: string;
@@ -545,6 +547,14 @@ export default function SignupFunnel() {
         )}
         
         {renderProgressBar()}
+
+        <div className="flex justify-center mb-6">
+          <img 
+            src={isDarkMode() ? logoBranco : logoVerde} 
+            alt="APP Renda Recorrente" 
+            className="h-16 object-contain"
+          />
+        </div>
 
         <Card>
           <CardHeader>
