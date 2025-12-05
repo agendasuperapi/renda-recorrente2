@@ -606,19 +606,30 @@ export const PersonalProfileContent = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF</Label>
-                  <Input
-                    id="cpf"
-                    value={formData.cpf}
-                    onChange={(e) => handleCpfChange(e.target.value)}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="cpf"
+                      value={formData.cpf}
+                      onChange={(e) => handleCpfChange(e.target.value)}
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      className={cpfStatus.available === false ? "border-destructive focus-visible:ring-destructive pr-10" : ""}
+                    />
+                    {cpfStatus.available === false && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <X className="h-5 w-5 text-destructive" />
+                      </div>
+                    )}
+                  </div>
                   {cpfStatus.checking && (
-                    <p className="text-sm text-muted-foreground">Verificando CPF...</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Verificando CPF...
+                    </p>
                   )}
-                  {cpfStatus.available === false && cpfStatus.existingUser && (
-                    <p className="text-sm text-destructive">
-                      CPF já cadastrado por {cpfStatus.existingUser}
+                  {cpfStatus.available === false && (
+                    <p className="text-sm text-destructive font-medium">
+                      CPF já cadastrado no sistema
                     </p>
                   )}
                   {cpfStatus.available === true && (
