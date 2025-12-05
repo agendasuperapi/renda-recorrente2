@@ -23,6 +23,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { PixQRCode } from "@/components/PixQRCode";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 type Withdrawal = {
   id: string;
   affiliate_id: string;
@@ -42,6 +43,7 @@ type Withdrawal = {
     name: string;
     email: string;
     username: string;
+    avatar_url: string | null;
   };
 };
 type PaymentProofFile = {
@@ -156,7 +158,8 @@ export default function AdminWithdrawals() {
           profiles!withdrawals_affiliate_id_fkey (
             name,
             email,
-            username
+            username,
+            avatar_url
           )
         `).order("requested_date", {
         ascending: false
@@ -1078,10 +1081,18 @@ export default function AdminWithdrawals() {
                   <div className={`grid gap-4 ${selectedWithdrawal.status === "approved" ? "md:grid-cols-2" : ""}`}>
                     {/* Info Grid */}
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Afiliado</p>
-                        <p className="font-medium truncate">{selectedWithdrawal.profiles?.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={selectedWithdrawal.profiles?.avatar_url || ""} alt={selectedWithdrawal.profiles?.name} />
+                          <AvatarFallback className="text-xs">
+                            {selectedWithdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">Afiliado</p>
+                          <p className="font-medium truncate text-xs">{selectedWithdrawal.profiles?.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
+                        </div>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Status</p>
