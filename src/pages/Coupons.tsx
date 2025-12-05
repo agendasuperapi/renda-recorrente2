@@ -670,7 +670,7 @@ const Coupons = () => {
                     </div>
                     {/* Aviso para App Renda Recorrente */}
                     {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !hasEnoughSales && (
-                      <Alert className="mb-3 border-red-600 bg-red-600 dark:border-red-600 dark:bg-red-600 [&>svg]:text-white">
+                      <Alert className="mb-3 border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle className="text-white text-sm font-semibold">Cupons bloqueados</AlertTitle>
                         <AlertDescription className="text-white/90 text-xs">
@@ -818,7 +818,7 @@ const Coupons = () => {
                       </div>
                       {/* Aviso para App Renda Recorrente */}
                       {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !hasEnoughSales && (
-                        <Alert className="mb-4 border-red-600 bg-red-600 dark:border-red-600 dark:bg-red-600 [&>svg]:text-white">
+                        <Alert className="mb-4 border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
                           <AlertTriangle className="h-4 w-4" />
                           <AlertTitle className="text-white font-semibold">Cupons bloqueados</AlertTitle>
                           <AlertDescription className="text-white/90">
