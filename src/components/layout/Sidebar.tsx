@@ -420,6 +420,12 @@ export const Sidebar = ({
       if (updateError) throw updateError;
       
       setAvatarUrl(urlData.publicUrl);
+      
+      // Dispatch custom event to sync avatar across components
+      window.dispatchEvent(new CustomEvent('avatar-updated', { 
+        detail: { avatarUrl: urlData.publicUrl } 
+      }));
+      
       sonnerToast.success("Foto atualizada com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar avatar:", error);

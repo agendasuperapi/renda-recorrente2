@@ -97,6 +97,18 @@ export const PersonalProfileContent = () => {
     }
   }, [userId]);
 
+  // Listen for avatar updates from Sidebar
+  useEffect(() => {
+    const handleAvatarUpdate = (event: CustomEvent<{ avatarUrl: string }>) => {
+      setAvatarUrl(event.detail.avatarUrl);
+    };
+
+    window.addEventListener('avatar-updated', handleAvatarUpdate as EventListener);
+    return () => {
+      window.removeEventListener('avatar-updated', handleAvatarUpdate as EventListener);
+    };
+  }, []);
+
   const loadUsernameHistory = async () => {
     try {
       const { data, error } = await supabase
