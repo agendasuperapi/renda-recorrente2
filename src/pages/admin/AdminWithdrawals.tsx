@@ -677,9 +677,17 @@ export default function AdminWithdrawals() {
                     })}
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col min-w-[180px]">
-                              <span className="font-medium text-sm">{withdrawal.profiles?.name || "N/A"}</span>
-                              <span className="text-xs text-muted-foreground truncate max-w-[200px]">{withdrawal.profiles?.email || "N/A"}</span>
+                            <div className="flex items-center gap-2 min-w-[180px]">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={withdrawal.profiles?.avatar_url || ""} alt={withdrawal.profiles?.name} />
+                                <AvatarFallback className="text-xs">
+                                  {withdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col min-w-0">
+                                <span className="font-medium text-sm truncate">{withdrawal.profiles?.name || "N/A"}</span>
+                                <span className="text-xs text-muted-foreground truncate max-w-[180px]">{withdrawal.profiles?.email || "N/A"}</span>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">
