@@ -76,11 +76,43 @@ export const PersonalProfileContent = () => {
     checking: boolean;
     available: boolean | null;
     existingUser: string | null;
+    valid: boolean | null;
   }>({
     checking: false,
     available: null,
     existingUser: null,
+    valid: null,
   });
+
+  // Função para validar CPF (algoritmo brasileiro)
+  const isValidCPF = (cpf: string): boolean => {
+    const cleanCpf = cpf.replace(/\D/g, '');
+    
+    if (cleanCpf.length !== 11) return false;
+    
+    // Verifica se todos os dígitos são iguais
+    if (/^(\d)\1+$/.test(cleanCpf)) return false;
+    
+    // Validação do primeiro dígito verificador
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cleanCpf.charAt(i)) * (10 - i);
+    }
+    let remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleanCpf.charAt(9))) return false;
+    
+    // Validação do segundo dígito verificador
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cleanCpf.charAt(i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cleanCpf.charAt(10))) return false;
+    
+    return true;
+  };
 
   const [usernameStatus, setUsernameStatus] = useState<{
     checking: boolean;
@@ -193,11 +225,11 @@ export const PersonalProfileContent = () => {
   const checkCpfAvailability = async (cpf: string) => {
     const cleanCpf = cpf.replace(/\D/g, "");
     if (cleanCpf.length !== 11) {
-      setCpfStatus({ checking: false, available: null, existingUser: null });
+      setCpfStatus({ checking: false, available: null, existingUser: null, valid: null });
       return;
     }
 
-    setCpfStatus({ checking: true, available: null, existingUser: null });
+    setCpfStatus({ checking: true, available: null, existingUser: null, valid: true });
 
     try {
       const { data, error } = await supabase.functions.invoke('check-cpf-availability', {
@@ -210,10 +242,11 @@ export const PersonalProfileContent = () => {
         checking: false,
         available: data.available,
         existingUser: data.existingUser,
+        valid: true,
       });
     } catch (error) {
       console.error("Error checking CPF:", error);
-      setCpfStatus({ checking: false, available: null, existingUser: null });
+      setCpfStatus({ checking: false, available: null, existingUser: null, valid: true });
     }
   };
 
@@ -251,8 +284,17 @@ export const PersonalProfileContent = () => {
     
     const cleanCpf = formatted.replace(/\D/g, "");
     if (cleanCpf.length === 11) {
-      // Primeiro verifica se o CPF está disponível
-      setCpfStatus({ checking: true, available: null, existingUser: null });
+      // Primeiro valida se o CPF é válido (algoritmo brasileiro)
+      const cpfIsValid = isValidCPF(cleanCpf);
+      
+      if (!cpfIsValid) {
+        setCpfStatus({ checking: false, available: null, existingUser: null, valid: false });
+        toast.error("CPF inválido. Verifique os dígitos informados.");
+        return;
+      }
+
+      // CPF válido, verifica disponibilidade
+      setCpfStatus({ checking: true, available: null, existingUser: null, valid: true });
 
       try {
         const { data: availabilityData, error: availabilityError } = await supabase.functions.invoke('check-cpf-availability', {
@@ -266,6 +308,7 @@ export const PersonalProfileContent = () => {
           checking: false,
           available: isAvailable,
           existingUser: availabilityData.existingUser,
+          valid: true,
         });
 
         // Só consulta e preenche os dados se o CPF estiver disponível
@@ -319,10 +362,10 @@ export const PersonalProfileContent = () => {
         }
       } catch (error) {
         console.error('Erro ao verificar/consultar CPF:', error);
-        setCpfStatus({ checking: false, available: null, existingUser: null });
+        setCpfStatus({ checking: false, available: null, existingUser: null, valid: true });
       }
     } else {
-      setCpfStatus({ checking: false, available: null, existingUser: null });
+      setCpfStatus({ checking: false, available: null, existingUser: null, valid: null });
     }
   };
 
@@ -435,6 +478,11 @@ export const PersonalProfileContent = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (cpfStatus.valid === false) {
+      toast.error("CPF inválido. Verifique os dígitos informados.");
+      return;
+    }
+
     if (cpfStatus.available === false) {
       toast.error("CPF já cadastrado por outro usuário");
       return;
@@ -644,9 +692,9 @@ export const PersonalProfileContent = () => {
                       onChange={(e) => handleCpfChange(e.target.value)}
                       placeholder="000.000.000-00"
                       maxLength={14}
-                      className={cpfStatus.available === false ? "border-destructive focus-visible:ring-destructive pr-10" : ""}
+                      className={(cpfStatus.available === false || cpfStatus.valid === false) ? "border-destructive focus-visible:ring-destructive pr-10" : ""}
                     />
-                    {cpfStatus.available === false && (
+                    {(cpfStatus.available === false || cpfStatus.valid === false) && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
                         <X className="h-5 w-5 text-destructive" />
                       </div>
@@ -658,12 +706,17 @@ export const PersonalProfileContent = () => {
                       Verificando CPF...
                     </p>
                   )}
-                  {cpfStatus.available === false && (
+                  {cpfStatus.valid === false && (
+                    <p className="text-sm text-destructive font-medium">
+                      CPF inválido. Verifique os dígitos informados.
+                    </p>
+                  )}
+                  {cpfStatus.available === false && cpfStatus.valid !== false && (
                     <p className="text-sm text-destructive font-medium">
                       CPF já cadastrado no sistema
                     </p>
                   )}
-                  {cpfStatus.available === true && (
+                  {cpfStatus.available === true && cpfStatus.valid === true && (
                     <p className="text-sm text-green-600">CPF disponível</p>
                   )}
                 </div>
