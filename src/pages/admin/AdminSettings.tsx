@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -10,8 +10,25 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
-import { Loader2, RefreshCw, Settings, DollarSign, Palette } from "lucide-react";
+import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load components for tabs
+const AdminLandingPageContent = lazy(() => import("./AdminLandingPage"));
+const AdminVersionsContent = lazy(() => import("./AdminVersions"));
+const AdminUsersContent = lazy(() => import("./AdminUsers"));
+const AdminCommissionLevelsContent = lazy(() => import("./AdminCommissionLevels"));
+const AdminCpfApisContent = lazy(() => import("./AdminCpfApis"));
+const AdminLegalDocumentsContent = lazy(() => import("./AdminLegalDocuments"));
+
+const TabLoadingFallback = () => (
+  <div className="space-y-4 p-4">
+    <Skeleton className="h-8 w-64" />
+    <Skeleton className="h-32 w-full" />
+    <Skeleton className="h-32 w-full" />
+  </div>
+);
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -222,17 +239,41 @@ export default function AdminSettings() {
 
       <Tabs defaultValue="environment" className="w-full">
         <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
-          <TabsTrigger value="environment" className="flex-1 min-w-[100px] gap-2 data-[state=active]:bg-background">
-            <Settings className="h-4 w-4" />
+          <TabsTrigger value="environment" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Ambiente</span>
           </TabsTrigger>
-          <TabsTrigger value="commissions" className="flex-1 min-w-[100px] gap-2 data-[state=active]:bg-background">
-            <DollarSign className="h-4 w-4" />
+          <TabsTrigger value="commissions" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Comissões</span>
           </TabsTrigger>
-          <TabsTrigger value="theme" className="flex-1 min-w-[100px] gap-2 data-[state=active]:bg-background">
-            <Palette className="h-4 w-4" />
+          <TabsTrigger value="theme" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Tema</span>
+          </TabsTrigger>
+          <TabsTrigger value="landing" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Landing</span>
+          </TabsTrigger>
+          <TabsTrigger value="versions" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <GitBranch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Versões</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Usuários</span>
+          </TabsTrigger>
+          <TabsTrigger value="commission-levels" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Níveis</span>
+          </TabsTrigger>
+          <TabsTrigger value="cpf-apis" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <FileSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">API CPF</span>
+          </TabsTrigger>
+          <TabsTrigger value="legal" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Termos</span>
           </TabsTrigger>
         </TabsList>
 
@@ -505,6 +546,42 @@ export default function AdminSettings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="landing" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminLandingPageContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="versions" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminVersionsContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="users" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminUsersContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="commission-levels" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminCommissionLevelsContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="cpf-apis" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminCpfApisContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="legal" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminLegalDocumentsContent />
+          </Suspense>
         </TabsContent>
       </Tabs>
     </div>

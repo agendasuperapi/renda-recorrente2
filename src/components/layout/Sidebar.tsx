@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, FileSearch, FileText, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, GitBranch, RefreshCw, Check, X, Camera, Loader2 } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2 } from "lucide-react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -126,33 +126,9 @@ const cadastrosMenuItems = [{
   path: "/admin/plans"
 }];
 const configMenuItems = [{
-  icon: LayoutDashboard,
-  label: "Landing Page",
-  path: "/admin/landing-page"
-}, {
   icon: Settings,
   label: "Configurações",
   path: "/admin/settings"
-}, {
-  icon: GitBranch,
-  label: "Versões",
-  path: "/admin/versions"
-}, {
-  icon: Users,
-  label: "Usuários",
-  path: "/admin/users"
-}, {
-  icon: Coins,
-  label: "Níveis de Comissão",
-  path: "/admin/commission-levels"
-}, {
-  icon: FileSearch,
-  label: "API de CPF",
-  path: "/admin/cpf-apis"
-}, {
-  icon: FileText,
-  label: "Termos e Privacidade",
-  path: "/admin/legal-documents"
 }];
 export const Sidebar = ({
   user,
