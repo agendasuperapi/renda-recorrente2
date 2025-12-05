@@ -12,7 +12,6 @@ import { z } from "zod";
 import { GradientEditor } from "@/components/GradientEditor";
 import logoVerde from "@/assets/logo-renda-verde.png";
 import logoBranco from "@/assets/logo-renda-branco.png";
-
 interface GradientConfig {
   block_name: string;
   color_start: string;
@@ -27,14 +26,12 @@ interface GradientConfig {
   heading_color_light?: string;
   heading_color_dark?: string;
 }
-
 interface Plan {
   id: string;
   name: string;
   price: number;
   billing_period: string;
 }
-
 const signupSchema = z.object({
   name: z.string().trim().min(2, "Nome deve ter no mínimo 2 caracteres").max(100, "Nome muito longo"),
   phone: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Telefone inválido"),
@@ -46,9 +43,7 @@ const signupSchema = z.object({
   message: "As senhas não conferem",
   path: ["confirmPassword"]
 });
-
 type SignupFormData = z.infer<typeof signupSchema>;
-
 interface DebugInfo {
   environmentMode: string;
   planId: string;
@@ -65,18 +60,19 @@ interface DebugInfo {
   stripeProductId: string | null;
   stripePriceId: string | null;
 }
-
 export default function SignupFunnel() {
-  const { planId } = useParams();
+  const {
+    planId
+  } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(false);
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
-  
   const [formData, setFormData] = useState<SignupFormData>({
     name: "",
     phone: "",
@@ -85,12 +81,11 @@ export default function SignupFunnel() {
     confirmPassword: "",
     acceptTerms: false
   });
-  
   const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [testNumber, setTestNumber] = useState<number | null>(null);
-  
+
   // Gradient customization state
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingGradient, setEditingGradient] = useState(false);
@@ -104,10 +99,9 @@ export default function SignupFunnel() {
     text_color_light: '#000000',
     text_color_dark: '#ffffff',
     heading_color_light: '#000000',
-    heading_color_dark: '#ffffff',
+    heading_color_dark: '#ffffff'
   });
   const [previewConfig, setPreviewConfig] = useState<GradientConfig | null>(null);
-
   useEffect(() => {
     if (planId) {
       fetchPlan();
@@ -122,37 +116,32 @@ export default function SignupFunnel() {
   // Fetch gradient config and check admin status
   useEffect(() => {
     const fetchGradientConfig = async () => {
-      const { data } = await supabase
-        .from('landing_block_gradients' as any)
-        .select('*')
-        .eq('block_name', 'signup_funnel')
-        .single();
-      
+      const {
+        data
+      } = await supabase.from('landing_block_gradients' as any).select('*').eq('block_name', 'signup_funnel').single();
       if (data) {
         setGradientConfig(data as unknown as GradientConfig);
       }
     };
-
     const checkAdminRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (user) {
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
-        
-        if (roles?.some(r => (r.role as string) === 'super_admin' || (r.role as string) === 'admin')) {
+        const {
+          data: roles
+        } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+        if (roles?.some(r => r.role as string === 'super_admin' || r.role as string === 'admin')) {
           setIsAdmin(true);
         }
       }
     };
-
     fetchGradientConfig();
     checkAdminRole();
   }, []);
-
   const isDarkMode = () => document.documentElement.classList.contains('dark');
-
   const getGradientStyle = (config: GradientConfig) => {
     const hexToRgba = (hex: string, alpha: number) => {
       const r = parseInt(hex.slice(1, 3), 16);
@@ -160,34 +149,26 @@ export default function SignupFunnel() {
       const b = parseInt(hex.slice(5, 7), 16);
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     };
-
     const startAlpha = config.intensity_start / 100;
     const endAlpha = config.intensity_end / 100;
-
     return {
-      background: `linear-gradient(to bottom, ${hexToRgba(config.color_start, startAlpha)} ${config.gradient_start_position}%, ${hexToRgba(config.color_end, endAlpha)} 100%)`,
+      background: `linear-gradient(to bottom, ${hexToRgba(config.color_start, startAlpha)} ${config.gradient_start_position}%, ${hexToRgba(config.color_end, endAlpha)} 100%)`
     };
   };
-
   const getTextColor = (config: GradientConfig) => {
     return isDarkMode() ? config.text_color_dark || '#ffffff' : config.text_color_light || '#000000';
   };
-
   const getHeadingColor = (config: GradientConfig) => {
     return isDarkMode() ? config.heading_color_dark || '#ffffff' : config.heading_color_light || '#000000';
   };
-
   const activeConfig = previewConfig || gradientConfig;
-
   const fetchTestNumber = async () => {
     try {
-      const { data, error } = await supabase
-        .from('test_users_counter')
-        .select('last_number')
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('test_users_counter').select('last_number').single();
       if (error) throw error;
-
       const nextNumber = (data?.last_number || 26) + 1;
       setTestNumber(nextNumber);
 
@@ -204,14 +185,11 @@ export default function SignupFunnel() {
       console.error('Erro ao buscar número de teste:', error);
     }
   };
-
   const fetchPlan = async () => {
-    const { data, error } = await supabase
-      .from("plans")
-      .select("id, name, price, billing_period")
-      .eq("id", planId)
-      .single();
-
+    const {
+      data,
+      error
+    } = await supabase.from("plans").select("id, name, price, billing_period").eq("id", planId).single();
     if (error || !data) {
       toast({
         title: "Erro ao carregar plano",
@@ -221,7 +199,6 @@ export default function SignupFunnel() {
       navigate("/");
       return;
     }
-
     setPlan(data);
 
     // Fetch debug info in development mode or if dev mode is active
@@ -230,40 +207,27 @@ export default function SignupFunnel() {
       await fetchDebugInfo(planId!);
     }
   };
-
   const fetchDebugInfo = async (planId: string) => {
     try {
       // 1. Buscar modo do ambiente
-      const { data: settingData } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "environment_mode")
-        .maybeSingle();
-
+      const {
+        data: settingData
+      } = await supabase.from("app_settings").select("value").eq("key", "environment_mode").maybeSingle();
       const environmentMode = settingData?.value || "test";
 
       // 2. Buscar integração do plano filtrando por environment_type
-      const { data: integrationData } = await supabase
-        .from("plan_integrations")
-        .select("*")
-        .eq("plan_id", planId)
-        .eq("environment_type", environmentMode)
-        .eq("is_active", true)
-        .maybeSingle();
-
+      const {
+        data: integrationData
+      } = await supabase.from("plan_integrations").select("*").eq("plan_id", planId).eq("environment_type", environmentMode).eq("is_active", true).maybeSingle();
       let accountData = null;
 
       // 3. Se encontrou integração, buscar dados da conta usando o account_id
       if (integrationData?.account_id) {
-        const { data: accountResult } = await supabase
-          .from("accounts")
-          .select("*")
-          .eq("id", integrationData.account_id)
-          .maybeSingle();
-
+        const {
+          data: accountResult
+        } = await supabase.from("accounts").select("*").eq("id", integrationData.account_id).maybeSingle();
         accountData = accountResult;
       }
-
       setDebugInfo({
         environmentMode,
         planId,
@@ -278,13 +242,12 @@ export default function SignupFunnel() {
         cancelUrl: accountData?.cancel_url || null,
         returnUrl: accountData?.return_url || null,
         stripeProductId: integrationData?.stripe_product_id || null,
-        stripePriceId: integrationData?.stripe_price_id || null,
+        stripePriceId: integrationData?.stripe_price_id || null
       });
     } catch (error) {
       console.error("Error fetching debug info:", error);
     }
   };
-
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, '');
     if (numbers.length <= 2) return numbers;
@@ -292,19 +255,24 @@ export default function SignupFunnel() {
     if (numbers.length <= 10) return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
   };
-
   const handlePhoneChange = (value: string) => {
     const formatted = formatPhone(value);
-    setFormData(prev => ({ ...prev, phone: formatted }));
+    setFormData(prev => ({
+      ...prev,
+      phone: formatted
+    }));
   };
-
   const checkEmailExists = async (email: string): Promise<boolean> => {
     setCheckingEmail(true);
     try {
-      const { data, error } = await supabase.functions.invoke('check-email-exists', {
-        body: { email }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('check-email-exists', {
+        body: {
+          email
+        }
       });
-
       if (error) throw error;
       return data.exists;
     } catch (error) {
@@ -319,10 +287,8 @@ export default function SignupFunnel() {
       setCheckingEmail(false);
     }
   };
-
   const validateStep = async (step: number): Promise<boolean> => {
     const newErrors: Partial<Record<keyof SignupFormData, string>> = {};
-
     if (step === 1) {
       if (!formData.name || formData.name.trim().length < 2) {
         newErrors.name = "Nome deve ter no mínimo 2 caracteres";
@@ -330,13 +296,11 @@ export default function SignupFunnel() {
         newErrors.name = "Nome muito longo";
       }
     }
-
     if (step === 2) {
       if (!formData.phone.match(/^\(\d{2}\) \d{4,5}-\d{4}$/)) {
         newErrors.phone = "Telefone inválido";
       }
     }
-
     if (step === 3) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!formData.email || !emailRegex.test(formData.email)) {
@@ -350,27 +314,22 @@ export default function SignupFunnel() {
         }
       }
     }
-
     if (step === 4) {
       if (!formData.password || formData.password.length < 6) {
         newErrors.password = "Senha deve ter no mínimo 6 caracteres";
       } else if (formData.password.length > 128) {
         newErrors.password = "Senha muito longa";
       }
-
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "As senhas não conferem";
       }
-
       if (!formData.acceptTerms) {
         newErrors.acceptTerms = "Você deve aceitar os termos";
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleContinue = async () => {
     const isValid = await validateStep(currentStep);
     if (isValid && currentStep < 5) {
@@ -378,30 +337,29 @@ export default function SignupFunnel() {
       setErrors({});
     }
   };
-
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
       setErrors({});
     }
   };
-
   const handleEdit = () => {
     setCurrentStep(1);
   };
-
   const handleConfirm = async () => {
     setLoading(true);
-    
     try {
       // Incrementar contador de teste em modo debug ou desenvolvedor
       const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
       if (isDevMode && testNumber) {
         await supabase.rpc('get_next_test_number');
       }
-      
+
       // Criar usuário no Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const {
+        data: authData,
+        error: authError
+      } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -412,9 +370,7 @@ export default function SignupFunnel() {
           emailRedirectTo: `${window.location.origin}/`
         }
       });
-
       if (authError) throw authError;
-
       if (!authData.user) {
         throw new Error("Erro ao criar usuário");
       }
@@ -428,11 +384,13 @@ export default function SignupFunnel() {
         affiliate_id: searchParams.get('affiliate_id') || '',
         affiliate_coupon_id: searchParams.get('affiliate_coupon_id') || ''
       } : null;
-
       console.log('[SignupFunnel] Coupon data from URL:', couponData);
 
       // Criar sessão de checkout Stripe
-      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-stripe-checkout', {
+      const {
+        data: checkoutData,
+        error: checkoutError
+      } = await supabase.functions.invoke('create-stripe-checkout', {
         body: {
           plan_id: planId,
           user_email: formData.email,
@@ -441,28 +399,25 @@ export default function SignupFunnel() {
           coupon: couponData
         }
       });
-
       if (checkoutError) throw checkoutError;
-
       if (checkoutData?.checkout_url) {
         console.log('[SignupFunnel] Redirecting to Stripe:', checkoutData.checkout_url);
         console.log('[SignupFunnel] User authenticated:', authData.user.id);
-        
-        // Salvar checkout pendente na tabela
-        const { error: insertError } = await supabase
-          .from("pending_checkouts")
-          .insert({
-            user_id: authData.user.id,
-            plan_id: planId,
-            checkout_url: checkoutData.checkout_url,
-            stripe_session_id: checkoutData.session_id,
-            status: "pending",
-          });
 
+        // Salvar checkout pendente na tabela
+        const {
+          error: insertError
+        } = await supabase.from("pending_checkouts").insert({
+          user_id: authData.user.id,
+          plan_id: planId,
+          checkout_url: checkoutData.checkout_url,
+          stripe_session_id: checkoutData.session_id,
+          status: "pending"
+        });
         if (insertError) {
           console.error("Erro ao salvar checkout pendente:", insertError);
         }
-        
+
         // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
         // No editor da Lovable, abrir em nova aba. Quando publicado, redirecionar na mesma aba
         if (import.meta.env.DEV) {
@@ -473,7 +428,6 @@ export default function SignupFunnel() {
       } else {
         throw new Error("URL de checkout não retornada");
       }
-
     } catch (error: any) {
       console.error('Error during signup:', error);
       toast({
@@ -485,75 +439,55 @@ export default function SignupFunnel() {
       setLoading(false);
     }
   };
-
-  const renderProgressBar = () => (
-    <div className="mb-8">
+  const renderProgressBar = () => <div className="mb-8">
       <div className="flex justify-center items-center gap-2 mb-2">
-        {[1, 2, 3, 4].map((step) => (
-          <div key={step} className="flex items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
-              currentStep >= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}>
+        {[1, 2, 3, 4].map(step => <div key={step} className="flex items-center">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${currentStep >= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
               {currentStep > step ? <Check className="w-5 h-5" /> : step}
             </div>
-            {step < 4 && (
-              <div className={`w-12 h-1 mx-2 transition-colors ${
-                currentStep > step ? 'bg-primary' : 'bg-muted'
-              }`} />
-            )}
-          </div>
-        ))}
+            {step < 4 && <div className={`w-12 h-1 mx-2 transition-colors ${currentStep > step ? 'bg-primary' : 'bg-muted'}`} />}
+          </div>)}
       </div>
-      <div className="text-center text-sm text-muted-foreground mt-2">
-        Etapa {currentStep} de 4
-      </div>
-    </div>
-  );
-
+      
+    </div>;
   if (!plan) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
   const isDevModeActive = localStorage.getItem('devMode') === 'true';
-
   const handleDisableDevMode = () => {
     localStorage.removeItem('devMode');
     toast({
       title: "🔧 Modo Desenvolvedor Desativado",
       description: "Voltando ao modo normal",
-      duration: 3000,
+      duration: 3000
     });
     // Recarregar a página para limpar os dados preenchidos
     window.location.reload();
   };
-
-  return (
-    <div className="min-h-screen py-12 px-4" style={getGradientStyle(activeConfig)}>
+  return <div className="min-h-screen py-12 px-4" style={getGradientStyle(activeConfig)}>
       <div className="container max-w-2xl mx-auto">
         <div className="flex justify-center mb-6">
-          <img 
-            src={isDarkMode() ? logoBranco : logoVerde} 
-            alt="APP Renda Recorrente" 
-            className="h-16 object-contain"
-          />
+          <img src={isDarkMode() ? logoBranco : logoVerde} alt="APP Renda Recorrente" className="h-16 object-contain" />
         </div>
         
         {renderProgressBar()}
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl" style={{ color: getHeadingColor(activeConfig) }}>
+            <CardTitle className="text-2xl" style={{
+            color: getHeadingColor(activeConfig)
+          }}>
               {currentStep === 1 && "Qual é o seu nome?"}
               {currentStep === 2 && "Qual é o seu telefone?"}
               {currentStep === 3 && "Qual é o seu email?"}
               {currentStep === 4 && "Crie sua senha"}
               {currentStep === 5 && "Confirme seus dados"}
             </CardTitle>
-            <CardDescription style={{ color: getTextColor(activeConfig) }}>
+            <CardDescription style={{
+            color: getTextColor(activeConfig)
+          }}>
               {currentStep === 1 && "Digite seu nome completo para começar"}
               {currentStep === 2 && "Informe seu telefone para contato"}
               {currentStep === 3 && "Digite o email que você usará para acessar"}
@@ -563,78 +497,39 @@ export default function SignupFunnel() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {currentStep === 1 && (
-              <div className="space-y-2">
+            {currentStep === 1 && <div className="space-y-2">
                 <Label htmlFor="name">Nome Completo</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Digite seu nome completo"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                  className={errors.name ? "border-destructive" : ""}
-                  autoFocus
-                />
+                <Input id="name" type="text" placeholder="Digite seu nome completo" value={formData.name} onChange={e => setFormData(prev => ({
+              ...prev,
+              name: e.target.value
+            }))} onKeyDown={e => e.key === 'Enter' && handleContinue()} className={errors.name ? "border-destructive" : ""} autoFocus />
                 {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-              </div>
-            )}
+              </div>}
 
-            {currentStep === 2 && (
-              <div className="space-y-2">
+            {currentStep === 2 && <div className="space-y-2">
                 <Label htmlFor="phone">Telefone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="(00) 00000-0000"
-                  value={formData.phone}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                  className={errors.phone ? "border-destructive" : ""}
-                  autoFocus
-                />
+                <Input id="phone" type="tel" placeholder="(00) 00000-0000" value={formData.phone} onChange={e => handlePhoneChange(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleContinue()} className={errors.phone ? "border-destructive" : ""} autoFocus />
                 {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-              </div>
-            )}
+              </div>}
 
-            {currentStep === 3 && (
-              <div className="space-y-2">
+            {currentStep === 3 && <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                  className={errors.email ? "border-destructive" : ""}
-                  autoFocus
-                  disabled={checkingEmail}
-                />
+                <Input id="email" type="email" placeholder="seu@email.com" value={formData.email} onChange={e => setFormData(prev => ({
+              ...prev,
+              email: e.target.value
+            }))} onKeyDown={e => e.key === 'Enter' && handleContinue()} className={errors.email ? "border-destructive" : ""} autoFocus disabled={checkingEmail} />
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-              </div>
-            )}
+              </div>}
 
-            {currentStep === 4 && (
-              <div className="space-y-4">
+            {currentStep === 4 && <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="password">Senha</Label>
                   <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Mínimo 6 caracteres"
-                      value={formData.password}
-                      onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                      className={errors.password ? "border-destructive pr-10" : "pr-10"}
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <Input id="password" type={showPassword ? "text" : "password"} placeholder="Mínimo 6 caracteres" value={formData.password} onChange={e => setFormData(prev => ({
+                  ...prev,
+                  password: e.target.value
+                }))} onKeyDown={e => e.key === 'Enter' && handleContinue()} className={errors.password ? "border-destructive pr-10" : "pr-10"} autoFocus />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
@@ -644,20 +539,11 @@ export default function SignupFunnel() {
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirmar Senha</Label>
                   <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Digite a senha novamente"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                      className={errors.confirmPassword ? "border-destructive pr-10" : "pr-10"}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <Input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} placeholder="Digite a senha novamente" value={formData.confirmPassword} onChange={e => setFormData(prev => ({
+                  ...prev,
+                  confirmPassword: e.target.value
+                }))} onKeyDown={e => e.key === 'Enter' && handleContinue()} className={errors.confirmPassword ? "border-destructive pr-10" : "pr-10"} />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
@@ -665,11 +551,10 @@ export default function SignupFunnel() {
                 </div>
 
                 <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="terms"
-                    checked={formData.acceptTerms}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, acceptTerms: checked as boolean }))}
-                  />
+                  <Checkbox id="terms" checked={formData.acceptTerms} onCheckedChange={checked => setFormData(prev => ({
+                ...prev,
+                acceptTerms: checked as boolean
+              }))} />
                   <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
                     Aceito os{" "}
                     <a href="/termos" target="_blank" className="text-primary hover:underline">
@@ -682,11 +567,9 @@ export default function SignupFunnel() {
                   </Label>
                 </div>
                 {errors.acceptTerms && <p className="text-sm text-destructive">{errors.acceptTerms}</p>}
-              </div>
-            )}
+              </div>}
 
-            {currentStep === 5 && (
-              <div className="space-y-4">
+            {currentStep === 5 && <div className="space-y-4">
                 <div className="bg-muted p-4 rounded-lg space-y-3">
                   <div>
                     <p className="text-sm text-muted-foreground">Nome</p>
@@ -710,8 +593,7 @@ export default function SignupFunnel() {
                 </div>
 
                 {/* Debug Info - Only in Development */}
-                {import.meta.env.DEV && debugInfo && (
-                  <div className="bg-yellow-50 dark:bg-yellow-950 border-2 border-yellow-500 p-4 rounded-lg space-y-2">
+                {import.meta.env.DEV && debugInfo && <div className="bg-yellow-50 dark:bg-yellow-950 border-2 border-yellow-500 p-4 rounded-lg space-y-2">
                     <h3 className="font-bold text-yellow-900 dark:text-yellow-100 text-sm mb-3">
                       🔧 DEBUG - Informações do Checkout Stripe
                     </h3>
@@ -764,149 +646,83 @@ export default function SignupFunnel() {
                         <span className="font-semibold">Stripe Price ID:</span> 
                         <span className="ml-2 font-mono text-[10px]">{debugInfo.stripePriceId || "❌ NÃO CONFIGURADO"}</span>
                       </div>
-                      {debugInfo.integrationData && (
-                        <details className="bg-white dark:bg-gray-900 p-2 rounded">
+                      {debugInfo.integrationData && <details className="bg-white dark:bg-gray-900 p-2 rounded">
                           <summary className="font-semibold cursor-pointer">Dados Completos (JSON)</summary>
                           <pre className="text-[9px] mt-2 overflow-auto max-h-40 bg-gray-100 dark:bg-gray-800 p-2 rounded">
                             {JSON.stringify(debugInfo.integrationData, null, 2)}
                           </pre>
-                        </details>
-                      )}
+                        </details>}
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  </div>}
+              </div>}
           </CardContent>
 
           <CardFooter className="flex justify-between">
-            {currentStep === 1 && (
-              <Button variant="outline" onClick={() => navigate("/")}>
+            {currentStep === 1 && <Button variant="outline" onClick={() => navigate("/")}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar
-              </Button>
-            )}
-            {currentStep > 1 && currentStep < 5 && (
-              <Button variant="outline" onClick={handleBack}>
+              </Button>}
+            {currentStep > 1 && currentStep < 5 && <Button variant="outline" onClick={handleBack}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Voltar
-              </Button>
-            )}
+              </Button>}
             
-            {currentStep === 5 && (
-              <Button variant="outline" onClick={handleEdit}>
+            {currentStep === 5 && <Button variant="outline" onClick={handleEdit}>
                 Editar
-              </Button>
-            )}
+              </Button>}
 
-            {currentStep < 4 && (
-              <Button 
-                onClick={handleContinue} 
-                className="ml-auto"
-                disabled={checkingEmail}
-              >
-                {checkingEmail ? (
-                  <>
+            {currentStep < 4 && <Button onClick={handleContinue} className="ml-auto" disabled={checkingEmail}>
+                {checkingEmail ? <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Verificando...
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     Continuar
                     <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            )}
+                  </>}
+              </Button>}
 
-            {currentStep === 4 && (
-              <Button 
-                onClick={handleContinue}
-                className="ml-auto"
-              >
+            {currentStep === 4 && <Button onClick={handleContinue} className="ml-auto">
                 Revisar Dados
                 <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
+              </Button>}
 
-            {currentStep === 5 && (
-              <Button 
-                onClick={handleConfirm}
-                disabled={loading}
-                className="ml-auto"
-              >
-                {loading ? (
-                  <>
+            {currentStep === 5 && <Button onClick={handleConfirm} disabled={loading} className="ml-auto">
+                {loading ? <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Processando...
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     Confirmar e Pagar
                     <Check className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            )}
+                  </>}
+              </Button>}
           </CardFooter>
         </Card>
 
         <div className="flex justify-center gap-4 mt-8">
-          {isAdmin && (
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setEditingGradient(true)}
-              title="Personalizar"
-              className="h-8 w-8 opacity-50 hover:opacity-100"
-            >
+          {isAdmin && <Button variant="ghost" size="icon" onClick={() => setEditingGradient(true)} title="Personalizar" className="h-8 w-8 opacity-50 hover:opacity-100">
               <Palette className="w-4 h-4" />
-            </Button>
-          )}
+            </Button>}
 
-          {isDevModeActive && (
-            <>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => {
-                  document.documentElement.classList.toggle('dark');
-                }}
-                title={isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}
-                className="h-8 w-8 opacity-50 hover:opacity-100"
-              >
+          {isDevModeActive && <>
+              <Button variant="ghost" size="icon" onClick={() => {
+            document.documentElement.classList.toggle('dark');
+          }} title={isDarkMode() ? 'Modo Claro' : 'Modo Escuro'} className="h-8 w-8 opacity-50 hover:opacity-100">
                 {isDarkMode() ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleDisableDevMode}
-                title="Desativar Modo Dev"
-                className="h-8 w-8 opacity-50 hover:opacity-100 text-destructive"
-              >
+              <Button variant="ghost" size="icon" onClick={handleDisableDevMode} title="Desativar Modo Dev" className="h-8 w-8 opacity-50 hover:opacity-100 text-destructive">
                 <Power className="w-4 h-4" />
               </Button>
-            </>
-          )}
+            </>}
         </div>
       </div>
 
-      {editingGradient && (
-        <GradientEditor
-          blockName="signup_funnel"
-          config={activeConfig}
-          onSave={(newConfig) => {
-            setGradientConfig(newConfig);
-            setPreviewConfig(null);
-            setEditingGradient(false);
-          }}
-          onClose={() => {
-            setPreviewConfig(null);
-            setEditingGradient(false);
-          }}
-          onPreview={(config) => setPreviewConfig(config)}
-        />
-      )}
-    </div>
-  );
+      {editingGradient && <GradientEditor blockName="signup_funnel" config={activeConfig} onSave={newConfig => {
+      setGradientConfig(newConfig);
+      setPreviewConfig(null);
+      setEditingGradient(false);
+    }} onClose={() => {
+      setPreviewConfig(null);
+      setEditingGradient(false);
+    }} onPreview={config => setPreviewConfig(config)} />}
+    </div>;
 }
