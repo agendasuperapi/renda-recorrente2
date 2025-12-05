@@ -532,18 +532,8 @@ export default function SignupFunnel() {
   return (
     <div className="min-h-screen py-12 px-4" style={getGradientStyle(activeConfig)}>
       <div className="container max-w-2xl mx-auto">
-        <div className="flex justify-end gap-2 mb-4">
-          {isAdmin && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setEditingGradient(true)}
-            >
-              <Palette className="w-4 h-4 mr-2" />
-              Personalizar
-            </Button>
-          )}
-          {isDevModeActive && (
+        {isDevModeActive && (
+          <div className="flex justify-end mb-4">
             <Button 
               variant="destructive" 
               size="sm"
@@ -551,8 +541,8 @@ export default function SignupFunnel() {
             >
               🔧 Desativar Modo Dev
             </Button>
-          )}
-        </div>
+          </div>
+        )}
         
         {renderProgressBar()}
 
@@ -862,6 +852,19 @@ export default function SignupFunnel() {
             )}
           </CardFooter>
         </Card>
+
+        {isAdmin && (
+          <div className="flex justify-center mt-8">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setEditingGradient(true)}
+            >
+              <Palette className="w-4 h-4 mr-2" />
+              Personalizar
+            </Button>
+          </div>
+        )}
       </div>
 
       {editingGradient && (
