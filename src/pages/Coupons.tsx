@@ -702,10 +702,27 @@ const Coupons = () => {
                       <Alert className="mb-3 border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle className="text-white text-sm font-semibold">Cupons bloqueados</AlertTitle>
-                        <AlertDescription className="text-white/90 text-xs">
-                          Para liberar cupons deste produto você precisa:
-                          {!isProPlan && <span className="block">• Ter o plano PRO</span>}
-                          {!hasEnoughSales && <span className="block">• Ter no mínimo {minSalesRequired} vendas de outros produtos (faltam {salesNeeded})</span>}
+                        <AlertDescription className="text-white/90 text-sm">
+                          <p className="mb-3">Para liberar cupons deste produto e ter sub-afiliados, você precisa:</p>
+                          <div className="space-y-2">
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isProPlan ? 'border-green-500/40' : 'border-white/10'}`}>
+                              <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                                {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              </span>
+                              <span className="flex-1">Ter o plano PRO</span>
+                              {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+                            </div>
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${hasEnoughSales ? 'border-green-500/40' : 'border-white/10'}`}>
+                              <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                                {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              </span>
+                              <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
+                              {hasEnoughSales 
+                                ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
+                                : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
+                              }
+                            </div>
+                          </div>
                         </AlertDescription>
                       </Alert>
                     )}
