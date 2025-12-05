@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList, Share2, AlertTriangle, Pencil } from "lucide-react";
+import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList, Share2, AlertTriangle, Pencil, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -852,9 +852,26 @@ const Coupons = () => {
                           <AlertTriangle className="h-4 w-4" />
                           <AlertTitle className="text-white font-semibold">Cupons bloqueados</AlertTitle>
                           <AlertDescription className="text-white/90">
-                            Para liberar cupons deste produto e ter sub-afiliados, você precisa:
-                            {!isProPlan && <span className="block">• Ter o plano PRO</span>}
-                            {!hasEnoughSales && <span className="block">• Ter no mínimo {minSalesRequired} vendas de outros produtos (faltam {salesNeeded})</span>}
+                            <p className="mb-3">Para liberar cupons deste produto e ter sub-afiliados, você precisa:</p>
+                            <div className="space-y-2">
+                              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${isProPlan ? 'bg-green-500/30' : 'bg-white/10'}`}>
+                                <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                                  {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                </span>
+                                <span className="flex-1">Ter o plano PRO</span>
+                                {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+                              </div>
+                              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${hasEnoughSales ? 'bg-green-500/30' : 'bg-white/10'}`}>
+                                <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                                  {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                                </span>
+                                <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
+                                {hasEnoughSales 
+                                  ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
+                                  : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
+                                }
+                              </div>
+                            </div>
                           </AlertDescription>
                         </Alert>
                       )}
