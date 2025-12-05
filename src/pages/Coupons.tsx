@@ -285,6 +285,30 @@ const Coupons = () => {
   // ID do produto App Renda Recorrente
   const RENDA_PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
+  // Fetch affiliate's current subscription/plan
+  const { data: affiliateSubscription } = useQuery({
+    queryKey: ["affiliate-subscription", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("plan_id, status, plans(name, is_free)")
+        .eq("user_id", userId)
+        .in("status", ["active", "trialing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        console.error("Error fetching subscription:", error);
+        return null;
+      }
+      return data;
+    },
+    enabled: !!userId
+  });
+
+  const isProPlan = affiliateSubscription?.plans?.name?.toUpperCase() === "PRO";
+
   // Fetch minimum sales setting for Renda product
   const { data: minSalesSetting } = useQuery({
     queryKey: ["min-sales-renda-setting"],
@@ -325,6 +349,7 @@ const Coupons = () => {
   const minSalesRequired = parseInt(minSalesSetting?.value || "10", 10);
   const hasEnoughSales = (otherProductsSalesCount || 0) >= minSalesRequired;
   const salesNeeded = minSalesRequired - (otherProductsSalesCount || 0);
+  const canUnlockRendaCoupons = isProPlan && hasEnoughSales;
 
   // Activate coupon mutation
   const activateCoupon = useMutation({
@@ -456,11 +481,15 @@ const Coupons = () => {
   const handleActivateCoupon = (couponId: string, couponCode: string, isPrimary: boolean, productId: string) => {
     console.log('handleActivateCoupon called with:', { couponId, couponCode, isPrimary, productId });
     
-    // Verificar se é o produto Renda e se o afiliado tem vendas suficientes
-    if (productId === RENDA_PRODUCT_ID && !hasEnoughSales) {
+    // Verificar se é o produto Renda e se o afiliado tem os requisitos
+    if (productId === RENDA_PRODUCT_ID && !canUnlockRendaCoupons) {
+      const requirements: string[] = [];
+      if (!isProPlan) requirements.push("ter o plano PRO");
+      if (!hasEnoughSales) requirements.push(`ter no mínimo ${minSalesRequired} vendas de outros produtos (faltam ${salesNeeded})`);
+      
       toast({
         title: "Cupons bloqueados",
-        description: `Você precisa ter no mínimo ${minSalesRequired} vendas de outros produtos para liberar cupons do App Renda Recorrente. Faltam ${salesNeeded} venda${salesNeeded !== 1 ? 's' : ''}.`,
+        description: `Para liberar cupons do App Renda Recorrente você precisa: ${requirements.join(" e ")}.`,
         variant: "destructive"
       });
       return;
@@ -669,13 +698,14 @@ const Coupons = () => {
                       </Badge>
                     </div>
                     {/* Aviso para App Renda Recorrente */}
-                    {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !hasEnoughSales && (
+                    {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !canUnlockRendaCoupons && (
                       <Alert className="mb-3 border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle className="text-white text-sm font-semibold">Cupons bloqueados</AlertTitle>
                         <AlertDescription className="text-white/90 text-xs">
-                          Para liberar cupons deste produto você precisa ter no mínimo {minSalesRequired} vendas de outros produtos. 
-                          Faltam {salesNeeded} venda{salesNeeded !== 1 ? 's' : ''}.
+                          Para liberar cupons deste produto você precisa:
+                          {!isProPlan && <span className="block">• Ter o plano PRO</span>}
+                          {!hasEnoughSales && <span className="block">• Ter no mínimo {minSalesRequired} vendas de outros produtos (faltam {salesNeeded})</span>}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -817,13 +847,14 @@ const Coupons = () => {
                         </Badge>
                       </div>
                       {/* Aviso para App Renda Recorrente */}
-                      {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !hasEnoughSales && (
+                      {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !canUnlockRendaCoupons && (
                         <Alert className="mb-4 border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
                           <AlertTriangle className="h-4 w-4" />
                           <AlertTitle className="text-white font-semibold">Cupons bloqueados</AlertTitle>
                           <AlertDescription className="text-white/90">
-                            Para liberar cupons deste produto e ter sub-afiliados, você precisa ter no mínimo {minSalesRequired} vendas de outros produtos. 
-                            Faltam {salesNeeded} venda{salesNeeded !== 1 ? 's' : ''}.
+                            Para liberar cupons deste produto e ter sub-afiliados, você precisa:
+                            {!isProPlan && <span className="block">• Ter o plano PRO</span>}
+                            {!hasEnoughSales && <span className="block">• Ter no mínimo {minSalesRequired} vendas de outros produtos (faltam {salesNeeded})</span>}
                           </AlertDescription>
                         </Alert>
                       )}
