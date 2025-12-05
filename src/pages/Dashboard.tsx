@@ -504,65 +504,69 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-emerald-100/70 dark:bg-emerald-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2 space-y-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Comissão do dia
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-emerald-200/80 dark:bg-emerald-800/50">
-                  <TrendingUp className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/50 z-10">
+                  <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-xl sm:text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+                <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {formatCurrency(stats?.comissao_hoje || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-sky-100/70 dark:bg-sky-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-sky-200/60 dark:bg-sky-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-sky-700 dark:text-sky-400">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão últimos 7 dias
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-sky-200/80 dark:bg-sky-800/50">
-                  <DollarSign className="h-4 w-4 text-sky-700 dark:text-sky-400" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-sky-100 dark:bg-sky-900/50 z-10">
+                  <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-sky-700 dark:text-sky-400">
+                <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
                   {formatCurrency(stats?.comissao_7_dias || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-violet-100/70 dark:bg-violet-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-violet-200/60 dark:bg-violet-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-violet-700 dark:text-violet-400">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão do mês
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-violet-200/80 dark:bg-violet-800/50">
-                  <DollarSign className="h-4 w-4 text-violet-700 dark:text-violet-400" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-violet-100 dark:bg-violet-900/50 z-10">
+                  <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-violet-700 dark:text-violet-400">
+                <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">
                   {formatCurrency(stats?.comissao_mes || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-amber-100/70 dark:bg-amber-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão disponível para saque
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-amber-200/80 dark:bg-amber-800/50">
-                  <Wallet className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-amber-100 dark:bg-amber-900/50 z-10">
+                  <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                   {formatCurrency(stats?.comissao_disponivel || 0)}
                 </div>
               </CardContent>
@@ -570,46 +574,49 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-rose-100/70 dark:bg-rose-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-rose-200/60 dark:bg-rose-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-rose-700 dark:text-rose-400">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Comissão pendente
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-rose-200/80 dark:bg-rose-800/50">
-                  <DollarSign className="h-4 w-4 text-rose-700 dark:text-rose-400" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-rose-100 dark:bg-rose-900/50 z-10">
+                  <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-rose-700 dark:text-rose-400">
+                <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
                   {formatCurrency(stats?.comissao_pendente || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-teal-100/70 dark:bg-teal-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-teal-200/60 dark:bg-teal-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-teal-700 dark:text-teal-400">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total já sacado
                 </CardTitle>
-                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-teal-200/80 dark:bg-teal-800/50">
-                  <Coins className="h-4 w-4 text-teal-700 dark:text-teal-400" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center bg-teal-100 dark:bg-teal-900/50 z-10">
+                  <Coins className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-teal-700 dark:text-teal-400">
+                <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
                   {formatCurrency(stats?.total_sacado || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-blue-100/70 dark:bg-blue-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-blue-200/60 dark:bg-blue-800/40" />
               <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   Seu dia de solicitar saque
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-lg font-medium text-blue-700 dark:text-blue-400">
+                <div className="text-lg font-medium text-blue-600 dark:text-blue-400">
                   SEGUNDA-FEIRA, 24 DE NOVEMBRO
                 </div>
               </CardContent>
@@ -617,27 +624,29 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-purple-100/70 dark:bg-purple-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-purple-200/60 dark:bg-purple-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-purple-700 dark:text-purple-400">Quant. de Indicações</CardTitle>
-                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-purple-200/80 dark:bg-purple-800/50">
-                  <Users className="h-5 w-5 text-purple-700 dark:text-purple-400" />
+                <CardTitle className="text-muted-foreground">Quant. de Indicações</CardTitle>
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-purple-100 dark:bg-purple-900/50 z-10">
+                  <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-4xl font-bold text-purple-700 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
+                <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 border-0 bg-pink-100/70 dark:bg-pink-900/30">
+            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-pink-200/60 dark:bg-pink-800/40" />
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-pink-700 dark:text-pink-400">Quant. de Sub-Afiliados</CardTitle>
-                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-pink-200/80 dark:bg-pink-800/50">
-                  <Users className="h-5 w-5 text-pink-700 dark:text-pink-400" />
+                <CardTitle className="text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-pink-100 dark:bg-pink-900/50 z-10">
+                  <Users className="h-5 w-5 text-pink-600 dark:text-pink-400" />
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-4xl font-bold text-pink-700 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
+                <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
               </CardContent>
             </Card>
           </div>
