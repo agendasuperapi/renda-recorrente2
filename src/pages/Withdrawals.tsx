@@ -225,7 +225,7 @@ const Withdrawals = () => {
     if (!hasMinimumAmount) {
       toast({
         title: "Saldo insuficiente",
-        description: `Saldo mínimo de R$ ${settings?.minWithdrawal.toFixed(2)} necessário para solicitar saque. Seu saldo atual é R$ ${commissionsData?.available.toFixed(2)}.`,
+        description: `Saldo mínimo de R$ ${settings?.minWithdrawal.toFixed(2)} necessário para solicitar saque. Seu saldo atual é R$ ${commissionsData?.available?.toFixed(2) || '0,00'}.`,
         variant: "destructive"
       });
       return;
