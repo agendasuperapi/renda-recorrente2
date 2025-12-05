@@ -189,6 +189,7 @@ export const Sidebar = ({
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showAvatarCropDialog, setShowAvatarCropDialog] = useState(false);
+  const [showAvatarPreview, setShowAvatarPreview] = useState(false);
   const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { checkVersion, ...versionInfo } = useVersionCheck();
@@ -853,24 +854,31 @@ export const Sidebar = ({
                 
                 <div className="overflow-y-auto px-4 pb-8 pt-4">
                   <div className="flex flex-col items-center gap-6">
-                    {/* Avatar Grande - Clicável */}
-                    <div 
-                      className="relative cursor-pointer group"
-                      onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-                    >
-                      <Avatar className="!w-[120px] !h-[120px] transition-opacity group-hover:opacity-80">
-                        {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
-                        <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
-                          {getInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                        {uploadingAvatar ? (
-                          <Loader2 className="h-8 w-8 text-white animate-spin" />
-                        ) : (
-                          <Camera className="h-8 w-8 text-white" />
-                        )}
+                    {/* Avatar Grande - Clicável para ampliar */}
+                    <div className="relative">
+                      <div 
+                        className="cursor-pointer"
+                        onClick={() => avatarUrl && setShowAvatarPreview(true)}
+                      >
+                        <Avatar className="!w-[180px] !h-[180px] transition-opacity hover:opacity-90">
+                          {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
+                          <AvatarFallback className="!text-5xl bg-primary text-primary-foreground">
+                            {getInitials()}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
+                      <button
+                        type="button"
+                        className="absolute bottom-2 right-2 p-2.5 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+                        onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                        disabled={uploadingAvatar}
+                      >
+                        {uploadingAvatar ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Camera className="h-5 w-5" />
+                        )}
+                      </button>
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -879,7 +887,9 @@ export const Sidebar = ({
                         onChange={handleAvatarSelect}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">Clique na foto para alterar</p>
+                    <p className="text-xs text-muted-foreground">
+                      {avatarUrl ? "Clique na foto para ampliar" : "Clique no ícone para adicionar foto"}
+                    </p>
                     
                     {/* Card de Plano em Destaque */}
                     {userPlan && (
@@ -961,24 +971,31 @@ export const Sidebar = ({
                 </DialogHeader>
                 
                 <div className="flex flex-col items-center gap-6 py-4">
-                  {/* Avatar Grande - Clicável */}
-                  <div 
-                    className="relative cursor-pointer group"
-                    onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-                  >
-                    <Avatar className="!w-[120px] !h-[120px] transition-opacity group-hover:opacity-80">
-                      {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
-                      <AvatarFallback className="!text-4xl bg-primary text-primary-foreground">
-                        {getInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                      {uploadingAvatar ? (
-                        <Loader2 className="h-8 w-8 text-white animate-spin" />
-                      ) : (
-                        <Camera className="h-8 w-8 text-white" />
-                      )}
+                  {/* Avatar Grande - Clicável para ampliar */}
+                  <div className="relative">
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => avatarUrl && setShowAvatarPreview(true)}
+                    >
+                      <Avatar className="!w-[180px] !h-[180px] transition-opacity hover:opacity-90">
+                        {avatarUrl && <AvatarImage src={avatarUrl} alt={userName || "Avatar"} />}
+                        <AvatarFallback className="!text-5xl bg-primary text-primary-foreground">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
+                    <button
+                      type="button"
+                      className="absolute bottom-2 right-2 p-2.5 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
+                      onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                    >
+                      {uploadingAvatar ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Camera className="h-5 w-5" />
+                      )}
+                    </button>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -987,7 +1004,9 @@ export const Sidebar = ({
                       onChange={handleAvatarSelect}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Clique na foto para alterar</p>
+                  <p className="text-xs text-muted-foreground">
+                    {avatarUrl ? "Clique na foto para ampliar" : "Clique no ícone para adicionar foto"}
+                  </p>
                   
                   {/* Card de Plano em Destaque */}
                   {userPlan && (
@@ -1109,6 +1128,22 @@ export const Sidebar = ({
 
   // Sheet do menu mobile (controlado pela BottomNav) e sidebar fixo para desktop
   return <>
+      {/* Avatar Preview Dialog */}
+      <Dialog open={showAvatarPreview} onOpenChange={setShowAvatarPreview}>
+        <DialogContent className="max-w-md p-2">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Foto do perfil</DialogTitle>
+          </DialogHeader>
+          {avatarUrl && (
+            <img 
+              src={avatarUrl} 
+              alt={userName || "Avatar"} 
+              className="w-full h-auto rounded-lg"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+      
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side="left" className="w-64 p-0 bg-background" style={{
         backgroundImage: gradientStyle.background,
