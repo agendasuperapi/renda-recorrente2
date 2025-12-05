@@ -534,6 +534,14 @@ export default function SignupFunnel() {
   return (
     <div className="min-h-screen py-12 px-4" style={getGradientStyle(activeConfig)}>
       <div className="container max-w-2xl mx-auto">
+        <div className="flex justify-center mb-6">
+          <img 
+            src={isDarkMode() ? logoBranco : logoVerde} 
+            alt="APP Renda Recorrente" 
+            className="h-16 object-contain"
+          />
+        </div>
+
         {isDevModeActive && (
           <div className="flex justify-end mb-4">
             <Button 
@@ -547,14 +555,6 @@ export default function SignupFunnel() {
         )}
         
         {renderProgressBar()}
-
-        <div className="flex justify-center mb-6">
-          <img 
-            src={isDarkMode() ? logoBranco : logoVerde} 
-            alt="APP Renda Recorrente" 
-            className="h-16 object-contain"
-          />
-        </div>
 
         <Card>
           <CardHeader>
