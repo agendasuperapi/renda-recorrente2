@@ -1081,7 +1081,15 @@ export default function AdminWithdrawals() {
                   <div className="space-y-4">
                     {/* Affiliate Header */}
                     <div className="flex items-center gap-3 pb-3 border-b">
-                      <Avatar className="h-11 w-11">
+                      <Avatar 
+                        className={`h-11 w-11 ${selectedWithdrawal.profiles?.avatar_url ? 'cursor-pointer hover:ring-2 hover:ring-primary transition-all' : ''}`}
+                        onClick={() => {
+                          if (selectedWithdrawal.profiles?.avatar_url) {
+                            setViewerImageUrl(selectedWithdrawal.profiles.avatar_url);
+                            setImageViewerOpen(true);
+                          }
+                        }}
+                      >
                         <AvatarImage src={selectedWithdrawal.profiles?.avatar_url || ""} alt={selectedWithdrawal.profiles?.name} />
                         <AvatarFallback>
                           {selectedWithdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
