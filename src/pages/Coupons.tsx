@@ -670,10 +670,10 @@ const Coupons = () => {
                     </div>
                     {/* Aviso para App Renda Recorrente */}
                     {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !hasEnoughSales && (
-                      <Alert className="mb-3 border-orange-300 bg-orange-50 dark:border-orange-500/50 dark:bg-orange-500/10">
-                        <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                        <AlertTitle className="text-orange-700 dark:text-orange-400 text-sm">Cupons bloqueados</AlertTitle>
-                        <AlertDescription className="text-orange-600 dark:text-orange-300 text-xs">
+                      <Alert className="mb-3 border-red-300 bg-red-50 dark:border-red-500/50 dark:bg-red-500/10">
+                        <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        <AlertTitle className="text-red-700 dark:text-red-400 text-sm">Cupons bloqueados</AlertTitle>
+                        <AlertDescription className="text-red-600 dark:text-red-300 text-xs">
                           Para liberar cupons deste produto você precisa ter no mínimo {minSalesRequired} vendas de outros produtos. 
                           Faltam {salesNeeded} venda{salesNeeded !== 1 ? 's' : ''}.
                         </AlertDescription>
@@ -818,10 +818,10 @@ const Coupons = () => {
                       </div>
                       {/* Aviso para App Renda Recorrente */}
                       {productData.coupons[0]?.product_id === RENDA_PRODUCT_ID && !hasEnoughSales && (
-                        <Alert className="mb-4 border-orange-300 bg-orange-50 dark:border-orange-500/50 dark:bg-orange-500/10">
-                          <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                          <AlertTitle className="text-orange-700 dark:text-orange-400">Cupons bloqueados</AlertTitle>
-                          <AlertDescription className="text-orange-600 dark:text-orange-300">
+                        <Alert className="mb-4 border-red-300 bg-red-50 dark:border-red-500/50 dark:bg-red-500/10">
+                          <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                          <AlertTitle className="text-red-700 dark:text-red-400">Cupons bloqueados</AlertTitle>
+                          <AlertDescription className="text-red-600 dark:text-red-300">
                             Para liberar cupons deste produto e ter sub-afiliados, você precisa ter no mínimo {minSalesRequired} vendas de outros produtos. 
                             Faltam {salesNeeded} venda{salesNeeded !== 1 ? 's' : ''}.
                           </AlertDescription>
