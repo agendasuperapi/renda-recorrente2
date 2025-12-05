@@ -11,8 +11,6 @@ import { UserProvider } from "@/contexts/UserContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBgConfig } from "@/hooks/useBgConfig";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
-import { usePreventOverscroll } from "@/hooks/usePreventOverscroll";
-import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -28,7 +26,6 @@ export const DashboardLayout = () => {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const initRef = useRef(false);
-  const scrollContainerRef = usePreventOverscroll(true);
 
   // Redirecionar super admin para /admin/versions se a versão atual não estiver cadastrada
   useEffect(() => {
@@ -188,18 +185,11 @@ export const DashboardLayout = () => {
   
   const isLoading = !initialized && !loadingTimeout;
 
-  const handleRefresh = async () => {
-    queryClient.invalidateQueries();
-    await new Promise(resolve => setTimeout(resolve, 500));
-  };
-
   return (
     <div className="min-h-screen bg-[#10b981]">
-      <PullToRefresh onRefresh={handleRefresh} />
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
         <div 
-          ref={scrollContainerRef}
           className="flex min-h-screen bg-background pt-[env(safe-area-inset-top)] overflow-y-auto"
         >
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
