@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Check, Shield, Trophy, Lock, Users, ExternalLink, AlertCircle, Calendar, CreditCard, MousePointer2 } from "lucide-react";
+import { Check, Shield, Trophy, Lock, Users, ExternalLink, AlertCircle, Calendar, CreditCard, MousePointer2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -44,6 +44,7 @@ interface Subscription {
 
 export const PlanContent = () => {
   const [selectingPlan, setSelectingPlan] = useState(false);
+  const [managingSubscription, setManagingSubscription] = useState(false);
   const [pendingCheckout, setPendingCheckout] = useState<any>(null);
 
   const { data: user } = useQuery({
@@ -216,11 +217,13 @@ export const PlanContent = () => {
   };
 
   const handleManageSubscription = async (flowPath?: string) => {
+    setManagingSubscription(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
         toast.error("Você precisa estar autenticado");
+        setManagingSubscription(false);
         return;
       }
 
@@ -243,13 +246,17 @@ export const PlanContent = () => {
       if (response.data?.url) {
         if (import.meta.env.DEV) {
           window.open(response.data.url, '_blank');
+          setManagingSubscription(false);
         } else {
           window.location.href = response.data.url;
         }
+      } else {
+        setManagingSubscription(false);
       }
     } catch (error) {
       console.error("Error creating portal session:", error);
       toast.error("Erro ao acessar o portal de assinatura");
+      setManagingSubscription(false);
     }
   };
 
@@ -550,9 +557,17 @@ export const PlanContent = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => handleManageSubscription()} className="w-full md:w-auto">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Gerenciar Assinatura
+            <Button 
+              onClick={() => handleManageSubscription()} 
+              className="w-full md:w-auto"
+              disabled={managingSubscription}
+            >
+              {managingSubscription ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ExternalLink className="mr-2 h-4 w-4" />
+              )}
+              {managingSubscription ? "Carregando..." : "Gerenciar Assinatura"}
             </Button>
           </CardContent>
         </Card>
