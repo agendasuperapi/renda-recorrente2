@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { QrCodePix } from "qrcode-pix";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, CheckCircle, QrCode, Loader2 } from "lucide-react";
@@ -13,6 +12,98 @@ interface PixQRCodeProps {
   transactionId: string;
 }
 
+// CRC16 CCITT implementation for browser
+function crc16ccitt(str: string): string {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc <<= 1;
+      }
+    }
+    crc &= 0xFFFF;
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+// Generate PIX EMV payload
+function generatePixPayload(
+  pixKey: string,
+  name: string,
+  city: string,
+  amount: number,
+  transactionId: string
+): string {
+  const formatField = (id: string, value: string): string => {
+    const len = value.length.toString().padStart(2, '0');
+    return `${id}${len}${value}`;
+  };
+
+  // Clean name and city (remove special characters)
+  const cleanName = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9 ]/g, "")
+    .substring(0, 25)
+    .trim() || "Afiliado";
+
+  const cleanCity = city
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9 ]/g, "")
+    .substring(0, 15)
+    .trim() || "Brasil";
+
+  const cleanTxId = transactionId
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .substring(0, 25) || "***";
+
+  // GUI for PIX
+  const gui = formatField("00", "br.gov.bcb.pix");
+  // PIX key
+  const key = formatField("01", pixKey);
+  // Merchant Account Information (ID 26)
+  const merchantAccountInfo = formatField("26", gui + key);
+
+  // Build payload
+  let payload = "";
+  payload += formatField("00", "01"); // Payload Format Indicator
+  payload += merchantAccountInfo; // Merchant Account Information
+  payload += formatField("52", "0000"); // Merchant Category Code
+  payload += formatField("53", "986"); // Transaction Currency (BRL)
+  
+  if (amount > 0) {
+    payload += formatField("54", amount.toFixed(2)); // Transaction Amount
+  }
+  
+  payload += formatField("58", "BR"); // Country Code
+  payload += formatField("59", cleanName); // Merchant Name
+  payload += formatField("60", cleanCity); // Merchant City
+  payload += formatField("62", formatField("05", cleanTxId)); // Additional Data Field (Transaction ID)
+  payload += "6304"; // CRC16 placeholder
+
+  // Calculate CRC16
+  const crc = crc16ccitt(payload);
+  
+  return payload + crc;
+}
+
+// Generate QR Code as data URL using Canvas API
+async function generateQRCodeDataURL(text: string): Promise<string> {
+  // Using a simple QR code generator approach
+  // We'll use the qrcode library which is already installed
+  const QRCode = await import('qrcode');
+  return QRCode.toDataURL(text, {
+    errorCorrectionLevel: 'M',
+    type: 'image/png',
+    width: 256,
+    margin: 2,
+  });
+}
+
 export function PixQRCode({ pixKey, pixType, amount, recipientName, transactionId }: PixQRCodeProps) {
   const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
   const [brCode, setBrCode] = useState<string>("");
@@ -24,33 +115,20 @@ export function PixQRCode({ pixKey, pixType, amount, recipientName, transactionI
       try {
         setIsLoading(true);
         
-        // Limpar o nome do destinatário (remover caracteres especiais)
-        const cleanName = recipientName
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^a-zA-Z0-9 ]/g, "")
-          .substring(0, 25)
-          .trim() || "Afiliado";
+        // Generate PIX payload
+        const payload = generatePixPayload(
+          pixKey,
+          recipientName,
+          "Brasil",
+          amount,
+          transactionId
+        );
+        
+        setBrCode(payload);
 
-        // Gerar ID da transação (máx 25 caracteres)
-        const txId = transactionId
-          .replace(/-/g, "")
-          .substring(0, 25);
-
-        const qrCodePix = QrCodePix({
-          version: "01",
-          key: pixKey,
-          name: cleanName,
-          city: "Brasil",
-          transactionId: txId,
-          value: amount,
-        });
-
-        const rawPix = qrCodePix.payload();
-        setBrCode(rawPix);
-
-        const base64 = await qrCodePix.base64();
-        setQrCodeBase64(base64);
+        // Generate QR Code
+        const qrDataUrl = await generateQRCodeDataURL(payload);
+        setQrCodeBase64(qrDataUrl);
       } catch (error) {
         console.error("Erro ao gerar QR Code PIX:", error);
         toast.error("Erro ao gerar QR Code PIX");
