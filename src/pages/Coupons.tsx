@@ -689,7 +689,7 @@ const Coupons = () => {
           </div>
         </CardContent>
       </Card> : productFilter === "all" && groupedByProduct ? isMobile ? <Card className="bg-transparent border-0 shadow-none">
-        <CardContent className="p-6 pt-4">
+        <CardContent className="p-0 pt-4 -mx-6">
           <div className="space-y-6">
                 {Object.entries(groupedByProduct).map(([productKey, productData]) => <div key={productKey}>
                     <div className="flex items-center gap-2 mb-3 pb-2 border-b">
