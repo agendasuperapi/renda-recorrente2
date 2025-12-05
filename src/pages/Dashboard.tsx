@@ -681,14 +681,14 @@ const Dashboard = () => {
           </Card>
 
           <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between px-0 lg:px-6">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-0 lg:px-6">
               <div>
                 <CardTitle>Cupons principais</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Veja aqui seus cupons principais para compartilhar
                 </p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/coupons')} className="gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/coupons')} className="gap-2 w-fit">
                 Ver todos
                 <ArrowRight className="w-4 h-4" />
               </Button>
