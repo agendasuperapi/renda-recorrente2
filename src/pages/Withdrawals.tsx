@@ -326,14 +326,6 @@ const Withdrawals = () => {
         </Card>
       </div>
 
-      {!hasMinimumAmount && <Alert variant="destructive" className="py-3">
-          <XCircle className="h-4 w-4" />
-          <AlertTitle className="text-sm md:text-base">Saldo insuficiente</AlertTitle>
-          <AlertDescription className="text-xs md:text-sm">
-            Mínimo de R$ {settings?.minWithdrawal.toFixed(2)}
-          </AlertDescription>
-        </Alert>}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         <Card className="border-primary/20 bg-primary/5 relative overflow-hidden">
           <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-primary/20 dark:bg-primary/30 flex items-end justify-start pl-4 pb-4">
@@ -389,6 +381,14 @@ const Withdrawals = () => {
           </CardContent>
         </Card>
       </div>
+
+      {!hasMinimumAmount && <Alert variant="destructive" className="py-3">
+          <XCircle className="h-4 w-4" />
+          <AlertTitle className="text-sm md:text-base">Saldo insuficiente</AlertTitle>
+          <AlertDescription className="text-xs md:text-sm">
+            Mínimo de R$ {settings?.minWithdrawal.toFixed(2)}
+          </AlertDescription>
+        </Alert>}
 
       <div className="flex justify-center">
         <Button className="gap-2 w-full md:w-auto" size="default" onClick={handleWithdrawalClick}>
