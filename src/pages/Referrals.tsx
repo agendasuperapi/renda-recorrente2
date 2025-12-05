@@ -429,8 +429,6 @@ const Referrals = () => {
       </div>
 
       {isMobile ? (
-        <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
-          <CardContent className="!p-0 lg:!p-6">
         <div className="space-y-3">
           {referrals.length === 0 ? (
             <Card>
@@ -588,8 +586,6 @@ const Referrals = () => {
             </div>
           )}
         </div>
-          </CardContent>
-        </Card>
       ) : (
         <Card className="rounded-none lg:rounded-lg">
           <CardContent className="pt-6">
