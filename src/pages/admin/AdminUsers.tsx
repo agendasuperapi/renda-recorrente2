@@ -61,6 +61,8 @@ const AdminUsers = () => {
   const [isEditingWithdrawal, setIsEditingWithdrawal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
+  const [activitiesPage, setActivitiesPage] = useState(1);
+  const [activitiesPageSize, setActivitiesPageSize] = useState(5);
   const queryClient = useQueryClient();
   const {
     data: usersData,
@@ -99,23 +101,29 @@ const AdminUsers = () => {
   const totalCount = usersData?.total || 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   const {
-    data: activities,
+    data: activitiesData,
     isLoading: activitiesLoading
   } = useQuery({
-    queryKey: ["user-activities", selectedUser?.id],
+    queryKey: ["user-activities", selectedUser?.id, activitiesPage, activitiesPageSize],
     queryFn: async () => {
-      if (!selectedUser?.id) return [];
+      if (!selectedUser?.id) return { activities: [], total: 0 };
+      const from = (activitiesPage - 1) * activitiesPageSize;
+      const to = from + activitiesPageSize - 1;
       const {
         data,
-        error
-      } = await supabase.from("activities").select("*").eq("user_id", selectedUser.id).order("created_at", {
+        error,
+        count
+      } = await supabase.from("activities").select("*", { count: "exact" }).eq("user_id", selectedUser.id).order("created_at", {
         ascending: false
-      }).limit(50);
+      }).range(from, to);
       if (error) throw error;
-      return data || [];
+      return { activities: data || [], total: count || 0 };
     },
     enabled: !!selectedUser?.id
   });
+  const activities = activitiesData?.activities || [];
+  const activitiesTotal = activitiesData?.total || 0;
+  const activitiesTotalPages = Math.ceil(activitiesTotal / activitiesPageSize);
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -125,6 +133,7 @@ const AdminUsers = () => {
     setEditedBlockMessage(user.blocked_message || "");
     setWithdrawalDay(user.withdrawal_day);
     setIsEditingWithdrawal(false);
+    setActivitiesPage(1);
     setIsDetailsOpen(true);
   };
   const updateBlockStatusMutation = useMutation({
@@ -899,9 +908,24 @@ const AdminUsers = () => {
 
                     {/* Histórico de Atividades */}
                     <div>
-                      <h3 className="text-base md:text-lg font-semibold mb-3">Histórico de Atividades</h3>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-base md:text-lg font-semibold">Histórico de Atividades</h3>
+                        <Select value={String(activitiesPageSize)} onValueChange={(value) => {
+                          setActivitiesPageSize(Number(value));
+                          setActivitiesPage(1);
+                        }}>
+                          <SelectTrigger className="w-[80px] h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="5">5</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="20">20</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                       {activitiesLoading ? <div className="space-y-2">
-                          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                          {[...Array(activitiesPageSize)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
                         </div> : activities && activities.length > 0 ? <div className="space-y-3">
                           {activities.map(activity => <div key={activity.id} className="border rounded-lg p-3">
                               <div className="flex items-start justify-between">
@@ -914,6 +938,36 @@ const AdminUsers = () => {
                                 </p>
                               </div>
                             </div>)}
+                          
+                          {/* Pagination */}
+                          {activitiesTotalPages > 1 && (
+                            <div className="flex items-center justify-between pt-2">
+                              <p className="text-xs text-muted-foreground">
+                                {activitiesTotal} atividade{activitiesTotal !== 1 ? 's' : ''}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setActivitiesPage(p => Math.max(1, p - 1))}
+                                  disabled={activitiesPage === 1}
+                                >
+                                  <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm">
+                                  {activitiesPage} / {activitiesTotalPages}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setActivitiesPage(p => Math.min(activitiesTotalPages, p + 1))}
+                                  disabled={activitiesPage === activitiesTotalPages}
+                                >
+                                  <ChevronRight className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div> : <p className="text-sm text-muted-foreground text-center py-4">
                           Nenhuma atividade registrada
                         </p>}
