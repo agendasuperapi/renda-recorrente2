@@ -504,57 +504,65 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(142 76% 95%) 0%, hsl(142 76% 90%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2 space-y-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-xs sm:text-sm font-medium" style={{ color: 'hsl(142 76% 36%)' }}>
                   Comissão do dia
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-success" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(142 76% 85%)' }}>
+                  <TrendingUp className="h-4 w-4" style={{ color: 'hsl(142 76% 36%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-xl sm:text-2xl font-bold text-success">
+                <div className="text-xl sm:text-2xl font-bold" style={{ color: 'hsl(142 76% 36%)' }}>
                   {formatCurrency(stats?.comissao_hoje || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(199 89% 95%) 0%, hsl(199 89% 90%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium" style={{ color: 'hsl(199 89% 40%)' }}>
                   Comissão últimos 7 dias
                 </CardTitle>
-                <DollarSign className="h-4 w-4 text-info" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(199 89% 85%)' }}>
+                  <DollarSign className="h-4 w-4" style={{ color: 'hsl(199 89% 40%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-info">
+                <div className="text-2xl font-bold" style={{ color: 'hsl(199 89% 40%)' }}>
                   {formatCurrency(stats?.comissao_7_dias || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(262 83% 95%) 0%, hsl(262 83% 90%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium" style={{ color: 'hsl(262 83% 50%)' }}>
                   Comissão do mês
                 </CardTitle>
-                <DollarSign className="h-4 w-4 text-primary" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(262 83% 85%)' }}>
+                  <DollarSign className="h-4 w-4" style={{ color: 'hsl(262 83% 50%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold" style={{ color: 'hsl(262 83% 50%)' }}>
                   {formatCurrency(stats?.comissao_mes || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(38 92% 95%) 0%, hsl(38 92% 90%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium" style={{ color: 'hsl(38 92% 40%)' }}>
                   Comissão disponível para saque
                 </CardTitle>
-                <Wallet className="h-4 w-4 text-success" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(38 92% 85%)' }}>
+                  <Wallet className="h-4 w-4" style={{ color: 'hsl(38 92% 40%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-success">
+                <div className="text-2xl font-bold" style={{ color: 'hsl(38 92% 40%)' }}>
                   {formatCurrency(stats?.comissao_disponivel || 0)}
                 </div>
               </CardContent>
@@ -562,66 +570,74 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(0 84% 95%) 0%, hsl(0 84% 92%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium" style={{ color: 'hsl(0 84% 45%)' }}>
                   Comissão pendente
                 </CardTitle>
-                <DollarSign className="h-4 w-4 text-destructive" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(0 84% 88%)' }}>
+                  <DollarSign className="h-4 w-4" style={{ color: 'hsl(0 84% 45%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-destructive">
+                <div className="text-2xl font-bold" style={{ color: 'hsl(0 84% 45%)' }}>
                   {formatCurrency(stats?.comissao_pendente || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(172 66% 95%) 0%, hsl(172 66% 90%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium" style={{ color: 'hsl(172 66% 35%)' }}>
                   Total já sacado
                 </CardTitle>
-                <Coins className="h-4 w-4 text-primary" />
+                <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: 'hsl(172 66% 85%)' }}>
+                  <Coins className="h-4 w-4" style={{ color: 'hsl(172 66% 35%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold" style={{ color: 'hsl(172 66% 35%)' }}>
                   {formatCurrency(stats?.total_sacado || 0)}
                 </div>
               </CardContent>
             </Card>
 
-        <Card className="p-3 sm:p-4 md:p-6">
-          <CardHeader className="p-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Seu dia de solicitar saque
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="text-lg font-medium">
-              SEGUNDA-FEIRA, 24 DE NOVEMBRO
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6">
-              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle>Quant. de Indicações</CardTitle>
-                <Users className="h-5 w-5 text-primary" />
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(221 83% 95%) 0%, hsl(221 83% 90%) 100%)' }}>
+              <CardHeader className="p-0 pb-2">
+                <CardTitle className="text-sm font-medium" style={{ color: 'hsl(221 83% 45%)' }}>
+                  Seu dia de solicitar saque
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-4xl font-bold">{stats?.total_indicacoes || 0}</div>
+                <div className="text-lg font-medium" style={{ color: 'hsl(221 83% 45%)' }}>
+                  SEGUNDA-FEIRA, 24 DE NOVEMBRO
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(280 60% 95%) 0%, hsl(280 60% 90%) 100%)' }}>
+              <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
+                <CardTitle style={{ color: 'hsl(280 60% 45%)' }}>Quant. de Indicações</CardTitle>
+                <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'hsl(280 60% 85%)' }}>
+                  <Users className="h-5 w-5" style={{ color: 'hsl(280 60% 45%)' }} />
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="text-4xl font-bold" style={{ color: 'hsl(280 60% 45%)' }}>{stats?.total_indicacoes || 0}</div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-6 border-0" style={{ background: 'linear-gradient(135deg, hsl(340 65% 95%) 0%, hsl(340 65% 90%) 100%)' }}>
               <CardHeader className="flex flex-row items-center justify-between p-0 pb-2">
-                <CardTitle>Quant. de Sub-Afiliados</CardTitle>
-                <Users className="h-5 w-5 text-primary" />
+                <CardTitle style={{ color: 'hsl(340 65% 45%)' }}>Quant. de Sub-Afiliados</CardTitle>
+                <div className="h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'hsl(340 65% 85%)' }}>
+                  <Users className="h-5 w-5" style={{ color: 'hsl(340 65% 45%)' }} />
+                </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-4xl font-bold">{stats?.total_sub_afiliados || 0}</div>
+                <div className="text-4xl font-bold" style={{ color: 'hsl(340 65% 45%)' }}>{stats?.total_sub_afiliados || 0}</div>
               </CardContent>
             </Card>
           </div>
