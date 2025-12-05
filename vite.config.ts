@@ -28,16 +28,16 @@ export default defineConfig(({ mode }) => ({
         start_url: '/',
         icons: [
           {
-            src: 'https://storage.googleapis.com/gpt-engineer-file-uploads/oN4vYpuIx2RGrQSfsAnERjSLbKP2/uploads/1763858532456-app_launcher_icon.png',
+            src: '/app-icon.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           },
           {
-            src: 'https://storage.googleapis.com/gpt-engineer-file-uploads/oN4vYpuIx2RGrQSfsAnERjSLbKP2/uploads/1763858532456-app_launcher_icon.png',
+            src: '/app-icon.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
           }
         ]
       },
