@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
 import { CookieConsent } from "@/components/CookieConsent";
-import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw } from "lucide-react";
+import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw, WifiOff } from "lucide-react";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import * as LucideIcons from "lucide-react";
@@ -22,6 +22,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import laptopImage from "@/assets/laptop-dashboard.png";
 import { APP_VERSION } from "@/config/version";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 interface AnnouncementBanner {
   id: string;
@@ -147,6 +149,7 @@ const LandingPage = () => {
     theme
   } = useTheme();
   const { checkVersion, ...versionInfo } = useVersionCheck();
+  const isOnline = useOnlineStatus();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
@@ -172,18 +175,27 @@ const LandingPage = () => {
   const [validatedCoupon, setValidatedCoupon] = useState<any>(null);
   const [loadingCoupon, setLoadingCoupon] = useState(false);
 
-  // Busca banner de anúncio
+  // Busca banner de anúncio com cache
   const {
     data: bannerData
   } = useQuery({
     queryKey: ['announcementBanner'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await (supabase as any).from('landing_announcement_banner').select('*').eq('is_active', true).maybeSingle();
-      if (error && error.code !== 'PGRST116') throw error;
-      return data as AnnouncementBanner | null;
+      try {
+        const {
+          data,
+          error
+        } = await (supabase as any).from('landing_announcement_banner').select('*').eq('is_active', true).maybeSingle();
+        if (error && error.code !== 'PGRST116') throw error;
+        if (data) {
+          saveToCache(CACHE_KEYS.LANDING_BANNER, data);
+        }
+        return data as AnnouncementBanner | null;
+      } catch (error) {
+        const cached = getFromCache<AnnouncementBanner>(CACHE_KEYS.LANDING_BANNER);
+        if (cached) return cached;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 5
   });
@@ -208,21 +220,27 @@ const LandingPage = () => {
           // Usar o código completo que foi digitado (custom_code se for de afiliado)
           const codeToValidate = code;
 
-          // Validar se o cupom ainda está ativo
-          const {
-            data: validationData,
-            error
-          } = await (supabase as any).rpc('validate_coupon', {
-            p_coupon_code: codeToValidate,
-            p_product_id: PRODUCT_ID
-          });
-          if (!error && validationData && Array.isArray(validationData) && validationData.length > 0) {
-            // Cupom ainda válido, aplicar
-            setCouponCode(codeToValidate); // Preencher com o código completo (username+cupom)
-            setValidatedCoupon(data);
+          // Validar se o cupom ainda está ativo (só se online)
+          if (navigator.onLine) {
+            const {
+              data: validationData,
+              error
+            } = await (supabase as any).rpc('validate_coupon', {
+              p_coupon_code: codeToValidate,
+              p_product_id: PRODUCT_ID
+            });
+            if (!error && validationData && Array.isArray(validationData) && validationData.length > 0) {
+              // Cupom ainda válido, aplicar
+              setCouponCode(codeToValidate); // Preencher com o código completo (username+cupom)
+              setValidatedCoupon(data);
+            } else {
+              // Cupom inválido, remover do localStorage
+              localStorage.removeItem('lastUsedCoupon');
+            }
           } else {
-            // Cupom inválido, remover do localStorage
-            localStorage.removeItem('lastUsedCoupon');
+            // Offline: usar dados do cache
+            setCouponCode(codeToValidate);
+            setValidatedCoupon(data);
           }
         }
       } catch (error) {
@@ -239,53 +257,80 @@ const LandingPage = () => {
   } = useQuery({
     queryKey: ['heroImages'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await (supabase as any).from('landing_hero_images').select('*').order('name');
-      if (error) throw error;
-      return data as HeroImage[];
+      try {
+        const {
+          data,
+          error
+        } = await (supabase as any).from('landing_hero_images').select('*').order('name');
+        if (error) throw error;
+        if (data) {
+          saveToCache(CACHE_KEYS.LANDING_HERO_IMAGES, data);
+        }
+        return data as HeroImage[];
+      } catch (error) {
+        const cached = getFromCache<HeroImage[]>(CACHE_KEYS.LANDING_HERO_IMAGES);
+        if (cached) return cached;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 30,
     // 30 minutos
     gcTime: 1000 * 60 * 60 // 1 hora
   });
 
-  // Busca configurações de gradiente
+  // Busca configurações de gradiente com cache
   const {
     data: gradientConfigsData = []
   } = useQuery({
     queryKey: ['gradientConfigs'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await (supabase as any).from('landing_block_gradients' as any).select('*');
-      if (error) throw error;
-      return data as unknown as GradientConfig[];
+      try {
+        const {
+          data,
+          error
+        } = await (supabase as any).from('landing_block_gradients' as any).select('*');
+        if (error) throw error;
+        if (data) {
+          saveToCache(CACHE_KEYS.LANDING_GRADIENT_CONFIGS, data);
+        }
+        return data as unknown as GradientConfig[];
+      } catch (error) {
+        const cached = getFromCache<GradientConfig[]>(CACHE_KEYS.LANDING_GRADIENT_CONFIGS);
+        if (cached) return cached;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 5
   });
 
-  // Busca configurações do sidebar para o menu mobile
+  // Busca configurações do sidebar para o menu mobile com cache
   const {
     data: sidebarConfig
   } = useQuery({
     queryKey: ['sidebar-config-landing'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
-      if (error) {
-        console.error('Error loading sidebar config:', error);
+      try {
+        const {
+          data,
+          error
+        } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
+        if (error) {
+          console.error('Error loading sidebar config:', error);
+          const cached = getFromCache<Record<string, string>>(CACHE_KEYS.LANDING_SIDEBAR_CONFIG);
+          if (cached) return cached;
+          return null;
+        }
+        const config: Record<string, string> = {};
+        data?.forEach(setting => {
+          config[setting.key] = setting.value;
+        });
+        saveToCache(CACHE_KEYS.LANDING_SIDEBAR_CONFIG, config);
+        return config;
+      } catch (error) {
+        const cached = getFromCache<Record<string, string>>(CACHE_KEYS.LANDING_SIDEBAR_CONFIG);
+        if (cached) return cached;
         return null;
       }
-      const config: Record<string, string> = {};
-      data?.forEach(setting => {
-        config[setting.key] = setting.value;
-      });
-      return config;
     },
     staleTime: 1000 * 60 * 5
   });
@@ -489,30 +534,43 @@ const LandingPage = () => {
     };
   }, []);
   const fetchPlans = async () => {
-    const {
-      data
-    } = await supabase.from("plans").select(`
-        *,
-        plan_features(feature_id)
-      `).eq("product_id", PRODUCT_ID).eq("is_active", true).order("price");
-    console.log('[LandingPage] Planos retornados:', data);
-    if (data) {
-      const mappedPlans = data.map((plan: any) => ({
-        ...plan,
-        // Usar o campo features do JSONB do banco, não o description
-        features: Array.isArray(plan.features) ? plan.features : plan.description ? plan.description.split('\n').filter((line: string) => line.trim()) : [],
-        plan_features: plan.plan_features || []
-      }));
-      console.log('[LandingPage] Planos mapeados:', mappedPlans);
-      setPlans(mappedPlans);
+    try {
+      const {
+        data, error
+      } = await supabase.from("plans").select(`
+          *,
+          plan_features(feature_id)
+        `).eq("product_id", PRODUCT_ID).eq("is_active", true).order("price");
+      console.log('[LandingPage] Planos retornados:', data);
+      if (data) {
+        const mappedPlans = data.map((plan: any) => ({
+          ...plan,
+          features: Array.isArray(plan.features) ? plan.features : plan.description ? plan.description.split('\n').filter((line: string) => line.trim()) : [],
+          plan_features: plan.plan_features || []
+        }));
+        console.log('[LandingPage] Planos mapeados:', mappedPlans);
+        setPlans(mappedPlans);
+        saveToCache(CACHE_KEYS.LANDING_PLANS, mappedPlans);
+      }
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+      const cached = getFromCache<Plan[]>(CACHE_KEYS.LANDING_PLANS);
+      if (cached) setPlans(cached);
     }
   };
   const fetchTestimonials = async () => {
-    const {
-      data
-    } = await supabase.from("landing_testimonials").select("*").eq("is_active", true).order("order_position");
-    if (data && data.length > 0) {
-      setTestimonials(data as Testimonial[]);
+    try {
+      const {
+        data
+      } = await supabase.from("landing_testimonials").select("*").eq("is_active", true).order("order_position");
+      if (data && data.length > 0) {
+        setTestimonials(data as Testimonial[]);
+        saveToCache(CACHE_KEYS.LANDING_TESTIMONIALS, data);
+      }
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+      const cached = getFromCache<Testimonial[]>(CACHE_KEYS.LANDING_TESTIMONIALS);
+      if (cached) setTestimonials(cached);
     }
   };
   const checkAdminRole = async (userId: string) => {
@@ -613,44 +671,82 @@ const LandingPage = () => {
     }
   };
   const fetchFeatures = async () => {
-    const {
-      data
-    } = await (supabase as any).from("landing_features").select("*").eq("is_active", true).order("order_position");
-    if (data && data.length > 0) {
-      setFeatures(data);
+    try {
+      const {
+        data
+      } = await (supabase as any).from("landing_features").select("*").eq("is_active", true).order("order_position");
+      if (data && data.length > 0) {
+        setFeatures(data);
+        saveToCache(CACHE_KEYS.LANDING_FEATURES, data);
+      }
+    } catch (error) {
+      console.error('Error fetching features:', error);
+      const cached = getFromCache<Feature[]>(CACHE_KEYS.LANDING_FEATURES);
+      if (cached) setFeatures(cached);
     }
   };
   const fetchFaqs = async () => {
-    const {
-      data
-    } = await supabase.from("landing_faqs").select("*").eq("is_active", true).order("order_position");
-    if (data && data.length > 0) {
-      setFaqs(data as FAQ[]);
+    try {
+      const {
+        data
+      } = await supabase.from("landing_faqs").select("*").eq("is_active", true).order("order_position");
+      if (data && data.length > 0) {
+        setFaqs(data as FAQ[]);
+        saveToCache(CACHE_KEYS.LANDING_FAQS, data);
+      }
+    } catch (error) {
+      console.error('Error fetching faqs:', error);
+      const cached = getFromCache<FAQ[]>(CACHE_KEYS.LANDING_FAQS);
+      if (cached) setFaqs(cached);
     }
   };
   const fetchProducts = async () => {
-    const {
-      data
-    } = await supabase.from("products").select("id, nome, descricao, icone_light, icone_dark, site_landingpage").eq("show_on_landing", true).order("nome");
-    if (data) {
-      setProducts(data as AffiliateProduct[]);
+    try {
+      const {
+        data
+      } = await supabase.from("products").select("id, nome, descricao, icone_light, icone_dark, site_landingpage").eq("show_on_landing", true).order("nome");
+      if (data) {
+        setProducts(data as AffiliateProduct[]);
+        saveToCache(CACHE_KEYS.LANDING_PRODUCTS, data);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      const cached = getFromCache<AffiliateProduct[]>(CACHE_KEYS.LANDING_PRODUCTS);
+      if (cached) setProducts(cached);
     }
   };
   const fetchCurrentProduct = async () => {
-    const {
-      data
-    } = await supabase.from("products").select("id, nome, descricao, icone_light, icone_dark").eq("id", PRODUCT_ID).maybeSingle();
-    if (data) {
-      setCurrentProduct(data as AffiliateProduct);
+    try {
+      const {
+        data
+      } = await supabase.from("products").select("id, nome, descricao, icone_light, icone_dark").eq("id", PRODUCT_ID).maybeSingle();
+      if (data) {
+        setCurrentProduct(data as AffiliateProduct);
+        saveToCache(CACHE_KEYS.LANDING_CURRENT_PRODUCT, data);
+      }
+    } catch (error) {
+      console.error('Error fetching current product:', error);
+      const cached = getFromCache<AffiliateProduct>(CACHE_KEYS.LANDING_CURRENT_PRODUCT);
+      if (cached) setCurrentProduct(cached);
     }
   };
   const fetchProductInfo = async () => {
-    const {
-      data
-    } = await supabase.from("products").select("telefone, texto_telefone").eq("id", PRODUCT_ID).single();
-    if (data) {
-      setWhatsappPhone(data.telefone || "");
-      setWhatsappText(data.texto_telefone || "");
+    try {
+      const {
+        data
+      } = await supabase.from("products").select("telefone, texto_telefone").eq("id", PRODUCT_ID).single();
+      if (data) {
+        setWhatsappPhone(data.telefone || "");
+        setWhatsappText(data.texto_telefone || "");
+        saveToCache(CACHE_KEYS.LANDING_PRODUCT_INFO, data);
+      }
+    } catch (error) {
+      console.error('Error fetching product info:', error);
+      const cached = getFromCache<{ telefone: string; texto_telefone: string }>(CACHE_KEYS.LANDING_PRODUCT_INFO);
+      if (cached) {
+        setWhatsappPhone(cached.telefone || "");
+        setWhatsappText(cached.texto_telefone || "");
+      }
     }
   };
   const isMobileLanding = useIsMobile();
@@ -1582,6 +1678,18 @@ const LandingPage = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Alerta de offline */}
+          {!isOnline && (
+            <div className="max-w-7xl mx-auto mb-6 px-3 md:px-0">
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 flex items-center justify-center gap-3">
+                <WifiOff className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                  Você está offline. Os planos podem estar desatualizados.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 lg:gap-12 px-3 md:px-0 max-w-7xl mx-auto">
             {plans.map((plan, index) => {

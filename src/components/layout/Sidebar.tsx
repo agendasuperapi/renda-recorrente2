@@ -216,25 +216,54 @@ export const Sidebar = ({
     return () => observer.disconnect();
   }, []);
 
-  // Carregar configurações do sidebar
+  // Carregar configurações do sidebar com cache
   const {
     data: sidebarConfig
   } = useQuery({
     queryKey: ['sidebar-config'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
-      if (error) {
+      try {
+        const {
+          data,
+          error
+        } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
+        if (error) {
+          console.error('Error loading sidebar config:', error);
+          // Tentar usar cache
+          const cached = localStorage.getItem('offline_cache_app_sidebar_config');
+          if (cached) {
+            try {
+              return JSON.parse(cached).data;
+            } catch {
+              return null;
+            }
+          }
+          return null;
+        }
+        const config: Record<string, string> = {};
+        data?.forEach(setting => {
+          config[setting.key] = setting.value;
+        });
+        // Salvar no cache
+        try {
+          localStorage.setItem('offline_cache_app_sidebar_config', JSON.stringify({ data: config, timestamp: Date.now() }));
+        } catch (e) {
+          console.warn('Erro ao salvar sidebar config no cache:', e);
+        }
+        return config;
+      } catch (error) {
         console.error('Error loading sidebar config:', error);
+        // Tentar usar cache em caso de erro
+        const cached = localStorage.getItem('offline_cache_app_sidebar_config');
+        if (cached) {
+          try {
+            return JSON.parse(cached).data;
+          } catch {
+            return null;
+          }
+        }
         return null;
       }
-      const config: Record<string, string> = {};
-      data?.forEach(setting => {
-        config[setting.key] = setting.value;
-      });
-      return config;
     }
   });
 
