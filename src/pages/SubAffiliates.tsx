@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -412,7 +412,13 @@ const SubAffiliates = () => {
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sub Afiliados</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-2">
+          Sub Afiliados
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+            <Crown className="h-3 w-3" />
+            PRO
+          </span>
+        </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
           Gerencie sua rede de sub-afiliados
         </p>
