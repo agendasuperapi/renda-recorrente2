@@ -25,7 +25,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
-import { generateAvatarPaths } from "@/lib/avatarUtils";
+import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
 interface SidebarProps {
   user: SupabaseUser | null;
@@ -1141,13 +1141,13 @@ export const Sidebar = ({
   return <>
       {/* Avatar Preview Dialog */}
       <Dialog open={showAvatarPreview} onOpenChange={setShowAvatarPreview}>
-        <DialogContent className="max-w-md p-2">
+        <DialogContent className="max-w-2xl p-2">
           <DialogHeader className="sr-only">
             <DialogTitle>Foto do perfil</DialogTitle>
           </DialogHeader>
           {avatarUrl && (
             <img 
-              src={avatarUrl} 
+              src={getAvatarOriginalUrl(avatarUrl) || avatarUrl} 
               alt={userName || "Avatar"} 
               className="w-full h-auto rounded-lg"
             />
