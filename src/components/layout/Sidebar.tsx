@@ -643,7 +643,7 @@ export const Sidebar = ({
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-          backgroundColor: isActive ? accentColor : 'transparent',
+          backgroundColor: isActive ? accentColor : `${accentColor}15`,
           color: currentTextColor
         }} onMouseEnter={e => {
           if (!isActive) {
@@ -651,7 +651,7 @@ export const Sidebar = ({
           }
         }} onMouseLeave={e => {
           if (!isActive) {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }
         }}>
               <Icon size={18} />
@@ -668,7 +668,7 @@ export const Sidebar = ({
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-          backgroundColor: isActive ? accentColor : 'transparent',
+          backgroundColor: isActive ? accentColor : `${accentColor}15`,
           color: currentTextColor
         }} onMouseEnter={e => {
           if (!isActive) {
@@ -676,7 +676,7 @@ export const Sidebar = ({
           }
         }} onMouseLeave={e => {
           if (!isActive) {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }
         }}>
               <Icon size={18} />
@@ -692,11 +692,12 @@ export const Sidebar = ({
         {(!isAdmin || !showAdminMenu) && <>
             <Collapsible open={commissionsMenuOpen} onOpenChange={setCommissionsMenuOpen}>
               <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            backgroundColor: `${accentColor}15`,
             color: currentTextColor
           }} onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = `${accentColor}30`;
           }} onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }}>
                 <Coins size={18} />
                 <span className="flex-1 text-left">Comissões</span>
@@ -709,7 +710,7 @@ export const Sidebar = ({
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-                backgroundColor: isActive ? accentColor : 'transparent',
+                backgroundColor: isActive ? accentColor : `${accentColor}15`,
                 color: currentTextColor
               }} onMouseEnter={e => {
                 if (!isActive) {
@@ -717,7 +718,7 @@ export const Sidebar = ({
                 }
               }} onMouseLeave={e => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
                 }
               }}>
                       <Icon size={18} />
@@ -729,11 +730,12 @@ export const Sidebar = ({
 
             <Collapsible open={settingsMenuOpen} onOpenChange={setSettingsMenuOpen}>
               <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            backgroundColor: `${accentColor}15`,
             color: currentTextColor
           }} onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = `${accentColor}30`;
           }} onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }}>
                 <Settings size={18} />
                 <span className="flex-1 text-left">Configurações</span>
@@ -746,7 +748,7 @@ export const Sidebar = ({
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-                backgroundColor: isActive ? accentColor : 'transparent',
+                backgroundColor: isActive ? accentColor : `${accentColor}15`,
                 color: currentTextColor
               }} onMouseEnter={e => {
                 if (!isActive) {
@@ -754,7 +756,7 @@ export const Sidebar = ({
                 }
               }} onMouseLeave={e => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
                 }
               }}>
                       <Icon size={18} />
@@ -768,11 +770,12 @@ export const Sidebar = ({
         {isAdmin && showAdminMenu && <>
             <Collapsible open={cadastrosMenuOpen} onOpenChange={setCadastrosMenuOpen}>
               <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            backgroundColor: `${accentColor}15`,
             color: currentTextColor
           }} onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = `${accentColor}30`;
           }} onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }}>
                 <PlusSquare size={18} />
                 <span className="flex-1 text-left">Cadastros</span>
@@ -785,7 +788,7 @@ export const Sidebar = ({
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-                backgroundColor: isActive ? accentColor : 'transparent',
+                backgroundColor: isActive ? accentColor : `${accentColor}15`,
                 color: currentTextColor
               }} onMouseEnter={e => {
                 if (!isActive) {
@@ -793,7 +796,7 @@ export const Sidebar = ({
                 }
               }} onMouseLeave={e => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
                 }
               }}>
                       <Icon size={18} />
@@ -805,11 +808,12 @@ export const Sidebar = ({
 
             <Collapsible open={configMenuOpen} onOpenChange={setConfigMenuOpen}>
               <CollapsibleTrigger className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full" style={{
+            backgroundColor: `${accentColor}15`,
             color: currentTextColor
           }} onMouseEnter={e => {
             e.currentTarget.style.backgroundColor = `${accentColor}30`;
           }} onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }}>
                 <Settings size={18} />
                 <span className="flex-1 text-left">Configurações</span>
@@ -822,7 +826,7 @@ export const Sidebar = ({
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
               return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-                backgroundColor: isActive ? accentColor : 'transparent',
+                backgroundColor: isActive ? accentColor : `${accentColor}15`,
                 color: currentTextColor
               }} onMouseEnter={e => {
                 if (!isActive) {
@@ -830,7 +834,7 @@ export const Sidebar = ({
                 }
               }} onMouseLeave={e => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
                 }
               }}>
                       <Icon size={18} />
