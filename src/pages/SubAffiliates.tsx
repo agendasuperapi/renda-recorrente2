@@ -82,7 +82,7 @@ const SubAffiliates = () => {
   const RENDA_PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
   // Fetch affiliate's current subscription/plan
-  const { data: affiliateSubscription } = useQuery({
+  const { data: affiliateSubscription, isLoading: isLoadingSubscription } = useQuery({
     queryKey: ["affiliate-subscription-subaffiliates", currentUserId],
     queryFn: async () => {
       if (!currentUserId) return null;
@@ -103,7 +103,10 @@ const SubAffiliates = () => {
     enabled: !!currentUserId
   });
 
-  const isProPlan = affiliateSubscription?.plans?.name?.toUpperCase() === "PRO";
+  // Check if plan name contains "PRO" (case insensitive)
+  const planName = (affiliateSubscription?.plans as any)?.name || "";
+  const isProPlan = planName.toUpperCase().includes("PRO");
+  const isLoadingRequirements = isLoadingSubscription || !currentUserId;
 
   // Fetch minimum sales setting for Renda product
   const { data: minSalesSetting } = useQuery({
@@ -425,7 +428,7 @@ const SubAffiliates = () => {
       </div>
 
       {/* Aviso de requisitos para ter sub-afiliados */}
-      {!canHaveSubAffiliates && (
+      {!isLoadingRequirements && !canHaveSubAffiliates && (
         <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
