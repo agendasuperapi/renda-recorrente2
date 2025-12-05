@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PersonalProfileContent } from "@/components/settings/PersonalProfileContent";
 import { PlanContent } from "@/components/settings/PlanContent";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User, CreditCard } from "lucide-react";
+import { User, Crown } from "lucide-react";
 
 const Settings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +26,7 @@ const Settings = () => {
               <span className="sm:hidden">Perfil</span>
             </TabsTrigger>
             <TabsTrigger value="plan" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
+              <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Plano</span>
               <span className="sm:hidden">Plano</span>
             </TabsTrigger>
