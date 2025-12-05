@@ -99,8 +99,8 @@ const App = () => {
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/profile" element={<ProfileSettings />} />
-              <Route path="/settings/personal" element={<PersonalProfileSettings />} />
-              <Route path="/settings/plan" element={<PlanSettings />} />
+              <Route path="/settings/personal" element={<Navigate to="/settings?tab=personal" replace />} />
+              <Route path="/settings/plan" element={<Navigate to="/settings?tab=plan" replace />} />
               <Route path="/google-business" element={<GoogleBusiness />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
