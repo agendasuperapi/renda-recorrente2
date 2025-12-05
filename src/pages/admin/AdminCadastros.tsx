@@ -1,0 +1,76 @@
+import { Suspense, lazy } from "react";
+import { Package, Ticket, Building2, CreditCard } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load components for tabs
+const AdminProductsContent = lazy(() => import("./AdminProducts"));
+const AdminCouponsContent = lazy(() => import("./AdminCoupons"));
+const AdminBankAccountsContent = lazy(() => import("./AdminBankAccounts"));
+const AdminPlansContent = lazy(() => import("./AdminPlans"));
+
+const TabLoadingFallback = () => (
+  <div className="space-y-4 p-4">
+    <Skeleton className="h-8 w-64" />
+    <Skeleton className="h-32 w-full" />
+    <Skeleton className="h-32 w-full" />
+  </div>
+);
+
+export default function AdminCadastros() {
+  return (
+    <div className="w-full p-3 md:p-6 space-y-4 md:space-y-6">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Cadastros</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
+          Gerencie produtos, cupons, contas bancárias e planos
+        </p>
+      </div>
+
+      <Tabs defaultValue="products" className="w-full">
+        <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
+          <TabsTrigger value="products" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Produtos</span>
+          </TabsTrigger>
+          <TabsTrigger value="coupons" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Ticket className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Cupons</span>
+          </TabsTrigger>
+          <TabsTrigger value="bank-accounts" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Banco e Contas</span>
+          </TabsTrigger>
+          <TabsTrigger value="plans" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+            <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Planos e Preços</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="products" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminProductsContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="coupons" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminCouponsContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="bank-accounts" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminBankAccountsContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="plans" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminPlansContent />
+          </Suspense>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
