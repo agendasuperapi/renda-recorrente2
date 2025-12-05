@@ -35,7 +35,15 @@ interface SidebarProps {
   isLoading?: boolean;
   initialized?: boolean;
 }
-const affiliateMenuItems = [{
+
+interface MenuItem {
+  icon: React.ElementType;
+  label: string;
+  path: string;
+  isPro?: boolean;
+}
+
+const affiliateMenuItems: MenuItem[] = [{
   icon: LayoutDashboard,
   label: "Dashboard",
   path: "/dashboard"
@@ -46,7 +54,8 @@ const affiliateMenuItems = [{
 }, {
   icon: Users,
   label: "Sub Afiliados",
-  path: "/sub-affiliates"
+  path: "/sub-affiliates",
+  isPro: true
 }, {
   icon: UserPlus,
   label: "Meus Indicados",
@@ -646,7 +655,12 @@ export const Sidebar = ({
           }
         }}>
               <Icon size={18} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.isPro && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-500 text-white">
+                  PRO
+                </span>
+              )}
             </Link>;
       })}
 
@@ -666,7 +680,12 @@ export const Sidebar = ({
           }
         }}>
               <Icon size={18} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.isPro && (
+                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-amber-500 text-white">
+                  PRO
+                </span>
+              )}
             </Link>;
       })}
 
