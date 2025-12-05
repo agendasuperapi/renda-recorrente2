@@ -211,6 +211,16 @@ const Withdrawals = () => {
   });
 
   const handleWithdrawalClick = () => {
+    // Verificar se tem CPF cadastrado
+    if (!profile?.cpf) {
+      toast({
+        title: "CPF não cadastrado",
+        description: "Complete seu cadastro com o CPF para poder solicitar saques. Acesse seu perfil e adicione seu CPF.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Verificar se não é o dia de saque
     if (!isWithdrawalDay) {
       toast({
