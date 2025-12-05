@@ -15,9 +15,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, EyeOff, Lock, Shield, Trash2, AlertTriangle } from "lucide-react";
+import { Eye, EyeOff, Lock, Shield, Trash2, AlertTriangle, ChevronDown } from "lucide-react";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,6 +50,7 @@ export const SecurityContent = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteSectionOpen, setIsDeleteSectionOpen] = useState(false);
 
   // Check if user is super_admin
   const { data: userRole } = useQuery({
@@ -283,81 +285,92 @@ export const SecurityContent = () => {
 
       {/* Card: Excluir Conta - Hidden for super_admin */}
       {!isSuperAdmin && (
-        <Card className="border-destructive/50">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-destructive" />
-              <CardTitle className="text-destructive">Excluir Conta</CardTitle>
-            </div>
-            <CardDescription>
-              Exclua permanentemente sua conta e todos os dados pessoais associados
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {hasActivePlan ? (
-              <Alert variant="destructive" className="border-orange-500/50 bg-orange-500/10">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
-                <AlertDescription className="text-foreground">
-                  <div className="space-y-2">
-                    <p className="font-semibold">Você possui um plano ativo</p>
-                    <p>
-                      <strong>Plano:</strong> {planName}<br />
-                      <strong>Válido até:</strong> {periodEnd}
-                    </p>
-                    <p>
-                      Para excluir sua conta, primeiro cancele seu plano ativo. 
-                      Vá na aba <strong>Meu Plano</strong> e clique em <strong>Gerenciar Assinatura</strong>.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => navigate("/settings?tab=plan")}
-                      className="mt-2"
-                    >
-                      Ir para Meu Plano
-                    </Button>
+        <Collapsible open={isDeleteSectionOpen} onOpenChange={setIsDeleteSectionOpen}>
+          <Card className="border-destructive/50">
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Trash2 className="h-5 w-5 text-destructive" />
+                    <CardTitle className="text-destructive">Excluir Conta</CardTitle>
                   </div>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <>
-                <Alert variant="destructive" className="bg-destructive/10">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Atenção:</strong> Esta ação é irreversível. Ao excluir sua conta:
-                    <ul className="list-disc list-inside mt-2 space-y-1">
-                      <li>Seus dados pessoais serão anonimizados</li>
-                      <li>Você será deslogado imediatamente</li>
-                      <li>O histórico de comissões será mantido (sem dados pessoais)</li>
-                      <li>Você poderá criar uma nova conta com o mesmo email</li>
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-
-                <div className="space-y-2">
-                  <Label htmlFor="deletionReason">Motivo da exclusão *</Label>
-                  <Textarea
-                    id="deletionReason"
-                    value={deletionReason}
-                    onChange={(e) => setDeletionReason(e.target.value)}
-                    placeholder="Por favor, informe o motivo pelo qual deseja excluir sua conta..."
-                    className="min-h-[100px]"
-                  />
+                  <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${isDeleteSectionOpen ? 'rotate-180' : ''}`} />
                 </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardHeader className="pt-0">
+                <CardDescription>
+                  Exclua permanentemente sua conta e todos os dados pessoais associados
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {hasActivePlan ? (
+                  <Alert variant="destructive" className="border-orange-500/50 bg-orange-500/10">
+                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                    <AlertDescription className="text-foreground">
+                      <div className="space-y-2">
+                        <p className="font-semibold">Você possui um plano ativo</p>
+                        <p>
+                          <strong>Plano:</strong> {planName}<br />
+                          <strong>Válido até:</strong> {periodEnd}
+                        </p>
+                        <p>
+                          Para excluir sua conta, primeiro cancele seu plano ativo. 
+                          Vá na aba <strong>Meu Plano</strong> e clique em <strong>Gerenciar Assinatura</strong>.
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate("/settings?tab=plan")}
+                          className="mt-2"
+                        >
+                          Ir para Meu Plano
+                        </Button>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <>
+                    <Alert variant="destructive" className="bg-destructive/10">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Atenção:</strong> Esta ação é irreversível. Ao excluir sua conta:
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                          <li>Seus dados pessoais serão anonimizados</li>
+                          <li>Você será deslogado imediatamente</li>
+                          <li>O histórico de comissões será mantido (sem dados pessoais)</li>
+                          <li>Você poderá criar uma nova conta com o mesmo email</li>
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
 
-                <Button 
-                  variant="destructive"
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={!deletionReason.trim()}
-                  className="w-full sm:w-auto"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir Minha Conta
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                    <div className="space-y-2">
+                      <Label htmlFor="deletionReason">Motivo da exclusão *</Label>
+                      <Textarea
+                        id="deletionReason"
+                        value={deletionReason}
+                        onChange={(e) => setDeletionReason(e.target.value)}
+                        placeholder="Por favor, informe o motivo pelo qual deseja excluir sua conta..."
+                        className="min-h-[100px]"
+                      />
+                    </div>
+
+                    <Button 
+                      variant="destructive"
+                      onClick={() => setShowDeleteDialog(true)}
+                      disabled={!deletionReason.trim()}
+                      className="w-full sm:w-auto"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Excluir Minha Conta
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       )}
 
       {/* Confirmation Dialog */}
