@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff, Palette, Moon, Sun } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff, Palette, Moon, Sun, Power } from "lucide-react";
 import { z } from "zod";
 import { GradientEditor } from "@/components/GradientEditor";
 import logoVerde from "@/assets/logo-renda-verde.png";
@@ -851,40 +851,44 @@ export default function SignupFunnel() {
           </CardFooter>
         </Card>
 
-        {isAdmin && (
-          <div className="flex justify-center mt-8">
+        <div className="flex justify-center gap-4 mt-8">
+          {isAdmin && (
             <Button 
-              variant="outline" 
-              size="sm"
+              variant="ghost" 
+              size="icon"
               onClick={() => setEditingGradient(true)}
+              title="Personalizar"
+              className="h-8 w-8 opacity-50 hover:opacity-100"
             >
-              <Palette className="w-4 h-4 mr-2" />
-              Personalizar
+              <Palette className="w-4 h-4" />
             </Button>
-          </div>
-        )}
+          )}
 
-        {isDevModeActive && (
-          <div className="flex justify-center gap-2 mt-4">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                document.documentElement.classList.toggle('dark');
-              }}
-            >
-              {isDarkMode() ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
-              {isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={handleDisableDevMode}
-            >
-              🔧 Desativar Modo Dev
-            </Button>
-          </div>
-        )}
+          {isDevModeActive && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => {
+                  document.documentElement.classList.toggle('dark');
+                }}
+                title={isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}
+                className="h-8 w-8 opacity-50 hover:opacity-100"
+              >
+                {isDarkMode() ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handleDisableDevMode}
+                title="Desativar Modo Dev"
+                className="h-8 w-8 opacity-50 hover:opacity-100 text-destructive"
+              >
+                <Power className="w-4 h-4" />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {editingGradient && (
