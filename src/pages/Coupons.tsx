@@ -732,18 +732,19 @@ const Coupons = () => {
               })}
                     </div>
                   </div>)}
-              </div> : <div className="space-y-8">
-                {Object.entries(groupedByProduct).map(([productKey, productData]) => <div key={productKey}>
-                    <div className="flex items-center gap-3 mb-4 pb-2 border-b">
-                      {(productData.iconLight || productData.iconDark) && <img src={productData.iconLight || productData.iconDark || ''} alt={productData.name} className="w-10 h-10 rounded-full object-cover border-2 border-border" />}
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {productData.name}
-                      </h3>
-                      <Badge variant="outline" className="ml-auto">
-                        {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
-                      </Badge>
-                    </div>
-                    <div className="space-y-4">
+              </div> : <div className="space-y-6">
+                {Object.entries(groupedByProduct).map(([productKey, productData]) => <Card key={productKey}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-3 mb-4 pb-2 border-b">
+                        {(productData.iconLight || productData.iconDark) && <img src={productData.iconLight || productData.iconDark || ''} alt={productData.name} className="w-10 h-10 rounded-full object-cover border-2 border-border" />}
+                        <h3 className="text-lg font-semibold text-foreground">
+                          {productData.name}
+                        </h3>
+                        <Badge variant="outline" className="ml-auto">
+                          {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
+                        </Badge>
+                      </div>
+                      <div className="space-y-4">
                       {productData.coupons.map(coupon => {
                 const isActivated = !!coupon.activatedCoupon;
                 const isActive = coupon.activatedCoupon?.is_active;
@@ -891,8 +892,9 @@ const Coupons = () => {
                             </div>
                           </div>;
               })}
-                    </div>
-                  </div>)}
+                      </div>
+                    </CardContent>
+                  </Card>)}
               </div> : isMobile ? <div className="space-y-3">
                 {allCoupons.map(coupon => {
             const isActivated = !!coupon.activatedCoupon;
