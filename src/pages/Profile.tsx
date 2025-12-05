@@ -8,7 +8,8 @@ import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { User, CheckCircle2, XCircle, Loader2, Edit2, Camera } from "lucide-react";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
+import { generateAvatarPaths } from "@/lib/avatarUtils";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Select,
@@ -401,38 +402,47 @@ const Profile = () => {
     }
   };
 
-  const handleCroppedImage = async (croppedImageBlob: Blob) => {
+  const handleCroppedImage = async (images: AvatarSizes) => {
     setUploadingAvatar(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      // Delete old avatar if exists
+      // Delete old avatars if exists
       if (profile.avatar_url) {
         const oldPath = profile.avatar_url.split('/').slice(-2).join('/');
         if (oldPath && oldPath.startsWith('profiles/')) {
-          await supabase.storage.from('avatars').remove([oldPath]);
+          const oldThumbPath = oldPath.replace('.jpg', '-thumb.jpg');
+          await supabase.storage.from('avatars').remove([oldPath, oldThumbPath]);
         }
       }
 
-      // Upload compressed and cropped avatar
-      const fileName = `${user.id}-${Date.now()}.jpg`;
-      const filePath = `profiles/${fileName}`;
+      const paths = generateAvatarPaths(user.id);
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, croppedImageBlob, {
-          contentType: 'image/jpeg',
-          upsert: true
-        });
+      // Upload both versions in parallel
+      const [thumbUpload, originalUpload] = await Promise.all([
+        supabase.storage
+          .from('avatars')
+          .upload(paths.thumb, images.thumb, {
+            contentType: 'image/jpeg',
+            upsert: true
+          }),
+        supabase.storage
+          .from('avatars')
+          .upload(paths.original, images.original, {
+            contentType: 'image/jpeg',
+            upsert: true
+          }),
+      ]);
 
-      if (uploadError) throw uploadError;
+      if (thumbUpload.error) throw thumbUpload.error;
+      if (originalUpload.error) throw originalUpload.error;
 
-      // Get public URL
+      // Get public URL for original
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
-        .getPublicUrl(filePath);
+        .getPublicUrl(paths.original);
 
       // Update profile with new avatar URL
       const { error: updateError } = await supabase

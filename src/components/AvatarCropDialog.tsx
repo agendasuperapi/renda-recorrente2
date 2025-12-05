@@ -12,11 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ZoomIn, ZoomOut } from "lucide-react";
 
+export interface AvatarSizes {
+  thumb: Blob;    // 200x200, 80% quality
+  original: Blob; // 1000x1000, 95% quality
+}
+
 interface AvatarCropDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   imageSrc: string;
-  onCropComplete: (croppedImage: Blob) => void;
+  onCropComplete: (images: AvatarSizes) => void;
 }
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -27,11 +32,12 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
     image.src = url;
   });
 
-const getCroppedImg = async (
-  imageSrc: string,
-  pixelCrop: Area
+const generateImageAtSize = async (
+  image: HTMLImageElement,
+  pixelCrop: Area,
+  size: number,
+  quality: number
 ): Promise<Blob> => {
-  const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -39,12 +45,9 @@ const getCroppedImg = async (
     throw new Error("No 2d context");
   }
 
-  // Set canvas size to desired output size (500x500 for avatar)
-  const maxSize = 500;
-  canvas.width = maxSize;
-  canvas.height = maxSize;
+  canvas.width = size;
+  canvas.height = size;
 
-  // Draw cropped and resized image
   ctx.drawImage(
     image,
     pixelCrop.x,
@@ -53,11 +56,10 @@ const getCroppedImg = async (
     pixelCrop.height,
     0,
     0,
-    maxSize,
-    maxSize
+    size,
+    size
   );
 
-  // Convert to blob with compression
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
@@ -68,9 +70,29 @@ const getCroppedImg = async (
         resolve(blob);
       },
       "image/jpeg",
-      0.95 // 95% quality for high quality images
+      quality
     );
   });
+};
+
+const generateMultipleSizes = async (
+  imageSrc: string,
+  pixelCrop: Area
+): Promise<AvatarSizes> => {
+  const image = await createImage(imageSrc);
+
+  const sizes = [
+    { name: "thumb" as const, size: 200, quality: 0.8 },
+    { name: "original" as const, size: 1000, quality: 0.95 },
+  ];
+
+  const results: Partial<AvatarSizes> = {};
+
+  for (const { name, size, quality } of sizes) {
+    results[name] = await generateImageAtSize(image, pixelCrop, size, quality);
+  }
+
+  return results as AvatarSizes;
 };
 
 export const AvatarCropDialog = ({
@@ -96,8 +118,8 @@ export const AvatarCropDialog = ({
 
     setLoading(true);
     try {
-      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
-      onCropComplete(croppedImage);
+      const images = await generateMultipleSizes(imageSrc, croppedAreaPixels);
+      onCropComplete(images);
       onOpenChange(false);
     } catch (error) {
       console.error("Error cropping image:", error);
