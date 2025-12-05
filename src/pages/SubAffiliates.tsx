@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -18,6 +18,8 @@ import { SubAffiliateCommissionsDialog } from "@/components/SubAffiliateCommissi
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useQuery } from "@tanstack/react-query";
 
 interface SubAffiliate {
   id: string;
@@ -75,6 +77,75 @@ const SubAffiliates = () => {
   // Debounce do filtro de nome para evitar muitas requisições
   const debouncedNameFilter = useDebounce(nameFilter, 500);
   const isFirstRender = useRef(true);
+
+  // ID do produto App Renda Recorrente
+  const RENDA_PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
+
+  // Fetch affiliate's current subscription/plan
+  const { data: affiliateSubscription } = useQuery({
+    queryKey: ["affiliate-subscription-subaffiliates", currentUserId],
+    queryFn: async () => {
+      if (!currentUserId) return null;
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("plan_id, status, plans(name, is_free)")
+        .eq("user_id", currentUserId)
+        .in("status", ["active", "trialing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        console.error("Error fetching subscription:", error);
+        return null;
+      }
+      return data;
+    },
+    enabled: !!currentUserId
+  });
+
+  const isProPlan = affiliateSubscription?.plans?.name?.toUpperCase() === "PRO";
+
+  // Fetch minimum sales setting for Renda product
+  const { data: minSalesSetting } = useQuery({
+    queryKey: ["min-sales-renda-setting-subaffiliates"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "min_sales_for_renda_coupons")
+        .single();
+      if (error) {
+        console.log("No setting found, using default");
+        return { value: "10" };
+      }
+      return data;
+    }
+  });
+
+  // Count affiliate's sales from other products (commissions with status available or paid)
+  const { data: otherProductsSalesCount } = useQuery({
+    queryKey: ["other-products-sales-subaffiliates", currentUserId],
+    queryFn: async () => {
+      if (!currentUserId) return 0;
+      const { count, error } = await supabase
+        .from("commissions")
+        .select("id", { count: "exact", head: true })
+        .eq("affiliate_id", currentUserId)
+        .neq("product_id", RENDA_PRODUCT_ID)
+        .in("status", ["available", "paid"]);
+      if (error) {
+        console.error("Error counting sales:", error);
+        return 0;
+      }
+      return count || 0;
+    },
+    enabled: !!currentUserId
+  });
+
+  const minSalesRequired = parseInt(minSalesSetting?.value || "10", 10);
+  const hasEnoughSales = (otherProductsSalesCount || 0) >= minSalesRequired;
+  const salesNeeded = minSalesRequired - (otherProductsSalesCount || 0);
+  const canHaveSubAffiliates = isProPlan && hasEnoughSales;
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -346,6 +417,19 @@ const SubAffiliates = () => {
           Gerencie sua rede de sub-afiliados
         </p>
       </div>
+
+      {/* Aviso de requisitos para ter sub-afiliados */}
+      {!canHaveSubAffiliates && (
+        <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
+          <AlertDescription className="text-white/90">
+            Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:
+            {!isProPlan && <span className="block">• Ter o plano PRO</span>}
+            {!hasEnoughSales && <span className="block">• Ter no mínimo {minSalesRequired} vendas de outros produtos (faltam {salesNeeded})</span>}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
