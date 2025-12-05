@@ -245,7 +245,7 @@ export default function AdminSettings() {
           </TabsTrigger>
           <TabsTrigger value="commissions" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
             <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Comissões</span>
+            <span className="hidden sm:inline">Saques</span>
           </TabsTrigger>
           <TabsTrigger value="theme" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
             <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
