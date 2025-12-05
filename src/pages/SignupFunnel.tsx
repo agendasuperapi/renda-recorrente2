@@ -439,16 +439,8 @@ export default function SignupFunnel() {
   return (
     <div className="min-h-screen bg-background py-12 px-4">
       <div className="container max-w-2xl mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")} 
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para página inicial
-          </Button>
-          
-          {isDevModeActive && (
+        {isDevModeActive && (
+          <div className="flex justify-end mb-4">
             <Button 
               variant="destructive" 
               size="sm"
@@ -456,8 +448,8 @@ export default function SignupFunnel() {
             >
               🔧 Desativar Modo Dev
             </Button>
-          )}
-        </div>
+          </div>
+        )}
         
         {renderProgressBar()}
 
@@ -697,6 +689,12 @@ export default function SignupFunnel() {
           </CardContent>
 
           <CardFooter className="flex justify-between">
+            {currentStep === 1 && (
+              <Button variant="outline" onClick={() => navigate("/")}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar
+              </Button>
+            )}
             {currentStep > 1 && currentStep < 5 && (
               <Button variant="outline" onClick={handleBack}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
