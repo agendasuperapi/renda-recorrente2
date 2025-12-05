@@ -23,7 +23,7 @@ export default function AdminSettings() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('*')
-        .in('key', ['environment_mode', 'commission_days_to_available', 'commission_min_withdrawal', 'commission_check_schedule']);
+        .in('key', ['environment_mode', 'commission_days_to_available', 'commission_min_withdrawal', 'commission_check_schedule', 'min_sales_for_renda_coupons']);
 
       if (error) {
         console.error('Error fetching settings:', error);
@@ -38,15 +38,18 @@ export default function AdminSettings() {
   const commissionDaysData = settingsData?.find(s => s.key === 'commission_days_to_available');
   const commissionMinData = settingsData?.find(s => s.key === 'commission_min_withdrawal');
   const commissionScheduleData = settingsData?.find(s => s.key === 'commission_check_schedule');
+  const minSalesRendaData = settingsData?.find(s => s.key === 'min_sales_for_renda_coupons');
   
   const [commissionDays, setCommissionDays] = useState('7');
   const [commissionMin, setCommissionMin] = useState('50.00');
   const [scheduleType, setScheduleType] = useState<'hourly' | 'specific'>('hourly');
   const [scheduleTime, setScheduleTime] = useState('00:00');
+  const [minSalesForRenda, setMinSalesForRenda] = useState('10');
 
   useEffect(() => {
     if (commissionDaysData) setCommissionDays(commissionDaysData.value);
     if (commissionMinData) setCommissionMin(commissionMinData.value);
+    if (minSalesRendaData) setMinSalesForRenda(minSalesRendaData.value);
     if (commissionScheduleData) {
       const value = commissionScheduleData.value;
       if (value === 'hourly') {
@@ -56,7 +59,7 @@ export default function AdminSettings() {
         setScheduleTime(value);
       }
     }
-  }, [commissionDaysData, commissionMinData, commissionScheduleData]);
+  }, [commissionDaysData, commissionMinData, commissionScheduleData, minSalesRendaData]);
 
   const isProduction = settingData?.value === 'production';
 
@@ -77,7 +80,7 @@ export default function AdminSettings() {
 
   // Mutation para atualizar configurações de comissão
   const updateCommissionSettingsMutation = useMutation({
-    mutationFn: async ({ days, min, schedule }: { days: string; min: string; schedule: string }) => {
+    mutationFn: async ({ days, min, schedule, minSalesRenda }: { days: string; min: string; schedule: string; minSalesRenda: string }) => {
       const updates = [
         supabase
           .from('app_settings')
@@ -93,6 +96,15 @@ export default function AdminSettings() {
             key: 'commission_check_schedule',
             value: schedule,
             description: 'Frequência de verificação das comissões'
+          }, {
+            onConflict: 'key'
+          }),
+        supabase
+          .from('app_settings')
+          .upsert({
+            key: 'min_sales_for_renda_coupons',
+            value: minSalesRenda,
+            description: 'Quantidade mínima de vendas de outros produtos para liberar cupons do App Renda Recorrente'
           }, {
             onConflict: 'key'
           })
@@ -160,6 +172,7 @@ export default function AdminSettings() {
         days: commissionDays,
         min: commissionMin,
         schedule: scheduleValue,
+        minSalesRenda: minSalesForRenda,
       });
 
       // Reconfigurar cron job automaticamente
@@ -335,6 +348,23 @@ export default function AdminSettings() {
                   Clique para verificar e atualizar o status das comissões manualmente
                 </p>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="min-sales-renda">
+                Vendas mínimas para App Renda Recorrente
+              </Label>
+              <Input
+                id="min-sales-renda"
+                type="number"
+                min="0"
+                value={minSalesForRenda}
+                onChange={(e) => setMinSalesForRenda(e.target.value)}
+                className="max-w-xs"
+              />
+              <p className="text-sm text-muted-foreground">
+                Quantidade mínima de vendas de outros produtos que o afiliado precisa ter para poder liberar cupons do App Renda Recorrente (sub-afiliados)
+              </p>
             </div>
 
             <div className="pt-2">
