@@ -430,9 +430,17 @@ const SubAffiliates = () => {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
           <AlertDescription className="text-white/90">
-            Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:
-            {!isProPlan && <span className="block">• Ter o plano PRO</span>}
-            {!hasEnoughSales && <span className="block">• Ter no mínimo {minSalesRequired} vendas de outros produtos (faltam {salesNeeded})</span>}
+            <p className="mb-2">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
+            <span className={`block ${isProPlan ? 'text-green-200 line-through opacity-70' : ''}`}>
+              {isProPlan ? '✓' : '•'} Ter o plano PRO {isProPlan && <span className="text-xs ml-1">(concluído)</span>}
+            </span>
+            <span className={`block ${hasEnoughSales ? 'text-green-200 line-through opacity-70' : ''}`}>
+              {hasEnoughSales ? '✓' : '•'} Ter no mínimo {minSalesRequired} vendas de outros produtos 
+              {hasEnoughSales 
+                ? <span className="text-xs ml-1">(concluído)</span>
+                : <span className="text-xs ml-1">(faltam {salesNeeded})</span>
+              }
+            </span>
           </AlertDescription>
         </Alert>
       )}
