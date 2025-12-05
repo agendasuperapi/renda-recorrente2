@@ -770,6 +770,39 @@ export type Database = {
         }
         Relationships: []
       }
+      deleted_users: {
+        Row: {
+          deleted_at: string
+          deleted_by: string | null
+          deletion_reason: string | null
+          email: string
+          id: string
+          metadata: Json | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          deleted_at?: string
+          deleted_by?: string | null
+          deletion_reason?: string | null
+          email: string
+          id?: string
+          metadata?: Json | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          deleted_at?: string
+          deleted_by?: string | null
+          deletion_reason?: string | null
+          email?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       landing_announcement_banner: {
         Row: {
           background_color: string | null
@@ -1651,6 +1684,8 @@ export type Database = {
           complement: string | null
           cpf: string | null
           created_at: string | null
+          deleted_at: string | null
+          deleted_reason: string | null
           email: string | null
           facebook: string | null
           gender: string | null
@@ -1687,6 +1722,8 @@ export type Database = {
           complement?: string | null
           cpf?: string | null
           created_at?: string | null
+          deleted_at?: string | null
+          deleted_reason?: string | null
           email?: string | null
           facebook?: string | null
           gender?: string | null
@@ -1723,6 +1760,8 @@ export type Database = {
           complement?: string | null
           cpf?: string | null
           created_at?: string | null
+          deleted_at?: string | null
+          deleted_reason?: string | null
           email?: string | null
           facebook?: string | null
           gender?: string | null
@@ -2471,6 +2510,7 @@ export type Database = {
           created_at: string | null
           current_period_end: string | null
           current_period_start: string | null
+          deleted_at: string | null
           email: string
           environment: string | null
           external_user_id: string
@@ -2491,6 +2531,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          deleted_at?: string | null
           email: string
           environment?: string | null
           external_user_id: string
@@ -2511,6 +2552,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          deleted_at?: string | null
           email?: string
           environment?: string | null
           external_user_id?: string
