@@ -126,10 +126,6 @@ const cadastrosMenuItems = [{
   path: "/admin/plans"
 }];
 const configMenuItems = [{
-  icon: Home,
-  label: "Home Landing Page",
-  path: "/"
-}, {
   icon: LayoutDashboard,
   label: "Landing Page",
   path: "/admin/landing-page"
