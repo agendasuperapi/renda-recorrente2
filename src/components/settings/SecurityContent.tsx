@@ -339,6 +339,10 @@ export const SecurityContent = () => {
                         <ul className="list-disc list-inside mt-2 space-y-1">
                           <li>Seus dados pessoais serão anonimizados</li>
                           <li>Você será deslogado imediatamente</li>
+                          <li><strong>Comissões de recorrências futuras</strong> das suas indicações serão perdidas</li>
+                          <li><strong>Comissões pendentes</strong> que ainda não foram liberadas serão perdidas</li>
+                          <li><strong>Saldo de comissões</strong> disponível que não foi solicitado será perdido</li>
+                          <li>Caso faça um novo cadastro, <strong>não será possível recuperar suas indicações</strong></li>
                           <li>O histórico de comissões será mantido (sem dados pessoais)</li>
                           <li>Você poderá criar uma nova conta com o mesmo email</li>
                         </ul>
