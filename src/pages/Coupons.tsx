@@ -85,8 +85,8 @@ const CouponDetailsContent = ({
           {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
         </Badge>
         {coupon.products && <Badge variant="secondary">{coupon.products.nome}</Badge>}
-        {coupon.activatedCoupon?.is_active && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Ativo</Badge>}
-        {coupon.activatedCoupon && !coupon.activatedCoupon.is_active && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">Inativo</Badge>}
+        {coupon.activatedCoupon?.is_active && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Ativo</Badge>}
+        {coupon.activatedCoupon && !coupon.activatedCoupon.is_active && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50">Inativo</Badge>}
       </div>
     </div>
 
@@ -143,12 +143,12 @@ const CouponDetailsContent = ({
             </Button>
           </>}
         </>}
-        {coupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => {
+        {coupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => {
           handleDeactivateClick(coupon.activatedCoupon?.id || "");
         }} disabled={isPendingDeactivate}>
           <XCircle className="h-4 w-4 mr-2" />
           Inativar Cupom
-        </Button> : <Button variant="outline" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => {
+        </Button> : <Button variant="outline" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => {
           reactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
           setDetailsOpen(false);
         }} disabled={reactivateCoupon.isPending}>
@@ -626,12 +626,12 @@ const Coupons = () => {
                     {/* Linha 2: Badges de status */}
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {isActivated ? (
-                        <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Liberado</Badge>
+                        <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Liberado</Badge>
                       ) : (
-                        <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300 text-[10px]">Não Liberado</Badge>
+                        <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>
                       )}
-                      {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Ativo</Badge>}
-                      {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-[10px]">Inativo</Badge>}
+                      {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
+                      {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
                     </div>
                     
                     {/* Linha 3: Código e ações */}
@@ -666,12 +666,12 @@ const Coupons = () => {
                                   {coupon.type === "free_trial" && `${coupon.value}d grátis`}
                                 </Badge>
                                 {isActivated ? (
-                                  <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Liberado</Badge>
+                                  <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge>
                                 ) : (
-                                  <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300 text-xs">Não Liberado</Badge>
+                                  <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>
                                 )}
-                                {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
-                                {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
+                                {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
+                                {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                               </div>
                               
                               <p className="text-xs text-muted-foreground line-clamp-2">
@@ -714,7 +714,7 @@ const Coupons = () => {
                                     {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                         <XCircle className="h-3 w-3 mr-1" />
                                         Inativar
-                                      </Button> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                                      </Button> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                         <Check className="h-3 w-3 mr-1" />
                                         Ativar
                                       </Button>}
@@ -757,12 +757,12 @@ const Coupons = () => {
                           {coupon.type === "free_trial" && `${coupon.value} dias`}
                         </Badge>
                         {isActivated ? (
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Liberado</Badge>
+                          <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge>
                         ) : (
-                          <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300 text-xs">Não Liberado</Badge>
+                          <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>
                         )}
-                        {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
-                        {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
+                        {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
+                        {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                       </div>
                       <code className="text-sm font-mono text-muted-foreground">
                         {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
@@ -780,10 +780,10 @@ const Coupons = () => {
                         <Copy className="h-4 w-4 mr-2" />
                         Copiar
                       </Button>}
-                      {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                      {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                         <XCircle className="h-4 w-4 mr-2" />
                         Inativar
-                      </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                      </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                         <Check className="h-4 w-4 mr-2" />
                         Ativar
                       </Button> : <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
@@ -807,14 +807,14 @@ const Coupons = () => {
                                 {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
                               </Badge>
                               {isActivated ? (
-                                <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Liberado</Badge>
+                                <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Liberado</Badge>
                               ) : (
-                                <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300">Não Liberado</Badge>
+                                <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50">Não Liberado</Badge>
                               )}
-                              {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
+                              {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">
                                   Ativo
                                 </Badge>}
-                              {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">
+                              {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50">
                                   Inativo
                                 </Badge>}
                               </div>
@@ -876,7 +876,7 @@ const Coupons = () => {
                                   {isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                       <XCircle className="h-4 w-4 mr-2" />
                                       Inativar
-                                    </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                                    </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                       <Check className="h-4 w-4 mr-2" />
                                       Ativar
                                     </Button>}
@@ -910,12 +910,12 @@ const Coupons = () => {
                 {/* Linha 2: Badges de status */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   {isActivated ? (
-                    <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Liberado</Badge>
+                    <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Liberado</Badge>
                   ) : (
-                    <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300 text-[10px]">Não Liberado</Badge>
+                    <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>
                   )}
-                  {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-[10px]">Ativo</Badge>}
-                  {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-[10px]">Inativo</Badge>}
+                  {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
+                  {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
                   {coupon.products && <Badge variant="secondary" className="text-[10px]">{coupon.products.nome}</Badge>}
                 </div>
                 
@@ -940,7 +940,7 @@ const Coupons = () => {
                 </div>
               </div>;
             }
-            return <Card key={coupon.id} className={isActivated && !isActive ? "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20" : ""}>
+            return <Card key={coupon.id} className={isActivated && !isActive ? "border-red-300 dark:border-red-500 bg-red-50 dark:bg-transparent" : ""}>
                       <CardContent className="p-4 space-y-3">
                         <div className="flex flex-wrap gap-1.5 items-start">
                           <h3 className="font-semibold text-sm flex-1">{coupon.name}</h3>
@@ -951,8 +951,8 @@ const Coupons = () => {
                             {coupon.type === "free_trial" && `${coupon.value}d grátis`}
                           </Badge>
                           {coupon.products && <Badge variant="secondary" className="text-xs">{coupon.products.nome}</Badge>}
-                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
-                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
+                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
+                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                         </div>
                         
                         <p className="text-xs text-muted-foreground line-clamp-2">
@@ -995,7 +995,7 @@ const Coupons = () => {
                               {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                   <XCircle className="h-3 w-3 mr-1" />
                                   Inativar
-                                </Button> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                                </Button> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                   <Check className="h-3 w-3 mr-1" />
                                   Ativar
                                 </Button>}
@@ -1026,12 +1026,12 @@ const Coupons = () => {
                     </Badge>
                     {coupon.products && <Badge variant="secondary" className="text-xs">{coupon.products.nome}</Badge>}
                     {isActivated ? (
-                      <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Liberado</Badge>
+                      <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge>
                     ) : (
-                      <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300 text-xs">Não Liberado</Badge>
+                      <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>
                     )}
-                    {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 text-xs">Ativo</Badge>}
-                    {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 text-xs">Inativo</Badge>}
+                    {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
+                    {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                   </div>
                   <code className="text-sm font-mono text-muted-foreground">
                     {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
@@ -1052,7 +1052,7 @@ const Coupons = () => {
                   {isActivated ? isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                     <XCircle className="h-4 w-4 mr-2" />
                     Inativar
-                  </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-950 dark:text-green-400" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                  </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                     <Check className="h-4 w-4 mr-2" />
                     Ativar
                   </Button> : <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
@@ -1077,14 +1077,14 @@ const Coupons = () => {
                           </Badge>
                           {coupon.products && <Badge variant="secondary">{coupon.products.nome}</Badge>}
                           {isActivated ? (
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Liberado</Badge>
+                            <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Liberado</Badge>
                           ) : (
-                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-800/40 dark:text-orange-300">Não Liberado</Badge>
+                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50">Não Liberado</Badge>
                           )}
-                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
+                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">
                               Ativo
                             </Badge>}
-                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">
+                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50">
                               Inativo
                             </Badge>}
                         </div>
@@ -1133,7 +1133,7 @@ const Coupons = () => {
                              {isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                 <XCircle className="h-4 w-4 mr-2" />
                                 Inativar
-                              </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                              </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                 <Check className="h-4 w-4 mr-2" />
                                 Ativar
                               </Button>}
