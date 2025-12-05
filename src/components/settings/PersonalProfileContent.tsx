@@ -278,18 +278,25 @@ export const PersonalProfileContent = () => {
             updates.name = data.name;
           }
           
-          if (data.birthDate && data.birthDate !== '****-**-**') {
+          // Preenche data de nascimento se disponível e não estiver mascarada
+          if (data.birthDate && !data.birthDate.includes('**') && !data.birthDate.includes('****')) {
             updates.birth_date = data.birthDate;
           }
           
+          // Preenche gênero se disponível
           if (data.gender) {
             const genderMap: { [key: string]: string } = {
               'm': 'masculino',
               'f': 'feminino',
               'male': 'masculino',
-              'female': 'feminino'
+              'female': 'feminino',
+              'masculino': 'masculino',
+              'feminino': 'feminino'
             };
-            updates.gender = genderMap[data.gender.toLowerCase()] || data.gender;
+            const mappedGender = genderMap[data.gender.toLowerCase()];
+            if (mappedGender) {
+              updates.gender = mappedGender;
+            }
           }
 
           if (Object.keys(updates).length > 0) {
