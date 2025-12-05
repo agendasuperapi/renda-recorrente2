@@ -433,17 +433,26 @@ const SubAffiliates = () => {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
           <AlertDescription className="text-white/90">
-            <p className="mb-2">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
-            <span className={`block ${isProPlan ? 'text-green-200 line-through opacity-70' : ''}`}>
-              {isProPlan ? '✓' : '•'} Ter o plano PRO {isProPlan && <span className="text-xs ml-1">(concluído)</span>}
-            </span>
-            <span className={`block ${hasEnoughSales ? 'text-green-200 line-through opacity-70' : ''}`}>
-              {hasEnoughSales ? '✓' : '•'} Ter no mínimo {minSalesRequired} vendas de outros produtos 
-              {hasEnoughSales 
-                ? <span className="text-xs ml-1">(concluído)</span>
-                : <span className="text-xs ml-1">(faltam {salesNeeded})</span>
-              }
-            </span>
+            <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
+            <div className="space-y-2">
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${isProPlan ? 'bg-green-500/30' : 'bg-white/10'}`}>
+                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                  {isProPlan ? '✓' : '1'}
+                </span>
+                <span className="flex-1">Ter o plano PRO</span>
+                {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+              </div>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${hasEnoughSales ? 'bg-green-500/30' : 'bg-white/10'}`}>
+                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                  {hasEnoughSales ? '✓' : '2'}
+                </span>
+                <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
+                {hasEnoughSales 
+                  ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
+                  : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
+                }
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
       )}
