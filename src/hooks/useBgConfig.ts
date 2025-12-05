@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
 
 interface BackgroundConfig {
   colorStartLight: string;
@@ -88,7 +89,13 @@ export function useBgConfig() {
 
       if (error) {
         console.error('Error loading background config:', error);
-        setConfig(null);
+        // Tentar usar cache em caso de erro
+        const cachedConfig = getFromCache<BackgroundConfig>(CACHE_KEYS.APP_BG_CONFIG);
+        if (cachedConfig) {
+          setConfig(cachedConfig);
+        } else {
+          setConfig(null);
+        }
         return;
       }
 
@@ -100,7 +107,7 @@ export function useBgConfig() {
 
         // Only set config if we have at least the color settings
         if (settings.bg_color_start_light || settings.bg_color_start_dark) {
-          setConfig({
+          const newConfig: BackgroundConfig = {
             colorStartLight: settings.bg_color_start_light || defaultConfig.colorStartLight,
             colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
             colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
@@ -116,21 +123,35 @@ export function useBgConfig() {
             applyMobile: settings.bg_apply_mobile !== 'false',
             applyTablet: settings.bg_apply_tablet !== 'false',
             applyDesktop: settings.bg_apply_desktop !== 'false',
-          });
+          };
+          setConfig(newConfig);
+          // Salvar no cache
+          saveToCache(CACHE_KEYS.APP_BG_CONFIG, newConfig);
         } else {
           setConfig(null);
         }
       } else {
-        setConfig(null);
+        // Tentar usar cache se não há dados
+        const cachedConfig = getFromCache<BackgroundConfig>(CACHE_KEYS.APP_BG_CONFIG);
+        if (cachedConfig) {
+          setConfig(cachedConfig);
+        } else {
+          setConfig(null);
+        }
       }
     } catch (error) {
       console.error('Error loading background config:', error);
-      setConfig(null);
+      // Tentar usar cache em caso de erro
+      const cachedConfig = getFromCache<BackgroundConfig>(CACHE_KEYS.APP_BG_CONFIG);
+      if (cachedConfig) {
+        setConfig(cachedConfig);
+      } else {
+        setConfig(null);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     loadConfig();
 

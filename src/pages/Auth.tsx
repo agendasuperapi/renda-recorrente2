@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { APP_VERSION } from "@/config/version";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
 
 const authSchema = z.object({
   email: z
@@ -66,33 +67,57 @@ const Auth = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
 
-  // Busca configurações de gradiente
+  // Busca configurações de gradiente com cache
   const { data: gradientConfigsData = [] } = useQuery({
     queryKey: ['authGradientConfigs'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('landing_block_gradients' as any)
-        .select('*')
-        .in('block_name', ['auth_left_panel', 'auth_right_panel', 'auth_form_card']);
-      
-      if (error) throw error;
-      return data as unknown as GradientConfig[];
+      try {
+        const { data, error } = await supabase
+          .from('landing_block_gradients' as any)
+          .select('*')
+          .in('block_name', ['auth_left_panel', 'auth_right_panel', 'auth_form_card']);
+        
+        if (error) throw error;
+        
+        // Salvar no cache
+        if (data) {
+          saveToCache(CACHE_KEYS.AUTH_GRADIENT_CONFIGS, data);
+        }
+        return data as unknown as GradientConfig[];
+      } catch (error) {
+        // Tentar usar cache em caso de erro
+        const cached = getFromCache<GradientConfig[]>(CACHE_KEYS.AUTH_GRADIENT_CONFIGS);
+        if (cached) return cached;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 5,
   });
 
-  // Busca descrição do produto
+  // Busca descrição do produto com cache
   const { data: productData } = useQuery({
     queryKey: ['authProduct'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('descricao')
-        .eq('id', 'bb582482-b006-47b8-b6ea-a6944d8cfdfd')
-        .single();
-      
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('descricao')
+          .eq('id', 'bb582482-b006-47b8-b6ea-a6944d8cfdfd')
+          .single();
+        
+        if (error) throw error;
+        
+        // Salvar no cache
+        if (data) {
+          saveToCache(CACHE_KEYS.AUTH_PRODUCT_DESCRIPTION, data);
+        }
+        return data;
+      } catch (error) {
+        // Tentar usar cache em caso de erro
+        const cached = getFromCache<{ descricao: string }>(CACHE_KEYS.AUTH_PRODUCT_DESCRIPTION);
+        if (cached) return cached;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -106,7 +131,6 @@ const Auth = () => {
       setGradientConfigs(configs);
     }
   }, [gradientConfigsData]);
-
   const checkAdminRole = async (userId: string) => {
     const { data, error } = await supabase
       .from("user_roles")
