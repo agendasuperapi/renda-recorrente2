@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff, Palette } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Eye, EyeOff, Palette, Moon, Sun } from "lucide-react";
 import { z } from "zod";
 import { GradientEditor } from "@/components/GradientEditor";
 import logoVerde from "@/assets/logo-renda-verde.png";
@@ -872,6 +872,21 @@ export default function SignupFunnel() {
             >
               <Palette className="w-4 h-4 mr-2" />
               Personalizar
+            </Button>
+          </div>
+        )}
+
+        {isDevModeActive && (
+          <div className="flex justify-center mt-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                document.documentElement.classList.toggle('dark');
+              }}
+            >
+              {isDarkMode() ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+              {isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}
             </Button>
           </div>
         )}
