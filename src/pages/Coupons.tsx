@@ -596,7 +596,7 @@ const Coupons = () => {
 
       {/* All Coupons */}
       <Card className="lg:bg-card lg:border bg-transparent border-0 shadow-none lg:shadow-sm">
-        <CardContent className="p-0 lg:p-6 lg:pt-0 md:-mx-6 lg:mx-0">
+        <CardContent className="p-0 lg:p-6 pt-4 md:-mx-6 lg:mx-0">
           {allCoupons.length === 0 ? <div className="text-center py-12 text-muted-foreground">
               <Ticket className="h-12 w-12 mx-auto mb-4 opacity-20" />
               <p>Nenhum cupom disponível</p>
