@@ -1078,78 +1078,69 @@ export default function AdminWithdrawals() {
                 </TabsList>
 
                 <TabsContent value="details" className="space-y-3">
-                  <div className={`grid gap-4 ${selectedWithdrawal.status === "approved" ? "md:grid-cols-2" : ""}`}>
+                  <div className="space-y-4">
+                    {/* Affiliate Header */}
+                    <div className="flex items-center gap-3 pb-3 border-b">
+                      <Avatar className="h-11 w-11">
+                        <AvatarImage src={selectedWithdrawal.profiles?.avatar_url || ""} alt={selectedWithdrawal.profiles?.name} />
+                        <AvatarFallback>
+                          {selectedWithdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold truncate">{selectedWithdrawal.profiles?.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
+                      </div>
+                      {getStatusBadge(selectedWithdrawal.status)}
+                    </div>
+
                     {/* Info Grid */}
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={selectedWithdrawal.profiles?.avatar_url || ""} alt={selectedWithdrawal.profiles?.name} />
-                          <AvatarFallback className="text-xs">
-                            {selectedWithdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">Afiliado</p>
-                          <p className="font-medium truncate text-xs">{selectedWithdrawal.profiles?.name}</p>
-                          <p className="text-xs text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
-                        </div>
-                      </div>
+                    <div className="grid grid-cols-3 gap-3 text-sm">
                       <div>
-                        <p className="text-xs text-muted-foreground">Status</p>
-                        {getStatusBadge(selectedWithdrawal.status)}
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Valor</p>
-                        <p className="font-bold text-base">
-                          {Number(selectedWithdrawal.amount).toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL"
-                          })}
+                        <p className="text-xs text-muted-foreground mb-0.5">Valor</p>
+                        <p className="font-bold text-primary">
+                          {Number(selectedWithdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Solicitação</p>
-                        <p className="font-medium text-xs">
-                          {format(new Date(selectedWithdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Chave PIX ({selectedWithdrawal.pix_type})</p>
-                        <p className="font-mono text-xs truncate">{selectedWithdrawal.pix_key}</p>
+                        <p className="text-xs text-muted-foreground mb-0.5">Solicitação</p>
+                        <p className="text-xs">{format(new Date(selectedWithdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                       </div>
                       {selectedWithdrawal.approved_date && (
                         <div>
-                          <p className="text-xs text-muted-foreground">Aprovação</p>
-                          <p className="font-medium text-xs">
-                            {format(new Date(selectedWithdrawal.approved_date), "dd/MM/yy HH:mm", { locale: ptBR })}
-                          </p>
+                          <p className="text-xs text-muted-foreground mb-0.5">Aprovação</p>
+                          <p className="text-xs">{format(new Date(selectedWithdrawal.approved_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                         </div>
                       )}
                       {selectedWithdrawal.paid_date && (
                         <div>
-                          <p className="text-xs text-muted-foreground">Pagamento</p>
-                          <p className="font-medium text-xs">
-                            {format(new Date(selectedWithdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR })}
-                          </p>
+                          <p className="text-xs text-muted-foreground mb-0.5">Pagamento</p>
+                          <p className="text-xs">{format(new Date(selectedWithdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                         </div>
                       )}
+                      <div className="col-span-3">
+                        <p className="text-xs text-muted-foreground mb-0.5">Chave PIX ({selectedWithdrawal.pix_type})</p>
+                        <p className="font-mono text-sm">{selectedWithdrawal.pix_key}</p>
+                      </div>
                       {selectedWithdrawal.rejected_reason && (
-                        <div className="col-span-2">
-                          <p className="text-xs text-muted-foreground">Motivo Rejeição</p>
-                          <p className="text-red-600 text-xs">{selectedWithdrawal.rejected_reason}</p>
+                        <div className="col-span-3">
+                          <p className="text-xs text-muted-foreground mb-0.5">Motivo Rejeição</p>
+                          <p className="text-destructive text-xs">{selectedWithdrawal.rejected_reason}</p>
                         </div>
                       )}
                     </div>
 
-                    {/* PIX QR Code - ao lado quando aprovado */}
+                    {/* PIX QR Code */}
                     {selectedWithdrawal.status === "approved" && (
-                      <PixQRCode
-                        pixKey={selectedWithdrawal.pix_key}
-                        pixType={selectedWithdrawal.pix_type}
-                        amount={Number(selectedWithdrawal.amount)}
-                        recipientName={selectedWithdrawal.profiles?.name || "Afiliado"}
-                        transactionId={selectedWithdrawal.id}
-                      />
+                      <div className="pt-3 border-t">
+                        <PixQRCode
+                          pixKey={selectedWithdrawal.pix_key}
+                          pixType={selectedWithdrawal.pix_type}
+                          amount={Number(selectedWithdrawal.amount)}
+                          recipientName={selectedWithdrawal.profiles?.name || "Afiliado"}
+                          transactionId={selectedWithdrawal.id}
+                        />
+                      </div>
                     )}
                   </div>
 
