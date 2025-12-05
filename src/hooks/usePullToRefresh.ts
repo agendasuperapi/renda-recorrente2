@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface UsePullToRefreshOptions {
   onRefresh?: () => void | Promise<void>;
@@ -11,9 +11,12 @@ export const usePullToRefresh = ({
   threshold = 80,
   disabled = false
 }: UsePullToRefreshOptions = {}) => {
-  const [isPulling, setIsPulling] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  const startYRef = useRef(0);
+  const isPullingRef = useRef(false);
+  const isRefreshingRef = useRef(false);
 
   const isStandalonePWA = useCallback(() => {
     return (
@@ -25,51 +28,67 @@ export const usePullToRefresh = ({
   useEffect(() => {
     if (disabled || !isStandalonePWA()) return;
 
-    let startY = 0;
-    let currentY = 0;
-
     const handleTouchStart = (e: TouchEvent) => {
-      if (window.scrollY === 0) {
-        startY = e.touches[0].clientY;
-        setIsPulling(true);
+      // Only start pull if at top of page
+      if (window.scrollY <= 0 && !isRefreshingRef.current) {
+        startYRef.current = e.touches[0].clientY;
+        isPullingRef.current = true;
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!isPulling || window.scrollY > 0) {
-        setIsPulling(false);
+      if (!isPullingRef.current || isRefreshingRef.current) return;
+      
+      // Cancel if scrolled away from top
+      if (window.scrollY > 0) {
+        isPullingRef.current = false;
         setPullDistance(0);
         return;
       }
 
-      currentY = e.touches[0].clientY;
-      const distance = Math.max(0, currentY - startY);
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - startYRef.current;
       
+      // Only pull down, not up
+      if (distance <= 0) {
+        setPullDistance(0);
+        return;
+      }
+
       // Apply resistance to make it feel natural
       const resistedDistance = Math.min(distance * 0.5, threshold * 1.5);
       setPullDistance(resistedDistance);
 
+      // Prevent default scroll when pulling
       if (distance > 10) {
         e.preventDefault();
       }
     };
 
     const handleTouchEnd = async () => {
-      if (pullDistance >= threshold && !isRefreshing) {
+      if (!isPullingRef.current) return;
+      
+      const currentDistance = pullDistance;
+      isPullingRef.current = false;
+
+      if (currentDistance >= threshold && !isRefreshingRef.current) {
+        isRefreshingRef.current = true;
         setIsRefreshing(true);
         
-        if (onRefresh) {
-          await onRefresh();
-        } else {
-          window.location.reload();
+        try {
+          if (onRefresh) {
+            await onRefresh();
+          } else {
+            window.location.reload();
+          }
+        } finally {
+          isRefreshingRef.current = false;
+          setIsRefreshing(false);
         }
-        
-        setIsRefreshing(false);
       }
       
-      setIsPulling(false);
       setPullDistance(0);
-      startY = 0;
+      startYRef.current = 0;
     };
 
     document.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -81,10 +100,9 @@ export const usePullToRefresh = ({
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isPulling, pullDistance, threshold, isRefreshing, onRefresh, disabled, isStandalonePWA]);
+  }, [threshold, onRefresh, disabled, isStandalonePWA, pullDistance]);
 
   return {
-    isPulling,
     pullDistance,
     isRefreshing,
     isReady: pullDistance >= threshold,

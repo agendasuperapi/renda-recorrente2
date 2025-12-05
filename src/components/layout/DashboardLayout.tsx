@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useBgConfig } from "@/hooks/useBgConfig";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { usePreventOverscroll } from "@/hooks/usePreventOverscroll";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -187,8 +188,14 @@ export const DashboardLayout = () => {
   
   const isLoading = !initialized && !loadingTimeout;
 
+  const handleRefresh = async () => {
+    queryClient.invalidateQueries();
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
+
   return (
     <div className="min-h-screen bg-[#10b981]">
+      <PullToRefresh onRefresh={handleRefresh} />
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
         <div 
