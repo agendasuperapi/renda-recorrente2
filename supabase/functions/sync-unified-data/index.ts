@@ -71,6 +71,50 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+
+    // Verify authentication - require admin role or service key
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Autenticação necessária' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Check if it's the service role key (for internal API calls) or anon key
+    const isServiceKey = token === supabaseKey || token === supabaseAnonKey;
+    
+    if (!isServiceKey) {
+      // Verify user token and check for admin role
+      const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+      const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
+      
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Token inválido' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check if user is admin
+      const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
+      const { data: roleData } = await supabaseAdmin
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!roleData || roleData.role !== 'super_admin') {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Acesso não autorizado' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Parse request body

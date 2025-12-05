@@ -15,10 +15,39 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Autenticação necessária' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: { user: authUser }, error: authError } = await supabaseAuth.auth.getUser(token);
+    
+    if (authError || !authUser) {
+      return new Response(
+        JSON.stringify({ error: 'Token inválido' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { plan_id, user_email, user_name, user_id, coupon } = await req.json();
+
+    // Verify that the authenticated user matches the user_id in the request
+    if (authUser.id !== user_id) {
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado para criar checkout para outro usuário' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!plan_id || !user_email || !user_name || !user_id) {
       return new Response(
@@ -128,7 +157,7 @@ Deno.serve(async (req) => {
 
     console.log('[create-stripe-checkout] Integração encontrada:', integration.id);
 
-    // Buscar URLs da conta
+    // Buscar URLs da conta (only non-sensitive fields)
     const { data: account } = await supabase
       .from('accounts')
       .select('success_url, cancel_url')
