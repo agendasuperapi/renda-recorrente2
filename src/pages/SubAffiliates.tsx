@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle, Crown } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle, Crown, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -436,15 +436,15 @@ const SubAffiliates = () => {
             <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
             <div className="space-y-2">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${isProPlan ? 'bg-green-500/30' : 'bg-white/10'}`}>
-                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                  {isProPlan ? '✓' : '1'}
+                <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                  {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                 </span>
                 <span className="flex-1">Ter o plano PRO</span>
                 {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
               </div>
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${hasEnoughSales ? 'bg-green-500/30' : 'bg-white/10'}`}>
-                <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                  {hasEnoughSales ? '✓' : '2'}
+                <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                  {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                 </span>
                 <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
                 {hasEnoughSales 
