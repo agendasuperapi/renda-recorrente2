@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { PixQRCode } from "./PixQRCode";
 
 export type WithdrawalData = {
   id: string;
@@ -202,6 +203,22 @@ export function WithdrawalDetailsDialog({
         </div>
       )}
     </div>
+  );
+
+  const PixQRCodeSection = () => (
+    <>
+      {withdrawal.status === "approved" && showAdminActions && (
+        <div className="pt-4 border-t">
+          <PixQRCode
+            pixKey={withdrawal.pix_key}
+            pixType={withdrawal.pix_type}
+            amount={Number(withdrawal.amount)}
+            recipientName={withdrawal.profiles?.name || "Afiliado"}
+            transactionId={withdrawal.id}
+          />
+        </div>
+      )}
+    </>
   );
 
   const PaymentProofsSection = () => (
@@ -476,6 +493,7 @@ export function WithdrawalDetailsDialog({
                 <ScrollArea className="h-[calc(85vh-180px)]">
                   <div className="space-y-3 pr-3">
                     <DetailsContent />
+                    <PixQRCodeSection />
                     {showAdminActions && withdrawal.status === "pending" && (
                       <div className="space-y-2 pt-3 border-t mt-3">
                         <Textarea
@@ -543,6 +561,7 @@ export function WithdrawalDetailsDialog({
 
             <TabsContent value="details" className="space-y-4">
               <DetailsContent />
+              <PixQRCodeSection />
               {showAdminActions && withdrawal.status === "pending" && (
                 <div className="space-y-2 pt-4 border-t">
                   <Textarea
