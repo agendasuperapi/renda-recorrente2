@@ -1173,10 +1173,16 @@ export default function AdminWithdrawals() {
                           Aprovar
                         </Button>
                       </>}
-                    {selectedWithdrawal.status === "approved" && <Button variant="default" onClick={() => handlePaid(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending || paymentProofs.length === 0}>
-                        <DollarSign className="h-4 w-4 mr-2" />
-                        Marcar como Pago
-                      </Button>}
+                    {selectedWithdrawal.status === "approved" && <>
+                        <Button variant="outline" onClick={() => handleRevert(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
+                          <Undo2 className="h-4 w-4 mr-2" />
+                          Estornar Aprovação
+                        </Button>
+                        <Button variant="default" onClick={() => handlePaid(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending || paymentProofs.length === 0}>
+                          <DollarSign className="h-4 w-4 mr-2" />
+                          Marcar como Pago
+                        </Button>
+                      </>}
                     {selectedWithdrawal.status === "paid" && <Button variant="outline" onClick={() => handleRevert(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
                         <Undo2 className="h-4 w-4 mr-2" />
                         Estornar Pagamento
