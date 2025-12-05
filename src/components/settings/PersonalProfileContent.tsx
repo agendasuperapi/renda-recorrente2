@@ -20,24 +20,23 @@ import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
 interface UsernameHistoryItem {
   id: string;
   username: string;
   new_username: string | null;
   changed_at: string;
 }
-
 interface UsernameHistoryItem {
   id: string;
   username: string;
   new_username: string | null;
   changed_at: string;
 }
-
 export const PersonalProfileContent = () => {
   const isMobile = useIsMobile();
-  const { userId } = useAuth();
+  const {
+    userId
+  } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [showUsernameDialog, setShowUsernameDialog] = useState(false);
@@ -49,7 +48,6 @@ export const PersonalProfileContent = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [usernameHistory, setUsernameHistory] = useState<UsernameHistoryItem[]>([]);
-  
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -69,9 +67,8 @@ export const PersonalProfileContent = () => {
     tiktok: "",
     youtube: "",
     twitter: "",
-    linkedin: "",
+    linkedin: ""
   });
-
   const [cpfStatus, setCpfStatus] = useState<{
     checking: boolean;
     available: boolean | null;
@@ -81,47 +78,43 @@ export const PersonalProfileContent = () => {
     checking: false,
     available: null,
     existingUser: null,
-    valid: null,
+    valid: null
   });
 
   // Função para validar CPF (algoritmo brasileiro)
   const isValidCPF = (cpf: string): boolean => {
     const cleanCpf = cpf.replace(/\D/g, '');
-    
     if (cleanCpf.length !== 11) return false;
-    
+
     // Verifica se todos os dígitos são iguais
     if (/^(\d)\1+$/.test(cleanCpf)) return false;
-    
+
     // Validação do primeiro dígito verificador
     let sum = 0;
     for (let i = 0; i < 9; i++) {
       sum += parseInt(cleanCpf.charAt(i)) * (10 - i);
     }
-    let remainder = (sum * 10) % 11;
+    let remainder = sum * 10 % 11;
     if (remainder === 10 || remainder === 11) remainder = 0;
     if (remainder !== parseInt(cleanCpf.charAt(9))) return false;
-    
+
     // Validação do segundo dígito verificador
     sum = 0;
     for (let i = 0; i < 10; i++) {
       sum += parseInt(cleanCpf.charAt(i)) * (11 - i);
     }
-    remainder = (sum * 10) % 11;
+    remainder = sum * 10 % 11;
     if (remainder === 10 || remainder === 11) remainder = 0;
     if (remainder !== parseInt(cleanCpf.charAt(10))) return false;
-    
     return true;
   };
-
   const [usernameStatus, setUsernameStatus] = useState<{
     checking: boolean;
     available: boolean | null;
   }>({
     checking: false,
-    available: null,
+    available: null
   });
-
   useEffect(() => {
     if (userId) {
       loadProfile();
@@ -131,42 +124,38 @@ export const PersonalProfileContent = () => {
 
   // Listen for avatar updates from Sidebar
   useEffect(() => {
-    const handleAvatarUpdate = (event: CustomEvent<{ avatarUrl: string }>) => {
+    const handleAvatarUpdate = (event: CustomEvent<{
+      avatarUrl: string;
+    }>) => {
       setAvatarUrl(event.detail.avatarUrl);
     };
-
     window.addEventListener('avatar-updated', handleAvatarUpdate as EventListener);
     return () => {
       window.removeEventListener('avatar-updated', handleAvatarUpdate as EventListener);
     };
   }, []);
-
   const loadUsernameHistory = async () => {
     try {
-      const { data, error } = await supabase
-        .from("username_history")
-        .select("id, username, new_username, changed_at")
-        .eq("user_id", userId)
-        .order("changed_at", { ascending: false });
-
+      const {
+        data,
+        error
+      } = await supabase.from("username_history").select("id, username, new_username, changed_at").eq("user_id", userId).order("changed_at", {
+        ascending: false
+      });
       if (error) throw error;
       setUsernameHistory(data || []);
     } catch (error) {
       console.error("Error loading username history:", error);
     }
   };
-
   const loadProfile = async () => {
     try {
       setLoadingProfile(true);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin, avatar_url")
-        .eq("id", userId)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from("profiles").select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin, avatar_url").eq("id", userId).single();
       if (error) throw error;
-
       if (data) {
         const profileData = data as any;
         setAvatarUrl(profileData.avatar_url || null);
@@ -189,7 +178,7 @@ export const PersonalProfileContent = () => {
           tiktok: profileData.tiktok || "",
           youtube: profileData.youtube || "",
           twitter: profileData.twitter || "",
-          linkedin: profileData.linkedin || "",
+          linkedin: profileData.linkedin || ""
         });
       }
     } catch (error: any) {
@@ -199,7 +188,6 @@ export const PersonalProfileContent = () => {
       setLoadingProfile(false);
     }
   };
-
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length <= 11) {
@@ -207,13 +195,11 @@ export const PersonalProfileContent = () => {
     }
     return value;
   };
-
   const formatCEP = (value: string) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length <= 5) return numbers;
     return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
   };
-
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, "");
     if (numbers.length <= 11) {
@@ -221,94 +207,125 @@ export const PersonalProfileContent = () => {
     }
     return value;
   };
-
   const checkCpfAvailability = async (cpf: string) => {
     const cleanCpf = cpf.replace(/\D/g, "");
     if (cleanCpf.length !== 11) {
-      setCpfStatus({ checking: false, available: null, existingUser: null, valid: null });
+      setCpfStatus({
+        checking: false,
+        available: null,
+        existingUser: null,
+        valid: null
+      });
       return;
     }
-
-    setCpfStatus({ checking: true, available: null, existingUser: null, valid: true });
-
+    setCpfStatus({
+      checking: true,
+      available: null,
+      existingUser: null,
+      valid: true
+    });
     try {
-      const { data, error } = await supabase.functions.invoke('check-cpf-availability', {
-        body: { cpf: cleanCpf, userId }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('check-cpf-availability', {
+        body: {
+          cpf: cleanCpf,
+          userId
+        }
       });
-
       if (error) throw error;
-
       setCpfStatus({
         checking: false,
         available: data.available,
         existingUser: data.existingUser,
-        valid: true,
+        valid: true
       });
     } catch (error) {
       console.error("Error checking CPF:", error);
-      setCpfStatus({ checking: false, available: null, existingUser: null, valid: true });
+      setCpfStatus({
+        checking: false,
+        available: null,
+        existingUser: null,
+        valid: true
+      });
     }
   };
-
   const checkUsernameAvailability = async (username: string) => {
     if (username.length < 3) {
-      setUsernameStatus({ checking: false, available: null });
-      return;
-    }
-
-    setUsernameStatus({ checking: true, available: null });
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', username.toLowerCase())
-        .neq('id', userId)
-        .maybeSingle();
-
-      if (error) throw error;
-
       setUsernameStatus({
         checking: false,
-        available: data === null,
+        available: null
+      });
+      return;
+    }
+    setUsernameStatus({
+      checking: true,
+      available: null
+    });
+    try {
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('id').eq('username', username.toLowerCase()).neq('id', userId).maybeSingle();
+      if (error) throw error;
+      setUsernameStatus({
+        checking: false,
+        available: data === null
       });
     } catch (error) {
       console.error("Error checking username:", error);
-      setUsernameStatus({ checking: false, available: null });
+      setUsernameStatus({
+        checking: false,
+        available: null
+      });
     }
   };
-
   const handleCpfChange = async (value: string) => {
     const formatted = formatCPF(value);
-    setFormData({ ...formData, cpf: formatted });
-    
+    setFormData({
+      ...formData,
+      cpf: formatted
+    });
     const cleanCpf = formatted.replace(/\D/g, "");
     if (cleanCpf.length === 11) {
       // Primeiro valida se o CPF é válido (algoritmo brasileiro)
       const cpfIsValid = isValidCPF(cleanCpf);
-      
       if (!cpfIsValid) {
-        setCpfStatus({ checking: false, available: null, existingUser: null, valid: false });
+        setCpfStatus({
+          checking: false,
+          available: null,
+          existingUser: null,
+          valid: false
+        });
         toast.error("CPF inválido. Verifique os dígitos informados.");
         return;
       }
 
       // CPF válido, verifica disponibilidade
-      setCpfStatus({ checking: true, available: null, existingUser: null, valid: true });
-
+      setCpfStatus({
+        checking: true,
+        available: null,
+        existingUser: null,
+        valid: true
+      });
       try {
-        const { data: availabilityData, error: availabilityError } = await supabase.functions.invoke('check-cpf-availability', {
-          body: { cpf: cleanCpf, userId }
+        const {
+          data: availabilityData,
+          error: availabilityError
+        } = await supabase.functions.invoke('check-cpf-availability', {
+          body: {
+            cpf: cleanCpf,
+            userId
+          }
         });
-
         if (availabilityError) throw availabilityError;
-
         const isAvailable = availabilityData.available;
         setCpfStatus({
           checking: false,
           available: isAvailable,
           existingUser: availabilityData.existingUser,
-          valid: true,
+          valid: true
         });
 
         // Só consulta e preenche os dados se o CPF estiver disponível
@@ -318,30 +335,32 @@ export const PersonalProfileContent = () => {
         }
 
         // CPF disponível, consultar dados
-        const { data, error } = await supabase.functions.invoke('consultar-cpf', {
-          body: { 
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('consultar-cpf', {
+          body: {
             cpf: cleanCpf,
             birthDate: formData.birth_date || undefined
-          },
+          }
         });
-
         if (error) throw error;
-
         if (!data.error) {
           const updates: any = {};
-          
           if (data.name) {
             updates.name = data.name;
           }
-          
+
           // Preenche data de nascimento se disponível e não estiver mascarada
           if (data.birthDate && !data.birthDate.includes('**') && !data.birthDate.includes('****')) {
             updates.birth_date = data.birthDate;
           }
-          
+
           // Preenche gênero se disponível
           if (data.gender) {
-            const genderMap: { [key: string]: string } = {
+            const genderMap: {
+              [key: string]: string;
+            } = {
               'm': 'masculino',
               'f': 'feminino',
               'male': 'masculino',
@@ -354,38 +373,50 @@ export const PersonalProfileContent = () => {
               updates.gender = mappedGender;
             }
           }
-
           if (Object.keys(updates).length > 0) {
-            setFormData(prev => ({ ...prev, ...updates }));
+            setFormData(prev => ({
+              ...prev,
+              ...updates
+            }));
             toast.success("Dados encontrados e preenchidos automaticamente!");
           }
         }
       } catch (error) {
         console.error('Erro ao verificar/consultar CPF:', error);
-        setCpfStatus({ checking: false, available: null, existingUser: null, valid: true });
+        setCpfStatus({
+          checking: false,
+          available: null,
+          existingUser: null,
+          valid: true
+        });
       }
     } else {
-      setCpfStatus({ checking: false, available: null, existingUser: null, valid: null });
+      setCpfStatus({
+        checking: false,
+        available: null,
+        existingUser: null,
+        valid: null
+      });
     }
   };
-
   const handleCepChange = async (value: string) => {
     const formatted = formatCEP(value);
-    setFormData({ ...formData, cep: formatted });
-
+    setFormData({
+      ...formData,
+      cep: formatted
+    });
     const cleanCep = formatted.replace(/\D/g, "");
     if (cleanCep.length === 8) {
       try {
         const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
         const data = await response.json();
-
         if (!data.erro) {
           setFormData(prev => ({
             ...prev,
             street: data.logradouro || "",
             neighborhood: data.bairro || "",
             city: data.localidade || "",
-            state: data.uf || "",
+            state: data.uf || ""
           }));
         }
       } catch (error) {
@@ -393,27 +424,28 @@ export const PersonalProfileContent = () => {
       }
     }
   };
-
   const handleUsernameChange = (value: string) => {
     const cleaned = value.toLowerCase().replace(/[^a-z0-9_]/g, "");
-    setFormData({ ...formData, username: cleaned });
-    
+    setFormData({
+      ...formData,
+      username: cleaned
+    });
     if (cleaned.length >= 3) {
       checkUsernameAvailability(cleaned);
     } else {
-      setUsernameStatus({ checking: false, available: null });
+      setUsernameStatus({
+        checking: false,
+        available: null
+      });
     }
   };
-
   const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       toast.error("Por favor, selecione uma imagem");
       return;
     }
-
     const reader = new FileReader();
     reader.onload = () => {
       setAvatarImageSrc(reader.result as string);
@@ -421,47 +453,34 @@ export const PersonalProfileContent = () => {
     };
     reader.readAsDataURL(file);
   };
-
   const handleCroppedAvatar = async (images: AvatarSizes) => {
     if (!userId) return;
-    
     setUploadingAvatar(true);
     try {
       const paths = generateAvatarPaths(userId);
-      
-      // Upload both versions in parallel
-      const [thumbUpload, originalUpload] = await Promise.all([
-        supabase.storage
-          .from("avatars")
-          .upload(paths.thumb, images.thumb, {
-            cacheControl: "3600",
-            upsert: true,
-          }),
-        supabase.storage
-          .from("avatars")
-          .upload(paths.original, images.original, {
-            cacheControl: "3600",
-            upsert: true,
-          }),
-      ]);
 
+      // Upload both versions in parallel
+      const [thumbUpload, originalUpload] = await Promise.all([supabase.storage.from("avatars").upload(paths.thumb, images.thumb, {
+        cacheControl: "3600",
+        upsert: true
+      }), supabase.storage.from("avatars").upload(paths.original, images.original, {
+        cacheControl: "3600",
+        upsert: true
+      })]);
       if (thumbUpload.error) throw thumbUpload.error;
       if (originalUpload.error) throw originalUpload.error;
 
       // Store the original URL in the database (thumb can be derived from it)
-      const { data: urlData } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(paths.original);
-
+      const {
+        data: urlData
+      } = supabase.storage.from("avatars").getPublicUrl(paths.original);
       const newAvatarUrl = urlData.publicUrl;
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ avatar_url: newAvatarUrl })
-        .eq("id", userId);
-
+      const {
+        error: updateError
+      } = await supabase.from("profiles").update({
+        avatar_url: newAvatarUrl
+      }).eq("id", userId);
       if (updateError) throw updateError;
-
       setAvatarUrl(newAvatarUrl);
       toast.success("Foto de perfil atualizada!");
     } catch (error) {
@@ -474,59 +493,49 @@ export const PersonalProfileContent = () => {
       }
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (cpfStatus.valid === false) {
       toast.error("CPF inválido. Verifique os dígitos informados.");
       return;
     }
-
     if (cpfStatus.available === false) {
       toast.error("CPF já cadastrado por outro usuário");
       return;
     }
-
     if (usernameStatus.available === false) {
       toast.error("Username já está em uso");
       return;
     }
-
     setLoading(true);
-
     try {
       const cleanCpf = formData.cpf.replace(/\D/g, "");
       const cleanPhone = formData.phone.replace(/\D/g, "");
       const cleanCep = formData.cep.replace(/\D/g, "");
-
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          name: formData.name,
-          username: formData.username,
-          cpf: cleanCpf || null,
-          phone: cleanPhone || null,
-          birth_date: formData.birth_date || null,
-          gender: formData.gender || null,
-          cep: cleanCep || null,
-          street: formData.street || null,
-          number: formData.number || null,
-          complement: formData.complement || null,
-          neighborhood: formData.neighborhood || null,
-          city: formData.city || null,
-          state: formData.state || null,
-          instagram: formData.instagram || null,
-          facebook: formData.facebook || null,
-          tiktok: formData.tiktok || null,
-          youtube: formData.youtube || null,
-          twitter: formData.twitter || null,
-          linkedin: formData.linkedin || null,
-        })
-        .eq("id", userId);
-
+      const {
+        error
+      } = await supabase.from("profiles").update({
+        name: formData.name,
+        username: formData.username,
+        cpf: cleanCpf || null,
+        phone: cleanPhone || null,
+        birth_date: formData.birth_date || null,
+        gender: formData.gender || null,
+        cep: cleanCep || null,
+        street: formData.street || null,
+        number: formData.number || null,
+        complement: formData.complement || null,
+        neighborhood: formData.neighborhood || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        instagram: formData.instagram || null,
+        facebook: formData.facebook || null,
+        tiktok: formData.tiktok || null,
+        youtube: formData.youtube || null,
+        twitter: formData.twitter || null,
+        linkedin: formData.linkedin || null
+      }).eq("id", userId);
       if (error) throw error;
-
       toast.success("Dados atualizados com sucesso!");
     } catch (error: any) {
       console.error("Error updating profile:", error);
@@ -535,25 +544,15 @@ export const PersonalProfileContent = () => {
       setLoading(false);
     }
   };
-
   if (loadingProfile) {
-    return (
-      <div className="flex items-center justify-center h-64">
+    return <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <>
+  return <>
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">Meu Perfil</CardTitle>
-            <CardDescription className="text-sm">
-              Gerencie suas informações pessoais
-            </CardDescription>
-          </CardHeader>
+          
           <CardContent>
             <Tabs defaultValue="personal" className="w-full">
               <TabsList className="grid w-full grid-cols-3 h-auto">
@@ -577,10 +576,7 @@ export const PersonalProfileContent = () => {
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-3 pb-4 border-b">
                   <div className="relative">
-                    <div 
-                      className="cursor-pointer"
-                      onClick={() => avatarUrl && setShowAvatarPreview(true)}
-                    >
+                    <div className="cursor-pointer" onClick={() => avatarUrl && setShowAvatarPreview(true)}>
                       <Avatar className="h-48 w-48 transition-opacity hover:opacity-90">
                         <AvatarImage src={avatarUrl || undefined} alt={formData.name} />
                         <AvatarFallback className="text-5xl">
@@ -588,25 +584,10 @@ export const PersonalProfileContent = () => {
                         </AvatarFallback>
                       </Avatar>
                     </div>
-                    <button
-                      type="button"
-                      className="absolute bottom-2 right-2 p-2.5 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors"
-                      onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
-                      disabled={uploadingAvatar}
-                    >
-                      {uploadingAvatar ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Camera className="h-5 w-5" />
-                      )}
+                    <button type="button" className="absolute bottom-2 right-2 p-2.5 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors" onClick={() => !uploadingAvatar && fileInputRef.current?.click()} disabled={uploadingAvatar}>
+                      {uploadingAvatar ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
                     </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleAvatarSelect}
-                    />
+                    <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarSelect} />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {avatarUrl ? "Clique na foto para ampliar" : "Clique no ícone para adicionar foto"}
@@ -619,135 +600,77 @@ export const PersonalProfileContent = () => {
                     <DialogHeader className="sr-only">
                       <DialogTitle>Foto do perfil</DialogTitle>
                     </DialogHeader>
-                    {avatarUrl && (
-                      <img 
-                        src={getAvatarOriginalUrl(avatarUrl) || avatarUrl} 
-                        alt={formData.name} 
-                        className="w-full h-auto rounded-lg"
-                      />
-                    )}
+                    {avatarUrl && <img src={getAvatarOriginalUrl(avatarUrl) || avatarUrl} alt={formData.name} className="w-full h-auto rounded-lg" />}
                   </DialogContent>
                 </Dialog>
 
                 <div className="space-y-1.5 sm:space-y-2">
                   <Label htmlFor="name" className="text-sm">Nome Completo *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Seu nome completo"
-                    required
-                    className="text-sm sm:text-base"
-                  />
+                  <Input id="name" value={formData.name} onChange={e => setFormData({
+                  ...formData,
+                  name: e.target.value
+                })} placeholder="Seu nome completo" required className="text-sm sm:text-base" />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="username">Username *</Label>
                   <div className="flex gap-2">
-                    <Input
-                      id="username"
-                      value={formData.username}
-                      onChange={(e) => handleUsernameChange(e.target.value)}
-                      placeholder="seu_username"
-                      required
-                      disabled
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowUsernameDialog(true)}
-                    >
+                    <Input id="username" value={formData.username} onChange={e => handleUsernameChange(e.target.value)} placeholder="seu_username" required disabled className="flex-1" />
+                    <Button type="button" variant="outline" onClick={() => setShowUsernameDialog(true)}>
                       Editar
                     </Button>
-                    {usernameHistory.length > 0 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowHistoryDialog(true)}
-                        title="Ver histórico de alterações"
-                      >
+                    {usernameHistory.length > 0 && <Button type="button" variant="ghost" size="icon" onClick={() => setShowHistoryDialog(true)} title="Ver histórico de alterações">
                         <History className="h-4 w-4" />
-                      </Button>
-                    )}
+                      </Button>}
                   </div>
-                  {usernameStatus.checking && (
-                    <p className="text-sm text-muted-foreground">Verificando...</p>
-                  )}
-                  {usernameStatus.available === true && (
-                    <p className="text-sm text-green-600">Username disponível</p>
-                  )}
-                  {usernameStatus.available === false && (
-                    <p className="text-sm text-destructive">Username já está em uso</p>
-                  )}
+                  {usernameStatus.checking && <p className="text-sm text-muted-foreground">Verificando...</p>}
+                  {usernameStatus.available === true && <p className="text-sm text-green-600">Username disponível</p>}
+                  {usernameStatus.available === false && <p className="text-sm text-destructive">Username já está em uso</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF</Label>
                   <div className="relative">
-                    <Input
-                      id="cpf"
-                      value={formData.cpf}
-                      onChange={(e) => handleCpfChange(e.target.value)}
-                      placeholder="000.000.000-00"
-                      maxLength={14}
-                      className={(cpfStatus.available === false || cpfStatus.valid === false) ? "border-destructive focus-visible:ring-destructive pr-10" : ""}
-                    />
-                    {(cpfStatus.available === false || cpfStatus.valid === false) && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <Input id="cpf" value={formData.cpf} onChange={e => handleCpfChange(e.target.value)} placeholder="000.000.000-00" maxLength={14} className={cpfStatus.available === false || cpfStatus.valid === false ? "border-destructive focus-visible:ring-destructive pr-10" : ""} />
+                    {(cpfStatus.available === false || cpfStatus.valid === false) && <div className="absolute right-3 top-1/2 -translate-y-1/2">
                         <X className="h-5 w-5 text-destructive" />
-                      </div>
-                    )}
+                      </div>}
                   </div>
-                  {cpfStatus.checking && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  {cpfStatus.checking && <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Loader2 className="h-3 w-3 animate-spin" />
                       Verificando CPF...
-                    </p>
-                  )}
-                  {cpfStatus.valid === false && (
-                    <p className="text-sm text-destructive font-medium">
+                    </p>}
+                  {cpfStatus.valid === false && <p className="text-sm text-destructive font-medium">
                       CPF inválido. Verifique os dígitos informados.
-                    </p>
-                  )}
-                  {cpfStatus.available === false && cpfStatus.valid !== false && (
-                    <p className="text-sm text-destructive font-medium">
+                    </p>}
+                  {cpfStatus.available === false && cpfStatus.valid !== false && <p className="text-sm text-destructive font-medium">
                       CPF já cadastrado no sistema
-                    </p>
-                  )}
-                  {cpfStatus.available === true && cpfStatus.valid === true && (
-                    <p className="text-sm text-green-600">CPF disponível</p>
-                  )}
+                    </p>}
+                  {cpfStatus.available === true && cpfStatus.valid === true && <p className="text-sm text-green-600">CPF disponível</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
-                    placeholder="(00) 00000-0000"
-                    maxLength={15}
-                  />
+                  <Input id="phone" value={formData.phone} onChange={e => setFormData({
+                  ...formData,
+                  phone: formatPhone(e.target.value)
+                })} placeholder="(00) 00000-0000" maxLength={15} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="birth_date">Data de Nascimento</Label>
-                  <DatePickerFilter
-                    value={formData.birth_date ? parse(formData.birth_date, 'yyyy-MM-dd', new Date()) : undefined}
-                    onChange={(date) => setFormData({ ...formData, birth_date: date ? format(date, 'yyyy-MM-dd') : '' })}
-                    placeholder="Selecionar data"
-                    className="w-full"
-                  />
+                  <DatePickerFilter value={formData.birth_date ? parse(formData.birth_date, 'yyyy-MM-dd', new Date()) : undefined} onChange={date => setFormData({
+                  ...formData,
+                  birth_date: date ? format(date, 'yyyy-MM-dd') : ''
+                })} placeholder="Selecionar data" className="w-full" />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gênero</Label>
-                  <Select
-                    value={formData.gender}
-                    onValueChange={(value) => setFormData({ ...formData, gender: value })}
-                  >
+                  <Select value={formData.gender} onValueChange={value => setFormData({
+                  ...formData,
+                  gender: value
+                })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione seu gênero" />
                     </SelectTrigger>
@@ -764,77 +687,58 @@ export const PersonalProfileContent = () => {
               <TabsContent value="address" className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label htmlFor="cep">CEP</Label>
-                  <Input
-                    id="cep"
-                    value={formData.cep}
-                    onChange={(e) => handleCepChange(e.target.value)}
-                    placeholder="00000-000"
-                    maxLength={9}
-                  />
+                  <Input id="cep" value={formData.cep} onChange={e => handleCepChange(e.target.value)} placeholder="00000-000" maxLength={9} />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="street">Rua</Label>
-                  <Input
-                    id="street"
-                    value={formData.street}
-                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                    placeholder="Nome da rua"
-                  />
+                  <Input id="street" value={formData.street} onChange={e => setFormData({
+                  ...formData,
+                  street: e.target.value
+                })} placeholder="Nome da rua" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="number">Número</Label>
-                    <Input
-                      id="number"
-                      value={formData.number}
-                      onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                      placeholder="123"
-                    />
+                    <Input id="number" value={formData.number} onChange={e => setFormData({
+                    ...formData,
+                    number: e.target.value
+                  })} placeholder="123" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="complement">Complemento</Label>
-                    <Input
-                      id="complement"
-                      value={formData.complement}
-                      onChange={(e) => setFormData({ ...formData, complement: e.target.value })}
-                      placeholder="Apto, bloco, etc"
-                    />
+                    <Input id="complement" value={formData.complement} onChange={e => setFormData({
+                    ...formData,
+                    complement: e.target.value
+                  })} placeholder="Apto, bloco, etc" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="neighborhood">Bairro</Label>
-                  <Input
-                    id="neighborhood"
-                    value={formData.neighborhood}
-                    onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
-                    placeholder="Nome do bairro"
-                  />
+                  <Input id="neighborhood" value={formData.neighborhood} onChange={e => setFormData({
+                  ...formData,
+                  neighborhood: e.target.value
+                })} placeholder="Nome do bairro" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city">Cidade</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="Cidade"
-                    />
+                    <Input id="city" value={formData.city} onChange={e => setFormData({
+                    ...formData,
+                    city: e.target.value
+                  })} placeholder="Cidade" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="state">Estado</Label>
-                    <Input
-                      id="state"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value.toUpperCase() })}
-                      placeholder="UF"
-                      maxLength={2}
-                    />
+                    <Input id="state" value={formData.state} onChange={e => setFormData({
+                    ...formData,
+                    state: e.target.value.toUpperCase()
+                  })} placeholder="UF" maxLength={2} />
                   </div>
                 </div>
               </TabsContent>
@@ -845,12 +749,10 @@ export const PersonalProfileContent = () => {
                     <Instagram className="h-4 w-4" />
                     Instagram
                   </Label>
-                  <Input
-                    id="instagram"
-                    value={formData.instagram}
-                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                    placeholder="@seuusuario"
-                  />
+                  <Input id="instagram" value={formData.instagram} onChange={e => setFormData({
+                  ...formData,
+                  instagram: e.target.value
+                })} placeholder="@seuusuario" />
                 </div>
 
                 <div className="space-y-2">
@@ -858,12 +760,10 @@ export const PersonalProfileContent = () => {
                     <Facebook className="h-4 w-4" />
                     Facebook
                   </Label>
-                  <Input
-                    id="facebook"
-                    value={formData.facebook}
-                    onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
-                    placeholder="facebook.com/seuusuario"
-                  />
+                  <Input id="facebook" value={formData.facebook} onChange={e => setFormData({
+                  ...formData,
+                  facebook: e.target.value
+                })} placeholder="facebook.com/seuusuario" />
                 </div>
 
                 <div className="space-y-2">
@@ -871,12 +771,10 @@ export const PersonalProfileContent = () => {
                     <Video className="h-4 w-4" />
                     TikTok
                   </Label>
-                  <Input
-                    id="tiktok"
-                    value={formData.tiktok}
-                    onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
-                    placeholder="@seuusuario"
-                  />
+                  <Input id="tiktok" value={formData.tiktok} onChange={e => setFormData({
+                  ...formData,
+                  tiktok: e.target.value
+                })} placeholder="@seuusuario" />
                 </div>
 
                 <div className="space-y-2">
@@ -884,12 +782,10 @@ export const PersonalProfileContent = () => {
                     <Youtube className="h-4 w-4" />
                     YouTube
                   </Label>
-                  <Input
-                    id="youtube"
-                    value={formData.youtube}
-                    onChange={(e) => setFormData({ ...formData, youtube: e.target.value })}
-                    placeholder="youtube.com/@seucanal"
-                  />
+                  <Input id="youtube" value={formData.youtube} onChange={e => setFormData({
+                  ...formData,
+                  youtube: e.target.value
+                })} placeholder="youtube.com/@seucanal" />
                 </div>
 
                 <div className="space-y-2">
@@ -897,12 +793,10 @@ export const PersonalProfileContent = () => {
                     <Twitter className="h-4 w-4" />
                     X (Twitter)
                   </Label>
-                  <Input
-                    id="twitter"
-                    value={formData.twitter}
-                    onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-                    placeholder="@seuusuario"
-                  />
+                  <Input id="twitter" value={formData.twitter} onChange={e => setFormData({
+                  ...formData,
+                  twitter: e.target.value
+                })} placeholder="@seuusuario" />
                 </div>
 
                 <div className="space-y-2">
@@ -910,12 +804,10 @@ export const PersonalProfileContent = () => {
                     <Linkedin className="h-4 w-4" />
                     LinkedIn
                   </Label>
-                  <Input
-                    id="linkedin"
-                    value={formData.linkedin}
-                    onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                    placeholder="linkedin.com/in/seuusuario"
-                  />
+                  <Input id="linkedin" value={formData.linkedin} onChange={e => setFormData({
+                  ...formData,
+                  linkedin: e.target.value
+                })} placeholder="linkedin.com/in/seuusuario" />
                 </div>
               </TabsContent>
             </Tabs>
@@ -930,32 +822,20 @@ export const PersonalProfileContent = () => {
         </div>
       </form>
 
-      <UsernameEditDialog
-        open={showUsernameDialog}
-        onOpenChange={setShowUsernameDialog}
-        currentUsername={formData.username}
-        userId={userId || ""}
-        onSuccess={() => {
-          loadProfile();
-          loadUsernameHistory();
-          setShowUsernameDialog(false);
-        }}
-      />
+      <UsernameEditDialog open={showUsernameDialog} onOpenChange={setShowUsernameDialog} currentUsername={formData.username} userId={userId || ""} onSuccess={() => {
+      loadProfile();
+      loadUsernameHistory();
+      setShowUsernameDialog(false);
+    }} />
 
-      {isMobile ? (
-        <Drawer open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+      {isMobile ? <Drawer open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
           <DrawerContent>
             <DrawerHeader className="relative">
               <DrawerTitle>Histórico de Usernames</DrawerTitle>
               <DrawerDescription>
                 Veja todas as alterações de username realizadas
               </DrawerDescription>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 top-4"
-                onClick={() => setShowHistoryDialog(false)}
-              >
+              <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={() => setShowHistoryDialog(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </DrawerHeader>
@@ -969,22 +849,20 @@ export const PersonalProfileContent = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {usernameHistory.map((item) => (
-                    <TableRow key={item.id}>
+                  {usernameHistory.map(item => <TableRow key={item.id}>
                       <TableCell className="text-xs">
-                        {format(new Date(item.changed_at), "dd/MM/yy HH:mm", { locale: ptBR })}
+                        {format(new Date(item.changed_at), "dd/MM/yy HH:mm", {
+                    locale: ptBR
+                  })}
                       </TableCell>
                       <TableCell className="font-mono text-xs">{item.username}</TableCell>
                       <TableCell className="font-mono text-xs">{item.new_username || "-"}</TableCell>
-                    </TableRow>
-                  ))}
+                    </TableRow>)}
                 </TableBody>
               </Table>
             </div>
           </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+        </Drawer> : <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Histórico de Usernames</DialogTitle>
@@ -1002,28 +880,21 @@ export const PersonalProfileContent = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {usernameHistory.map((item) => (
-                    <TableRow key={item.id}>
+                  {usernameHistory.map(item => <TableRow key={item.id}>
                       <TableCell className="text-sm">
-                        {format(new Date(item.changed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        {format(new Date(item.changed_at), "dd/MM/yyyy HH:mm", {
+                    locale: ptBR
+                  })}
                       </TableCell>
                       <TableCell className="font-mono text-sm">{item.username}</TableCell>
                       <TableCell className="font-mono text-sm">{item.new_username || "-"}</TableCell>
-                    </TableRow>
-                  ))}
+                    </TableRow>)}
                 </TableBody>
               </Table>
             </div>
           </DialogContent>
-        </Dialog>
-      )}
+        </Dialog>}
 
-      <AvatarCropDialog
-        open={showAvatarCropDialog}
-        onOpenChange={setShowAvatarCropDialog}
-        imageSrc={avatarImageSrc}
-        onCropComplete={handleCroppedAvatar}
-      />
-    </>
-  );
+      <AvatarCropDialog open={showAvatarCropDialog} onOpenChange={setShowAvatarCropDialog} imageSrc={avatarImageSrc} onCropComplete={handleCroppedAvatar} />
+    </>;
 };
