@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
-import { Loader2, RefreshCw, Settings, DollarSign, PanelLeft, Palette, Smartphone } from "lucide-react";
+import { Loader2, RefreshCw, Settings, DollarSign, Palette } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function AdminSettings() {
@@ -222,25 +222,17 @@ export default function AdminSettings() {
 
       <Tabs defaultValue="environment" className="w-full">
         <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
-          <TabsTrigger value="environment" className="flex-1 min-w-[120px] gap-2 data-[state=active]:bg-background">
+          <TabsTrigger value="environment" className="flex-1 min-w-[100px] gap-2 data-[state=active]:bg-background">
             <Settings className="h-4 w-4" />
             <span className="hidden sm:inline">Ambiente</span>
           </TabsTrigger>
-          <TabsTrigger value="commissions" className="flex-1 min-w-[120px] gap-2 data-[state=active]:bg-background">
+          <TabsTrigger value="commissions" className="flex-1 min-w-[100px] gap-2 data-[state=active]:bg-background">
             <DollarSign className="h-4 w-4" />
             <span className="hidden sm:inline">Comissões</span>
           </TabsTrigger>
-          <TabsTrigger value="sidebar" className="flex-1 min-w-[120px] gap-2 data-[state=active]:bg-background">
-            <PanelLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Menu Lateral</span>
-          </TabsTrigger>
-          <TabsTrigger value="background" className="flex-1 min-w-[120px] gap-2 data-[state=active]:bg-background">
+          <TabsTrigger value="theme" className="flex-1 min-w-[100px] gap-2 data-[state=active]:bg-background">
             <Palette className="h-4 w-4" />
-            <span className="hidden sm:inline">Fundo</span>
-          </TabsTrigger>
-          <TabsTrigger value="statusbar" className="flex-1 min-w-[120px] gap-2 data-[state=active]:bg-background">
-            <Smartphone className="h-4 w-4" />
-            <span className="hidden sm:inline">Status Bar</span>
+            <span className="hidden sm:inline">Tema</span>
           </TabsTrigger>
         </TabsList>
 
@@ -426,10 +418,10 @@ export default function AdminSettings() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="sidebar" className="mt-4">
+        <TabsContent value="theme" className="mt-4 space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Personalização do Menu Lateral</CardTitle>
+              <CardTitle>Menu Lateral</CardTitle>
               <CardDescription>
                 Configure as cores, gradiente e ícone do menu lateral do sistema
               </CardDescription>
@@ -455,12 +447,10 @@ export default function AdminSettings() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="background" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Personalização do Fundo das Páginas</CardTitle>
+              <CardTitle>Fundo das Páginas</CardTitle>
               <CardDescription>
                 Configure o gradiente de fundo das páginas do dashboard (exceto Landing Page e Auth)
               </CardDescription>
@@ -486,12 +476,10 @@ export default function AdminSettings() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="statusbar" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Cor da Barra de Status (PWA)</CardTitle>
+              <CardTitle>Barra de Status (PWA)</CardTitle>
               <CardDescription>
                 Configure a cor da barra de status do dispositivo (hora, bateria, sinal) para PWAs instalados
               </CardDescription>
