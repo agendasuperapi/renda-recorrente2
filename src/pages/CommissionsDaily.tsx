@@ -551,8 +551,12 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                     </CardContent>
                   </Card>
                 ) : (
-                  commissions.map((commission) => (
-                    <Card key={commission.id}>
+                  commissions.map((commission, index) => (
+                    <Card 
+                      key={commission.id}
+                      className="animate-fade-in transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
+                      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}
+                    >
                       <CardContent className="p-4 space-y-3">
                         {layoutMode === "compact" && expandedCardId !== commission.id ? (
                           // Layout Compacto: Nome, Produto, Data, Comissão
@@ -651,8 +655,12 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    commissions.map((commission) => (
-                      <TableRow key={commission.id}>
+                    commissions.map((commission, index) => (
+                      <TableRow 
+                        key={commission.id}
+                        className="animate-fade-in transition-all duration-200 hover:bg-muted/50"
+                        style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'backwards' }}
+                      >
                         <TableCell>{formatDate(commission.data)}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
