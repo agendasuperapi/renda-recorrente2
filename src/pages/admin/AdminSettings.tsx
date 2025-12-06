@@ -13,6 +13,7 @@ import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
 import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 
 // Lazy load components for tabs
 const AdminLandingPageContent = lazy(() => import("./AdminLandingPage"));
@@ -278,44 +279,47 @@ export default function AdminSettings() {
         </TabsList>
 
         <TabsContent value="environment" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ambiente da Aplicação</CardTitle>
-              <CardDescription>
-                Escolha se o aplicativo está operando em modo de teste ou produção
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label htmlFor="environment-mode" className="text-base">
-                    Modo de Operação
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {isProduction ? "Produção" : "Teste"} - {isProduction 
-                      ? "Operações reais com dados de produção" 
-                      : "Ambiente de testes com dados de sandbox"}
-                  </p>
+          <ScrollAnimation animation="fade-up">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Ambiente da Aplicação</CardTitle>
+                <CardDescription>
+                  Escolha se o aplicativo está operando em modo de teste ou produção
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="environment-mode" className="text-base">
+                      Modo de Operação
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {isProduction ? "Produção" : "Teste"} - {isProduction 
+                        ? "Operações reais com dados de produção" 
+                        : "Ambiente de testes com dados de sandbox"}
+                    </p>
+                  </div>
+                  <Switch
+                    id="environment-mode"
+                    checked={isProduction}
+                    onCheckedChange={handleToggle}
+                    disabled={isLoading || updateSettingMutation.isPending}
+                  />
                 </div>
-                <Switch
-                  id="environment-mode"
-                  checked={isProduction}
-                  onCheckedChange={handleToggle}
-                  disabled={isLoading || updateSettingMutation.isPending}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
         </TabsContent>
 
         <TabsContent value="commissions" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configurações de Comissões</CardTitle>
-              <CardDescription>
-                Configure o fluxo automático de aprovação de comissões
-              </CardDescription>
-            </CardHeader>
+          <ScrollAnimation animation="fade-up">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Configurações de Comissões</CardTitle>
+                <CardDescription>
+                  Configure o fluxo automático de aprovação de comissões
+                </CardDescription>
+              </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -456,96 +460,103 @@ export default function AdminSettings() {
                 </ul>
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </ScrollAnimation>
         </TabsContent>
 
         <TabsContent value="theme" className="mt-4 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Menu Lateral</CardTitle>
-              <CardDescription>
-                Configure as cores, gradiente e ícone do menu lateral do sistema
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div className="space-y-1">
-                  <Label className="text-base">
-                    Aparência do Sidebar
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Personalize cores, gradiente, textos e o logo do menu lateral
-                  </p>
+          <ScrollAnimation animation="fade-up">
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Menu Lateral</CardTitle>
+                <CardDescription>
+                  Configure as cores, gradiente e ícone do menu lateral do sistema
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-base">
+                      Aparência do Sidebar
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Personalize cores, gradiente, textos e o logo do menu lateral
+                    </p>
+                  </div>
+                  <SidebarConfigEditor 
+                    onConfigSaved={() => {
+                      toast({
+                        title: "Configurações salvas",
+                        description: "Recarregue a página para ver as mudanças aplicadas",
+                      });
+                    }}
+                  />
                 </div>
-                <SidebarConfigEditor 
-                  onConfigSaved={() => {
-                    toast({
-                      title: "Configurações salvas",
-                      description: "Recarregue a página para ver as mudanças aplicadas",
-                    });
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Fundo das Páginas</CardTitle>
-              <CardDescription>
-                Configure o gradiente de fundo das páginas do dashboard (exceto Landing Page e Auth)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div className="space-y-1">
-                  <Label className="text-base">
-                    Fundo do Dashboard
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Personalize o gradiente de fundo com cores e intensidades diferentes para cada dispositivo
-                  </p>
+          <ScrollAnimation animation="fade-up" delay={100}>
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Fundo das Páginas</CardTitle>
+                <CardDescription>
+                  Configure o gradiente de fundo das páginas do dashboard (exceto Landing Page e Auth)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-base">
+                      Fundo do Dashboard
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Personalize o gradiente de fundo com cores e intensidades diferentes para cada dispositivo
+                    </p>
+                  </div>
+                  <BackgroundConfigEditor 
+                    onConfigSaved={() => {
+                      toast({
+                        title: "Configurações salvas",
+                        description: "O fundo das páginas foi atualizado",
+                      });
+                    }}
+                  />
                 </div>
-                <BackgroundConfigEditor 
-                  onConfigSaved={() => {
-                    toast({
-                      title: "Configurações salvas",
-                      description: "O fundo das páginas foi atualizado",
-                    });
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Barra de Status (PWA)</CardTitle>
-              <CardDescription>
-                Configure a cor da barra de status do dispositivo (hora, bateria, sinal) para PWAs instalados
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div className="space-y-1">
-                  <Label className="text-base">
-                    Barra de Status
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Personalize a cor exibida no topo do dispositivo em modo claro e escuro
-                  </p>
+          <ScrollAnimation animation="fade-up" delay={200}>
+            <Card className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle>Barra de Status (PWA)</CardTitle>
+                <CardDescription>
+                  Configure a cor da barra de status do dispositivo (hora, bateria, sinal) para PWAs instalados
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-base">
+                      Barra de Status
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Personalize a cor exibida no topo do dispositivo em modo claro e escuro
+                    </p>
+                  </div>
+                  <StatusBarConfigEditor 
+                    onConfigSaved={() => {
+                      toast({
+                        title: "Configurações salvas",
+                        description: "A cor da barra de status foi atualizada",
+                      });
+                    }}
+                  />
                 </div>
-                <StatusBarConfigEditor 
-                  onConfigSaved={() => {
-                    toast({
-                      title: "Configurações salvas",
-                      description: "A cor da barra de status foi atualizada",
-                    });
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
         </TabsContent>
 
         <TabsContent value="landing" className="mt-4">
