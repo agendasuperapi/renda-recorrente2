@@ -16,6 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 interface AvailableCoupon {
   id: string;
   code: string;
