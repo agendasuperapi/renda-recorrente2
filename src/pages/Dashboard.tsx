@@ -536,7 +536,7 @@ const Dashboard = () => {
                   <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <CardHeader className="p-0 pb-1 space-y-0">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Comissão do dia
                   </CardTitle>
                 </CardHeader>
@@ -552,7 +552,7 @@ const Dashboard = () => {
                   <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Comissão 7 dias
                   </CardTitle>
                 </CardHeader>
@@ -568,7 +568,7 @@ const Dashboard = () => {
                   <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Comissão do mês
                   </CardTitle>
                 </CardHeader>
@@ -584,7 +584,7 @@ const Dashboard = () => {
                   <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Disponível p/ saque
                   </CardTitle>
                 </CardHeader>
@@ -604,7 +604,7 @@ const Dashboard = () => {
                   <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Comissão pendente
                   </CardTitle>
                 </CardHeader>
@@ -620,7 +620,7 @@ const Dashboard = () => {
                   <Coins className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Total já sacado
                   </CardTitle>
                 </CardHeader>
@@ -636,7 +636,7 @@ const Dashboard = () => {
                   <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base font-medium text-muted-foreground">
                     Dia de solicitar saque
                   </CardTitle>
                 </CardHeader>
@@ -656,7 +656,7 @@ const Dashboard = () => {
                   <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">Quant. de Indicações</CardTitle>
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base text-muted-foreground">Quant. de Indicações</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{displayValue(stats?.total_indicacoes || 0, true)}</div>
@@ -668,7 +668,7 @@ const Dashboard = () => {
                   <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
                 </div>
                 <CardHeader className="p-0 pb-1">
-                  <CardTitle className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
+                  <CardTitle className="text-[10px] sm:text-xs lg:text-base text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{displayValue(stats?.total_sub_afiliados || 0, true)}</div>
