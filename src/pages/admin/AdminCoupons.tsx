@@ -25,6 +25,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 
 const couponTypeLabels = {
   percentage: "% de desconto",
@@ -1216,8 +1218,8 @@ const AdminCoupons = () => {
                          </TableRow>
                        </TableHeader>
                        <TableBody>
-                         {productData.coupons.map((coupon: any) => (
-                           <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
+                         {productData.coupons.map((coupon: any, index: number) => (
+                           <AnimatedTableRow key={coupon.id} delay={index * 30} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
                              <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                              <TableCell>
                                <div>
@@ -1271,7 +1273,7 @@ const AdminCoupons = () => {
                                  </Button>
                                </div>
                              </TableCell>
-                           </TableRow>
+                           </AnimatedTableRow>
                          ))}
                        </TableBody>
                      </Table>
@@ -1279,9 +1281,10 @@ const AdminCoupons = () => {
 
                    {/* Mobile/Tablet Cards */}
                    <div className="lg:hidden space-y-3">
-                     {productData.coupons.map((coupon: any) => (
-                       layoutMode === "compact" ? (
-                         <Card key={coupon.id} className={`overflow-hidden ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
+                     {productData.coupons.map((coupon: any, index: number) => (
+                       <ScrollAnimation key={coupon.id} animation="fade-up" delay={index * 50}>
+                       {layoutMode === "compact" ? (
+                         <Card className={`overflow-hidden hover:shadow-md transition-shadow ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
                            <CardContent className="p-3">
                              <div className="space-y-2">
                                <div className="flex items-start justify-between gap-2">
@@ -1321,7 +1324,7 @@ const AdminCoupons = () => {
                            </CardContent>
                          </Card>
                        ) : (
-                         <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
+                         <Card className={`hover:shadow-md transition-shadow ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
                            <CardContent className="pt-6">
                              <div className="space-y-3">
                                <div className="flex items-start justify-between gap-3">
@@ -1384,7 +1387,8 @@ const AdminCoupons = () => {
                              </div>
                            </CardContent>
                          </Card>
-                       )
+                       )}
+                       </ScrollAnimation>
                      ))}
                    </div>
                 </div>
@@ -1410,8 +1414,8 @@ const AdminCoupons = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredCoupons.map((coupon: any) => (
-                      <TableRow key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
+                    {filteredCoupons.map((coupon: any, index: number) => (
+                      <AnimatedTableRow key={coupon.id} delay={index * 30} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20" : ""}>
                         <TableCell className="font-mono font-semibold">{coupon.code}</TableCell>
                         <TableCell>
                           <div>
@@ -1470,7 +1474,7 @@ const AdminCoupons = () => {
                             </Button>
                           </div>
                         </TableCell>
-                      </TableRow>
+                      </AnimatedTableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -1478,9 +1482,10 @@ const AdminCoupons = () => {
 
               {/* Mobile/Tablet Cards */}
               <div className="lg:hidden space-y-3">
-                {filteredCoupons.map((coupon: any) => (
-                  layoutMode === "compact" ? (
-                    <Card key={coupon.id} className={`overflow-hidden ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
+                {filteredCoupons.map((coupon: any, index: number) => (
+                  <ScrollAnimation key={coupon.id} animation="fade-up" delay={index * 50}>
+                  {layoutMode === "compact" ? (
+                    <Card className={`overflow-hidden hover:shadow-md transition-shadow ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
                       <CardContent className="p-3">
                         <div className="space-y-2">
                           <div className="flex items-start justify-between gap-2">
@@ -1520,7 +1525,7 @@ const AdminCoupons = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                    <Card key={coupon.id} className={!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}>
+                    <Card className={`hover:shadow-md transition-shadow ${!coupon.is_active ? "bg-red-50/50 dark:bg-red-950/20 border-red-200 dark:border-red-900" : ""}`}>
                       <CardContent className="pt-6">
                         <div className="space-y-3">
                           <div className="flex items-start justify-between gap-3">
@@ -1589,7 +1594,8 @@ const AdminCoupons = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  )
+                  )}
+                  </ScrollAnimation>
                 ))}
               </div>
             </>

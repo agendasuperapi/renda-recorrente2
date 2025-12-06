@@ -41,6 +41,8 @@ import { Pencil, Plus, Trash2, X, Landmark, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 
 interface Bank {
   id: string;
@@ -525,8 +527,8 @@ const AdminBankAccounts = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {banks.map((bank) => (
-                        <TableRow key={bank.id}>
+                      {banks.map((bank, index) => (
+                        <AnimatedTableRow key={bank.id} delay={index * 30}>
                           <TableCell>{bank.name}</TableCell>
                           <TableCell>
                             <Badge variant={bank.is_active ? "default" : "outline"}>
@@ -551,7 +553,7 @@ const AdminBankAccounts = () => {
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </TableCell>
-                        </TableRow>
+                        </AnimatedTableRow>
                       ))}
                     </TableBody>
                   </Table>
@@ -1027,8 +1029,9 @@ const AdminBankAccounts = () => {
                               <h3 className="text-xl font-semibold">{product.nome}</h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {productAccounts.map((account) => (
-                                <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
+                              {productAccounts.map((account, index) => (
+                                <ScrollAnimation key={account.id} animation="fade-up" delay={index * 50}>
+                                <Card className={`hover:shadow-md transition-shadow ${!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}`}>
                                   <CardContent className="p-6">
                                     <div className="flex items-start justify-between mb-4">
                                       <div className="flex-1">
@@ -1073,6 +1076,7 @@ const AdminBankAccounts = () => {
                                   </div>
                                 </CardContent>
                               </Card>
+                              </ScrollAnimation>
                             ))}
                           </div>
                         </div>
@@ -1087,8 +1091,9 @@ const AdminBankAccounts = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {accounts
                           .filter((account) => !account.product_id)
-                          .map((account) => (
-                            <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
+                          .map((account, index) => (
+                            <ScrollAnimation key={account.id} animation="fade-up" delay={index * 50}>
+                            <Card className={`hover:shadow-md transition-shadow ${!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}`}>
                               <CardContent className="p-6">
                                 <div className="flex items-start justify-between mb-4">
                                   <div className="flex-1">
@@ -1133,6 +1138,7 @@ const AdminBankAccounts = () => {
                                 </div>
                               </CardContent>
                             </Card>
+                            </ScrollAnimation>
                           ))}
                       </div>
                     </div>
@@ -1142,8 +1148,9 @@ const AdminBankAccounts = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {accounts
                     .filter((account) => !account.product_id)
-                    .map((account) => (
-                      <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
+                    .map((account, index) => (
+                      <ScrollAnimation key={account.id} animation="fade-up" delay={index * 50}>
+                      <Card className={`hover:shadow-md transition-shadow ${!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}`}>
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
@@ -1188,14 +1195,16 @@ const AdminBankAccounts = () => {
                           </div>
                         </CardContent>
                       </Card>
+                      </ScrollAnimation>
                     ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {accounts
                     .filter((account) => account.product_id === selectedProductFilter)
-                    .map((account) => (
-                      <Card key={account.id} className={!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}>
+                    .map((account, index) => (
+                      <ScrollAnimation key={account.id} animation="fade-up" delay={index * 50}>
+                      <Card className={`hover:shadow-md transition-shadow ${!account.is_active ? "border-destructive/50 bg-destructive/5" : ""}`}>
                         <CardContent className="p-6">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
@@ -1240,6 +1249,7 @@ const AdminBankAccounts = () => {
                           </div>
                         </CardContent>
                       </Card>
+                      </ScrollAnimation>
                     ))}
                 </div>
               )}

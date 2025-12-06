@@ -21,6 +21,7 @@ import { Check, X, Edit, Trash2, Tag, Plus, Minus, FileText, CreditCard } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState } from "react";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 
 const planFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -702,15 +703,15 @@ const AdminPlans = () => {
                                   <h3 className="text-lg font-semibold">{product?.nome || "Produto"}</h3>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  {(productPlans as any[]).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any) => {
+                                  {(productPlans as any[]).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any, index: number) => {
                                     const features = Array.isArray(plan.features) ? plan.features : [];
                                     const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
                                     const coupon = coupons?.find((c: any) => c.id === couponId);
 
                                     return (
+                                      <ScrollAnimation key={plan.id} animation="fade-up" delay={index * 50}>
                                       <Card 
-                                        key={plan.id} 
-                                        className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                                        className={`hover:border-primary/50 hover:shadow-md transition-all ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
                                       >
                                         <CardHeader>
                                           <div className="flex items-start justify-between">
@@ -752,9 +753,10 @@ const AdminPlans = () => {
                                               {plan.is_active ? "Ativo" : "Inativo"}
                                             </Badge>
                                             <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
-                                          </div>
-                                        </CardContent>
-                                      </Card>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                    </ScrollAnimation>
                                     );
                                   })}
                                 </div>
