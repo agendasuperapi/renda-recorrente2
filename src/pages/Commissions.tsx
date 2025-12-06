@@ -76,39 +76,26 @@ const Commissions = () => {
             forceMount 
             className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <CommissionsDailyContent />
+            <CommissionsDaily embedded showValues={showValues} />
           </TabsContent>
           <TabsContent 
             value="monthly" 
             forceMount 
             className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <CommissionsMonthlyContent />
+            <CommissionsMonthly embedded showValues={showValues} />
           </TabsContent>
           <TabsContent 
             value="withdrawals" 
             forceMount 
             className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <WithdrawalsContent />
+            <Withdrawals embedded showValues={showValues} />
           </TabsContent>
         </Tabs>
       </ScrollAnimation>
     </div>
   );
-};
-
-// Wrapper components that remove the header/padding from child components
-const CommissionsDailyContent = () => {
-  return <CommissionsDaily embedded />;
-};
-
-const CommissionsMonthlyContent = () => {
-  return <CommissionsMonthly embedded />;
-};
-
-const WithdrawalsContent = () => {
-  return <Withdrawals embedded />;
 };
 
 export default Commissions;

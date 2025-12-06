@@ -56,9 +56,10 @@ interface Stats {
 
 interface CommissionsDailyProps {
   embedded?: boolean;
+  showValues?: boolean;
 }
 
-const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
+const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDailyProps) => {
   const isMobile = useIsMobile();
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<Commission[]>([]);
@@ -264,7 +265,10 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
     setCurrentPage(1);
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number, hideValue: boolean = false) => {
+    if (hideValue || !showValues) {
+      return "R$ •••••";
+    }
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
