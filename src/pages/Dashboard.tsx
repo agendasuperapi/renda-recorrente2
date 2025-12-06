@@ -713,7 +713,8 @@ const Dashboard = () => {
                       const isReleased = !!coupon.affiliate_coupon_id;
                       
                       return (
-                        <div key={coupon.id} className={`flex flex-col gap-3 p-3 sm:p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${isReleased ? 'bg-card hover:bg-accent/50' : 'bg-muted/30 border-dashed'}`}>
+                        <ScrollAnimation key={coupon.id} animation="fade-up" delay={100 * primaryCoupons.indexOf(coupon)}>
+                          <div className={`flex flex-col gap-3 p-3 sm:p-4 rounded-lg border transition-all duration-300 hover:shadow-md hover:scale-[1.01] ${isReleased ? 'bg-card hover:bg-accent/50' : 'bg-muted/30 border-dashed'}`}>
                           {/* Header com ícone, nome e botões */}
                           <div className="flex items-center gap-3">
                             {/* Ícone do App */}
@@ -786,7 +787,8 @@ const Dashboard = () => {
                               </Button>
                             </div>
                           )}
-                        </div>
+                          </div>
+                        </ScrollAnimation>
                       );
                     })}
                   </div>}
@@ -812,34 +814,38 @@ const Dashboard = () => {
                 {recentCommissions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                     Nenhum registro encontrado...
                   </div> : <div className="space-y-3">
-                    {recentCommissions.map(commission => <div key={commission.id} className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 hover:shadow-md transition-all duration-300">
-                        <div className="flex-1 space-y-1">
-                          <div className="font-semibold text-sm">
-                            {commission.product_nome || 'Produto'}
+                    {recentCommissions.map((commission, index) => (
+                      <ScrollAnimation key={commission.id} animation="fade-up" delay={100 * index}>
+                        <div className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 hover:shadow-md hover:scale-[1.01] transition-all duration-300">
+                          <div className="flex-1 space-y-1">
+                            <div className="font-semibold text-sm">
+                              {commission.product_nome || 'Produto'}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {commission.client_name || 'Cliente'} • {commission.client_email}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{commission.plan_name || 'Plano'}</span>
+                              <span>•</span>
+                              <span>Nível {commission.level || 1}</span>
+                              <span>•</span>
+                              <span>{commission.percentage || 0}%</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {commission.client_name || 'Cliente'} • {commission.client_email}
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{commission.plan_name || 'Plano'}</span>
-                            <span>•</span>
-                            <span>Nível {commission.level || 1}</span>
-                            <span>•</span>
-                            <span>{commission.percentage || 0}%</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                          <div className="text-right">
+                            <div className="font-bold text-base">
+                              {formatCurrency(commission.amount)}
+                            </div>
+                            <div className={`text-xs mt-1 ${commission.status === 'available' ? 'text-success' : commission.status === 'pending' ? 'text-destructive' : commission.status === 'paid' ? 'text-primary' : 'text-muted-foreground'}`}>
+                              {commission.status === 'available' ? 'Disponível' : commission.status === 'pending' ? 'Pendente' : commission.status === 'paid' ? 'Pago' : commission.status}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-base">
-                            {formatCurrency(commission.amount)}
-                          </div>
-                          <div className={`text-xs mt-1 ${commission.status === 'available' ? 'text-success' : commission.status === 'pending' ? 'text-destructive' : commission.status === 'paid' ? 'text-primary' : 'text-muted-foreground'}`}>
-                            {commission.status === 'available' ? 'Disponível' : commission.status === 'pending' ? 'Pendente' : commission.status === 'paid' ? 'Pago' : commission.status}
-                          </div>
-                        </div>
-                      </div>)}
+                      </ScrollAnimation>
+                    ))}
                   </div>}
               </CardContent>
             </Card>
