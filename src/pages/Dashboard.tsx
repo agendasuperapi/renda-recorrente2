@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X, Lock } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
@@ -63,6 +63,7 @@ const Dashboard = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [recentCommissions, setRecentCommissions] = useState<RecentCommission[]>([]);
   const [dailyChartData, setDailyChartData] = useState<DailyChartData[]>([]);
+  const [showValues, setShowValues] = useState(true);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   useEffect(() => {
@@ -271,6 +272,13 @@ const Dashboard = () => {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+  
+  const displayValue = (value: string | number, isCount = false) => {
+    if (!showValues) {
+      return isCount ? "••" : "R$ •••••";
+    }
+    return value;
   };
   const handleCopyCoupon = async (coupon: PrimaryCoupon) => {
     const linkToCopy = coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code;
@@ -498,11 +506,26 @@ const Dashboard = () => {
       {/* Dashboard Content */}
       {loading ? <DashboardSkeleton /> : <>
           <ScrollAnimation animation="fade-up">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Tenha uma visão geral do seu desempenho
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Tenha uma visão geral do seu desempenho
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowValues(!showValues)}
+                className="h-9 w-9 rounded-full hover:bg-muted"
+                title={showValues ? "Ocultar valores" : "Mostrar valores"}
+              >
+                {showValues ? (
+                  <Eye className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <EyeOff className="h-5 w-5 text-muted-foreground" />
+                )}
+              </Button>
             </div>
           </ScrollAnimation>
 
@@ -519,7 +542,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                    {formatCurrency(stats?.comissao_hoje || 0)}
+                    {displayValue(formatCurrency(stats?.comissao_hoje || 0))}
                   </div>
                 </CardContent>
               </Card>
@@ -535,7 +558,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-base sm:text-lg font-bold text-sky-600 dark:text-sky-400">
-                    {formatCurrency(stats?.comissao_7_dias || 0)}
+                    {displayValue(formatCurrency(stats?.comissao_7_dias || 0))}
                   </div>
                 </CardContent>
               </Card>
@@ -551,7 +574,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-base sm:text-lg font-bold text-violet-600 dark:text-violet-400">
-                    {formatCurrency(stats?.comissao_mes || 0)}
+                    {displayValue(formatCurrency(stats?.comissao_mes || 0))}
                   </div>
                 </CardContent>
               </Card>
@@ -567,7 +590,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400">
-                    {formatCurrency(stats?.comissao_disponivel || 0)}
+                    {displayValue(formatCurrency(stats?.comissao_disponivel || 0))}
                   </div>
                 </CardContent>
               </Card>
@@ -587,7 +610,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400">
-                    {formatCurrency(stats?.comissao_pendente || 0)}
+                    {displayValue(formatCurrency(stats?.comissao_pendente || 0))}
                   </div>
                 </CardContent>
               </Card>
@@ -603,7 +626,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400">
-                    {formatCurrency(stats?.total_sacado || 0)}
+                    {displayValue(formatCurrency(stats?.total_sacado || 0))}
                   </div>
                 </CardContent>
               </Card>
@@ -636,7 +659,7 @@ const Dashboard = () => {
                   <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Indicações</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
+                  <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{displayValue(stats?.total_indicacoes || 0, true)}</div>
                 </CardContent>
               </Card>
 
@@ -648,7 +671,7 @@ const Dashboard = () => {
                   <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
+                  <div className="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{displayValue(stats?.total_sub_afiliados || 0, true)}</div>
                 </CardContent>
               </Card>
             </div>
