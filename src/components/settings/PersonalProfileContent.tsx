@@ -555,23 +555,20 @@ export const PersonalProfileContent = () => {
           
           <CardContent>
             <Tabs defaultValue="personal" className="w-full pt-4 sm:pt-0">
-              <TabsList className="grid w-full grid-cols-3 h-auto">
-                <TabsTrigger value="personal" className="group relative flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+              <TabsList className="grid w-full grid-cols-3 gap-2 bg-muted/50 p-1.5 rounded-xl h-auto">
+                <TabsTrigger value="personal" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 font-medium">
                   <User className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Dados Pessoais</span>
                   <span className="sm:hidden">Dados</span>
-                  <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-primary opacity-0 transition-opacity group-data-[state=active]:opacity-100" />
                 </TabsTrigger>
-                <TabsTrigger value="address" className="group relative flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                <TabsTrigger value="address" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 font-medium">
                   <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                   Endereço
-                  <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-primary opacity-0 transition-opacity group-data-[state=active]:opacity-100" />
                 </TabsTrigger>
-                <TabsTrigger value="social" className="group relative flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                <TabsTrigger value="social" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 font-medium">
                   <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline">Redes Sociais</span>
                   <span className="sm:hidden">Redes</span>
-                  <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-primary opacity-0 transition-opacity group-data-[state=active]:opacity-100" />
                 </TabsTrigger>
               </TabsList>
 
