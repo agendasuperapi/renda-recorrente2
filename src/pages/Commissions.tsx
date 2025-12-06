@@ -30,33 +30,27 @@ const Commissions = () => {
 
       <ScrollAnimation animation="fade-up" delay={100}>
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full flex gap-2 bg-transparent p-0 mb-4">
+          <TabsList className="grid grid-cols-3 gap-2 bg-muted/50 p-1.5 rounded-xl mb-4">
             <TabsTrigger 
               value="daily" 
-              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
               <CalendarDays className="h-4 w-4" />
-              <span className="hidden sm:inline">Diárias</span>
-              <span className="sm:hidden">Diárias</span>
-              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
+              <span>Diárias</span>
             </TabsTrigger>
             <TabsTrigger 
               value="monthly" 
-              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
               <CalendarRange className="h-4 w-4" />
-              <span className="hidden sm:inline">Mensais</span>
-              <span className="sm:hidden">Mensais</span>
-              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
+              <span>Mensais</span>
             </TabsTrigger>
             <TabsTrigger 
               value="withdrawals" 
-              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
               <Wallet className="h-4 w-4" />
-              <span className="hidden sm:inline">Saques</span>
-              <span className="sm:hidden">Saques</span>
-              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
+              <span>Saques</span>
             </TabsTrigger>
           </TabsList>
 
