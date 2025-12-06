@@ -16,11 +16,9 @@ import Profile from "./pages/Profile";
 import Training from "./pages/Training";
 import Referrals from "./pages/Referrals";
 import SubAffiliates from "./pages/SubAffiliates";
-import CommissionsDaily from "./pages/CommissionsDaily";
-import CommissionsMonthly from "./pages/CommissionsMonthly";
+import Commissions from "./pages/Commissions";
 import Activities from "./pages/Activities";
 import Coupons from "./pages/Coupons";
-import Withdrawals from "./pages/Withdrawals";
 import Plan from "./pages/Plan";
 import GoogleBusiness from "./pages/GoogleBusiness";
 import Settings from "./pages/Settings";
@@ -88,11 +86,12 @@ const App = () => {
               <Route path="/training" element={<Training />} />
               <Route path="/referrals" element={<Referrals />} />
               <Route path="/sub-affiliates" element={<SubAffiliates />} />
-              <Route path="/commissions-daily" element={<CommissionsDaily />} />
-              <Route path="/commissions-monthly" element={<CommissionsMonthly />} />
+              <Route path="/commissions" element={<Commissions />} />
+              <Route path="/commissions-daily" element={<Navigate to="/commissions?tab=daily" replace />} />
+              <Route path="/commissions-monthly" element={<Navigate to="/commissions?tab=monthly" replace />} />
+              <Route path="/withdrawals" element={<Navigate to="/commissions?tab=withdrawals" replace />} />
               <Route path="/activities" element={<Activities />} />
               <Route path="/coupons" element={<Coupons />} />
-              <Route path="/withdrawals" element={<Withdrawals />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/plan" element={<Plan />} />
