@@ -24,6 +24,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { PixQRCode } from "@/components/PixQRCode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 type Withdrawal = {
   id: string;
   affiliate_id: string;
@@ -490,92 +492,102 @@ export default function AdminWithdrawals() {
 
       {/* Cards de Resumo */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Solicitados</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.totalPending.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Aguardando aprovação
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={0} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Solicitados</CardTitle>
+              <Clock className="h-4 w-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsData.totalPending.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Aguardando aprovação
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aprovados</CardTitle>
-            <CheckCircle className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.totalApproved.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              A serem pagos
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Aprovados</CardTitle>
+              <CheckCircle className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsData.totalApproved.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                A serem pagos
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pagos</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.totalPaid.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total pago aos afiliados
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pagos</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsData.totalPaid.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total pago aos afiliados
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aguardando Liberação</CardTitle>
-            <Calendar className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.totalAwaitingRelease.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Comissões à liberar depois de {commissionDays ?? 30} dias do pagamento
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={150} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Aguardando Liberação</CardTitle>
+              <Calendar className="h-4 w-4 text-purple-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsData.totalAwaitingRelease.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Comissões à liberar depois de {commissionDays ?? 30} dias do pagamento
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rejeitados</CardTitle>
-            <XCircle className="h-4 w-4 text-red-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData.totalRejected}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Solicitações rejeitadas
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={200} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Rejeitados</CardTitle>
+              <XCircle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsData.totalRejected}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Solicitações rejeitadas
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
       </div>
 
       {/* Mobile Control Bar */}
@@ -670,7 +682,7 @@ export default function AdminWithdrawals() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
+                    {withdrawals && withdrawals.length > 0 ? withdrawals.map((withdrawal, index) => <AnimatedTableRow key={withdrawal.id} delay={index * 50}>
                           <TableCell className="text-xs whitespace-nowrap">
                             {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", {
                       locale: ptBR
@@ -715,7 +727,7 @@ export default function AdminWithdrawals() {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </TableCell>
-                        </TableRow>) : <TableRow>
+                        </AnimatedTableRow>) : <TableRow>
                         <TableCell colSpan={7} className="text-center text-muted-foreground">
                           Nenhum saque encontrado
                         </TableCell>
@@ -726,9 +738,10 @@ export default function AdminWithdrawals() {
 
               {/* Mobile Cards */}
               <div className="lg:hidden space-y-3">
-                {withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => (
+                {withdrawals && withdrawals.length > 0 ? withdrawals.map((withdrawal, index) => (
                   layoutMode === "compact" ? (
-                    <Card key={withdrawal.id} className={`overflow-hidden ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
+                    <ScrollAnimation key={withdrawal.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
                       <CardContent className="p-3">
                         <div className="space-y-2">
                           <div className="flex items-start justify-between gap-2">
@@ -751,8 +764,10 @@ export default function AdminWithdrawals() {
                         </div>
                       </CardContent>
                     </Card>
+                    </ScrollAnimation>
                   ) : (
-                    <Card key={withdrawal.id} className={`overflow-hidden ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
+                    <ScrollAnimation key={withdrawal.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
                       <CardContent className="p-3">
                         <div className="space-y-2">
                           <div className="flex justify-between items-start">
@@ -798,6 +813,7 @@ export default function AdminWithdrawals() {
                         </div>
                       </CardContent>
                     </Card>
+                    </ScrollAnimation>
                   )
                 )) : <div className="text-center py-8 text-muted-foreground text-sm">
                     Nenhum saque encontrado
