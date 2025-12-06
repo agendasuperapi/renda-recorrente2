@@ -20,6 +20,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 type Payment = {
   id: string;
   stripe_invoice_id: string;
@@ -190,79 +192,87 @@ export default function AdminPayments() {
 
       {/* Cards de Resumo */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Geral</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(statsData?.totalPaid || 0).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Em {statsData?.paymentCount || 0} pagamentos
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={0} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Geral</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {(statsData?.totalPaid || 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Em {statsData?.paymentCount || 0} pagamentos
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produção</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(statsData?.totalPaidProduction || 0).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Pagamentos reais
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Produção</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {(statsData?.totalPaidProduction || 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pagamentos reais
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Teste</CardTitle>
-            <CreditCard className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(statsData?.totalPaidTest || 0).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Pagamentos teste
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Teste</CardTitle>
+              <CreditCard className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {(statsData?.totalPaidTest || 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pagamentos teste
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Último Pagamento</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsData?.lastPayment ? Number(statsData.lastPayment.amount).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            }) : "N/A"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {statsData?.lastPayment ? format(new Date(statsData.lastPayment.payment_date), "dd/MM/yyyy", {
-              locale: ptBR
-            }) : "Nenhum"}
-            </p>
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={150} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Último Pagamento</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {statsData?.lastPayment ? Number(statsData.lastPayment.amount).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              }) : "N/A"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {statsData?.lastPayment ? format(new Date(statsData.lastPayment.payment_date), "dd/MM/yyyy", {
+                locale: ptBR
+              }) : "Nenhum"}
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
       </div>
 
       {/* Barra de controle mobile/tablet */}
@@ -361,10 +371,11 @@ export default function AdminPayments() {
                     </CardContent>
                   </Card>)}
               </div> : <TableSkeleton columns={8} rows={10} /> : isMobile ? <div className="space-y-3">
-              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => 
+              {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map((payment, index) => 
                 viewMode === "compact" ? (
                   // Modo Compacto
-                  <Card key={payment.id} className="bg-card">
+                  <ScrollAnimation key={payment.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                  <Card className="bg-card transition-all duration-300 hover:shadow-md">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -385,9 +396,11 @@ export default function AdminPayments() {
                       </div>
                     </CardContent>
                   </Card>
+                  </ScrollAnimation>
                 ) : (
                   // Modo Completo
-                  <Card key={payment.id}>
+                  <ScrollAnimation key={payment.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                  <Card className="transition-all duration-300 hover:shadow-md">
                     <CardContent className="p-4 space-y-3">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
@@ -441,6 +454,7 @@ export default function AdminPayments() {
                       </div>
                     </CardContent>
                   </Card>
+                  </ScrollAnimation>
                 )
               ) : <Card>
                   <CardContent className="py-8 text-center text-muted-foreground">
@@ -483,7 +497,7 @@ export default function AdminPayments() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map(payment => <TableRow key={payment.id}>
+                  {paginatedPayments && paginatedPayments.length > 0 ? paginatedPayments.map((payment, index) => <AnimatedTableRow key={payment.id} delay={index * 50}>
                         <TableCell className="text-xs">
                           {format(new Date(payment.payment_date), "dd/MM/yy HH:mm", {
                     locale: ptBR
@@ -530,7 +544,7 @@ export default function AdminPayments() {
                             <Eye className="w-4 h-4" />
                           </Button>
                         </TableCell>
-                      </TableRow>) : <TableRow>
+                      </AnimatedTableRow>) : <TableRow>
                       <TableCell colSpan={9} className="text-center text-muted-foreground">
                         Nenhum pagamento encontrado
                       </TableCell>
