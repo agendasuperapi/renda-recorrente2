@@ -506,8 +506,8 @@ const Dashboard = () => {
       {/* Dashboard Content */}
       {loading ? <DashboardSkeleton /> : <>
           <ScrollAnimation animation="fade-up">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <div>
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
                 <p className="text-sm sm:text-base text-muted-foreground">
                   Tenha uma visão geral do seu desempenho
@@ -517,7 +517,7 @@ const Dashboard = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => setShowValues(!showValues)}
-                className="flex items-center justify-center h-10 w-10 min-w-[40px] min-h-[40px] shrink-0 rounded-full border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 hover:border-primary/50 shadow-sm transition-all"
+                className="h-10 w-10 rounded-full border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 hover:border-primary/50 shadow-sm transition-all"
                 title={showValues ? "Ocultar valores" : "Mostrar valores"}
               >
                 {showValues ? (
