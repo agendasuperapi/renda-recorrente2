@@ -4,6 +4,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -552,84 +553,89 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                   </Card>
                 ) : (
                   commissions.map((commission, index) => (
-                    <Card 
+                    <ScrollAnimation 
                       key={commission.id}
-                      className="animate-fade-in transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
-                      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}
+                      animation="fade-up" 
+                      delay={Math.min(index * 50, 200)}
+                      threshold={0.05}
                     >
-                      <CardContent className="p-4 space-y-3">
-                        {layoutMode === "compact" && expandedCardId !== commission.id ? (
-                          // Layout Compacto: Nome, Produto, Data, Comissão
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
-                              <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className="text-right">
-                                <div className="text-[10px] text-muted-foreground">{formatDate(commission.data)}</div>
-                                <div className="font-bold text-sm text-success">{formatCurrency(commission.valor)}</div>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="flex-shrink-0 h-8 w-8"
-                                onClick={() => setExpandedCardId(commission.id)}
-                                title="Ver detalhes"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          // Layout Completo: Todas as informações
-                          <>
-                            <div className="flex justify-between items-start gap-2">
+                      <Card 
+                        className="transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
+                      >
+                        <CardContent className="p-4 space-y-3">
+                          {layoutMode === "compact" && expandedCardId !== commission.id ? (
+                            // Layout Compacto: Nome, Produto, Data, Comissão
+                            <div className="flex items-center justify-between gap-3">
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
-                                <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
+                                <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
+                                <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
                               </div>
-                              {getStatusBadge(commission.status)}
-                            </div>
-                            
-                            <div className="flex justify-between items-center">
-                              <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
-                              {getLevelBadge(commission.level)}
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground">Produto:</span>
-                                <p className="font-medium truncate">{commission.produto || "-"}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Plano:</span>
-                                <p className="font-medium truncate">{commission.plano || "-"}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
-                              <span className="text-muted-foreground">{formatDate(commission.data)}</span>
-                            </div>
-                            
-                            {layoutMode === "compact" && expandedCardId === commission.id && (
-                              <div className="flex justify-end pt-1">
+                              <div className="flex items-center gap-3">
+                                <div className="text-right">
+                                  <div className="text-[10px] text-muted-foreground">{formatDate(commission.data)}</div>
+                                  <div className="font-bold text-sm text-success">{formatCurrency(commission.valor)}</div>
+                                </div>
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8"
-                                  onClick={() => setExpandedCardId(null)}
-                                  title="Fechar"
+                                  className="flex-shrink-0 h-8 w-8"
+                                  onClick={() => setExpandedCardId(commission.id)}
+                                  title="Ver detalhes"
                                 >
-                                  <ChevronUp className="h-4 w-4" />
+                                  <Eye className="h-4 w-4" />
                                 </Button>
                               </div>
-                            )}
-                          </>
-                        )}
-                      </CardContent>
-                    </Card>
+                            </div>
+                          ) : (
+                            // Layout Completo: Todas as informações
+                            <>
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
+                                </div>
+                                {getStatusBadge(commission.status)}
+                              </div>
+                              
+                              <div className="flex justify-between items-center">
+                                <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
+                                {getLevelBadge(commission.level)}
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <span className="text-muted-foreground">Produto:</span>
+                                  <p className="font-medium truncate">{commission.produto || "-"}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Plano:</span>
+                                  <p className="font-medium truncate">{commission.plano || "-"}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
+                                <span className="text-muted-foreground">{formatDate(commission.data)}</span>
+                              </div>
+                              
+                              {layoutMode === "compact" && expandedCardId === commission.id && (
+                                <div className="flex justify-end pt-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => setExpandedCardId(null)}
+                                    title="Fechar"
+                                  >
+                                    <ChevronUp className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </ScrollAnimation>
                   ))
                 )}
               </div>
@@ -656,10 +662,10 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                     </TableRow>
                   ) : (
                     commissions.map((commission, index) => (
-                      <TableRow 
+                      <AnimatedTableRow 
                         key={commission.id}
-                        className="animate-fade-in transition-all duration-200 hover:bg-muted/50"
-                        style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'backwards' }}
+                        className="hover:bg-muted/50"
+                        delay={Math.min(index * 30, 150)}
                       >
                         <TableCell>{formatDate(commission.data)}</TableCell>
                         <TableCell>
@@ -692,7 +698,7 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                         <TableCell>{commission.percentual}%</TableCell>
                         <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
                         <TableCell>{getStatusBadge(commission.status)}</TableCell>
-                      </TableRow>
+                      </AnimatedTableRow>
                     ))
                   )}
                 </TableBody>
