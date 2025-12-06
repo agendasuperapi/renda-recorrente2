@@ -3522,6 +3522,20 @@ export type Database = {
         Returns: boolean
       }
       expire_old_checkouts: { Args: never; Returns: undefined }
+      get_affiliate_dashboard_stats: {
+        Args: { p_affiliate_id: string }
+        Returns: {
+          affiliate_id: string
+          comissao_7_dias: number
+          comissao_disponivel: number
+          comissao_hoje: number
+          comissao_mes: number
+          comissao_pendente: number
+          total_indicacoes: number
+          total_sacado: number
+          total_sub_afiliados: number
+        }[]
+      }
       get_available_coupons_for_affiliates: {
         Args: never
         Returns: {
