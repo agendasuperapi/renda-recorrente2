@@ -52,6 +52,10 @@ const affiliateMenuItems: MenuItem[] = [{
   label: "Desempenho",
   path: "/performance"
 }, {
+  icon: Coins,
+  label: "Comissões",
+  path: "/commissions"
+}, {
   icon: Users,
   label: "Sub Afiliados",
   path: "/sub-affiliates",
@@ -60,10 +64,6 @@ const affiliateMenuItems: MenuItem[] = [{
   icon: UserPlus,
   label: "Meus Indicados",
   path: "/referrals"
-}, {
-  icon: Coins,
-  label: "Comissões",
-  path: "/commissions"
 }, {
   icon: Ticket,
   label: "Meus Cupons",
