@@ -11,6 +11,7 @@ import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 interface DashboardStats {
   affiliate_id: string;
   comissao_hoje: number;
@@ -496,363 +497,375 @@ const Dashboard = () => {
 
       {/* Dashboard Content */}
       {loading ? <DashboardSkeleton /> : <>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Tenha uma visão geral do seu desempenho
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-3 pb-3">
-                <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <CardHeader className="p-0 pb-1 space-y-0">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Comissão do dia
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                  {formatCurrency(stats?.comissao_hoje || 0)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-3 pb-3">
-                <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Comissão 7 dias
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-base sm:text-lg font-bold text-sky-600 dark:text-sky-400">
-                  {formatCurrency(stats?.comissao_7_dias || 0)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-3 pb-3">
-                <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Comissão do mês
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-base sm:text-lg font-bold text-violet-600 dark:text-violet-400">
-                  {formatCurrency(stats?.comissao_mes || 0)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-3 pb-3">
-                <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Disponível p/ saque
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400">
-                  {formatCurrency(stats?.comissao_disponivel || 0)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-rose-200/60 dark:bg-rose-800/40 flex items-end justify-start pl-3 pb-3">
-                <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Comissão pendente
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400">
-                  {formatCurrency(stats?.comissao_pendente || 0)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-teal-200/60 dark:bg-teal-800/40 flex items-end justify-start pl-3 pb-3">
-                <Coins className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Total já sacado
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400">
-                  {formatCurrency(stats?.total_sacado || 0)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden col-span-2 lg:col-span-1">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-blue-200/60 dark:bg-blue-800/40 flex items-end justify-start pl-3 pb-3">
-                <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
-                  Dia de solicitar saque
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-sm sm:text-base font-medium text-blue-600 dark:text-blue-400">
-                  SEGUNDA-FEIRA, 24 DE NOVEMBRO
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-3 pb-3">
-                <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Indicações</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
-              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-pink-200/60 dark:bg-pink-800/40 flex items-end justify-start pl-3 pb-3">
-                <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-              </div>
-              <CardHeader className="p-0 pb-1">
-                <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="p-3 sm:p-4 md:p-4">
-            <CardHeader className="p-0 pb-2">
-              <CardTitle>Comissões Diárias (Últimos 30 dias)</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Acompanhe suas comissões diárias
+          <ScrollAnimation animation="fade-up">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Tenha uma visão geral do seu desempenho
               </p>
-            </CardHeader>
-            <CardContent className="p-0">
-              {dailyChartData.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-                  Nenhum dado disponível
-                </div> : <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={dailyChartData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="date" className="text-xs" tick={{
-                fill: 'hsl(var(--muted-foreground))'
-              }} />
-                    <YAxis className="text-xs" tick={{
-                fill: 'hsl(var(--muted-foreground))'
-              }} label={{
-                value: 'Comissões (R$)',
-                angle: -90,
-                position: 'insideLeft'
-              }} />
-                    <Tooltip contentStyle={{
-                backgroundColor: 'hsl(var(--popover))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '8px'
-              }} formatter={(value: any) => [formatCurrency(value), 'Comissões']} />
-                    <Legend />
-                    <Bar dataKey="comissoes" fill="hsl(var(--success))" name="Comissões" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>}
-            </CardContent>
-          </Card>
+            </div>
+          </ScrollAnimation>
 
-          <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-0 lg:px-6">
-              <div>
-                <CardTitle>Cupons principais</CardTitle>
+          <ScrollAnimation animation="fade-up" delay={100}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-3 pb-3">
+                  <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <CardHeader className="p-0 pb-1 space-y-0">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Comissão do dia
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                    {formatCurrency(stats?.comissao_hoje || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-3 pb-3">
+                  <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Comissão 7 dias
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-base sm:text-lg font-bold text-sky-600 dark:text-sky-400">
+                    {formatCurrency(stats?.comissao_7_dias || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-3 pb-3">
+                  <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Comissão do mês
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-base sm:text-lg font-bold text-violet-600 dark:text-violet-400">
+                    {formatCurrency(stats?.comissao_mes || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-3 pb-3">
+                  <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Disponível p/ saque
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400">
+                    {formatCurrency(stats?.comissao_disponivel || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollAnimation>
+
+          <ScrollAnimation animation="fade-up" delay={200}>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-rose-200/60 dark:bg-rose-800/40 flex items-end justify-start pl-3 pb-3">
+                  <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Comissão pendente
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400">
+                    {formatCurrency(stats?.comissao_pendente || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-teal-200/60 dark:bg-teal-800/40 flex items-end justify-start pl-3 pb-3">
+                  <Coins className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Total já sacado
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400">
+                    {formatCurrency(stats?.total_sacado || 0)}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden col-span-2 lg:col-span-1 hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-blue-200/60 dark:bg-blue-800/40 flex items-end justify-start pl-3 pb-3">
+                  <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                    Dia de solicitar saque
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-sm sm:text-base font-medium text-blue-600 dark:text-blue-400">
+                    SEGUNDA-FEIRA, 24 DE NOVEMBRO
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollAnimation>
+
+          <ScrollAnimation animation="fade-up" delay={300}>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-3 pb-3">
+                  <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Indicações</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
+                </CardContent>
+              </Card>
+
+              <Card className="p-2.5 sm:p-3 relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-pink-200/60 dark:bg-pink-800/40 flex items-end justify-start pl-3 pb-3">
+                  <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                </div>
+                <CardHeader className="p-0 pb-1">
+                  <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollAnimation>
+
+          <ScrollAnimation animation="fade-up" delay={400}>
+            <Card className="p-3 sm:p-4 md:p-4">
+              <CardHeader className="p-0 pb-2">
+                <CardTitle>Comissões Diárias (Últimos 30 dias)</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Veja aqui seus cupons principais para compartilhar
+                  Acompanhe suas comissões diárias
                 </p>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/coupons')} className="gap-2 w-fit">
-                Ver todos
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="px-0 lg:px-6">
-              {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-                  Nenhum cupom disponível no momento
-                </div> : <div className="space-y-3">
-                  {primaryCoupons.map(coupon => {
-                    const isReleased = !!coupon.affiliate_coupon_id;
-                    
-                    return (
-                      <div key={coupon.id} className={`flex flex-col gap-3 p-3 sm:p-4 rounded-lg border transition-colors ${isReleased ? 'bg-card hover:bg-accent/50' : 'bg-muted/30 border-dashed'}`}>
-                        {/* Header com ícone, nome e botões */}
-                        <div className="flex items-center gap-3">
-                          {/* Ícone do App */}
-                          {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover dark:hidden ${!isReleased ? 'opacity-50' : ''}`} /> : null}
-                          {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover hidden dark:block ${!isReleased ? 'opacity-50' : ''}`} /> : null}
-                          {!coupon.product_icone_light && !coupon.product_icone_dark && <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm sm:text-base ${!isReleased ? 'opacity-50' : ''}`}>
-                              {coupon.product_nome.charAt(0)}
-                            </div>}
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className={`font-semibold text-sm sm:text-base ${isReleased ? 'text-foreground' : 'text-muted-foreground'}`}>
-                              {coupon.product_nome}
+              </CardHeader>
+              <CardContent className="p-0">
+                {dailyChartData.length === 0 ? <div className="text-center py-8 text-muted-foreground">
+                    Nenhum dado disponível
+                  </div> : <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={dailyChartData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                      <XAxis dataKey="date" className="text-xs" tick={{
+                  fill: 'hsl(var(--muted-foreground))'
+                }} />
+                      <YAxis className="text-xs" tick={{
+                  fill: 'hsl(var(--muted-foreground))'
+                }} label={{
+                  value: 'Comissões (R$)',
+                  angle: -90,
+                  position: 'insideLeft'
+                }} />
+                      <Tooltip contentStyle={{
+                  backgroundColor: 'hsl(var(--popover))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px'
+                }} formatter={(value: any) => [formatCurrency(value), 'Comissões']} />
+                      <Legend />
+                      <Bar dataKey="comissoes" fill="hsl(var(--success))" name="Comissões" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>}
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
+
+          <ScrollAnimation animation="fade-up" delay={500}>
+            <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-0 lg:px-6">
+                <div>
+                  <CardTitle>Cupons principais</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Veja aqui seus cupons principais para compartilhar
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => navigate('/coupons')} className="gap-2 w-fit">
+                  Ver todos
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="px-0 lg:px-6">
+                {primaryCoupons.length === 0 ? <div className="text-center py-8 text-muted-foreground">
+                    Nenhum cupom disponível no momento
+                  </div> : <div className="space-y-3">
+                    {primaryCoupons.map(coupon => {
+                      const isReleased = !!coupon.affiliate_coupon_id;
+                      
+                      return (
+                        <div key={coupon.id} className={`flex flex-col gap-3 p-3 sm:p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${isReleased ? 'bg-card hover:bg-accent/50' : 'bg-muted/30 border-dashed'}`}>
+                          {/* Header com ícone, nome e botões */}
+                          <div className="flex items-center gap-3">
+                            {/* Ícone do App */}
+                            {coupon.product_icone_light ? <img src={coupon.product_icone_light} alt={coupon.product_nome} className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover dark:hidden ${!isReleased ? 'opacity-50' : ''}`} /> : null}
+                            {coupon.product_icone_dark ? <img src={coupon.product_icone_dark} alt={coupon.product_nome} className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover hidden dark:block ${!isReleased ? 'opacity-50' : ''}`} /> : null}
+                            {!coupon.product_icone_light && !coupon.product_icone_dark && <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm sm:text-base ${!isReleased ? 'opacity-50' : ''}`}>
+                                {coupon.product_nome.charAt(0)}
+                              </div>}
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className={`font-semibold text-sm sm:text-base ${isReleased ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                {coupon.product_nome}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                {coupon.name}
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                              {coupon.name}
-                            </div>
+
+                            {/* Botões de Ação - Desktop */}
+                            {isReleased ? (
+                              <div className="hidden lg:flex gap-2 flex-shrink-0">
+                                <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
+                                  {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                                  Copiar
+                                </Button>
+                                <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
+                                  <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                  Compartilhar
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="hidden lg:block flex-shrink-0">
+                                <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="gap-2 text-xs sm:text-sm">
+                                  <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                  Liberar cupom
+                                </Button>
+                              </div>
+                            )}
                           </div>
 
-                          {/* Botões de Ação - Desktop */}
+                          {/* URL do Cupom ou Mensagem de liberação */}
                           {isReleased ? (
-                            <div className="hidden lg:flex gap-2 flex-shrink-0">
-                              <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
+                            <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
+                              {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
+                            </div>
+                          ) : (
+                            <div className="px-2.5 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-xs flex items-center gap-2">
+                              <Lock className="w-3.5 h-3.5" />
+                              <span>Cupom não liberado. Acesse a página de cupons para liberar.</span>
+                            </div>
+                          )}
+
+                          {/* Botões de Ação - Mobile */}
+                          {isReleased ? (
+                            <div className="flex gap-2 lg:hidden">
+                              <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
                                 {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                                 Copiar
                               </Button>
-                              <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
+                              <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
                                 <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 Compartilhar
                               </Button>
                             </div>
                           ) : (
-                            <div className="hidden lg:block flex-shrink-0">
-                              <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="gap-2 text-xs sm:text-sm">
+                            <div className="lg:hidden">
+                              <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="w-full gap-2 text-xs sm:text-sm">
                                 <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 Liberar cupom
                               </Button>
                             </div>
                           )}
                         </div>
+                      );
+                    })}
+                  </div>}
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
 
-                        {/* URL do Cupom ou Mensagem de liberação */}
-                        {isReleased ? (
-                          <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
-                            {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
+          <ScrollAnimation animation="fade-up" delay={600}>
+            <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-0 lg:px-6">
+                <div>
+                  <CardTitle>Comissões recentes</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Veja aqui suas últimas comissões
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => navigate('/commissions-daily')} className="gap-2 w-fit">
+                  Ver todas
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="px-0 lg:px-6">
+                {recentCommissions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
+                    Nenhum registro encontrado...
+                  </div> : <div className="space-y-3">
+                    {recentCommissions.map(commission => <div key={commission.id} className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 hover:shadow-md transition-all duration-300">
+                        <div className="flex-1 space-y-1">
+                          <div className="font-semibold text-sm">
+                            {commission.product_nome || 'Produto'}
                           </div>
-                        ) : (
-                          <div className="px-2.5 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-xs flex items-center gap-2">
-                            <Lock className="w-3.5 h-3.5" />
-                            <span>Cupom não liberado. Acesse a página de cupons para liberar.</span>
+                          <div className="text-xs text-muted-foreground">
+                            {commission.client_name || 'Cliente'} • {commission.client_email}
                           </div>
-                        )}
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{commission.plan_name || 'Plano'}</span>
+                            <span>•</span>
+                            <span>Nível {commission.level || 1}</span>
+                            <span>•</span>
+                            <span>{commission.percentage || 0}%</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(commission.created_at).toLocaleDateString('pt-BR')}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-base">
+                            {formatCurrency(commission.amount)}
+                          </div>
+                          <div className={`text-xs mt-1 ${commission.status === 'available' ? 'text-success' : commission.status === 'pending' ? 'text-destructive' : commission.status === 'paid' ? 'text-primary' : 'text-muted-foreground'}`}>
+                            {commission.status === 'available' ? 'Disponível' : commission.status === 'pending' ? 'Pendente' : commission.status === 'paid' ? 'Pago' : commission.status}
+                          </div>
+                        </div>
+                      </div>)}
+                  </div>}
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
 
-                        {/* Botões de Ação - Mobile */}
-                        {isReleased ? (
-                          <div className="flex gap-2 lg:hidden">
-                            <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
-                              {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                              Copiar
-                            </Button>
-                            <Button size="sm" variant="default" onClick={() => handleShareCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
-                              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                              Compartilhar
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="lg:hidden">
-                            <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="w-full gap-2 text-xs sm:text-sm">
-                              <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                              Liberar cupom
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>}
-            </CardContent>
-          </Card>
-
-      
-
-      <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-0 lg:px-6">
-          <div>
-            <CardTitle>Comissões recentes</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Veja aqui suas últimas comissões
-            </p>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/commissions-daily')} className="gap-2 w-fit">
-            Ver todas
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </CardHeader>
-        <CardContent className="px-0 lg:px-6">
-          {recentCommissions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-              Nenhum registro encontrado...
-            </div> : <div className="space-y-3">
-              {recentCommissions.map(commission => <div key={commission.id} className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                  <div className="flex-1 space-y-1">
-                    <div className="font-semibold text-sm">
-                      {commission.product_nome || 'Produto'}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {commission.client_name || 'Cliente'} • {commission.client_email}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{commission.plan_name || 'Plano'}</span>
-                      <span>•</span>
-                      <span>Nível {commission.level || 1}</span>
-                      <span>•</span>
-                      <span>{commission.percentage || 0}%</span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(commission.created_at).toLocaleDateString('pt-BR')}
-                    </div>
+          <ScrollAnimation animation="scale" delay={700}>
+            <Card className="bg-gradient-to-br from-primary/10 to-success/10 border-primary/20 hover:shadow-lg transition-shadow duration-300">
+              <CardHeader>
+                <CardTitle>Meta do Mês</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">R$0,00</div>
+                  <div className="text-sm text-muted-foreground">0%</div>
+                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                    <div className="bg-primary h-2 rounded-full transition-all duration-1000" style={{
+                      width: "0%"
+                    }} />
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-base">
-                      {formatCurrency(commission.amount)}
-                    </div>
-                    <div className={`text-xs mt-1 ${commission.status === 'available' ? 'text-success' : commission.status === 'pending' ? 'text-destructive' : commission.status === 'paid' ? 'text-primary' : 'text-muted-foreground'}`}>
-                      {commission.status === 'available' ? 'Disponível' : commission.status === 'pending' ? 'Pendente' : commission.status === 'paid' ? 'Pago' : commission.status}
-                    </div>
-                  </div>
-                </div>)}
-            </div>}
-        </CardContent>
-      </Card>
-
-      
-
-      <Card className="bg-gradient-to-br from-primary/10 to-success/10 border-primary/20">
-        <CardHeader>
-          <CardTitle>Meta do Mês</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="text-3xl font-bold">R$0,00</div>
-            <div className="text-sm text-muted-foreground">0%</div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="bg-primary h-2 rounded-full" style={{
-                width: "0%"
-              }} />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Projeção de comissão do mês: R$0,00
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+                  <p className="text-xs text-muted-foreground">
+                    Projeção de comissão do mês: R$0,00
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </ScrollAnimation>
         </>}
     </div>;
 };
