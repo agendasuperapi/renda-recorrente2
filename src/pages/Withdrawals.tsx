@@ -27,8 +27,9 @@ const DAYS_OF_WEEK: Record<number, string> = {
 interface WithdrawalsProps {
   embedded?: boolean;
 }
-
-const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
+const Withdrawals = ({
+  embedded = false
+}: WithdrawalsProps) => {
   const {
     userId
   } = useAuth();
@@ -61,7 +62,7 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
       return data;
     },
     enabled: !!userId,
-    staleTime: 0, // Sempre buscar dados frescos
+    staleTime: 0 // Sempre buscar dados frescos
   });
 
   // Buscar configurações
@@ -92,14 +93,8 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
       const {
         data,
         error
-      } = await supabase
-        .from('view_withdrawals_summary' as any)
-        .select('available, pending, requested, withdrawn')
-        .eq('affiliate_id', userId)
-        .maybeSingle();
-      
+      } = await supabase.from('view_withdrawals_summary' as any).select('available, pending, requested, withdrawn').eq('affiliate_id', userId).maybeSingle();
       if (error) throw error;
-      
       return {
         available: (data as any)?.available || 0,
         pending: (data as any)?.pending || 0,
@@ -131,7 +126,6 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
     },
     enabled: !!userId
   });
-
   const handleViewDetails = (withdrawal: WithdrawalData) => {
     setSelectedWithdrawal(withdrawal);
     setDetailsDialogOpen(true);
@@ -214,7 +208,6 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
       });
     }
   });
-
   const handleWithdrawalClick = () => {
     // Verificar se tem CPF cadastrado
     if (!profile?.cpf) {
@@ -276,16 +269,14 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
       </div>;
   }
   return <div className={embedded ? "space-y-3 md:space-y-6 pb-4" : "space-y-3 md:space-y-6 pb-4 p-4 sm:p-6"}>
-      {!embedded && (
-        <div className="flex justify-between items-center">
+      {!embedded && <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Saques</h1>
             <p className="text-sm md:text-base text-muted-foreground">
               Gerencie suas solicitações de saque
             </p>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Card de Status de Saque */}
       {!canWithdraw}
@@ -323,9 +314,7 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
               <div className="text-xl md:text-2xl font-bold text-sky-600 dark:text-sky-400">
                 R$ {commissionsData?.pending.toFixed(2) || '0,00'}
               </div>
-              <p className="text-xs text-muted-foreground mt-1 hidden md:block">
-                Disponível em até {settings?.daysToAvailable} dias
-              </p>
+              
             </CardContent>
           </Card>
         </ScrollAnimation>
@@ -362,13 +351,7 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
             </CardHeader>
             <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
               <div className="text-lg md:text-2xl font-bold">
-                {profileLoading ? (
-                  <Skeleton className="h-7 w-36" />
-                ) : profile?.cpf ? (
-                  formatCpf(profile.cpf)
-                ) : (
-                  'Não cadastrado'
-                )}
+                {profileLoading ? <Skeleton className="h-7 w-36" /> : profile?.cpf ? formatCpf(profile.cpf) : 'Não cadastrado'}
               </div>
               <p className="text-xs text-muted-foreground mt-1 md:mt-2">
                 Pagamentos nesta chave
@@ -505,20 +488,13 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
         <CardContent className="p-0 md:p-6 md:pt-0">
           {/* Mobile View - Cards */}
           <div className="md:hidden space-y-2">
-            {withdrawalsLoading ? (
-              <div className="flex justify-center py-8">
+            {withdrawalsLoading ? <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : withdrawals && withdrawals.length > 0 ? (
-              withdrawals.map(withdrawal => (
-                <Card key={withdrawal.id} className="p-3">
+              </div> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <Card key={withdrawal.id} className="p-3">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge 
-                          variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}
-                          className="text-[10px]"
-                        >
+                        <Badge variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'} className="text-[10px]">
                           {withdrawal.status === 'pending' ? 'Pendente' : withdrawal.status === 'approved' ? 'Aprovado' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeitado' : withdrawal.status}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
@@ -528,28 +504,17 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
                       <p className="font-semibold text-base">
                         R$ {withdrawal.amount.toFixed(2)}
                       </p>
-                      {withdrawal.paid_date && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                      {withdrawal.paid_date && <p className="text-xs text-muted-foreground mt-0.5">
                           Pago em {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR')}
-                        </p>
-                      )}
+                        </p>}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0"
-                      onClick={() => handleViewDetails(withdrawal)}
-                    >
+                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleViewDetails(withdrawal)}>
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
-                </Card>
-              ))
-            ) : (
-              <p className="text-center text-muted-foreground py-8 text-sm">
+                </Card>) : <p className="text-center text-muted-foreground py-8 text-sm">
                 Nenhum saque solicitado
-              </p>
-            )}
+              </p>}
           </div>
 
           {/* Desktop View - Table */}
@@ -566,27 +531,23 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {withdrawalsLoading ? (
-                  <TableRow>
+                {withdrawalsLoading ? <TableRow>
                     <TableCell colSpan={6} className="text-center py-8">
                       <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                     </TableCell>
-                  </TableRow>
-                ) : withdrawals && withdrawals.length > 0 ? (
-                  withdrawals.map(withdrawal => (
-                    <TableRow key={withdrawal.id}>
+                  </TableRow> : withdrawals && withdrawals.length > 0 ? withdrawals.map(withdrawal => <TableRow key={withdrawal.id}>
                       <TableCell className="text-xs md:text-sm">
                         {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleDateString('pt-BR', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        })}
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })}
                         {' '}
                         <span className="text-muted-foreground">
                           {new Date(withdrawal.requested_date || withdrawal.created_at).toLocaleTimeString('pt-BR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                         </span>
                       </TableCell>
                       <TableCell className="font-medium text-xs md:text-sm whitespace-nowrap">
@@ -596,50 +557,36 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
                         {formatCpf(withdrawal.pix_key)}
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'}
-                          className="text-xs"
-                        >
+                        <Badge variant={withdrawal.status === 'paid' ? 'default' : withdrawal.status === 'approved' ? 'secondary' : withdrawal.status === 'rejected' ? 'destructive' : 'outline'} className="text-xs">
                           {withdrawal.status === 'pending' ? 'Pendente' : withdrawal.status === 'approved' ? 'Aprovado' : withdrawal.status === 'paid' ? 'Pago' : withdrawal.status === 'rejected' ? 'Rejeitado' : withdrawal.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs md:text-sm">
-                        {withdrawal.paid_date ? (
-                          <>
+                        {withdrawal.paid_date ? <>
                             {new Date(withdrawal.paid_date).toLocaleDateString('pt-BR', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric'
-                            })}
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })}
                             {' '}
                             <span className="text-muted-foreground">
                               {new Date(withdrawal.paid_date).toLocaleTimeString('pt-BR', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                             </span>
-                          </>
-                        ) : '-'}
+                          </> : '-'}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handleViewDetails(withdrawal)}
-                        >
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewDetails(withdrawal)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
+                    </TableRow>) : <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-8 text-xs md:text-sm">
                       Nenhum saque solicitado
                     </TableCell>
-                  </TableRow>
-                )}
+                  </TableRow>}
               </TableBody>
             </Table>
           </div>
@@ -659,12 +606,7 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
       </Card>
 
       {/* Dialog de Detalhes do Saque */}
-      <WithdrawalDetailsDialog
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-        withdrawal={selectedWithdrawal}
-        showAdminActions={false}
-      />
+      <WithdrawalDetailsDialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen} withdrawal={selectedWithdrawal} showAdminActions={false} />
     </div>;
 };
 export default Withdrawals;
