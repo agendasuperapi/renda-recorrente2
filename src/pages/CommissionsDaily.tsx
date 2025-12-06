@@ -31,6 +31,8 @@ interface Commission {
   data: string;
   produto: string;
   product_id: string;
+  product_icon_light: string | null;
+  product_icon_dark: string | null;
   cliente: string;
   cliente_email: string;
   plano: string;
@@ -645,7 +647,25 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                     commissions.map((commission) => (
                       <TableRow key={commission.id}>
                         <TableCell>{formatDate(commission.data)}</TableCell>
-                        <TableCell>{commission.produto || "-"}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {(commission.product_icon_light || commission.product_icon_dark) && (
+                              <>
+                                <img 
+                                  src={commission.product_icon_light || commission.product_icon_dark || ''} 
+                                  alt={commission.produto} 
+                                  className="w-5 h-5 object-contain dark:hidden"
+                                />
+                                <img 
+                                  src={commission.product_icon_dark || commission.product_icon_light || ''} 
+                                  alt={commission.produto} 
+                                  className="w-5 h-5 object-contain hidden dark:block"
+                                />
+                              </>
+                            )}
+                            <span>{commission.produto || "-"}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div>
                             <div className="font-medium">{commission.cliente || "-"}</div>
