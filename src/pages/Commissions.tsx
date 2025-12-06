@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
-import { CalendarDays, CalendarRange, Wallet } from "lucide-react";
+import { CalendarDays, CalendarRange, Wallet, Eye, EyeOff } from "lucide-react";
 import CommissionsDaily from "./CommissionsDaily";
 import CommissionsMonthly from "./CommissionsMonthly";
 import Withdrawals from "./Withdrawals";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { Button } from "@/components/ui/button";
 
 const Commissions = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "daily";
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const [showValues, setShowValues] = useState(true);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -20,11 +22,26 @@ const Commissions = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <ScrollAnimation animation="fade-up">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Comissões</h1>
-          <p className="text-muted-foreground">
-            Gerencie suas comissões e saques
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Comissões</h1>
+            <p className="text-muted-foreground">
+              Gerencie suas comissões e saques
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowValues(!showValues)}
+            className="h-9 w-9 rounded-full bg-background hover:bg-muted border border-border shadow-md transition-all duration-200"
+            title={showValues ? "Ocultar valores" : "Mostrar valores"}
+          >
+            {showValues ? (
+              <Eye className="h-5 w-5 text-foreground" />
+            ) : (
+              <EyeOff className="h-5 w-5 text-muted-foreground" />
+            )}
+          </Button>
         </div>
       </ScrollAnimation>
 
