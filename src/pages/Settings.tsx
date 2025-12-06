@@ -27,7 +27,7 @@ const Settings = () => {
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Perfil</span>
               <span className="sm:hidden">Perfil</span>
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary-foreground opacity-0 transition-opacity data-[state=active]:opacity-100 [[data-state=active]_&]:opacity-100" />
+              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
             <TabsTrigger 
               value="plan" 
@@ -36,7 +36,7 @@ const Settings = () => {
               <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Plano</span>
               <span className="sm:hidden">Plano</span>
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary-foreground opacity-0 transition-opacity data-[state=active]:opacity-100 [[data-state=active]_&]:opacity-100" />
+              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
@@ -45,7 +45,7 @@ const Settings = () => {
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Conta</span>
               <span className="sm:hidden">Conta</span>
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary-foreground opacity-0 transition-opacity data-[state=active]:opacity-100 [[data-state=active]_&]:opacity-100" />
+              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
           </TabsList>
 
