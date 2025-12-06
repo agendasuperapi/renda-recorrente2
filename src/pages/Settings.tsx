@@ -20,7 +20,7 @@ const Settings = () => {
       <div className="px-4 sm:px-6 pt-4 sm:pt-6">
         <h1 className="text-2xl font-bold mb-4">Configurações</h1>
         <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
-          <Card className="p-2 mb-4">
+          <Card className="p-2 mb-4" style={{ backgroundColor: '#ededed' }}>
             <TabsList className="w-full flex gap-2 bg-transparent p-0">
               <TabsTrigger 
                 value="personal" 
