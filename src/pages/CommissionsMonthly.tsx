@@ -49,7 +49,11 @@ interface Stats {
   count_ano: number;
 }
 
-const CommissionsMonthly = () => {
+interface CommissionsMonthlyProps {
+  embedded?: boolean;
+}
+
+const CommissionsMonthly = ({ embedded = false }: CommissionsMonthlyProps) => {
   const isMobile = useIsMobile();
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<MonthlyCommission[]>([]);
@@ -269,26 +273,30 @@ const CommissionsMonthly = () => {
 
   if (initialLoading) {
     return (
-      <div className="space-y-6 p-4 sm:p-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Comissões Mensais</h1>
-          <p className="text-muted-foreground">
-            Acompanhe suas comissões mensais recorrentes
-          </p>
-        </div>
+      <div className={embedded ? "space-y-6" : "space-y-6 p-4 sm:p-6"}>
+        {!embedded && (
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Comissões Mensais</h1>
+            <p className="text-muted-foreground">
+              Acompanhe suas comissões mensais recorrentes
+            </p>
+          </div>
+        )}
         <TableSkeleton />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Comissões Mensais</h1>
-        <p className="text-muted-foreground">
-          Acompanhe suas comissões mensais recorrentes
-        </p>
-      </div>
+    <div className={embedded ? "space-y-6" : "space-y-6 p-4 sm:p-6"}>
+      {!embedded && (
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Comissões Mensais</h1>
+          <p className="text-muted-foreground">
+            Acompanhe suas comissões mensais recorrentes
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="relative overflow-hidden">

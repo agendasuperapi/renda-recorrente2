@@ -68,15 +68,15 @@ const affiliateMenuItems: MenuItem[] = [{
 const commissionsMenuItems = [{
   icon: Coins,
   label: "Comissões Diárias",
-  path: "/commissions-daily"
+  path: "/commissions?tab=daily"
 }, {
   icon: TrendingUp,
   label: "Comissões Mensais",
-  path: "/commissions-monthly"
+  path: "/commissions?tab=monthly"
 }, {
   icon: Banknote,
   label: "Saques",
-  path: "/withdrawals"
+  path: "/commissions?tab=withdrawals"
 }];
 const settingsMenuItems = [{
   icon: User,

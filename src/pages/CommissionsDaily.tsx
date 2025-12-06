@@ -50,7 +50,11 @@ interface Stats {
   count_mes: number;
 }
 
-const CommissionsDaily = () => {
+interface CommissionsDailyProps {
+  embedded?: boolean;
+}
+
+const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
   const isMobile = useIsMobile();
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<Commission[]>([]);
@@ -311,17 +315,19 @@ const CommissionsDaily = () => {
   };
 
   if (initialLoading && !hasLoadedOnce) {
-    return <TableSkeleton title="Comissões Diárias" columns={7} rows={5} showSearch />;
+    return <TableSkeleton title={embedded ? undefined : "Comissões Diárias"} columns={7} rows={5} showSearch />;
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Comissões Diárias</h1>
-        <p className="text-muted-foreground">
-          Acompanhe suas comissões dia a dia
-        </p>
-      </div>
+    <div className={embedded ? "space-y-6" : "space-y-6 p-4 sm:p-6"}>
+      {!embedded && (
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Comissões Diárias</h1>
+          <p className="text-muted-foreground">
+            Acompanhe suas comissões dia a dia
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="relative overflow-hidden">
