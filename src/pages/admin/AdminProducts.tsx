@@ -17,6 +17,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 
 const productSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório"),
@@ -300,8 +301,9 @@ const AdminProducts = () => {
           <div className="text-center py-8">Carregando...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products?.map((product) => (
-              <Card key={product.id} className="bg-card">
+            {products?.map((product, index) => (
+              <ScrollAnimation key={product.id} animation="fade-up" delay={index * 50}>
+              <Card className="bg-card hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     {product.icone_dark && (
@@ -362,6 +364,7 @@ const AdminProducts = () => {
                   </div>
                 </CardContent>
               </Card>
+              </ScrollAnimation>
             ))}
           </div>
         )}
