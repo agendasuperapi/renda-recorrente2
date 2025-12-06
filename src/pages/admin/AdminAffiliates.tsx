@@ -14,6 +14,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AffiliateDetailsDialog } from "@/components/AffiliateDetailsDialog";
 import { AffiliatesFilterCard } from "@/components/admin/AffiliatesFilterCard";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 
 // Interface para tipagem da view
 interface AdminAffiliate {
@@ -276,8 +278,9 @@ const AdminAffiliates = () => {
                   ))}
                 </>
               ) : paginatedAffiliates && paginatedAffiliates.length > 0 ? (
-                paginatedAffiliates.map((affiliate) => (
-                  <Card key={affiliate.id} className="w-full">
+                paginatedAffiliates.map((affiliate, index) => (
+                  <ScrollAnimation key={affiliate.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                  <Card className="w-full transition-all duration-300 hover:shadow-md">
                     <CardContent className="p-0">
                       {/* Modo Compacto */}
                       {layoutMode === "compact" && (
@@ -390,6 +393,7 @@ const AdminAffiliates = () => {
                       )}
                     </CardContent>
                   </Card>
+                  </ScrollAnimation>
                 ))
               ) : (
                 <Card>
@@ -467,8 +471,8 @@ const AdminAffiliates = () => {
                   ))}
                 </>
               ) : paginatedAffiliates && paginatedAffiliates.length > 0 ? (
-                paginatedAffiliates.map((affiliate) => (
-                  <TableRow key={affiliate.id}>
+                paginatedAffiliates.map((affiliate, index) => (
+                  <AnimatedTableRow key={affiliate.id} delay={index * 50}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
@@ -518,7 +522,7 @@ const AdminAffiliates = () => {
                         Ver
                       </Button>
                     </TableCell>
-                  </TableRow>
+                  </AnimatedTableRow>
                 ))
               ) : (
                 <TableRow>
