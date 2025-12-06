@@ -898,13 +898,14 @@ const Coupons = () => {
                         </Alert>
                       )}
                       <div className="space-y-4">
-                      {productData.coupons.map(coupon => {
+                      {productData.coupons.map((coupon, couponIndex) => {
                 const isActivated = !!coupon.activatedCoupon;
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
                 
                 if (layoutMode === "compact") {
-                  return <div key={coupon.id} className={`flex items-center gap-4 p-4 border rounded-lg bg-card ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
+                  return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
+                    <div className={`flex items-center gap-4 p-4 border rounded-lg bg-card transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold truncate">{coupon.name}</span>
@@ -949,10 +950,12 @@ const Coupons = () => {
                         Liberar
                       </Button>}
                     </div>
-                  </div>;
+                  </div>
+                </ScrollAnimation>;
                 }
                 
-                return <div key={coupon.id} className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
+                return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
+                  <div className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
                                 <h3 className="font-semibold">{coupon.name}</h3>
@@ -1043,7 +1046,8 @@ const Coupons = () => {
                                   Liberar Cupom
                                 </Button>}
                             </div>
-                          </div>;
+                          </div>
+                </ScrollAnimation>;
               })}
                       </div>
                     </CardContent>
