@@ -22,7 +22,7 @@ const Settings = () => {
           <TabsList className="w-full flex gap-2 bg-transparent p-0 mb-4">
             <TabsTrigger 
               value="personal" 
-              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
+              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border/50 bg-card/20 px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:border-background data-[state=active]:shadow-lg"
             >
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Perfil</span>
@@ -30,7 +30,7 @@ const Settings = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="plan" 
-              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
+              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border/50 bg-card/20 px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:border-background data-[state=active]:shadow-lg"
             >
               <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Plano</span>
@@ -38,7 +38,7 @@ const Settings = () => {
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
-              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
+              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border/50 bg-card/20 px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:border-background data-[state=active]:shadow-lg"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Conta</span>
