@@ -22,27 +22,30 @@ const Settings = () => {
           <TabsList className="w-full flex gap-2 bg-transparent p-0 mb-4">
             <TabsTrigger 
               value="personal" 
-              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
             >
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Perfil</span>
               <span className="sm:hidden">Perfil</span>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary-foreground opacity-0 transition-opacity data-[state=active]:opacity-100 [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
             <TabsTrigger 
               value="plan" 
-              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
             >
               <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Plano</span>
               <span className="sm:hidden">Plano</span>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary-foreground opacity-0 transition-opacity data-[state=active]:opacity-100 [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
-              className="flex-1 flex items-center justify-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Conta</span>
               <span className="sm:hidden">Conta</span>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary-foreground opacity-0 transition-opacity data-[state=active]:opacity-100 [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
           </TabsList>
 
