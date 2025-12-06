@@ -14,6 +14,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 
 interface Referral {
   id: string;
@@ -259,56 +260,60 @@ const Referrals = () => {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Indicações</h1>
-        <p className="text-muted-foreground">
-          Acompanhe todas as suas indicações e conversões
-        </p>
-      </div>
+      <ScrollAnimation animation="fade-up">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Indicações</h1>
+          <p className="text-muted-foreground">
+            Acompanhe todas as suas indicações e conversões
+          </p>
+        </div>
+      </ScrollAnimation>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-4 pb-4">
-            <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Indicações
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.total}</div>
-          </CardContent>
-        </Card>
+      <ScrollAnimation animation="fade-up" delay={100}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-4 pb-4">
+              <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total de Indicações
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.total}</div>
+            </CardContent>
+          </Card>
 
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
-            <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Assinaturas Ativas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.active}</div>
-          </CardContent>
-        </Card>
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Assinaturas Ativas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.active}</div>
+            </CardContent>
+          </Card>
 
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
-            <TrendingUp className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-          </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Taxa de Conversão
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">{stats.conversionRate}%</div>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
+              <TrendingUp className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+            </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Taxa de Conversão
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">{stats.conversionRate}%</div>
+            </CardContent>
+          </Card>
+        </div>
+      </ScrollAnimation>
 
       {/* Botão de filtros mobile/tablet */}
       <div className="lg:hidden flex items-center justify-between">

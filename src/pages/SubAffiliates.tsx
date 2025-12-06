@@ -20,6 +20,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 
 interface SubAffiliate {
   id: string;
@@ -414,18 +415,20 @@ const SubAffiliates = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-2">
-          Sub Afiliados
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
-            <Crown className="h-3 w-3" />
-            PRO
-          </span>
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
-          Gerencie sua rede de sub-afiliados
-        </p>
-      </div>
+      <ScrollAnimation animation="fade-up">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-2">
+            Sub Afiliados
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+              <Crown className="h-3 w-3" />
+              PRO
+            </span>
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Gerencie sua rede de sub-afiliados
+          </p>
+        </div>
+      </ScrollAnimation>
 
       {/* Aviso de requisitos para ter sub-afiliados */}
       {!isLoadingRequirements && !canHaveSubAffiliates && (
