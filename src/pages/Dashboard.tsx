@@ -514,16 +514,16 @@ const Dashboard = () => {
                 </p>
               </div>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
                 onClick={() => setShowValues(!showValues)}
-                className="h-10 w-10 rounded-full border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 hover:border-primary/50 shadow-sm transition-all"
+                className="h-9 w-9 rounded-full hover:bg-muted"
                 title={showValues ? "Ocultar valores" : "Mostrar valores"}
               >
                 {showValues ? (
-                  <Eye className="h-5 w-5 text-primary" />
+                  <Eye className="h-5 w-5 text-muted-foreground" />
                 ) : (
-                  <EyeOff className="h-5 w-5 text-primary" />
+                  <EyeOff className="h-5 w-5 text-muted-foreground" />
                 )}
               </Button>
             </div>
