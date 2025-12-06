@@ -95,7 +95,7 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
         .from('view_withdrawals_summary' as any)
         .select('available, pending, requested, withdrawn')
         .eq('affiliate_id', userId)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       
