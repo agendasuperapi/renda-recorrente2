@@ -432,67 +432,73 @@ const SubAffiliates = () => {
 
       {/* Aviso de requisitos para ter sub-afiliados */}
       {!isLoadingRequirements && !canHaveSubAffiliates && (
-        <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
-          <AlertDescription className="text-white/90">
-            <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
-            <div className="space-y-2">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${isProPlan ? 'bg-green-500/30' : 'bg-white/10'}`}>
-                <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                  {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                </span>
-                <span className="flex-1">Ter o plano PRO</span>
-                {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+          <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
+            <AlertDescription className="text-white/90">
+              <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
+              <div className="space-y-2">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${isProPlan ? 'bg-green-500/30' : 'bg-white/10'}`}>
+                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                    {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                  </span>
+                  <span className="flex-1">Ter o plano PRO</span>
+                  {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+                </div>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${hasEnoughSales ? 'bg-green-500/30' : 'bg-white/10'}`}>
+                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                    {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                  </span>
+                  <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
+                  {hasEnoughSales 
+                    ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
+                    : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
+                  }
+                </div>
               </div>
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${hasEnoughSales ? 'bg-green-500/30' : 'bg-white/10'}`}>
-                <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                  {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                </span>
-                <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
-                {hasEnoughSales 
-                  ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
-                  : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
-                }
-              </div>
-            </div>
-          </AlertDescription>
-        </Alert>
+            </AlertDescription>
+          </Alert>
+        </ScrollAnimation>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-4 pb-4">
-            <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Sub-Afiliados
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.total}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
-            <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Minhas Comissões (via Sub-Afiliados)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-              }).format(stats.commissions)}
+        <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
+          <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-md">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-4 pb-4">
+              <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
-          </CardContent>
-        </Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total de Sub-Afiliados
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.total}</div>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
+
+        <ScrollAnimation animation="fade-up" delay={150} threshold={0.05}>
+          <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-md">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+              <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Minhas Comissões (via Sub-Afiliados)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL'
+                }).format(stats.commissions)}
+              </div>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
       </div>
 
       {/* Botão de filtros mobile/tablet */}
@@ -816,9 +822,10 @@ const SubAffiliates = () => {
                   Nenhum sub-afiliado encontrado
                 </div>
               ) : (
-                filteredData.map((sub) => (
-                  <Card key={sub.id} className="overflow-hidden">
-                    <CardContent className="p-0">
+                filteredData.map((sub, index) => (
+                  <ScrollAnimation key={sub.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                    <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+                      <CardContent className="p-0">
                       {/* Mobile Layout - Compact */}
                       {layoutMode === "compact" && (
                         <div className="md:hidden p-4 space-y-3">
@@ -1059,6 +1066,7 @@ const SubAffiliates = () => {
                       )}
                     </CardContent>
                   </Card>
+                </ScrollAnimation>
                 ))
               )}
             </div>
