@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 
 interface Referral {
   id: string;
@@ -442,8 +443,9 @@ const Referrals = () => {
               </CardContent>
             </Card>
           ) : (
-            referrals.map((referral) => (
-              <Card key={referral.id}>
+            referrals.map((referral, index) => (
+              <ScrollAnimation key={referral.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                <Card className="transition-all duration-300 hover:shadow-lg">
                 <CardContent className="p-4 space-y-3">
                   {layoutMode === "compact" && expandedCardId !== referral.id ? (
                     // Layout Compacto: Nome, Produto, Plano, Status, Data de Cadastro
@@ -538,7 +540,8 @@ const Referrals = () => {
                     </>
                   )}
                 </CardContent>
-              </Card>
+                </Card>
+              </ScrollAnimation>
             ))
           )}
 
@@ -616,8 +619,8 @@ const Referrals = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  referrals.map((referral) => (
-                    <TableRow key={referral.id}>
+                  referrals.map((referral, index) => (
+                    <AnimatedTableRow key={referral.id} delay={index * 50}>
                       <TableCell>{formatDate(referral.created_at)}</TableCell>
                       <TableCell>{referral.name || "-"}</TableCell>
                       <TableCell>{referral.email}</TableCell>
@@ -640,7 +643,7 @@ const Referrals = () => {
                         ) : "-"}
                       </TableCell>
                       <TableCell>{formatDate(referral.trial_end)}</TableCell>
-                    </TableRow>
+                    </AnimatedTableRow>
                   ))
                 )}
               </TableBody>
