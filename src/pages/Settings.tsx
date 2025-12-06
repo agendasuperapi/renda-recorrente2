@@ -19,33 +19,30 @@ const Settings = () => {
       <div className="px-4 sm:px-6 pt-4 sm:pt-6">
         <h1 className="text-2xl font-bold mb-4">Configurações</h1>
         <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full flex gap-2 bg-transparent p-0 mb-4">
+          <TabsList className="grid grid-cols-3 gap-2 bg-muted/50 p-1.5 rounded-xl mb-4">
             <TabsTrigger 
               value="personal" 
-              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium"
             >
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Perfil</span>
               <span className="sm:hidden">Perfil</span>
-              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
             <TabsTrigger 
               value="plan" 
-              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium"
             >
               <Crown className="h-4 w-4" />
               <span className="hidden sm:inline">Meu Plano</span>
               <span className="sm:hidden">Plano</span>
-              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
-              className="relative flex-1 flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-muted-foreground transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium"
             >
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Conta</span>
               <span className="sm:hidden">Conta</span>
-              <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-primary-foreground opacity-0 transition-opacity [[data-state=active]_&]:opacity-100" />
             </TabsTrigger>
           </TabsList>
 
