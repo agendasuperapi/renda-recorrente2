@@ -56,11 +56,6 @@ const affiliateMenuItems: MenuItem[] = [{
   label: "Comissões",
   path: "/commissions"
 }, {
-  icon: Users,
-  label: "Sub Afiliados",
-  path: "/sub-affiliates",
-  isPro: true
-}, {
   icon: UserPlus,
   label: "Meus Indicados",
   path: "/referrals"
@@ -68,6 +63,11 @@ const affiliateMenuItems: MenuItem[] = [{
   icon: Ticket,
   label: "Meus Cupons",
   path: "/coupons"
+}, {
+  icon: Users,
+  label: "Sub Afiliados",
+  path: "/sub-affiliates",
+  isPro: true
 }];
 const settingsMenuItems = [{
   icon: User,
