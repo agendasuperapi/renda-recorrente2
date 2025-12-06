@@ -628,59 +628,63 @@ export const PersonalProfileContent = () => {
                   {usernameStatus.available === false && <p className="text-sm text-destructive">Username já está em uso</p>}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
-                  <div className="relative">
-                    <Input id="cpf" value={formData.cpf} onChange={e => handleCpfChange(e.target.value)} placeholder="000.000.000-00" maxLength={14} className={cpfStatus.available === false || cpfStatus.valid === false ? "border-destructive focus-visible:ring-destructive pr-10" : ""} />
-                    {(cpfStatus.available === false || cpfStatus.valid === false) && <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <X className="h-5 w-5 text-destructive" />
-                      </div>}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <div className="relative">
+                      <Input id="cpf" value={formData.cpf} onChange={e => handleCpfChange(e.target.value)} placeholder="000.000.000-00" maxLength={14} className={cpfStatus.available === false || cpfStatus.valid === false ? "border-destructive focus-visible:ring-destructive pr-10" : ""} />
+                      {(cpfStatus.available === false || cpfStatus.valid === false) && <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <X className="h-5 w-5 text-destructive" />
+                        </div>}
+                    </div>
+                    {cpfStatus.checking && <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Verificando CPF...
+                      </p>}
+                    {cpfStatus.valid === false && <p className="text-sm text-destructive font-medium">
+                        CPF inválido. Verifique os dígitos informados.
+                      </p>}
+                    {cpfStatus.available === false && cpfStatus.valid !== false && <p className="text-sm text-destructive font-medium">
+                        CPF já cadastrado no sistema
+                      </p>}
+                    {cpfStatus.available === true && cpfStatus.valid === true && <p className="text-sm text-green-600">CPF disponível</p>}
                   </div>
-                  {cpfStatus.checking && <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Verificando CPF...
-                    </p>}
-                  {cpfStatus.valid === false && <p className="text-sm text-destructive font-medium">
-                      CPF inválido. Verifique os dígitos informados.
-                    </p>}
-                  {cpfStatus.available === false && cpfStatus.valid !== false && <p className="text-sm text-destructive font-medium">
-                      CPF já cadastrado no sistema
-                    </p>}
-                  {cpfStatus.available === true && cpfStatus.valid === true && <p className="text-sm text-green-600">CPF disponível</p>}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Telefone</Label>
+                    <Input id="phone" value={formData.phone} onChange={e => setFormData({
+                    ...formData,
+                    phone: formatPhone(e.target.value)
+                  })} placeholder="(00) 00000-0000" maxLength={15} />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Telefone</Label>
-                  <Input id="phone" value={formData.phone} onChange={e => setFormData({
-                  ...formData,
-                  phone: formatPhone(e.target.value)
-                })} placeholder="(00) 00000-0000" maxLength={15} />
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="birth_date">Data de Nascimento</Label>
+                    <DatePickerFilter value={formData.birth_date ? parse(formData.birth_date, 'yyyy-MM-dd', new Date()) : undefined} onChange={date => setFormData({
+                    ...formData,
+                    birth_date: date ? format(date, 'yyyy-MM-dd') : ''
+                  })} placeholder="Selecionar data" className="w-full" />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="birth_date">Data de Nascimento</Label>
-                  <DatePickerFilter value={formData.birth_date ? parse(formData.birth_date, 'yyyy-MM-dd', new Date()) : undefined} onChange={date => setFormData({
-                  ...formData,
-                  birth_date: date ? format(date, 'yyyy-MM-dd') : ''
-                })} placeholder="Selecionar data" className="w-full" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="gender">Gênero</Label>
-                  <Select value={formData.gender} onValueChange={value => setFormData({
-                  ...formData,
-                  gender: value
-                })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione seu gênero" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Masculino</SelectItem>
-                      <SelectItem value="female">Feminino</SelectItem>
-                      <SelectItem value="other">Outro</SelectItem>
-                      <SelectItem value="prefer_not_say">Prefiro não informar</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gênero</Label>
+                    <Select value={formData.gender} onValueChange={value => setFormData({
+                    ...formData,
+                    gender: value
+                  })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione seu gênero" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Masculino</SelectItem>
+                        <SelectItem value="female">Feminino</SelectItem>
+                        <SelectItem value="other">Outro</SelectItem>
+                        <SelectItem value="prefer_not_say">Prefiro não informar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </TabsContent>
 
