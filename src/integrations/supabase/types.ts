@@ -3516,6 +3516,7 @@ export type Database = {
       }
     }
     Functions: {
+      check_email_exists: { Args: { email_to_check: string }; Returns: boolean }
       check_username_availability: {
         Args: { p_user_id: string; p_username: string }
         Returns: boolean
