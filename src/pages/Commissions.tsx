@@ -56,13 +56,25 @@ const Commissions = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="daily" className="mt-6">
+        <TabsContent 
+          value="daily" 
+          forceMount 
+          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-300"
+        >
           <CommissionsDailyContent />
         </TabsContent>
-        <TabsContent value="monthly" className="mt-6">
+        <TabsContent 
+          value="monthly" 
+          forceMount 
+          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-300"
+        >
           <CommissionsMonthlyContent />
         </TabsContent>
-        <TabsContent value="withdrawals" className="mt-6">
+        <TabsContent 
+          value="withdrawals" 
+          forceMount 
+          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-300"
+        >
           <WithdrawalsContent />
         </TabsContent>
       </Tabs>
