@@ -263,6 +263,102 @@ export type Database = {
           },
         ]
       }
+      affiliate_goals: {
+        Row: {
+          affiliate_id: string
+          created_at: string | null
+          goal_type: string
+          id: string
+          is_active: boolean | null
+          period_end: string
+          period_start: string
+          product_id: string | null
+          target_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_id: string
+          created_at?: string | null
+          goal_type: string
+          id?: string
+          is_active?: boolean | null
+          period_end: string
+          period_start: string
+          product_id?: string | null
+          target_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_id?: string
+          created_at?: string | null
+          goal_type?: string
+          id?: string
+          is_active?: boolean | null
+          period_end?: string
+          period_start?: string
+          product_id?: string | null
+          target_value?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           created_at: string | null
@@ -3035,6 +3131,85 @@ export type Database = {
           total_sub_afiliados?: never
         }
         Relationships: []
+      }
+      view_affiliate_goals_progress: {
+        Row: {
+          affiliate_id: string | null
+          created_at: string | null
+          current_value: number | null
+          days_remaining: number | null
+          goal_type: string | null
+          id: string | null
+          is_active: boolean | null
+          period_end: string | null
+          period_start: string | null
+          product_icon_dark: string | null
+          product_icon_light: string | null
+          product_id: string | null
+          product_name: string | null
+          progress_percentage: number | null
+          status: string | null
+          target_value: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["product_id"]
+          },
+        ]
       }
       view_commissions_daily: {
         Row: {

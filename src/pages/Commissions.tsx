@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from "react-router-dom";
-import { CalendarDays, CalendarRange, Wallet, Eye, EyeOff } from "lucide-react";
+import { CalendarDays, CalendarRange, Wallet, Target, Eye, EyeOff } from "lucide-react";
 import CommissionsDaily from "./CommissionsDaily";
 import CommissionsMonthly from "./CommissionsMonthly";
 import Withdrawals from "./Withdrawals";
+import GoalsTab from "@/components/goals/GoalsTab";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { Button } from "@/components/ui/button";
 
@@ -47,27 +48,34 @@ const Commissions = () => {
 
       <ScrollAnimation animation="fade-up" delay={100}>
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid grid-cols-3 gap-2 bg-muted/50 p-1.5 rounded-xl mb-4">
+          <TabsList className="grid grid-cols-4 gap-2 bg-muted/50 p-1.5 rounded-xl mb-4">
             <TabsTrigger 
               value="daily" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
               <CalendarDays className="h-4 w-4" />
-              <span>Diárias</span>
+              <span className="hidden sm:inline">Diárias</span>
             </TabsTrigger>
             <TabsTrigger 
               value="monthly" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
               <CalendarRange className="h-4 w-4" />
-              <span>Mensais</span>
+              <span className="hidden sm:inline">Mensais</span>
             </TabsTrigger>
             <TabsTrigger 
               value="withdrawals" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
               <Wallet className="h-4 w-4" />
-              <span>Saques</span>
+              <span className="hidden sm:inline">Saques</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="goals" 
+              className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
+            >
+              <Target className="h-4 w-4" />
+              <span className="hidden sm:inline">Metas</span>
             </TabsTrigger>
           </TabsList>
 
@@ -91,6 +99,13 @@ const Commissions = () => {
             className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
             <Withdrawals embedded showValues={showValues} />
+          </TabsContent>
+          <TabsContent 
+            value="goals" 
+            forceMount 
+            className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
+          >
+            <GoalsTab embedded showValues={showValues} />
           </TabsContent>
         </Tabs>
       </ScrollAnimation>
