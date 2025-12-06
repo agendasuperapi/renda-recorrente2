@@ -21,6 +21,7 @@ import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 
 interface SubAffiliate {
   id: string;
@@ -750,8 +751,8 @@ const SubAffiliates = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredData.map((sub) => (
-                    <TableRow key={sub.id}>
+                  filteredData.map((sub, index) => (
+                    <AnimatedTableRow key={sub.id} delay={index * 50}>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
@@ -807,7 +808,7 @@ const SubAffiliates = () => {
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                    </TableRow>
+                    </AnimatedTableRow>
                   ))
                 )}
               </TableBody>
