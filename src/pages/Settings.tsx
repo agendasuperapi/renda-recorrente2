@@ -49,19 +49,31 @@ const Settings = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="personal" className="mt-0">
+          <TabsContent 
+            value="personal" 
+            forceMount 
+            className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
+          >
             <ScrollArea className="h-[calc(100vh-200px)]">
               <PersonalProfileContent />
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="plan" className="mt-0">
+          <TabsContent 
+            value="plan" 
+            forceMount 
+            className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
+          >
             <ScrollArea className="h-[calc(100vh-200px)]">
               <PlanContent />
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="security" className="mt-0">
+          <TabsContent 
+            value="security" 
+            forceMount 
+            className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
+          >
             <ScrollArea className="h-[calc(100vh-200px)]">
               <SecurityContent />
             </ScrollArea>
