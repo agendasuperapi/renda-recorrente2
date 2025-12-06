@@ -52,9 +52,10 @@ interface Stats {
 
 interface CommissionsMonthlyProps {
   embedded?: boolean;
+  showValues?: boolean;
 }
 
-const CommissionsMonthly = ({ embedded = false }: CommissionsMonthlyProps) => {
+const CommissionsMonthly = ({ embedded = false, showValues = true }: CommissionsMonthlyProps) => {
   const isMobile = useIsMobile();
   const { userId } = useUser();
   const [commissions, setCommissions] = useState<MonthlyCommission[]>([]);
@@ -254,7 +255,10 @@ const CommissionsMonthly = ({ embedded = false }: CommissionsMonthlyProps) => {
     setPlans([]);
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number, hideValue: boolean = false) => {
+    if (hideValue || !showValues) {
+      return "R$ •••••";
+    }
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",

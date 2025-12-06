@@ -26,9 +26,11 @@ const DAYS_OF_WEEK: Record<number, string> = {
 };
 interface WithdrawalsProps {
   embedded?: boolean;
+  showValues?: boolean;
 }
 const Withdrawals = ({
-  embedded = false
+  embedded = false,
+  showValues = true
 }: WithdrawalsProps) => {
   const {
     userId
@@ -45,6 +47,13 @@ const Withdrawals = ({
     const numbers = cpf.replace(/\D/g, '');
     if (numbers.length !== 11) return cpf;
     return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
+  const formatCurrency = (value: number) => {
+    if (!showValues) {
+      return "R$ •••••";
+    }
+    return `R$ ${value.toFixed(2)}`;
   };
 
   // Buscar dados do perfil para saques (queryKey específica para não conflitar com outras queries)
@@ -294,7 +303,7 @@ const Withdrawals = ({
             </CardHeader>
             <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
               <div className="text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                R$ {commissionsData?.available.toFixed(2) || '0,00'}
+                {formatCurrency(commissionsData?.available || 0)}
               </div>
             </CardContent>
           </Card>
@@ -312,7 +321,7 @@ const Withdrawals = ({
             </CardHeader>
             <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
               <div className="text-xl md:text-2xl font-bold text-sky-600 dark:text-sky-400">
-                R$ {commissionsData?.pending.toFixed(2) || '0,00'}
+                {formatCurrency(commissionsData?.pending || 0)}
               </div>
               
             </CardContent>
@@ -331,7 +340,7 @@ const Withdrawals = ({
             </CardHeader>
             <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
               <div className="text-xl md:text-2xl font-bold text-violet-600 dark:text-violet-400">
-                R$ {commissionsData?.paid.toFixed(2) || '0,00'}
+                {formatCurrency(commissionsData?.paid || 0)}
               </div>
             </CardContent>
           </Card>
@@ -404,7 +413,7 @@ const Withdrawals = ({
         <Button className="gap-2 w-full md:w-auto" size="default" onClick={handleWithdrawalClick}>
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">Solicitar Saque de</span>
-          <span className="sm:hidden">Solicitar</span> R$ {commissionsData?.available.toFixed(2) || '0,00'}
+          <span className="sm:hidden">Solicitar</span> {formatCurrency(commissionsData?.available || 0)}
         </Button>
       </div>
 
