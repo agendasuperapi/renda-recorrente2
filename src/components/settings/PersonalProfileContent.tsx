@@ -575,7 +575,7 @@ export const PersonalProfileContent = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="personal" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
+              <TabsContent value="personal" forceMount className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center gap-3 pb-4 border-b">
                   <div className="relative">
@@ -691,7 +691,7 @@ export const PersonalProfileContent = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="address" className="space-y-4 mt-4">
+              <TabsContent value="address" forceMount className="space-y-4 mt-4 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150">
                 <div className="space-y-2">
                   <Label htmlFor="cep">CEP</Label>
                   <Input id="cep" value={formData.cep} onChange={e => handleCepChange(e.target.value)} placeholder="00000-000" maxLength={9} />
@@ -750,7 +750,7 @@ export const PersonalProfileContent = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="social" className="space-y-4 mt-4">
+              <TabsContent value="social" forceMount className="space-y-4 mt-4 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150">
                 <div className="space-y-2">
                   <Label htmlFor="instagram" className="flex items-center gap-2">
                     <Instagram className="h-4 w-4" />
