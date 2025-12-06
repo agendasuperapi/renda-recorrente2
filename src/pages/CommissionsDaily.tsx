@@ -654,12 +654,12 @@ const CommissionsDaily = ({ embedded = false }: CommissionsDailyProps) => {
                                 <img 
                                   src={commission.product_icon_light || commission.product_icon_dark || ''} 
                                   alt={commission.produto} 
-                                  className="w-5 h-5 object-contain dark:hidden"
+                                  className="w-5 h-5 object-contain rounded-full dark:hidden"
                                 />
                                 <img 
                                   src={commission.product_icon_dark || commission.product_icon_light || ''} 
                                   alt={commission.produto} 
-                                  className="w-5 h-5 object-contain hidden dark:block"
+                                  className="w-5 h-5 object-contain rounded-full hidden dark:block"
                                 />
                               </>
                             )}
