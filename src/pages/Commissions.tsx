@@ -59,21 +59,21 @@ const Commissions = () => {
         <TabsContent 
           value="daily" 
           forceMount 
-          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-300"
+          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
         >
           <CommissionsDailyContent />
         </TabsContent>
         <TabsContent 
           value="monthly" 
           forceMount 
-          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-300"
+          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
         >
           <CommissionsMonthlyContent />
         </TabsContent>
         <TabsContent 
           value="withdrawals" 
           forceMount 
-          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-300"
+          className="mt-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
         >
           <WithdrawalsContent />
         </TabsContent>
