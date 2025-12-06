@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Wallet, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Calendar, CircleDollarSign, TrendingUp, Loader2, Eye } from "lucide-react";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -290,112 +291,122 @@ const Withdrawals = ({ embedded = false }: WithdrawalsProps) => {
       {!canWithdraw}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
-            <CircleDollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Disponível
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              R$ {commissionsData?.available.toFixed(2) || '0,00'}
+        <ScrollAnimation animation="fade-up" delay={0}>
+          <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+              <CircleDollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
-          </CardContent>
-        </Card>
+            <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Disponível
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                R$ {commissionsData?.available.toFixed(2) || '0,00'}
+              </div>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
-            <Clock className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-          </div>
-          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Pendente
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-sky-600 dark:text-sky-400">
-              R$ {commissionsData?.pending.toFixed(2) || '0,00'}
+        <ScrollAnimation animation="fade-up" delay={100}>
+          <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
+              <Clock className="h-5 w-5 text-sky-600 dark:text-sky-400" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1 hidden md:block">
-              Disponível em até {settings?.daysToAvailable} dias
-            </p>
-          </CardContent>
-        </Card>
+            <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Pendente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-sky-600 dark:text-sky-400">
+                R$ {commissionsData?.pending.toFixed(2) || '0,00'}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 hidden md:block">
+                Disponível em até {settings?.daysToAvailable} dias
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card className="relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
-            <TrendingUp className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-          </div>
-          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
-              Sacado
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-violet-600 dark:text-violet-400">
-              R$ {commissionsData?.paid.toFixed(2) || '0,00'}
+        <ScrollAnimation animation="fade-up" delay={200}>
+          <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
+              <TrendingUp className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
-          </CardContent>
-        </Card>
+            <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                Sacado
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-violet-600 dark:text-violet-400">
+                R$ {commissionsData?.paid.toFixed(2) || '0,00'}
+              </div>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-        <Card className="border-primary/20 bg-primary/5 relative overflow-hidden">
-          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-primary/20 dark:bg-primary/30 flex items-end justify-start pl-4 pb-4">
-            <img src={pixIcon} alt="PIX" className="h-5 w-5" />
-          </div>
-          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium">
-              Chave PIX (CPF)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-lg md:text-2xl font-bold">
-              {profileLoading ? (
-                <Skeleton className="h-7 w-36" />
-              ) : profile?.cpf ? (
-                formatCpf(profile.cpf)
-              ) : (
-                'Não cadastrado'
-              )}
+        <ScrollAnimation animation="fade-up" delay={300}>
+          <Card className="border-primary/20 bg-primary/5 relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-primary/20 dark:bg-primary/30 flex items-end justify-start pl-4 pb-4">
+              <img src={pixIcon} alt="PIX" className="h-5 w-5" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1 md:mt-2">
-              Pagamentos nesta chave
-            </p>
-          </CardContent>
-        </Card>
+            <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium">
+                Chave PIX (CPF)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              <div className="text-lg md:text-2xl font-bold">
+                {profileLoading ? (
+                  <Skeleton className="h-7 w-36" />
+                ) : profile?.cpf ? (
+                  formatCpf(profile.cpf)
+                ) : (
+                  'Não cadastrado'
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 md:mt-2">
+                Pagamentos nesta chave
+              </p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
 
-        <Card className={`relative overflow-hidden ${isWithdrawalDay ? "border-success/20 bg-success/5" : "border-destructive/20 bg-destructive/5"}`}>
-          <div className={`absolute -top-6 -right-6 h-24 w-24 rounded-full flex items-end justify-start pl-4 pb-4 ${isWithdrawalDay ? "bg-emerald-200/60 dark:bg-emerald-800/40" : "bg-rose-200/60 dark:bg-rose-800/40"}`}>
-            <Calendar className={`h-5 w-5 ${isWithdrawalDay ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`} />
-          </div>
-          <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
-            <CardTitle className="text-xs md:text-sm font-medium">
-              Dia de Saque
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            {isWithdrawalDay ? <>
-                <div className="text-lg md:text-xl font-bold text-success mb-1 md:mb-2">
-                  Hoje é seu dia!
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  ⚠️ Solicite hoje, próximo apenas {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
-                </p>
-              </> : <>
-                <div className="text-lg md:text-2xl font-bold text-destructive">
-                  {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
-                </div>
-                <p className="text-xs text-destructive mt-1 md:mt-2 flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" />
-                  Solicitação disponível somente nesse dia
-                </p>
-              </>}
-          </CardContent>
-        </Card>
+        <ScrollAnimation animation="fade-up" delay={400}>
+          <Card className={`relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${isWithdrawalDay ? "border-success/20 bg-success/5" : "border-destructive/20 bg-destructive/5"}`}>
+            <div className={`absolute -top-6 -right-6 h-24 w-24 rounded-full flex items-end justify-start pl-4 pb-4 ${isWithdrawalDay ? "bg-emerald-200/60 dark:bg-emerald-800/40" : "bg-rose-200/60 dark:bg-rose-800/40"}`}>
+              <Calendar className={`h-5 w-5 ${isWithdrawalDay ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`} />
+            </div>
+            <CardHeader className="pb-1 md:pb-2 p-4 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium">
+                Dia de Saque
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+              {isWithdrawalDay ? <>
+                  <div className="text-lg md:text-xl font-bold text-success mb-1 md:mb-2">
+                    Hoje é seu dia!
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    ⚠️ Solicite hoje, próximo apenas {getWithdrawalDayPrefix()} {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
+                  </p>
+                </> : <>
+                  <div className="text-lg md:text-2xl font-bold text-destructive">
+                    {DAYS_OF_WEEK[profile?.withdrawal_day ?? 1]}
+                  </div>
+                  <p className="text-xs text-destructive mt-1 md:mt-2 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Solicitação disponível somente nesse dia
+                  </p>
+                </>}
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
       </div>
 
       {!hasMinimumAmount && <Alert variant="destructive" className="py-3">
