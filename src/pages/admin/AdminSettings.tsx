@@ -239,40 +239,40 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="environment" className="w-full">
-        <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
-          <TabsTrigger value="environment" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 bg-muted/50 p-1.5 rounded-xl">
+          <TabsTrigger value="environment" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Ambiente</span>
           </TabsTrigger>
-          <TabsTrigger value="commissions" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="commissions" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Saques</span>
           </TabsTrigger>
-          <TabsTrigger value="commission-levels" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="commission-levels" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Níveis</span>
           </TabsTrigger>
-          <TabsTrigger value="theme" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="theme" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Tema</span>
           </TabsTrigger>
-          <TabsTrigger value="landing" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="landing" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Landing</span>
           </TabsTrigger>
-          <TabsTrigger value="versions" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="versions" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <GitBranch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Versões</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="users" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Usuários</span>
           </TabsTrigger>
-          <TabsTrigger value="cpf-apis" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="cpf-apis" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <FileSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">API CPF</span>
           </TabsTrigger>
-          <TabsTrigger value="legal" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="legal" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Termos</span>
           </TabsTrigger>
