@@ -3052,6 +3052,8 @@ export type Database = {
           percentual: number | null
           plan_id: string | null
           plano: string | null
+          product_icon_dark: string | null
+          product_icon_light: string | null
           product_id: string | null
           produto: string | null
           status: Database["public"]["Enums"]["commission_status"] | null
