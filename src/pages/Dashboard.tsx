@@ -503,144 +503,144 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
-                <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-3 pb-3">
+                <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <CardHeader className="p-0 pb-2 space-y-0">
-                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+              <CardHeader className="p-0 pb-1 space-y-0">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
                   Comissão do dia
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400">
                   {formatCurrency(stats?.comissao_hoje || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
-                <DollarSign className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-3 pb-3">
+                <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Comissão últimos 7 dias
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                  Comissão 7 dias
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">
+                <div className="text-base sm:text-lg font-bold text-sky-600 dark:text-sky-400">
                   {formatCurrency(stats?.comissao_7_dias || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
-                <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-3 pb-3">
+                <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
                   Comissão do mês
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">
+                <div className="text-base sm:text-lg font-bold text-violet-600 dark:text-violet-400">
                   {formatCurrency(stats?.comissao_mes || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-4 pb-4">
-                <Wallet className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-3 pb-3">
+                <Wallet className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Comissão disponível para saque
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                  Disponível p/ saque
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                <div className="text-base sm:text-lg font-bold text-amber-600 dark:text-amber-400">
                   {formatCurrency(stats?.comissao_disponivel || 0)}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-rose-200/60 dark:bg-rose-800/40 flex items-end justify-start pl-4 pb-4">
-                <DollarSign className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-rose-200/60 dark:bg-rose-800/40 flex items-end justify-start pl-3 pb-3">
+                <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
                   Comissão pendente
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+                <div className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400">
                   {formatCurrency(stats?.comissao_pendente || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-teal-200/60 dark:bg-teal-800/40 flex items-end justify-start pl-4 pb-4">
-                <Coins className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-teal-200/60 dark:bg-teal-800/40 flex items-end justify-start pl-3 pb-3">
+                <Coins className="h-4 w-4 text-teal-600 dark:text-teal-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
                   Total já sacado
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
+                <div className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400">
                   {formatCurrency(stats?.total_sacado || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-blue-200/60 dark:bg-blue-800/40 flex items-end justify-start pl-4 pb-4">
-                <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden col-span-2 lg:col-span-1">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-blue-200/60 dark:bg-blue-800/40 flex items-end justify-start pl-3 pb-3">
+                <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Seu dia de solicitar saque
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                  Dia de solicitar saque
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-lg font-medium text-blue-600 dark:text-blue-400">
+                <div className="text-sm sm:text-base font-medium text-blue-600 dark:text-blue-400">
                   SEGUNDA-FEIRA, 24 DE NOVEMBRO
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-5 pb-5">
-                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-3 pb-3">
+                <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm sm:text-base text-muted-foreground">Quant. de Indicações</CardTitle>
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Indicações</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.total_indicacoes || 0}</div>
               </CardContent>
             </Card>
 
-            <Card className="p-3 sm:p-4 md:p-6 relative overflow-hidden">
-              <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-pink-200/60 dark:bg-pink-800/40 flex items-end justify-start pl-5 pb-5">
-                <Users className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+            <Card className="p-2.5 sm:p-3 relative overflow-hidden">
+              <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-pink-200/60 dark:bg-pink-800/40 flex items-end justify-start pl-3 pb-3">
+                <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
               </div>
-              <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm sm:text-base text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
+              <CardHeader className="p-0 pb-1">
+                <CardTitle className="text-[10px] sm:text-xs text-muted-foreground">Quant. de Sub-Afiliados</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
+                <div className="text-xl sm:text-2xl font-bold text-pink-600 dark:text-pink-400">{stats?.total_sub_afiliados || 0}</div>
               </CardContent>
             </Card>
           </div>
