@@ -517,7 +517,7 @@ const Dashboard = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => setShowValues(!showValues)}
-                className="h-10 w-10 rounded-full border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 hover:border-primary/50 shadow-sm transition-all"
+                className="h-10 w-10 min-w-10 shrink-0 rounded-full border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 hover:border-primary/50 shadow-sm transition-all"
                 title={showValues ? "Ocultar valores" : "Mostrar valores"}
               >
                 {showValues ? (
