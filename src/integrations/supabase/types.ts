@@ -2427,6 +2427,183 @@ export type Database = {
           },
         ]
       }
+      support_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_urls: string[] | null
+          is_admin: boolean
+          message: string | null
+          read_at: string | null
+          sender_id: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_urls?: string[] | null
+          is_admin?: boolean
+          message?: string | null
+          read_at?: string | null
+          sender_id: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_urls?: string[] | null
+          is_admin?: boolean
+          message?: string | null
+          read_at?: string | null
+          sender_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_admin_id: string | null
+          closed_at: string | null
+          created_at: string | null
+          id: string
+          is_resolved: boolean | null
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          rating: number | null
+          rating_comment: string | null
+          status: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          ticket_number: number
+          ticket_type: Database["public"]["Enums"]["ticket_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          closed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          rating?: number | null
+          rating_comment?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          ticket_number?: number
+          ticket_type?: Database["public"]["Enums"]["ticket_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          closed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          rating?: number | null
+          rating_comment?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject?: string
+          ticket_number?: number
+          ticket_type?: Database["public"]["Enums"]["ticket_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+        ]
+      }
       test_users_counter: {
         Row: {
           id: string
@@ -3801,6 +3978,21 @@ export type Database = {
         | "paid"
         | "requested"
       coupon_type: "percentage" | "days" | "free_trial"
+      ticket_priority: "baixa" | "normal" | "alta" | "urgente"
+      ticket_status:
+        | "open"
+        | "in_progress"
+        | "waiting_user"
+        | "resolved"
+        | "closed"
+      ticket_type:
+        | "problema"
+        | "sugestao"
+        | "reclamacao"
+        | "duvida"
+        | "financeiro"
+        | "tecnico"
+        | "outro"
       withdrawal_status: "pending" | "approved" | "paid" | "rejected"
     }
     CompositeTypes: {
@@ -3939,6 +4131,23 @@ export const Constants = {
         "requested",
       ],
       coupon_type: ["percentage", "days", "free_trial"],
+      ticket_priority: ["baixa", "normal", "alta", "urgente"],
+      ticket_status: [
+        "open",
+        "in_progress",
+        "waiting_user",
+        "resolved",
+        "closed",
+      ],
+      ticket_type: [
+        "problema",
+        "sugestao",
+        "reclamacao",
+        "duvida",
+        "financeiro",
+        "tecnico",
+        "outro",
+      ],
       withdrawal_status: ["pending", "approved", "paid", "rejected"],
     },
   },
