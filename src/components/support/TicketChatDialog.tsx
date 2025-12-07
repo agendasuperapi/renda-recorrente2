@@ -293,14 +293,15 @@ export function TicketChatDialog({
       
       // Scroll to the new message
       scrollToBottom();
-      
-      // Keep focus on input
-      messageInputRef.current?.focus();
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Erro ao enviar mensagem");
     } finally {
       setIsSending(false);
+      // Keep focus on input after state update
+      setTimeout(() => {
+        messageInputRef.current?.focus();
+      }, 0);
     }
   };
 
