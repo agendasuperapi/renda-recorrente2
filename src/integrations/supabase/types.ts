@@ -2429,6 +2429,7 @@ export type Database = {
       }
       support_messages: {
         Row: {
+          attached_references: Json | null
           created_at: string | null
           id: string
           image_urls: string[] | null
@@ -2439,6 +2440,7 @@ export type Database = {
           ticket_id: string
         }
         Insert: {
+          attached_references?: Json | null
           created_at?: string | null
           id?: string
           image_urls?: string[] | null
@@ -2449,6 +2451,7 @@ export type Database = {
           ticket_id: string
         }
         Update: {
+          attached_references?: Json | null
           created_at?: string | null
           id?: string
           image_urls?: string[] | null
