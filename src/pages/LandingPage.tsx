@@ -232,9 +232,17 @@ const LandingPage = () => {
               p_product_id: PRODUCT_ID
             });
             if (!error && validationData && Array.isArray(validationData) && validationData.length > 0) {
-              // Cupom ainda válido, aplicar
+              // Cupom ainda válido, aplicar com dados atualizados da validação
+              const freshCouponData = validationData[0];
               setCouponCode(codeToValidate); // Preencher com o código completo (username+cupom)
-              setValidatedCoupon(data);
+              setValidatedCoupon(freshCouponData);
+              
+              // Atualizar localStorage com dados frescos
+              localStorage.setItem('lastUsedCoupon', JSON.stringify({
+                code: codeToValidate,
+                custom_code: custom_code,
+                data: freshCouponData
+              }));
               
               // Se veio da URL, mostrar toast de confirmação
               if (couponFromUrl) {
