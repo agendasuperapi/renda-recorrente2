@@ -112,8 +112,14 @@ export function TicketChatDialog({
   const [selectingReferenceType, setSelectingReferenceType] = useState<ReferenceType | null>(null);
   const [selectedReference, setSelectedReference] = useState<Reference | null>(null);
   const [referenceDetailsOpen, setReferenceDetailsOpen] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<TicketStatus>(ticket.status);
 
   const effectiveUserId = currentUserId || userId;
+
+  // Sync status when ticket prop changes
+  useEffect(() => {
+    setCurrentStatus(ticket.status);
+  }, [ticket.status]);
 
   const { data: messages, isLoading, refetch: refetchMessages } = useQuery({
     queryKey: ["ticket-messages", ticket.id],
@@ -444,6 +450,7 @@ export function TicketChatDialog({
         .eq("id", ticket.id);
 
       toast.success("Status atualizado!");
+      setCurrentStatus(status); // Update local status immediately
       refetchMessages();
       onUpdate();
 
@@ -461,7 +468,7 @@ export function TicketChatDialog({
     }
   };
 
-  const isClosed = ticket.status === "closed";
+  const isClosed = currentStatus === "closed";
 
   const Content = (
     <div className="flex flex-col h-[calc(100vh-120px)] md:h-[calc(100vh-160px)]">
@@ -472,8 +479,8 @@ export function TicketChatDialog({
             <span className="text-sm font-medium text-muted-foreground">
               #{String(ticket.ticket_number).padStart(3, "0")}
             </span>
-            <Badge className={cn("text-xs", statusConfig[ticket.status].color)}>
-              {statusConfig[ticket.status].label}
+            <Badge className={cn("text-xs", statusConfig[currentStatus].color)}>
+              {statusConfig[currentStatus].label}
             </Badge>
             {ticket.is_resolved !== null && (
               <Badge className={ticket.is_resolved ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"}>
@@ -815,7 +822,7 @@ export function TicketChatDialog({
       <div className="flex flex-wrap gap-2 pt-3 border-t mt-3">
         {isAdmin ? (
           <>
-            {ticket.status !== "resolved" && ticket.status !== "closed" && (
+            {currentStatus !== "resolved" && currentStatus !== "closed" && (
               <>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -873,7 +880,7 @@ export function TicketChatDialog({
                 </AlertDialog>
               </>
             )}
-            {ticket.status !== "closed" ? (
+            {currentStatus !== "closed" ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -933,7 +940,7 @@ export function TicketChatDialog({
           </>
         ) : (
           <>
-            {ticket.status !== "closed" && (
+            {currentStatus !== "closed" && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -961,7 +968,7 @@ export function TicketChatDialog({
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            {ticket.status === "closed" && !ticket.rating && (
+            {currentStatus === "closed" && !ticket.rating && (
               <Button
                 variant="outline"
                 size="sm"
