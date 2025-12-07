@@ -15,7 +15,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Send, Image as ImageIcon, Loader2, X, CheckCircle, XCircle, Clock, Star, MessageCircle, Link2, DollarSign, Users, UserPlus } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ReferenceSelector, Reference } from "./ReferenceSelector";
+import { ReferenceType, Reference } from "./ReferenceSelector";
+import { ReferenceItemSelector } from "./ReferenceItemSelector";
 import { cn } from "@/lib/utils";
 import { TicketRatingDialog } from "./TicketRatingDialog";
 import { ImagePreviewDialog } from "./ImagePreviewDialog";
@@ -92,7 +93,8 @@ export function TicketChatDialog({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [chatReferences, setChatReferences] = useState<Reference[]>([]);
-  const [referencePopoverOpen, setReferencePopoverOpen] = useState(false);
+  const [referenceMenuOpen, setReferenceMenuOpen] = useState(false);
+  const [selectingReferenceType, setSelectingReferenceType] = useState<ReferenceType | null>(null);
 
   const effectiveUserId = currentUserId || userId;
 
@@ -309,7 +311,8 @@ export function TicketChatDialog({
       setImages([]);
       setImagePreviews([]);
       setChatReferences([]);
-      setReferencePopoverOpen(false);
+      setReferenceMenuOpen(false);
+      setSelectingReferenceType(null);
       refetchMessages();
       onUpdate();
       
@@ -554,25 +557,84 @@ export function TicketChatDialog({
           
           {/* Reference Attach Button - Only for non-admin users */}
           {!isAdmin && (
-            <Popover open={referencePopoverOpen} onOpenChange={setReferencePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  disabled={isSending}
-                  className={chatReferences.length > 0 ? "text-primary" : ""}
-                >
-                  <Link2 className="w-5 h-5" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80" align="start">
-                <ReferenceSelector
-                  selectedReferences={chatReferences}
-                  onReferencesChange={setChatReferences}
-                />
-              </PopoverContent>
-            </Popover>
+            <>
+              {/* Menu inicial com 3 opções */}
+              <Popover open={referenceMenuOpen} onOpenChange={setReferenceMenuOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={isSending}
+                    className={chatReferences.length > 0 ? "text-primary" : ""}
+                  >
+                    <Link2 className="w-5 h-5" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-1" align="start">
+                  <div className="flex flex-col">
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-muted rounded-md transition-colors text-left"
+                      onClick={() => {
+                        setReferenceMenuOpen(false);
+                        setSelectingReferenceType("commission");
+                      }}
+                    >
+                      <DollarSign className="w-4 h-4 text-green-600" />
+                      <span>Comissão</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-muted rounded-md transition-colors text-left"
+                      onClick={() => {
+                        setReferenceMenuOpen(false);
+                        setSelectingReferenceType("referral");
+                      }}
+                    >
+                      <UserPlus className="w-4 h-4 text-blue-600" />
+                      <span>Indicação</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-muted rounded-md transition-colors text-left"
+                      onClick={() => {
+                        setReferenceMenuOpen(false);
+                        setSelectingReferenceType("sub_affiliate");
+                      }}
+                    >
+                      <Users className="w-4 h-4 text-purple-600" />
+                      <span>Sub-Afiliado</span>
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* Popover de seleção de item */}
+              <Popover open={!!selectingReferenceType} onOpenChange={(open) => !open && setSelectingReferenceType(null)}>
+                <PopoverTrigger asChild>
+                  <span className="hidden" />
+                </PopoverTrigger>
+                <PopoverContent className="w-72" align="start" side="top">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">
+                      Selecione {selectingReferenceType === "commission" ? "a comissão" : 
+                                selectingReferenceType === "referral" ? "a indicação" : "o sub-afiliado"}
+                    </p>
+                    {selectingReferenceType && (
+                      <ReferenceItemSelector
+                        type={selectingReferenceType}
+                        selectedReferences={chatReferences}
+                        onSelect={(ref) => {
+                          setChatReferences(prev => [...prev, ref]);
+                          setSelectingReferenceType(null);
+                        }}
+                      />
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </>
           )}
 
           <input
