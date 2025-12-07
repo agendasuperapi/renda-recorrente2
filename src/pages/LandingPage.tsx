@@ -270,7 +270,7 @@ const LandingPage = () => {
                 sessionStorage.removeItem('couponFromUrl');
                 toast({
                   title: "Cupom aplicado!",
-                  description: `O cupom ${codeToValidate} foi aplicado automaticamente.`,
+                  description: `O cupom ${codeToValidate} foi aplicado.`,
                 });
               }
             } else {
