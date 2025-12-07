@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Loader2, X, Image as ImageIcon } from "lucide-react";
+import { ReferenceSelector, Reference } from "./ReferenceSelector";
 
 const ticketSchema = z.object({
   ticket_type: z.enum(["problema", "sugestao", "reclamacao", "duvida", "financeiro", "tecnico", "outro"]),
@@ -53,6 +54,7 @@ export function CreateTicketDialog({ open, onOpenChange, onSuccess }: CreateTick
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [references, setReferences] = useState<Reference[]>([]);
 
   const form = useForm<TicketFormData>({
     resolver: zodResolver(ticketSchema),
@@ -130,6 +132,17 @@ export function CreateTicketDialog({ open, onOpenChange, onSuccess }: CreateTick
 
     setIsSubmitting(true);
     try {
+      // Build metadata with references if any
+      const metadata: Record<string, any> = {};
+      if (references.length > 0) {
+        metadata.references = references.map(ref => ({
+          type: ref.type,
+          id: ref.id,
+          label: ref.label,
+          details: ref.details
+        }));
+      }
+
       // Create ticket
       const { data: ticket, error: ticketError } = await supabase
         .from("support_tickets")
@@ -151,13 +164,27 @@ export function CreateTicketDialog({ open, onOpenChange, onSuccess }: CreateTick
         imageUrls = await uploadImages(ticket.id);
       }
 
+      // Build message with references info
+      let fullMessage = data.message;
+      if (references.length > 0) {
+        const refTexts = references.map(ref => {
+          const typeLabels: Record<string, string> = {
+            commission: "Comissão",
+            referral: "Indicação", 
+            sub_affiliate: "Sub-afiliado"
+          };
+          return `[${typeLabels[ref.type]}: ${ref.label}${ref.details ? ` - ${ref.details}` : ''}]`;
+        });
+        fullMessage = `${data.message}\n\n📎 Referências vinculadas:\n${refTexts.join('\n')}`;
+      }
+
       // Create first message
       const { error: messageError } = await supabase
         .from("support_messages")
         .insert({
           ticket_id: ticket.id,
           sender_id: userId,
-          message: data.message,
+          message: fullMessage,
           image_urls: imageUrls,
           is_admin: false,
         });
@@ -168,6 +195,7 @@ export function CreateTicketDialog({ open, onOpenChange, onSuccess }: CreateTick
       form.reset();
       setImages([]);
       setImagePreviews([]);
+      setReferences([]);
       onSuccess();
     } catch (error) {
       console.error("Error creating ticket:", error);
@@ -302,6 +330,12 @@ export function CreateTicketDialog({ open, onOpenChange, onSuccess }: CreateTick
             Até 5 imagens, máximo 5MB cada
           </p>
         </div>
+
+        {/* Reference Selector */}
+        <ReferenceSelector
+          selectedReferences={references}
+          onReferencesChange={setReferences}
+        />
 
         <div className="flex justify-end gap-2 pt-4">
           <Button
