@@ -490,7 +490,7 @@ const Dashboard = () => {
                 
                 <Button onClick={() => {
                   handleCloseWelcome();
-                  navigate("/settings/personal");
+                  navigate("/user/settings/personal");
                 }} variant="outline" className="w-full h-12 text-base" size="lg">
                   Completar Perfil
                 </Button>
