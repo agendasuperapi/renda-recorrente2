@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { GoalProgress } from "./GoalsTab";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface GoalHistorySectionProps {
@@ -110,7 +110,7 @@ export const GoalHistorySection = ({ goals, showValues }: GoalHistorySectionProp
           ? goal.product_icon_dark 
           : goal.product_icon_light;
 
-        const periodLabel = format(new Date(goal.period_start), "MMMM 'de' yyyy", { locale: ptBR });
+        const periodLabel = format(parseISO(goal.period_start), "MMMM 'de' yyyy", { locale: ptBR });
 
         return (
           <Card key={goal.id} className="overflow-hidden">

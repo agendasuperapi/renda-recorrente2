@@ -37,7 +37,7 @@ import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GoalProgress } from "./GoalsTab";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface GoalCardProps {
@@ -147,7 +147,7 @@ export const GoalCard = ({ goal, showValues, onEdit, onDelete }: GoalCardProps) 
     }
   };
 
-  const periodLabel = format(new Date(goal.period_start), "MMMM 'de' yyyy", { locale: ptBR });
+  const periodLabel = format(parseISO(goal.period_start), "MMMM 'de' yyyy", { locale: ptBR });
 
   return (
     <>
