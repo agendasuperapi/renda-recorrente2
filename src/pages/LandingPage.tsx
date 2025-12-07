@@ -210,6 +210,8 @@ const LandingPage = () => {
     const loadLastUsedCoupon = async () => {
       try {
         const savedCoupon = localStorage.getItem('lastUsedCoupon');
+        const couponFromUrl = sessionStorage.getItem('couponFromUrl');
+        
         if (savedCoupon) {
           const {
             code,
@@ -233,23 +235,38 @@ const LandingPage = () => {
               // Cupom ainda válido, aplicar
               setCouponCode(codeToValidate); // Preencher com o código completo (username+cupom)
               setValidatedCoupon(data);
+              
+              // Se veio da URL, mostrar toast de confirmação
+              if (couponFromUrl) {
+                sessionStorage.removeItem('couponFromUrl');
+                toast({
+                  title: "Cupom aplicado!",
+                  description: `O cupom ${codeToValidate} foi aplicado automaticamente.`,
+                });
+              }
             } else {
               // Cupom inválido, remover do localStorage
               localStorage.removeItem('lastUsedCoupon');
+              sessionStorage.removeItem('couponFromUrl');
             }
           } else {
             // Offline: usar dados do cache
             setCouponCode(codeToValidate);
             setValidatedCoupon(data);
+            
+            if (couponFromUrl) {
+              sessionStorage.removeItem('couponFromUrl');
+            }
           }
         }
       } catch (error) {
         console.error('Erro ao carregar último cupom usado:', error);
         localStorage.removeItem('lastUsedCoupon');
+        sessionStorage.removeItem('couponFromUrl');
       }
     };
     loadLastUsedCoupon();
-  }, []);
+  }, [toast]);
 
   // Busca imagens do hero com cache
   const {

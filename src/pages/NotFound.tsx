@@ -42,6 +42,9 @@ const NotFound = () => {
             custom_code: couponResult.custom_code || null,
             data: couponResult
           }));
+          
+          // Marcar que veio de um cupom na URL para forçar aplicação imediata
+          sessionStorage.setItem('couponFromUrl', 'true');
 
           navigate('/', { replace: true });
           return;
