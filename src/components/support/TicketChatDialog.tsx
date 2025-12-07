@@ -4,6 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -806,64 +817,149 @@ export function TicketChatDialog({
           <>
             {ticket.status !== "resolved" && ticket.status !== "closed" && (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => updateTicketStatus("resolved", true)}
-                  disabled={isUpdatingStatus}
-                  className="gap-1"
-                >
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  Marcar Solucionado
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => updateTicketStatus("resolved", false)}
-                  disabled={isUpdatingStatus}
-                  className="gap-1"
-                >
-                  <XCircle className="w-4 h-4 text-red-500" />
-                  Não Solucionado
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isUpdatingStatus}
+                      className="gap-1"
+                    >
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      Marcar Solucionado
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Marcar como solucionado?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Confirma que este atendimento foi solucionado?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => updateTicketStatus("resolved", true)}>
+                        Confirmar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isUpdatingStatus}
+                      className="gap-1"
+                    >
+                      <XCircle className="w-4 h-4 text-red-500" />
+                      Não Solucionado
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Marcar como não solucionado?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Confirma que este atendimento não foi solucionado?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => updateTicketStatus("resolved", false)}>
+                        Confirmar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </>
             )}
-          {ticket.status !== "closed" ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateTicketStatus("closed")}
-                disabled={isUpdatingStatus}
-                className="gap-1"
-              >
-                <Clock className="w-4 h-4" />
-                Encerrar
-              </Button>
+            {ticket.status !== "closed" ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isUpdatingStatus}
+                    className="gap-1"
+                  >
+                    <Clock className="w-4 h-4" />
+                    Encerrar
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Encerrar atendimento?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Confirma que deseja encerrar este atendimento?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => updateTicketStatus("closed")}>
+                      Confirmar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateTicketStatus("open")}
-                disabled={isUpdatingStatus}
-                className="gap-1"
-              >
-                <MessageCircle className="w-4 h-4 text-blue-500" />
-                Reabrir Chamado
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isUpdatingStatus}
+                    className="gap-1"
+                  >
+                    <MessageCircle className="w-4 h-4 text-blue-500" />
+                    Reabrir Chamado
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reabrir atendimento?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Confirma que deseja reabrir este atendimento?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => updateTicketStatus("open")}>
+                      Confirmar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </>
         ) : (
           <>
             {ticket.status !== "closed" && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateTicketStatus("closed")}
-                disabled={isUpdatingStatus}
-                className="gap-1"
-              >
-                Encerrar Chamado
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isUpdatingStatus}
+                    className="gap-1"
+                  >
+                    Encerrar Chamado
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Encerrar atendimento?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Confirma que deseja encerrar este atendimento?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => updateTicketStatus("closed")}>
+                      Confirmar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             {ticket.status === "closed" && !ticket.rating && (
               <Button
