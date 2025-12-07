@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import pixIcon from "@/assets/pix-icon.png";
 import { WithdrawalDetailsDialog, WithdrawalData } from "@/components/WithdrawalDetailsDialog";
+import { logActivity } from "@/lib/activityLogger";
 const DAYS_OF_WEEK: Record<number, string> = {
   0: "Domingo",
   1: "Segunda-feira",
@@ -195,7 +196,7 @@ const Withdrawals = ({
       }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Saque solicitado!",
         description: "Sua solicitação foi enviada e será processada em até 24 horas."
@@ -207,6 +208,19 @@ const Withdrawals = ({
       queryClient.invalidateQueries({
         queryKey: ['withdrawals']
       });
+      // Log activity
+      if (userId) {
+        logActivity({
+          userId,
+          activityType: 'withdrawal_requested',
+          description: `Saque de R$ ${data.amount.toFixed(2)} solicitado`,
+          category: 'financial',
+          metadata: {
+            withdrawal_id: data.id,
+            amount: data.amount
+          }
+        });
+      }
     },
     onError: (error: any) => {
       console.error('Erro ao solicitar saque:', error);

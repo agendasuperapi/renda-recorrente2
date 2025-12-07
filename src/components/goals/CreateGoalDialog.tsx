@@ -54,6 +54,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@/contexts/UserContext";
 import { toast } from "sonner";
 import { GoalProgress } from "./GoalsTab";
+import { logActivity } from "@/lib/activityLogger";
 
 const formSchema = z.object({
   goal_type: z.enum(['value', 'sales', 'referrals']),
@@ -250,6 +251,20 @@ export const CreateGoalDialog = ({
 
       if (error) throw error;
       toast.success('Meta atualizada com sucesso!');
+      
+      // Log activity
+      await logActivity({
+        userId: goalData.affiliate_id,
+        activityType: 'goal_updated',
+        description: `Meta de ${goalTypeOptions.find(g => g.value === goalData.goal_type)?.label} atualizada`,
+        category: 'goal',
+        metadata: {
+          goal_id: editingGoal.id,
+          goal_type: goalData.goal_type,
+          target_value: goalData.target_value,
+          period_start: goalData.period_start
+        }
+      });
     } else {
       // Criar
       const { error } = await supabase
@@ -264,6 +279,19 @@ export const CreateGoalDialog = ({
         throw error;
       }
       toast.success('Meta criada com sucesso!');
+      
+      // Log activity
+      await logActivity({
+        userId: goalData.affiliate_id,
+        activityType: 'goal_created',
+        description: `Nova meta de ${goalTypeOptions.find(g => g.value === goalData.goal_type)?.label} criada`,
+        category: 'goal',
+        metadata: {
+          goal_type: goalData.goal_type,
+          target_value: goalData.target_value,
+          period_start: goalData.period_start
+        }
+      });
     }
     return true;
   };

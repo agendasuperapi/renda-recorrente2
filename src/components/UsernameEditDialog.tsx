@@ -32,6 +32,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { logActivity } from "@/lib/activityLogger";
 import { CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
 
 interface UsernameEditDialogProps {
@@ -199,6 +200,19 @@ export function UsernameEditDialog({
         .eq("id", userId);
 
       if (updateError) throw updateError;
+
+      // 3. Registrar atividade
+      await logActivity({
+        userId,
+        activityType: 'username_changed',
+        description: `Username alterado de @${currentUsername} para @${newUsername}`,
+        category: 'profile',
+        metadata: {
+          old_username: currentUsername,
+          new_username: newUsername,
+          coupons_deactivated: hasCoupons
+        }
+      });
 
       toast({
         title: "Username atualizado",

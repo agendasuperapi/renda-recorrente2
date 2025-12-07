@@ -17,6 +17,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { logActivity } from "@/lib/activityLogger";
 interface AvailableCoupon {
   id: string;
   code: string;
@@ -384,7 +385,7 @@ const Coupons = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["activated-coupons", userId]
       });
@@ -392,6 +393,20 @@ const Coupons = () => {
         title: "Cupom liberado!",
         description: "Seu cupom personalizado foi criado com sucesso"
       });
+      // Log activity
+      if (userId) {
+        logActivity({
+          userId,
+          activityType: 'coupon_activated',
+          description: `Cupom ${variables.customCode} ativado`,
+          category: 'coupon',
+          metadata: {
+            coupon_id: variables.couponId,
+            custom_code: variables.customCode,
+            product_id: variables.productId
+          }
+        });
+      }
     },
     onError: (error: any) => {
       toast({
@@ -412,7 +427,7 @@ const Coupons = () => {
       }).eq("id", affiliateCouponId);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, affiliateCouponId) => {
       queryClient.invalidateQueries({
         queryKey: ["activated-coupons", userId]
       });
@@ -420,6 +435,16 @@ const Coupons = () => {
         title: "Cupom inativado",
         description: "O cupom foi inativado com sucesso"
       });
+      // Log activity
+      if (userId) {
+        logActivity({
+          userId,
+          activityType: 'coupon_deactivated',
+          description: 'Cupom inativado',
+          category: 'coupon',
+          metadata: { affiliate_coupon_id: affiliateCouponId }
+        });
+      }
     },
     onError: (error: any) => {
       toast({

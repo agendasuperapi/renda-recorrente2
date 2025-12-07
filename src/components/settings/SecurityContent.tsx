@@ -25,6 +25,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { logActivity } from "@/lib/activityLogger";
 
 const passwordSchema = z.object({
   newPassword: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
@@ -132,6 +133,16 @@ export const SecurityContent = () => {
           toast.error("Erro ao alterar senha: " + error.message);
         }
         return;
+      }
+
+      // Registrar atividade
+      if (userId) {
+        await logActivity({
+          userId,
+          activityType: 'password_changed',
+          description: 'Senha alterada com sucesso',
+          category: 'security'
+        });
       }
 
       toast.success("Senha alterada com sucesso!");
