@@ -133,10 +133,22 @@ export function TicketChatDialog({
     }
   }, [open, messages, isAdmin, effectiveUserId, onUpdate]);
 
+  // Scroll to bottom function
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (scrollRef.current) {
+        const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollElement) {
+          scrollElement.scrollTop = scrollElement.scrollHeight;
+        }
+      }
+    }, 100);
+  };
+
   // Scroll to bottom on new messages
   useEffect(() => {
-    if (scrollRef.current && messages) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messages && messages.length > 0) {
+      scrollToBottom();
     }
   }, [messages]);
 
@@ -278,6 +290,9 @@ export function TicketChatDialog({
       setImagePreviews([]);
       refetchMessages();
       onUpdate();
+      
+      // Scroll to the new message
+      scrollToBottom();
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Erro ao enviar mensagem");
