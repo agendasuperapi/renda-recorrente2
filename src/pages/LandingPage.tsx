@@ -233,15 +233,36 @@ const LandingPage = () => {
             });
             if (!error && validationData && Array.isArray(validationData) && validationData.length > 0) {
               // Cupom ainda válido, aplicar com dados atualizados da validação
-              const freshCouponData = validationData[0];
+              const couponResult = validationData[0];
+              
+              // Transformar dados para a estrutura esperada pela UI (com affiliate aninhado)
+              const couponData = {
+                id: couponResult.coupon_id,
+                code: couponResult.code,
+                name: couponResult.name,
+                description: couponResult.description,
+                type: couponResult.type,
+                value: couponResult.value,
+                is_active: couponResult.is_active,
+                valid_until: couponResult.valid_until,
+                product_id: couponResult.product_id,
+                affiliate: couponResult.affiliate_id ? {
+                  id: couponResult.affiliate_id,
+                  name: couponResult.affiliate_name,
+                  username: couponResult.affiliate_username,
+                  avatar_url: couponResult.affiliate_avatar_url
+                } : null,
+                affiliate_coupon_id: couponResult.affiliate_coupon_id
+              };
+              
               setCouponCode(codeToValidate); // Preencher com o código completo (username+cupom)
-              setValidatedCoupon(freshCouponData);
+              setValidatedCoupon(couponData);
               
               // Atualizar localStorage com dados frescos
               localStorage.setItem('lastUsedCoupon', JSON.stringify({
                 code: codeToValidate,
-                custom_code: custom_code,
-                data: freshCouponData
+                custom_code: couponResult.custom_code || custom_code,
+                data: couponData
               }));
               
               // Se veio da URL, mostrar toast de confirmação
