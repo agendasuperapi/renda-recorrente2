@@ -18,6 +18,7 @@ import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
+import { logActivity } from "@/lib/activityLogger";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale";
 interface UsernameHistoryItem {
@@ -483,6 +484,14 @@ export const PersonalProfileContent = () => {
       if (updateError) throw updateError;
       setAvatarUrl(newAvatarUrl);
       toast.success("Foto de perfil atualizada!");
+      
+      // Log activity
+      await logActivity({
+        userId,
+        activityType: 'avatar_changed',
+        description: 'Foto de perfil atualizada',
+        category: 'profile'
+      });
     } catch (error) {
       console.error("Error uploading avatar:", error);
       toast.error("Erro ao atualizar foto de perfil");
@@ -537,6 +546,14 @@ export const PersonalProfileContent = () => {
       }).eq("id", userId);
       if (error) throw error;
       toast.success("Dados atualizados com sucesso!");
+      
+      // Log activity
+      await logActivity({
+        userId,
+        activityType: 'profile_updated',
+        description: 'Dados do perfil atualizados',
+        category: 'profile'
+      });
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast.error("Erro ao atualizar dados");

@@ -104,26 +104,35 @@ export type Database = {
       activities: {
         Row: {
           activity_type: string
+          category: string | null
           created_at: string | null
           description: string
           id: string
+          ip_address: string | null
           metadata: Json | null
+          user_agent: string | null
           user_id: string
         }
         Insert: {
           activity_type: string
+          category?: string | null
           created_at?: string | null
           description: string
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
+          user_agent?: string | null
           user_id: string
         }
         Update: {
           activity_type?: string
+          category?: string | null
           created_at?: string | null
           description?: string
           id?: string
+          ip_address?: string | null
           metadata?: Json | null
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: [
@@ -3815,6 +3824,53 @@ export type Database = {
           {
             foreignKeyName: "sub_affiliates_parent_affiliate_id_fkey"
             columns: ["parent_affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+        ]
+      }
+      view_user_activities: {
+        Row: {
+          activity_type: string | null
+          avatar_url: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          ip_address: string | null
+          metadata: Json | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+          username: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "view_affiliate_dashboard_stats"
             referencedColumns: ["affiliate_id"]
