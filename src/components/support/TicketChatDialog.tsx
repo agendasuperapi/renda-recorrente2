@@ -17,6 +17,8 @@ import { Send, Image as ImageIcon, Loader2, X, CheckCircle, XCircle, Clock, Star
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ReferenceType, Reference } from "./ReferenceSelector";
 import { ReferenceItemSelector } from "./ReferenceItemSelector";
+import { ReferenceDisplay } from "./ReferenceDisplay";
+import { ReferenceDetailsDialog } from "./ReferenceDetailsDialog";
 import { cn } from "@/lib/utils";
 import { TicketRatingDialog } from "./TicketRatingDialog";
 import { ImagePreviewDialog } from "./ImagePreviewDialog";
@@ -32,6 +34,8 @@ interface Message {
   is_admin: boolean;
   read_at: string | null;
   created_at: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attached_references?: any;
   sender?: {
     name: string;
     avatar_url: string | null;
@@ -95,6 +99,8 @@ export function TicketChatDialog({
   const [chatReferences, setChatReferences] = useState<Reference[]>([]);
   const [referenceMenuOpen, setReferenceMenuOpen] = useState(false);
   const [selectingReferenceType, setSelectingReferenceType] = useState<ReferenceType | null>(null);
+  const [selectedReference, setSelectedReference] = useState<Reference | null>(null);
+  const [referenceDetailsOpen, setReferenceDetailsOpen] = useState(false);
 
   const effectiveUserId = currentUserId || userId;
 
@@ -274,15 +280,18 @@ export function TicketChatDialog({
         finalMessage = finalMessage ? `${finalMessage}\n\n📎 Referências:\n${refsText}` : `📎 Referências:\n${refsText}`;
       }
 
+      const insertData = {
+        ticket_id: ticket.id,
+        sender_id: effectiveUserId,
+        message: finalMessage || null,
+        image_urls: imageUrls,
+        is_admin: isAdmin,
+        attached_references: chatReferences.length > 0 ? JSON.parse(JSON.stringify(chatReferences)) : null,
+      };
+
       const { error: messageError } = await supabase
         .from("support_messages")
-        .insert({
-          ticket_id: ticket.id,
-          sender_id: effectiveUserId,
-          message: finalMessage || null,
-          image_urls: imageUrls,
-          is_admin: isAdmin,
-        });
+        .insert(insertData);
 
       if (messageError) throw messageError;
 
@@ -443,6 +452,19 @@ export function TicketChatDialog({
                         <span className="text-xs font-medium">
                           {msg.sender?.name || (msg.is_admin ? "Suporte" : "Usuário")}
                         </span>
+                      </div>
+                    )}
+                    {/* Attached References */}
+                    {msg.attached_references && Array.isArray(msg.attached_references) && msg.attached_references.length > 0 && (
+                      <div className="mb-2">
+                        <ReferenceDisplay
+                          references={msg.attached_references as Reference[]}
+                          isOwnMessage={isOwnMessage}
+                          onReferenceClick={(ref) => {
+                            setSelectedReference(ref);
+                            setReferenceDetailsOpen(true);
+                          }}
+                        />
                       </div>
                     )}
                     {msg.image_urls && msg.image_urls.length > 0 && (
@@ -769,6 +791,13 @@ export function TicketChatDialog({
         imageUrl={previewImage}
         open={!!previewImage}
         onOpenChange={(open) => !open && setPreviewImage(null)}
+      />
+
+      {/* Reference Details Dialog */}
+      <ReferenceDetailsDialog
+        reference={selectedReference}
+        open={referenceDetailsOpen}
+        onOpenChange={setReferenceDetailsOpen}
       />
     </div>
   );
