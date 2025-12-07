@@ -544,7 +544,7 @@ export function TicketChatDialog({
 
       {/* Input Area */}
       {!isClosed && (
-        <div className="flex items-end gap-2 pt-3 border-t mt-3">
+        <div className="flex items-end gap-2 pt-3 border-t mt-3 relative">
           <Button
             type="button"
             variant="ghost"
@@ -557,7 +557,7 @@ export function TicketChatDialog({
           
           {/* Reference Attach Button - Only for non-admin users */}
           {!isAdmin && (
-            <>
+            <div className="relative">
               {/* Menu inicial com 3 opções */}
               <Popover open={referenceMenuOpen} onOpenChange={setReferenceMenuOpen}>
                 <PopoverTrigger asChild>
@@ -610,31 +610,36 @@ export function TicketChatDialog({
                 </PopoverContent>
               </Popover>
 
-              {/* Popover de seleção de item */}
-              <Popover open={!!selectingReferenceType} onOpenChange={(open) => !open && setSelectingReferenceType(null)}>
-                <PopoverTrigger asChild>
-                  <span className="hidden" />
-                </PopoverTrigger>
-                <PopoverContent className="w-72" align="start" side="top">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">
-                      Selecione {selectingReferenceType === "commission" ? "a comissão" : 
-                                selectingReferenceType === "referral" ? "a indicação" : "o sub-afiliado"}
-                    </p>
-                    {selectingReferenceType && (
-                      <ReferenceItemSelector
-                        type={selectingReferenceType}
-                        selectedReferences={chatReferences}
-                        onSelect={(ref) => {
-                          setChatReferences(prev => [...prev, ref]);
-                          setSelectingReferenceType(null);
-                        }}
-                      />
-                    )}
+              {/* Popover de seleção de item - usa Dialog/Drawer para mobile */}
+              {selectingReferenceType && (
+                <div className="absolute bottom-full left-0 mb-2 z-50">
+                  <div className="bg-popover border rounded-md shadow-lg p-3 w-72">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium">
+                        Selecione {selectingReferenceType === "commission" ? "a comissão" : 
+                                  selectingReferenceType === "referral" ? "a indicação" : "o sub-afiliado"}
+                      </p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => setSelectingReferenceType(null)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <ReferenceItemSelector
+                      type={selectingReferenceType}
+                      selectedReferences={chatReferences}
+                      onSelect={(ref) => {
+                        setChatReferences(prev => [...prev, ref]);
+                        setSelectingReferenceType(null);
+                      }}
+                    />
                   </div>
-                </PopoverContent>
-              </Popover>
-            </>
+                </div>
+              )}
+            </div>
           )}
 
           <input
