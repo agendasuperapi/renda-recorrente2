@@ -348,7 +348,7 @@ export function TicketChatDialog({
   const isClosed = ticket.status === "closed";
 
   const Content = (
-    <div className="flex flex-col h-[70vh] max-h-[600px]">
+    <div className="flex flex-col h-[calc(100vh-120px)] md:h-[calc(100vh-160px)]">
       {/* Header Info */}
       <div className="border-b pb-3 mb-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -627,11 +627,11 @@ export function TicketChatDialog({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[95vh]">
+        <DrawerContent className="h-[100dvh] max-h-[100dvh] rounded-none">
           <DrawerHeader className="pb-0">
             <DrawerTitle>Chamado</DrawerTitle>
           </DrawerHeader>
-          <div className="p-4">
+          <div className="p-4 flex-1 overflow-hidden">
             {Content}
           </div>
         </DrawerContent>
@@ -641,7 +641,7 @@ export function TicketChatDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[calc(100vh-80px)] h-[calc(100vh-80px)]">
         <DialogHeader>
           <DialogTitle>Chamado</DialogTitle>
         </DialogHeader>
