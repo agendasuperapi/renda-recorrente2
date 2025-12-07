@@ -101,9 +101,9 @@ export const DashboardLayout = () => {
       const hasActive = !error && !!data;
       setHasActivePlan(hasActive);
 
-      // Se não tiver plano ativo e não estiver já na página /plan, redirecionar
-      if (!hasActive && window.location.pathname !== "/plan") {
-        navigate("/plan");
+      // Se não tiver plano ativo e não estiver já na página /user/plan, redirecionar
+      if (!hasActive && window.location.pathname !== "/user/plan") {
+        navigate("/user/plan");
       }
     } catch (error) {
       console.error("Error checking subscription:", error);
@@ -136,7 +136,7 @@ export const DashboardLayout = () => {
       if (!mounted) return;
 
       if (!session) {
-        navigate("/auth");
+        navigate("/");
         return;
       }
 
@@ -156,7 +156,7 @@ export const DashboardLayout = () => {
         queryClient.clear();
         initRef.current = false;
         setInitialized(false);
-        navigate("/auth");
+        navigate("/");
         return;
       }
 

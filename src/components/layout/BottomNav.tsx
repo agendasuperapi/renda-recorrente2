@@ -40,17 +40,17 @@ export const BottomNav = ({ onMenuClick, isAdmin = false }: BottomNavProps) => {
     {
       icon: LayoutDashboard,
       label: "Dashboard",
-      path: "/dashboard",
+      path: "/user/dashboard",
     },
     {
       icon: LineChart,
       label: "Desempenho",
-      path: "/performance",
+      path: "/user/performance",
     },
     {
       icon: Coins,
       label: "Comissões",
-      path: "/commissions",
+      path: "/user/commissions",
     },
   ];
 

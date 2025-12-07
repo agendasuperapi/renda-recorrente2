@@ -160,7 +160,7 @@ const Auth = () => {
 
         // Only redirect if NOT admin (admins can access to configure)
         if (!isUserAdmin) {
-          navigate("/dashboard");
+          navigate("/user/dashboard");
         }
       }
     };
@@ -182,7 +182,7 @@ const Auth = () => {
 
               // Only redirect on auth changes if NOT admin
               if (_event === 'SIGNED_IN' && !isUserAdmin) {
-                navigate("/dashboard");
+                navigate("/user/dashboard");
               }
             });
         }, 0);
@@ -275,16 +275,16 @@ const Auth = () => {
           description: "Redirecionando...",
         });
         if (isMobile) {
-          window.location.href = "/dashboard";
+          window.location.href = "/user/dashboard";
         } else {
-          navigate("/dashboard");
+          navigate("/user/dashboard");
         }
       } else {
         const { error } = await supabase.auth.signUp({
           email: validation.data.email,
           password: validation.data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}/user/dashboard`,
             data: {
               name: validation.data.name || "",
             },
@@ -298,9 +298,9 @@ const Auth = () => {
           description: "Redirecionando...",
         });
         if (isMobile) {
-          window.location.href = "/dashboard";
+          window.location.href = "/user/dashboard";
         } else {
-          navigate("/dashboard");
+          navigate("/user/dashboard");
         }
       }
     } catch (error: any) {

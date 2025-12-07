@@ -47,41 +47,41 @@ interface MenuItem {
 const affiliateMenuItems: MenuItem[] = [{
   icon: LayoutDashboard,
   label: "Dashboard",
-  path: "/dashboard"
+  path: "/user/dashboard"
 }, {
   icon: LineChart,
   label: "Desempenho",
-  path: "/performance"
+  path: "/user/performance"
 }, {
   icon: Coins,
   label: "Comissões",
-  path: "/commissions"
+  path: "/user/commissions"
 }, {
   icon: UserPlus,
   label: "Meus Indicados",
-  path: "/referrals"
+  path: "/user/referrals"
 }, {
   icon: Ticket,
   label: "Meus Cupons",
-  path: "/coupons"
+  path: "/user/coupons"
 }, {
   icon: Users,
   label: "Sub Afiliados",
-  path: "/sub-affiliates",
+  path: "/user/sub-affiliates",
   isPro: true
 }, {
   icon: Headphones,
   label: "Suporte",
-  path: "/support"
+  path: "/user/support"
 }];
 const settingsMenuItems = [{
   icon: User,
   label: "Meu Perfil",
-  path: "/settings/personal"
+  path: "/user/settings/personal"
 }, {
   icon: Crown,
   label: "Plano",
-  path: "/settings/plan"
+  path: "/user/settings/plan"
 }];
 const adminMenuItems = [{
   icon: LayoutDashboard,
@@ -591,7 +591,7 @@ export const Sidebar = ({
       {menuItems.slice(0, isAdmin && showAdminMenu ? menuItems.length : 4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
-        const isSupport = item.path === "/support" || item.path === "/admin/support";
+        const isSupport = item.path === "/user/support" || item.path === "/admin/support";
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : `${accentColor}15`,
           color: currentTextColor
@@ -623,7 +623,7 @@ export const Sidebar = ({
         {(!isAdmin || !showAdminMenu) && menuItems.slice(4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
-        const isSupport = item.path === "/support" || item.path === "/admin/support";
+        const isSupport = item.path === "/user/support" || item.path === "/admin/support";
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : `${accentColor}15`,
           color: currentTextColor
@@ -654,20 +654,20 @@ export const Sidebar = ({
 
         {(!isAdmin || !showAdminMenu) && <>
             <Link 
-              to="/settings" 
+              to="/user/settings" 
               onClick={() => closeSidebar?.()} 
               className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
               style={{
-                backgroundColor: location.pathname.startsWith("/settings") ? accentColor : `${accentColor}15`,
+                backgroundColor: location.pathname.startsWith("/user/settings") ? accentColor : `${accentColor}15`,
                 color: currentTextColor
               }} 
               onMouseEnter={e => {
-                if (!location.pathname.startsWith("/settings")) {
+                if (!location.pathname.startsWith("/user/settings")) {
                   e.currentTarget.style.backgroundColor = `${accentColor}30`;
                 }
               }} 
               onMouseLeave={e => {
-                if (!location.pathname.startsWith("/settings")) {
+                if (!location.pathname.startsWith("/user/settings")) {
                   e.currentTarget.style.backgroundColor = `${accentColor}15`;
                 }
               }}
