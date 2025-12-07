@@ -153,7 +153,7 @@ export default function Support() {
             Abra chamados e acompanhe suas solicitações
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2 border border-background">
           <Plus className="w-4 h-4" />
           Novo Chamado
         </Button>
