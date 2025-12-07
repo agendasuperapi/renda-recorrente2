@@ -81,7 +81,7 @@ export function TicketChatDialog({
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -293,6 +293,9 @@ export function TicketChatDialog({
       
       // Scroll to the new message
       scrollToBottom();
+      
+      // Keep focus on input
+      messageInputRef.current?.focus();
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Erro ao enviar mensagem");
@@ -491,6 +494,7 @@ export function TicketChatDialog({
             className="hidden"
           />
           <Input
+            ref={messageInputRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Digite sua mensagem..."
