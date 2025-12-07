@@ -77,10 +77,10 @@ const goalTypeConfig = {
 const getProgressStatus = (percentage: number) => {
   if (percentage >= 100) return { 
     icon: Trophy, 
-    color: 'text-yellow-500', 
-    bgColor: 'bg-yellow-500/20',
+    color: 'text-green-500', 
+    bgColor: 'bg-green-500/20',
     label: 'Meta Batida!',
-    progressColor: 'bg-yellow-500'
+    progressColor: 'bg-green-500'
   };
   if (percentage >= 75) return { 
     icon: CheckCircle, 
@@ -152,12 +152,12 @@ export const GoalCard = ({ goal, showValues, onEdit, onDelete }: GoalCardProps) 
   return (
     <>
       <Card className={`relative overflow-hidden transition-all hover:shadow-lg ${
-        goal.progress_percentage >= 100 ? 'border-yellow-500/50 bg-gradient-to-br from-yellow-500/5 to-transparent' : ''
+        goal.progress_percentage >= 100 ? 'border-green-500/50 bg-gradient-to-br from-green-500/5 to-transparent' : ''
       }`}>
         {/* Badge de meta batida */}
         {goal.progress_percentage >= 100 && (
           <div className="absolute top-0 right-0">
-            <div className="bg-yellow-500 text-yellow-950 text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+            <div className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
               <Trophy className="h-3 w-3" />
               META BATIDA!
             </div>
