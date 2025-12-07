@@ -779,7 +779,7 @@ export function TicketChatDialog({
                 </Button>
               </>
             )}
-            {ticket.status !== "closed" && (
+          {ticket.status !== "closed" ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -789,6 +789,17 @@ export function TicketChatDialog({
               >
                 <Clock className="w-4 h-4" />
                 Encerrar
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => updateTicketStatus("open")}
+                disabled={isUpdatingStatus}
+                className="gap-1"
+              >
+                <MessageCircle className="w-4 h-4 text-blue-500" />
+                Reabrir Chamado
               </Button>
             )}
           </>
