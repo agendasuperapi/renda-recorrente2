@@ -190,6 +190,8 @@ const GoalsTab = ({ embedded = false, showValues = true }: GoalsTabProps) => {
             <GoalHistorySection 
               goals={historyGoals} 
               showValues={showValues}
+              onEdit={handleEdit}
+              onDelete={() => refetch()}
             />
           </TabsContent>
         </Tabs>
