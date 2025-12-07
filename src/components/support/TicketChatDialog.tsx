@@ -191,8 +191,7 @@ export function TicketChatDialog({
     };
   }, [open, ticket.id, refetchMessages]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const processImageFiles = (files: File[]) => {
     if (files.length + images.length > 5) {
       toast.error("Máximo de 5 imagens por mensagem");
       return;
@@ -210,6 +209,8 @@ export function TicketChatDialog({
       return true;
     });
 
+    if (validFiles.length === 0) return;
+
     setImages(prev => [...prev, ...validFiles]);
 
     validFiles.forEach(file => {
@@ -219,10 +220,51 @@ export function TicketChatDialog({
       };
       reader.readAsDataURL(file);
     });
+  };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    processImageFiles(files);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    const imageFiles: File[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith("image/")) {
+        const file = items[i].getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      processImageFiles(imageFiles);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith("image/")
+    );
+    
+    if (files.length > 0) {
+      processImageFiles(files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const removeImage = (index: number) => {
@@ -681,7 +723,10 @@ export function TicketChatDialog({
               e.target.style.height = 'auto';
               e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
             }}
-            placeholder="Digite sua mensagem..."
+            onPaste={handlePaste}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            placeholder="Digite sua mensagem... (Cole ou arraste imagens aqui)"
             className="flex-1 min-h-[40px] max-h-[120px] resize-none py-2"
             rows={1}
             onKeyDown={(e) => {
