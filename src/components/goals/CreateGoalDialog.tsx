@@ -118,7 +118,7 @@ export const CreateGoalDialog = ({
   const { userId } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Gerar opções de mês incluindo o período da meta sendo editada
-  const editingPeriod = editingGoal ? format(new Date(editingGoal.period_start), 'yyyy-MM') : undefined;
+  const editingPeriod = editingGoal ? format(parseISO(editingGoal.period_start), 'yyyy-MM') : undefined;
   const monthOptions = getMonthOptions(editingPeriod);
 
   const { data: products } = useQuery({
