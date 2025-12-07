@@ -523,14 +523,15 @@ export function TicketChatDialog({
               // System message (status change log)
               if (isSystemMessage) {
                 const systemText = msg.message?.replace("[SYSTEM]", "") || "";
+                const actionBy = msg.sender?.name || (msg.is_admin ? "Admin" : "Usuário");
                 return (
                   <div key={msg.id} className="flex justify-center my-2">
-                    <div className="bg-muted/50 border border-border/50 rounded-full px-4 py-1.5 flex items-center gap-2">
+                    <div className="bg-muted/50 border border-border/50 rounded-2xl px-4 py-2 flex flex-col items-center gap-0.5">
                       <span className="text-xs text-muted-foreground font-medium">
                         {systemText}
                       </span>
                       <span className="text-[10px] text-muted-foreground/70">
-                        {format(new Date(msg.created_at), "HH:mm", { locale: ptBR })}
+                        por {actionBy} • {format(new Date(msg.created_at), "HH:mm", { locale: ptBR })}
                       </span>
                     </div>
                   </div>
