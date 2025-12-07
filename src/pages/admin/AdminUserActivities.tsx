@@ -265,7 +265,7 @@ export default function AdminUserActivities() {
       </Card>
 
       {/* Lista de Atividades */}
-      <Card>
+      <Card className="flex-1 flex flex-col min-h-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -277,7 +277,7 @@ export default function AdminUserActivities() {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0">
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -296,7 +296,7 @@ export default function AdminUserActivities() {
               <p>Nenhuma atividade encontrada</p>
             </div>
           ) : (
-            <ScrollArea className="h-[600px] pr-4">
+            <ScrollArea className="h-[calc(100vh-320px)] pr-4">
               <div className="space-y-6">
                 {Object.entries(groupedActivities || {}).map(([date, dayActivities]) => (
                   <div key={date}>
