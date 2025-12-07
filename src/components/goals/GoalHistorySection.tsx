@@ -222,7 +222,7 @@ export const GoalHistorySection = ({ goals, showValues, onEdit, onDelete }: Goal
                   </Badge>
 
                   {/* Botões de ação */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1">
                     {onEdit && (
                       <Button
                         variant="ghost"
