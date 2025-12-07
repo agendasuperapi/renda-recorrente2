@@ -20,6 +20,16 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -38,7 +48,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { DollarSign, ShoppingCart, Users, Target, Loader2 } from "lucide-react";
+import { DollarSign, ShoppingCart, Users, Target, Loader2, AlertTriangle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useUser } from "@/contexts/UserContext";
@@ -117,6 +127,21 @@ export const CreateGoalDialog = ({
   const isMobile = useIsMobile();
   const { userId } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [duplicateConfirmOpen, setDuplicateConfirmOpen] = useState(false);
+  const [pendingGoalData, setPendingGoalData] = useState<{
+    affiliate_id: string;
+    goal_type: string;
+    target_value: number;
+    product_id: string | null;
+    period_start: string;
+    period_end: string;
+    is_active: boolean;
+  } | null>(null);
+  const [existingGoalInfo, setExistingGoalInfo] = useState<{
+    target_value: number;
+    goal_type: string;
+  } | null>(null);
+  
   // Gerar opções de mês incluindo o período da meta sendo editada
   const editingPeriod = editingGoal ? format(parseISO(editingGoal.period_start), 'yyyy-MM') : undefined;
   const monthOptions = getMonthOptions(editingPeriod);
@@ -172,6 +197,98 @@ export const CreateGoalDialog = ({
   const isGeneral = form.watch('is_general');
   const goalType = form.watch('goal_type');
 
+  const checkForDuplicateGoal = async (goalData: {
+    affiliate_id: string;
+    goal_type: string;
+    target_value: number;
+    product_id: string | null;
+    period_start: string;
+    period_end: string;
+    is_active: boolean;
+  }) => {
+    // Verificar se já existe uma meta similar
+    let query = supabase
+      .from('affiliate_goals')
+      .select('id, target_value, goal_type')
+      .eq('affiliate_id', goalData.affiliate_id)
+      .eq('goal_type', goalData.goal_type)
+      .eq('period_start', goalData.period_start);
+
+    if (goalData.product_id) {
+      query = query.eq('product_id', goalData.product_id);
+    } else {
+      query = query.is('product_id', null);
+    }
+
+    // Excluir a meta atual se estiver editando
+    if (editingGoal) {
+      query = query.neq('id', editingGoal.id);
+    }
+
+    const { data: existingGoals, error } = await query;
+    
+    if (error) throw error;
+    
+    return existingGoals && existingGoals.length > 0 ? existingGoals[0] : null;
+  };
+
+  const saveGoal = async (goalData: {
+    affiliate_id: string;
+    goal_type: string;
+    target_value: number;
+    product_id: string | null;
+    period_start: string;
+    period_end: string;
+    is_active: boolean;
+  }) => {
+    if (editingGoal) {
+      // Atualizar
+      const { error } = await supabase
+        .from('affiliate_goals')
+        .update(goalData)
+        .eq('id', editingGoal.id);
+
+      if (error) throw error;
+      toast.success('Meta atualizada com sucesso!');
+    } else {
+      // Criar
+      const { error } = await supabase
+        .from('affiliate_goals')
+        .insert(goalData);
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error('Já existe uma meta deste tipo para este período');
+          return false;
+        }
+        throw error;
+      }
+      toast.success('Meta criada com sucesso!');
+    }
+    return true;
+  };
+
+  const handleConfirmDuplicate = async () => {
+    if (!pendingGoalData) return;
+    
+    setIsSubmitting(true);
+    setDuplicateConfirmOpen(false);
+    
+    try {
+      const success = await saveGoal(pendingGoalData);
+      if (success) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Erro ao salvar meta:', error);
+      toast.error('Erro ao salvar meta');
+    } finally {
+      setIsSubmitting(false);
+      setPendingGoalData(null);
+      setExistingGoalInfo(null);
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     if (!userId) return;
     
@@ -207,39 +324,48 @@ export const CreateGoalDialog = ({
         is_active: true,
       };
 
-      if (editingGoal) {
-        // Atualizar
-        const { error } = await supabase
-          .from('affiliate_goals')
-          .update(goalData)
-          .eq('id', editingGoal.id);
-
-        if (error) throw error;
-        toast.success('Meta atualizada com sucesso!');
-      } else {
-        // Criar
-        const { error } = await supabase
-          .from('affiliate_goals')
-          .insert(goalData);
-
-        if (error) {
-          if (error.code === '23505') {
-            toast.error('Já existe uma meta deste tipo para este período');
-            setIsSubmitting(false);
-            return;
-          }
-          throw error;
-        }
-        toast.success('Meta criada com sucesso!');
+      // Verificar duplicatas antes de salvar
+      const existingGoal = await checkForDuplicateGoal(goalData);
+      
+      if (existingGoal) {
+        // Há uma meta similar, pedir confirmação
+        setPendingGoalData(goalData);
+        setExistingGoalInfo({
+          target_value: existingGoal.target_value,
+          goal_type: existingGoal.goal_type,
+        });
+        setDuplicateConfirmOpen(true);
+        setIsSubmitting(false);
+        return;
       }
 
-      onSuccess();
+      // Não há duplicata, salvar diretamente
+      const success = await saveGoal(goalData);
+      if (success) {
+        onSuccess();
+      }
     } catch (error) {
       console.error('Erro ao salvar meta:', error);
       toast.error('Erro ao salvar meta');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const getGoalTypeLabel = (type: string) => {
+    switch (type) {
+      case 'value': return 'Valor em R$';
+      case 'sales': return 'Número de Vendas';
+      case 'referrals': return 'Indicações';
+      default: return type;
+    }
+  };
+
+  const formatExistingValue = (value: number, type: string) => {
+    if (type === 'value') {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
+    return value.toString();
   };
 
   const Content = (
@@ -430,43 +556,86 @@ export const CreateGoalDialog = ({
     </Form>
   );
 
+  // Componente de confirmação de duplicata (reutilizado)
+  const DuplicateConfirmDialog = (
+    <AlertDialog open={duplicateConfirmOpen} onOpenChange={setDuplicateConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            Meta Similar Encontrada
+          </AlertDialogTitle>
+          <AlertDialogDescription className="space-y-2">
+            <p>
+              Já existe uma meta do tipo <strong>{existingGoalInfo ? getGoalTypeLabel(existingGoalInfo.goal_type) : ''}</strong> para 
+              este período {pendingGoalData?.product_id ? 'e produto' : '(geral)'}.
+            </p>
+            {existingGoalInfo && (
+              <p className="text-sm bg-muted p-2 rounded">
+                Meta existente: <strong>{formatExistingValue(existingGoalInfo.target_value, existingGoalInfo.goal_type)}</strong>
+              </p>
+            )}
+            <p>Deseja cadastrar outra meta mesmo assim?</p>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => {
+            setPendingGoalData(null);
+            setExistingGoalInfo(null);
+          }}>
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmDuplicate}>
+            Sim, Cadastrar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>
-              {editingGoal ? 'Editar Meta' : 'Nova Meta'}
-            </DrawerTitle>
-            <DrawerDescription>
-              {editingGoal 
-                ? 'Atualize os dados da sua meta'
-                : 'Defina uma nova meta para acompanhar seu progresso'}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="p-4 pb-8">
-            {Content}
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>
+                {editingGoal ? 'Editar Meta' : 'Nova Meta'}
+              </DrawerTitle>
+              <DrawerDescription>
+                {editingGoal 
+                  ? 'Atualize os dados da sua meta'
+                  : 'Defina uma nova meta para acompanhar seu progresso'}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="p-4 pb-8">
+              {Content}
+            </div>
+          </DrawerContent>
+        </Drawer>
+        {DuplicateConfirmDialog}
+      </>
     );
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>
-            {editingGoal ? 'Editar Meta' : 'Nova Meta'}
-          </DialogTitle>
-          <DialogDescription>
-            {editingGoal 
-              ? 'Atualize os dados da sua meta'
-              : 'Defina uma nova meta para acompanhar seu progresso'}
-          </DialogDescription>
-        </DialogHeader>
-        {Content}
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingGoal ? 'Editar Meta' : 'Nova Meta'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGoal 
+                ? 'Atualize os dados da sua meta'
+                : 'Defina uma nova meta para acompanhar seu progresso'}
+            </DialogDescription>
+          </DialogHeader>
+          {Content}
+        </DialogContent>
+      </Dialog>
+      {DuplicateConfirmDialog}
+    </>
   );
 };
