@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -116,6 +116,30 @@ export default function Support() {
     },
     enabled: !!userId,
   });
+
+  // Real-time subscription for message updates
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel('support-messages-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_messages'
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, refetch]);
 
   const openTicketsCount = tickets?.filter(t => !["resolved", "closed"].includes(t.status)).length || 0;
 
