@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format, startOfMonth, endOfMonth, addMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, addMonths, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Dialog,
@@ -88,7 +88,8 @@ const getMonthOptions = (editingGoalPeriod?: string) => {
   
   // Adicionar o mês da meta sendo editada se não estiver na lista
   if (editingGoalPeriod) {
-    const editingDate = new Date(editingGoalPeriod + '-01');
+    // Usar parseISO para evitar problemas de timezone
+    const editingDate = parseISO(editingGoalPeriod + '-01');
     const editingValue = format(editingDate, 'yyyy-MM');
     
     if (!options.some(opt => opt.value === editingValue)) {
@@ -148,12 +149,14 @@ export const CreateGoalDialog = ({
   // Preencher form ao editar
   useEffect(() => {
     if (editingGoal) {
+      // Usar parseISO para evitar problemas de timezone
+      const periodDate = parseISO(editingGoal.period_start);
       form.reset({
         goal_type: editingGoal.goal_type,
         target_value: editingGoal.target_value.toString(),
         is_general: !editingGoal.product_id,
         product_id: editingGoal.product_id || '',
-        period_month: format(new Date(editingGoal.period_start), 'yyyy-MM'),
+        period_month: format(periodDate, 'yyyy-MM'),
       });
     } else {
       form.reset({
