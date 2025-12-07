@@ -785,7 +785,7 @@ const LandingPage = () => {
     const showAdminMenu = savedAdminView ? JSON.parse(savedAdminView) : true;
 
     // Navega para o dashboard correspondente
-    navigate(showAdminMenu && isAdmin ? '/admin/dashboard' : '/dashboard');
+    navigate(showAdminMenu && isAdmin ? '/admin/dashboard' : '/user/dashboard');
   };
   return (
     <div className="min-h-screen bg-[#10b981] pt-[env(safe-area-inset-top)]">
