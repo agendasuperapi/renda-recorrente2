@@ -438,14 +438,25 @@ export function TicketChatDialog({
                     {msg.message && (
                       <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
                     )}
-                    <span
-                      className={cn(
-                        "text-[10px] mt-1 block",
-                        isOwnMessage ? "text-primary-foreground/70" : "text-muted-foreground"
+                    <div className="flex items-center gap-1 mt-1">
+                      <span
+                        className={cn(
+                          "text-[10px]",
+                          isOwnMessage ? "text-primary-foreground/70" : "text-muted-foreground"
+                        )}
+                      >
+                        {format(new Date(msg.created_at), "HH:mm", { locale: ptBR })}
+                      </span>
+                      {/* Show read indicator for admin viewing their own messages */}
+                      {isAdmin && isOwnMessage && (
+                        <span className={cn(
+                          "text-[10px]",
+                          msg.read_at ? "text-primary-foreground/90" : "text-primary-foreground/50"
+                        )}>
+                          {msg.read_at ? "✓✓" : "✓"}
+                        </span>
                       )}
-                    >
-                      {format(new Date(msg.created_at), "HH:mm", { locale: ptBR })}
-                    </span>
+                    </div>
                   </div>
                 </div>
               );
