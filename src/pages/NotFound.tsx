@@ -55,7 +55,8 @@ const NotFound = () => {
         }
       }
 
-      setIsChecking(false);
+      // Cupom não existe - redirecionar para landing page
+      navigate('/', { replace: true });
     };
 
     checkCoupon();
