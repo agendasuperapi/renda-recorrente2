@@ -24,7 +24,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Send, Image as ImageIcon, Loader2, X, CheckCircle, XCircle, Clock, Star, MessageCircle, Link2, DollarSign, Users, UserPlus } from "lucide-react";
+import { Send, Image as ImageIcon, Loader2, X, CheckCircle, XCircle, Clock, Star, MessageCircle, Link2, DollarSign, Users, UserPlus, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ReferenceType, Reference } from "./ReferenceSelector";
 import { ReferenceItemSelector } from "./ReferenceItemSelector";
@@ -113,6 +114,8 @@ export function TicketChatDialog({
   const [selectedReference, setSelectedReference] = useState<Reference | null>(null);
   const [referenceDetailsOpen, setReferenceDetailsOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<TicketStatus>(ticket.status);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   const effectiveUserId = currentUserId || userId;
 
@@ -488,18 +491,48 @@ export function TicketChatDialog({
               </Badge>
             )}
           </div>
-          {isAdmin && ticket.user && (
-            <div className="flex items-center gap-2">
-              <Avatar className="w-6 h-6">
-                <AvatarImage src={ticket.user.avatar_url || undefined} />
-                <AvatarFallback className="text-xs">
-                  {ticket.user.name?.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm">{ticket.user.name}</span>
-            </div>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setShowSearch(!showSearch)}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
         </div>
+        {showSearch && (
+          <div className="mt-2 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Pesquisar mensagens..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9"
+              autoFocus
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        )}
+        {isAdmin && ticket.user && (
+          <div className="flex items-center gap-2 mt-2">
+            <Avatar className="w-6 h-6">
+              <AvatarImage src={ticket.user.avatar_url || undefined} />
+              <AvatarFallback className="text-xs">
+                {ticket.user.name?.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm">{ticket.user.name}</span>
+          </div>
+        )}
         <h3 className="font-semibold mt-2">{ticket.subject}</h3>
       </div>
 
@@ -516,7 +549,13 @@ export function TicketChatDialog({
               <p>Nenhuma mensagem ainda</p>
             </div>
           ) : (
-            messages?.map((msg) => {
+            messages?.filter((msg) => {
+              if (!searchQuery.trim()) return true;
+              const query = searchQuery.toLowerCase();
+              const messageText = msg.message?.toLowerCase() || "";
+              const senderName = msg.sender?.name?.toLowerCase() || "";
+              return messageText.includes(query) || senderName.includes(query);
+            }).map((msg) => {
               const isOwnMessage = isAdmin ? msg.is_admin : !msg.is_admin;
               const isSystemMessage = msg.message?.startsWith("[SYSTEM]");
 
