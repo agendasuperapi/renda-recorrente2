@@ -381,6 +381,22 @@ export function TicketChatDialog({
     }
   };
 
+  const getStatusChangeMessage = (status: TicketStatus, isResolved?: boolean): string => {
+    if (isResolved === true) {
+      return "✅ Atendimento marcado como SOLUCIONADO";
+    }
+    if (isResolved === false) {
+      return "❌ Atendimento marcado como NÃO SOLUCIONADO";
+    }
+    if (status === "closed") {
+      return "🔒 Atendimento ENCERRADO";
+    }
+    if (status === "open") {
+      return "🔓 Atendimento REABERTO";
+    }
+    return "";
+  };
+
   const updateTicketStatus = async (status: TicketStatus, isResolved?: boolean) => {
     setIsUpdatingStatus(true);
     try {
@@ -397,18 +413,33 @@ export function TicketChatDialog({
         updates.closed_at = new Date().toISOString();
       }
 
+      // Insert system message for status change
+      const systemMessage = getStatusChangeMessage(status, isResolved);
+      if (systemMessage && effectiveUserId) {
+        await supabase
+          .from("support_messages")
+          .insert({
+            ticket_id: ticket.id,
+            sender_id: effectiveUserId,
+            message: `[SYSTEM]${systemMessage}`,
+            image_urls: [],
+            is_admin: isAdmin,
+          });
+      }
+
       await supabase
         .from("support_tickets")
         .update(updates)
         .eq("id", ticket.id);
 
       toast.success("Status atualizado!");
+      refetchMessages();
       onUpdate();
 
       // Show rating dialog for user when closing
       if (!isAdmin && status === "closed" && !ticket.rating) {
         setRatingDialogOpen(true);
-      } else {
+      } else if (status !== "open") {
         onOpenChange(false);
       }
     } catch (error) {
@@ -469,6 +500,24 @@ export function TicketChatDialog({
           ) : (
             messages?.map((msg) => {
               const isOwnMessage = isAdmin ? msg.is_admin : !msg.is_admin;
+              const isSystemMessage = msg.message?.startsWith("[SYSTEM]");
+
+              // System message (status change log)
+              if (isSystemMessage) {
+                const systemText = msg.message?.replace("[SYSTEM]", "") || "";
+                return (
+                  <div key={msg.id} className="flex justify-center my-2">
+                    <div className="bg-muted/50 border border-border/50 rounded-full px-4 py-1.5 flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-medium">
+                        {systemText}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground/70">
+                        {format(new Date(msg.created_at), "HH:mm", { locale: ptBR })}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div
