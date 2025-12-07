@@ -68,8 +68,8 @@ const goalTypeOptions = [
   { value: 'referrals', label: 'Indicações', icon: Users, description: 'Novos usuários indicados' },
 ];
 
-// Gerar próximos 12 meses
-const getMonthOptions = () => {
+// Gerar próximos 12 meses + mês da meta sendo editada (se aplicável)
+const getMonthOptions = (editingGoalPeriod?: string) => {
   const options = [];
   const now = new Date();
   
@@ -86,6 +86,24 @@ const getMonthOptions = () => {
     });
   }
   
+  // Adicionar o mês da meta sendo editada se não estiver na lista
+  if (editingGoalPeriod) {
+    const editingDate = new Date(editingGoalPeriod + '-01');
+    const editingValue = format(editingDate, 'yyyy-MM');
+    
+    if (!options.some(opt => opt.value === editingValue)) {
+      const start = startOfMonth(editingDate);
+      const end = endOfMonth(editingDate);
+      
+      options.unshift({
+        value: format(start, 'yyyy-MM'),
+        label: format(start, "MMMM 'de' yyyy", { locale: ptBR }),
+        start: format(start, 'yyyy-MM-dd'),
+        end: format(end, 'yyyy-MM-dd'),
+      });
+    }
+  }
+  
   return options;
 };
 
@@ -98,7 +116,9 @@ export const CreateGoalDialog = ({
   const isMobile = useIsMobile();
   const { userId } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const monthOptions = getMonthOptions();
+  // Gerar opções de mês incluindo o período da meta sendo editada
+  const editingPeriod = editingGoal ? format(new Date(editingGoal.period_start), 'yyyy-MM') : undefined;
+  const monthOptions = getMonthOptions(editingPeriod);
 
   const { data: products } = useQuery({
     queryKey: ['products-for-goals'],
