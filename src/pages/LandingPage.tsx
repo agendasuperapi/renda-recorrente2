@@ -589,7 +589,7 @@ const LandingPage = () => {
 
       // Redirecionar usuário logado (não admin) para dashboard
       if (!userIsAdmin) {
-        navigate('/dashboard');
+        navigate('/user/dashboard');
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -1925,7 +1925,7 @@ const LandingPage = () => {
               <ul className="space-y-2 text-xs md:text-sm text-muted-foreground">
                 <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => scrollToSection("funcionalidades")}>Funcionalidades</li>
                 <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => scrollToSection("planos")}>Preços</li>
-                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/training")}>Treinamento</li>
+                <li className="cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate("/user/training")}>Treinamento</li>
               </ul>
             </div>
             <div>

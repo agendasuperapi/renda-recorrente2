@@ -72,6 +72,7 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
           <Routes>
+            {/* Rotas públicas sem prefixo */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/landing" element={<LandingTestimonials />} />
             <Route path="/signup/:planId" element={<SignupFunnel />} />
@@ -80,30 +81,30 @@ const App = () => {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/cookies" element={<CookiesPolicy />} />
             
-            {/* Protected Routes with DashboardLayout */}
+            {/* Rotas de usuário autenticado com prefixo /user */}
             <Route element={<DashboardLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/performance" element={<Performance />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/training" element={<Training />} />
-              <Route path="/referrals" element={<Referrals />} />
-              <Route path="/sub-affiliates" element={<SubAffiliates />} />
-              <Route path="/commissions" element={<Commissions />} />
-              <Route path="/commissions-daily" element={<Navigate to="/commissions?tab=daily" replace />} />
-              <Route path="/commissions-monthly" element={<Navigate to="/commissions?tab=monthly" replace />} />
-              <Route path="/withdrawals" element={<Navigate to="/commissions?tab=withdrawals" replace />} />
-              <Route path="/activities" element={<Activities />} />
-              <Route path="/coupons" element={<Coupons />} />
-              <Route path="/payments" element={<Payments />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/plan" element={<Plan />} />
-              <Route path="/google-business" element={<GoogleBusiness />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/settings/profile" element={<ProfileSettings />} />
-              <Route path="/settings/personal" element={<Navigate to="/settings?tab=personal" replace />} />
-              <Route path="/settings/plan" element={<Navigate to="/settings?tab=plan" replace />} />
-              <Route path="/google-business" element={<GoogleBusiness />} />
+              <Route path="/user/dashboard" element={<Dashboard />} />
+              <Route path="/user/performance" element={<Performance />} />
+              <Route path="/user/profile" element={<Profile />} />
+              <Route path="/user/training" element={<Training />} />
+              <Route path="/user/referrals" element={<Referrals />} />
+              <Route path="/user/sub-affiliates" element={<SubAffiliates />} />
+              <Route path="/user/commissions" element={<Commissions />} />
+              <Route path="/user/commissions-daily" element={<Navigate to="/user/commissions?tab=daily" replace />} />
+              <Route path="/user/commissions-monthly" element={<Navigate to="/user/commissions?tab=monthly" replace />} />
+              <Route path="/user/withdrawals" element={<Navigate to="/user/commissions?tab=withdrawals" replace />} />
+              <Route path="/user/activities" element={<Activities />} />
+              <Route path="/user/coupons" element={<Coupons />} />
+              <Route path="/user/payments" element={<Payments />} />
+              <Route path="/user/support" element={<Support />} />
+              <Route path="/user/plan" element={<Plan />} />
+              <Route path="/user/google-business" element={<GoogleBusiness />} />
+              <Route path="/user/settings" element={<Settings />} />
+              <Route path="/user/settings/profile" element={<ProfileSettings />} />
+              <Route path="/user/settings/personal" element={<Navigate to="/user/settings?tab=personal" replace />} />
+              <Route path="/user/settings/plan" element={<Navigate to="/user/settings?tab=plan" replace />} />
+              
+              {/* Rotas admin (mantém prefixo /admin) */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/affiliates" element={<AdminAffiliates />} />
@@ -124,7 +125,7 @@ const App = () => {
               <Route path="/admin/support" element={<AdminSupport />} />
             </Route>
             
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* Catch-all - Intercepta cupons ou mostra 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
