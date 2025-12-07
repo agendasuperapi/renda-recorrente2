@@ -585,7 +585,8 @@ export const Sidebar = ({
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-      {menuItems.slice(0, 4).map(item => {
+      {/* Admin menu shows all adminMenuItems, affiliate menu shows first 4 */}
+      {menuItems.slice(0, isAdmin && showAdminMenu ? menuItems.length : 4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
