@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { ActiveGoalsWidget } from "@/components/goals/ActiveGoalsWidget";
 interface DashboardStats {
   affiliate_id: string;
   comissao_hoje: number;
@@ -875,25 +876,7 @@ const Dashboard = () => {
           </ScrollAnimation>
 
           <ScrollAnimation animation="scale" delay={700}>
-            <Card className="bg-gradient-to-br from-primary/10 to-success/10 border-primary/20 hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle>Meta do Mês</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold">R$0,00</div>
-                  <div className="text-sm text-muted-foreground">0%</div>
-                  <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                    <div className="bg-primary h-2 rounded-full transition-all duration-1000" style={{
-                      width: "0%"
-                    }} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Projeção de comissão do mês: R$0,00
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <ActiveGoalsWidget showValues={showValues} />
           </ScrollAnimation>
         </>}
     </div>;
