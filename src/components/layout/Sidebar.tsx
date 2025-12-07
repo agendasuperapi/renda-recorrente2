@@ -1033,7 +1033,7 @@ export const Sidebar = ({
           const newAdminMenuState = !showAdminMenu;
           setShowAdminMenu(newAdminMenuState);
           // Navegar para o dashboard correspondente
-          navigate(newAdminMenuState ? '/admin/dashboard' : '/dashboard');
+          navigate(newAdminMenuState ? '/admin/dashboard' : '/user/dashboard');
           closeSidebar?.();
         }} title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"} style={{
           color: currentTextColor
