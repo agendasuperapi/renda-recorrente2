@@ -128,10 +128,12 @@ export function TicketChatDialog({
         .update({ read_at: new Date().toISOString() })
         .in("id", unreadMessages.map(m => m.id))
         .then(() => {
+          // Invalidate unread messages count
+          queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
           onUpdate();
         });
     }
-  }, [open, messages, isAdmin, effectiveUserId, onUpdate]);
+  }, [open, messages, isAdmin, effectiveUserId, onUpdate, queryClient]);
 
   // Scroll to bottom function
   const scrollToBottom = () => {

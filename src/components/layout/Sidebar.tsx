@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones } from "lucide-react";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -149,6 +150,7 @@ export const Sidebar = ({
   const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { checkVersion, ...versionInfo } = useVersionCheck();
+  const { unreadCount } = useUnreadMessages(isAdmin && showAdminMenu);
 
   // Salvar preferência de menu no localStorage e notificar BottomNav
   useEffect(() => {
@@ -589,6 +591,7 @@ export const Sidebar = ({
       {menuItems.slice(0, isAdmin && showAdminMenu ? menuItems.length : 4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
+        const isSupport = item.path === "/support" || item.path === "/admin/support";
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : `${accentColor}15`,
           color: currentTextColor
@@ -603,6 +606,11 @@ export const Sidebar = ({
         }}>
               <Icon size={18} />
               <span className="flex-1">{item.label}</span>
+              {isSupport && unreadCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Badge>
+              )}
               {item.isPro && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
                   <Crown className="h-2.5 w-2.5" />
@@ -615,6 +623,7 @@ export const Sidebar = ({
         {(!isAdmin || !showAdminMenu) && menuItems.slice(4).map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
+        const isSupport = item.path === "/support" || item.path === "/admin/support";
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : `${accentColor}15`,
           color: currentTextColor
@@ -629,6 +638,11 @@ export const Sidebar = ({
         }}>
               <Icon size={18} />
               <span className="flex-1">{item.label}</span>
+              {isSupport && unreadCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Badge>
+              )}
               {item.isPro && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
                   <Crown className="h-2.5 w-2.5" />
