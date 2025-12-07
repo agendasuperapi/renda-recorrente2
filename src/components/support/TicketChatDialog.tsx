@@ -13,7 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Send, Image as ImageIcon, Loader2, X, CheckCircle, XCircle, Clock, Star, MessageCircle } from "lucide-react";
+import { Send, Image as ImageIcon, Loader2, X, CheckCircle, XCircle, Clock, Star, MessageCircle, Link2, DollarSign, Users, UserPlus } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ReferenceSelector, Reference } from "./ReferenceSelector";
 import { cn } from "@/lib/utils";
 import { TicketRatingDialog } from "./TicketRatingDialog";
 import { ImagePreviewDialog } from "./ImagePreviewDialog";
@@ -89,6 +91,8 @@ export function TicketChatDialog({
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [chatReferences, setChatReferences] = useState<Reference[]>([]);
+  const [referencePopoverOpen, setReferencePopoverOpen] = useState(false);
 
   const effectiveUserId = currentUserId || userId;
 
@@ -245,7 +249,7 @@ export function TicketChatDialog({
   };
 
   const sendMessage = async () => {
-    if ((!message.trim() && images.length === 0) || !effectiveUserId) return;
+    if ((!message.trim() && images.length === 0 && chatReferences.length === 0) || !effectiveUserId) return;
 
     setIsSending(true);
     try {
@@ -254,12 +258,26 @@ export function TicketChatDialog({
         imageUrls = await uploadImages();
       }
 
+      // Build message with references
+      let finalMessage = message.trim();
+      if (chatReferences.length > 0) {
+        const referenceLabels: Record<string, string> = {
+          commission: "Comissão",
+          referral: "Indicação",
+          sub_affiliate: "Sub-afiliado"
+        };
+        const refsText = chatReferences.map(ref => 
+          `[${referenceLabels[ref.type]}: ${ref.label}${ref.details ? ` - ${ref.details}` : ''}]`
+        ).join('\n');
+        finalMessage = finalMessage ? `${finalMessage}\n\n📎 Referências:\n${refsText}` : `📎 Referências:\n${refsText}`;
+      }
+
       const { error: messageError } = await supabase
         .from("support_messages")
         .insert({
           ticket_id: ticket.id,
           sender_id: effectiveUserId,
-          message: message.trim() || null,
+          message: finalMessage || null,
           image_urls: imageUrls,
           is_admin: isAdmin,
         });
@@ -290,6 +308,8 @@ export function TicketChatDialog({
       setMessage("");
       setImages([]);
       setImagePreviews([]);
+      setChatReferences([]);
+      setReferencePopoverOpen(false);
       refetchMessages();
       onUpdate();
       
@@ -487,6 +507,38 @@ export function TicketChatDialog({
         </div>
       )}
 
+      {/* Selected References Preview */}
+      {chatReferences.length > 0 && !isClosed && (
+        <div className="flex flex-wrap gap-2 pt-2">
+          {chatReferences.map((ref, index) => {
+            const icons = { commission: DollarSign, referral: UserPlus, sub_affiliate: Users };
+            const colors = {
+              commission: "bg-green-500/20 text-green-600",
+              referral: "bg-blue-500/20 text-blue-600",
+              sub_affiliate: "bg-purple-500/20 text-purple-600"
+            };
+            const Icon = icons[ref.type];
+            return (
+              <Badge 
+                key={`${ref.type}-${ref.id}`}
+                variant="outline"
+                className={`${colors[ref.type]} flex items-center gap-1 pr-1`}
+              >
+                <Icon className="w-3 h-3" />
+                <span className="max-w-[120px] truncate text-xs">{ref.label}</span>
+                <button
+                  type="button"
+                  onClick={() => setChatReferences(prev => prev.filter((_, i) => i !== index))}
+                  className="ml-1 hover:bg-background/50 rounded p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            );
+          })}
+        </div>
+      )}
+
       {/* Input Area */}
       {!isClosed && (
         <div className="flex items-end gap-2 pt-3 border-t mt-3">
@@ -499,6 +551,30 @@ export function TicketChatDialog({
           >
             <ImageIcon className="w-5 h-5" />
           </Button>
+          
+          {/* Reference Attach Button - Only for non-admin users */}
+          {!isAdmin && (
+            <Popover open={referencePopoverOpen} onOpenChange={setReferencePopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={isSending}
+                  className={chatReferences.length > 0 ? "text-primary" : ""}
+                >
+                  <Link2 className="w-5 h-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="start">
+                <ReferenceSelector
+                  selectedReferences={chatReferences}
+                  onReferencesChange={setChatReferences}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
           <input
             ref={fileInputRef}
             type="file"
@@ -529,7 +605,7 @@ export function TicketChatDialog({
           />
           <Button
             onClick={sendMessage}
-            disabled={isSending || (!message.trim() && images.length === 0)}
+            disabled={isSending || (!message.trim() && images.length === 0 && chatReferences.length === 0)}
             size="icon"
           >
             {isSending ? (
