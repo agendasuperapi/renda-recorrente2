@@ -714,10 +714,6 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                           ? "-top-1 bottom-1/2" 
                                           : "-top-1 -bottom-1"
                                   )} />
-                                  {/* Linha para cima até perto do header */}
-                                  {isFirstOfDay && (
-                                    <div className="absolute left-[21px] w-0.5 bg-primary/40 bottom-1/2 h-6" style={{ top: '-20px' }} />
-                                  )}
                                   {/* Linha para baixo até perto do próximo header */}
                                   {isLastOfDay && !isLastDayGroup && (
                                     <div className="absolute left-[21px] w-0.5 bg-primary/40 top-1/2 h-6" style={{ bottom: '-20px' }} />
