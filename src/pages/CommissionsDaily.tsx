@@ -554,8 +554,8 @@ const CommissionsDaily = ({
                       const isLast = idx === dayCommissions.length - 1;
                       return <ScrollAnimation key={commission.id} animation="fade-up" delay={Math.min(idx * 50, 200)} threshold={0.05}>
                                   <div className="relative">
-                                    {/* Ponto verde - centralizado na linha */}
-                                    <div className="absolute left-[-22px] top-4 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                                    {/* Ponto verde - centralizado verticalmente com o card */}
+                                    <div className="absolute left-[-22px] top-1/2 -translate-y-1/2 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
                                     
                                     {/* Cortar linha após último item */}
                                     {isLast}
