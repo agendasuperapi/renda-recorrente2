@@ -433,6 +433,38 @@ const SubAffiliates = () => {
         </div>
       </ScrollAnimation>
 
+      {/* Aviso de requisitos para ter sub-afiliados */}
+      {!isLoadingRequirements && !canHaveSubAffiliates && (
+        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+          <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
+            <AlertDescription className="text-white/90">
+              <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
+              <div className="space-y-2">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isProPlan ? 'border-green-500/40' : 'border-white/20'}`}>
+                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                    {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                  </span>
+                  <span className="flex-1">Ter o plano PRO</span>
+                  {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+                </div>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${hasEnoughSales ? 'border-green-500/40' : 'border-white/20'}`}>
+                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                    {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                  </span>
+                  <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
+                  {hasEnoughSales 
+                    ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
+                    : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
+                  }
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </ScrollAnimation>
+      )}
+
       {/* Tabs for Sub-Affiliates and Coupons */}
       <Tabs defaultValue="sub-affiliates" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md">
@@ -447,38 +479,6 @@ const SubAffiliates = () => {
         </TabsList>
 
         <TabsContent value="sub-affiliates" className="mt-4 space-y-4 data-[state=inactive]:hidden" forceMount>
-          {/* Aviso de requisitos para ter sub-afiliados */}
-          {!isLoadingRequirements && !canHaveSubAffiliates && (
-            <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
-              <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
-                <AlertDescription className="text-white/90">
-                  <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
-                  <div className="space-y-2">
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isProPlan ? 'border-green-500/40' : 'border-white/20'}`}>
-                      <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                        {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      </span>
-                      <span className="flex-1">Ter o plano PRO</span>
-                      {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
-                    </div>
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${hasEnoughSales ? 'border-green-500/40' : 'border-white/20'}`}>
-                      <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                        {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                      </span>
-                      <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
-                      {hasEnoughSales 
-                        ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
-                        : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
-                      }
-                    </div>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            </ScrollAnimation>
-          )}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
           <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-md">
