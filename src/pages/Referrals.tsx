@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar, User } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
@@ -691,7 +692,14 @@ const Referrals = () => {
                                     <div className="absolute right-0 bottom-0 left-[40px] h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
-                                    {referral.name || "-"}
+                                    <div className="flex items-center gap-2">
+                                      <Avatar className="h-7 w-7">
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                                          {referral.name ? referral.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : <User className="h-3 w-3" />}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span>{referral.name || "-"}</span>
+                                    </div>
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
