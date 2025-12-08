@@ -494,7 +494,7 @@ export const RendaRecorrenteCoupons = () => {
 
                 return (
                   <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
+                    <div className={`space-y-2 transition-all duration-300 ${isActivated && !isActive ? "border-b border-red-300 pb-3" : ""} ${!isActivated ? "border-b border-orange-400 pb-3" : "border-b border-border pb-3"}`}>
                       {/* Linha 1: Nome e botão de detalhes */}
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-sm">{coupon.name}</span>
