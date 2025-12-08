@@ -467,7 +467,7 @@ const SubAffiliates = () => {
 
       {/* Tabs for Sub-Affiliates and Coupons */}
       <Tabs defaultValue="sub-affiliates" className="w-full">
-        <Card className="p-1.5">
+        <Card className="p-1.5 bg-card/50 backdrop-blur-sm">
           <TabsList className="grid w-full grid-cols-2 bg-transparent">
             <TabsTrigger value="sub-affiliates">
               <Users className="h-4 w-4 mr-2" />
