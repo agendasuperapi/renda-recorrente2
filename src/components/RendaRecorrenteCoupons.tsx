@@ -16,7 +16,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { logActivity } from "@/lib/activityLogger";
-
 interface AvailableCoupon {
   id: string;
   code: string;
@@ -39,10 +38,12 @@ interface AvailableCoupon {
   } | null;
   activatedCoupon?: any;
 }
-
 interface CouponDetailsContentProps {
   coupon: AvailableCoupon;
-  profile: { id: string; username: string | null } | undefined;
+  profile: {
+    id: string;
+    username: string | null;
+  } | undefined;
   generateCustomCode: (username: string, baseCode: string, isPrimary: boolean) => string;
   getAffiliateLink: (coupon: AvailableCoupon) => string | null;
   handleCopy: (text: string) => void;
@@ -53,7 +54,6 @@ interface CouponDetailsContentProps {
   setDetailsOpen: (open: boolean) => void;
   isPendingDeactivate: boolean;
 }
-
 const CouponDetailsContent = ({
   coupon,
   profile,
@@ -65,9 +65,8 @@ const CouponDetailsContent = ({
   reactivateCoupon,
   activateCoupon,
   setDetailsOpen,
-  isPendingDeactivate,
-}: CouponDetailsContentProps) => (
-  <div className="px-4 pb-6 space-y-4">
+  isPendingDeactivate
+}: CouponDetailsContentProps) => <div className="px-4 pb-6 space-y-4">
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2 items-center">
         <h3 className="font-semibold text-lg">{coupon.name}</h3>
@@ -122,64 +121,71 @@ const CouponDetailsContent = ({
               Abrir link
             </Button>
             <Button variant="outline" className="flex-1" onClick={() => {
-              const link = getAffiliateLink(coupon) || "";
-              if (navigator.share) {
-                navigator.share({
-                  title: `Cupom ${coupon.activatedCoupon?.custom_code}`,
-                  text: `Use meu cupom de desconto!`,
-                  url: link
-                });
-              } else {
-                handleCopy(link);
-              }
-            }}>
+            const link = getAffiliateLink(coupon) || "";
+            if (navigator.share) {
+              navigator.share({
+                title: `Cupom ${coupon.activatedCoupon?.custom_code}`,
+                text: `Use meu cupom de desconto!`,
+                url: link
+              });
+            } else {
+              handleCopy(link);
+            }
+          }}>
               <Share2 className="h-4 w-4 mr-2" />
               Compartilhar
             </Button>
           </>}
         </>}
         {coupon.activatedCoupon.is_active ? <Button variant="outline" className="w-full bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => {
-          handleDeactivateClick(coupon.activatedCoupon?.id || "");
-        }} disabled={isPendingDeactivate}>
+        handleDeactivateClick(coupon.activatedCoupon?.id || "");
+      }} disabled={isPendingDeactivate}>
           <XCircle className="h-4 w-4 mr-2" />
           Inativar Cupom
         </Button> : <Button variant="outline" className="w-full bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => {
-          reactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
-          setDetailsOpen(false);
-        }} disabled={reactivateCoupon.isPending}>
+        reactivateCoupon.mutate(coupon.activatedCoupon?.id || "");
+        setDetailsOpen(false);
+      }} disabled={reactivateCoupon.isPending}>
           <Check className="h-4 w-4 mr-2" />
           Ativar Cupom
         </Button>}
       </> : <Button className="w-full" onClick={() => {
-        handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id);
-        setDetailsOpen(false);
-      }} disabled={activateCoupon.isPending || !profile?.username}>
+      handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id);
+      setDetailsOpen(false);
+    }} disabled={activateCoupon.isPending || !profile?.username}>
         <Check className="h-4 w-4 mr-2" />
         Liberar Cupom
       </Button>}
     </div>
-  </div>
-);
-
+  </div>;
 const RENDA_PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
-
 export const RendaRecorrenteCoupons = () => {
   const isMobile = useIsMobile();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const queryClient = useQueryClient();
   const [layoutMode, setLayoutMode] = useState<string>("compact");
   const [selectedCoupon, setSelectedCoupon] = useState<AvailableCoupon | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [deactivateConfirmOpen, setDeactivateConfirmOpen] = useState(false);
   const [couponToDeactivate, setCouponToDeactivate] = useState<string | null>(null);
-  const { userId } = useAuth();
+  const {
+    userId
+  } = useAuth();
 
   // Fetch current user profile
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const {
+    data: profile,
+    isLoading: profileLoading
+  } = useQuery({
     queryKey: ["profile", userId],
     queryFn: async () => {
       if (!userId) throw new Error("Usuário não autenticado");
-      const { data, error } = await supabase.from("profiles").select("id, username").eq("id", userId).single();
+      const {
+        data,
+        error
+      } = await supabase.from("profiles").select("id, username").eq("id", userId).single();
       if (error) throw error;
       return data;
     },
@@ -187,10 +193,16 @@ export const RendaRecorrenteCoupons = () => {
   });
 
   // Fetch available admin coupons using RPC function - filtered to RENDA product
-  const { data: availableCoupons, isLoading: couponsLoading } = useQuery<AvailableCoupon[]>({
+  const {
+    data: availableCoupons,
+    isLoading: couponsLoading
+  } = useQuery<AvailableCoupon[]>({
     queryKey: ["available-coupons-renda", userId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_available_coupons_for_affiliates" as any);
+      const {
+        data,
+        error
+      } = await supabase.rpc("get_available_coupons_for_affiliates" as any);
       if (error) throw error;
 
       // Transform and filter to only RENDA product
@@ -220,18 +232,22 @@ export const RendaRecorrenteCoupons = () => {
   });
 
   // Fetch affiliate's activated coupons - filtered to RENDA product
-  const { data: activatedCoupons, isLoading: activatedLoading } = useQuery({
+  const {
+    data: activatedCoupons,
+    isLoading: activatedLoading
+  } = useQuery({
     queryKey: ["activated-coupons-renda", userId],
     queryFn: async () => {
       if (!userId) return [];
-      const { data, error } = await supabase.from("affiliate_coupons").select(`
+      const {
+        data,
+        error
+      } = await supabase.from("affiliate_coupons").select(`
           *,
           coupons(*, products(nome))
-        `)
-        .eq("affiliate_id", userId)
-        .eq("product_id", RENDA_PRODUCT_ID)
-        .filter("deleted_at", "is", null)
-        .order("created_at", { ascending: false });
+        `).eq("affiliate_id", userId).eq("product_id", RENDA_PRODUCT_ID).filter("deleted_at", "is", null).order("created_at", {
+        ascending: false
+      });
       if (error) throw error;
       return data as any[];
     },
@@ -239,18 +255,18 @@ export const RendaRecorrenteCoupons = () => {
   });
 
   // Fetch affiliate's current subscription/plan
-  const { data: affiliateSubscription } = useQuery({
+  const {
+    data: affiliateSubscription
+  } = useQuery({
     queryKey: ["affiliate-subscription", userId],
     queryFn: async () => {
       if (!userId) return null;
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("plan_id, status, plans(name, is_free)")
-        .eq("user_id", userId)
-        .in("status", ["active", "trialing"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const {
+        data,
+        error
+      } = await supabase.from("subscriptions").select("plan_id, status, plans(name, is_free)").eq("user_id", userId).in("status", ["active", "trialing"]).order("created_at", {
+        ascending: false
+      }).limit(1).maybeSingle();
       if (error) {
         console.error("Error fetching subscription:", error);
         return null;
@@ -265,33 +281,39 @@ export const RendaRecorrenteCoupons = () => {
   const isProPlan = planName.toUpperCase().includes("PRO");
 
   // Fetch minimum sales setting for Renda product
-  const { data: minSalesSetting } = useQuery({
+  const {
+    data: minSalesSetting
+  } = useQuery({
     queryKey: ["min-sales-renda-setting"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "min_sales_for_renda_coupons")
-        .single();
+      const {
+        data,
+        error
+      } = await supabase.from("app_settings").select("value").eq("key", "min_sales_for_renda_coupons").single();
       if (error) {
         console.log("No setting found, using default");
-        return { value: "10" };
+        return {
+          value: "10"
+        };
       }
       return data;
     }
   });
 
   // Count affiliate's sales from other products (commissions with status available or paid)
-  const { data: otherProductsSalesCount } = useQuery({
+  const {
+    data: otherProductsSalesCount
+  } = useQuery({
     queryKey: ["other-products-sales", userId],
     queryFn: async () => {
       if (!userId) return 0;
-      const { count, error } = await supabase
-        .from("commissions")
-        .select("id", { count: "exact", head: true })
-        .eq("affiliate_id", userId)
-        .neq("product_id", RENDA_PRODUCT_ID)
-        .in("status", ["available", "paid"]);
+      const {
+        count,
+        error
+      } = await supabase.from("commissions").select("id", {
+        count: "exact",
+        head: true
+      }).eq("affiliate_id", userId).neq("product_id", RENDA_PRODUCT_ID).in("status", ["available", "paid"]);
       if (error) {
         console.error("Error counting sales:", error);
         return 0;
@@ -300,7 +322,6 @@ export const RendaRecorrenteCoupons = () => {
     },
     enabled: !!userId
   });
-
   const minSalesRequired = parseInt(minSalesSetting?.value || "10", 10);
   const hasEnoughSales = (otherProductsSalesCount || 0) >= minSalesRequired;
   const salesNeeded = minSalesRequired - (otherProductsSalesCount || 0);
@@ -308,9 +329,22 @@ export const RendaRecorrenteCoupons = () => {
 
   // Activate coupon mutation
   const activateCoupon = useMutation({
-    mutationFn: async ({ couponId, customCode, productId, couponCode }: { couponId: string; customCode: string; productId: string; couponCode: string; }) => {
+    mutationFn: async ({
+      couponId,
+      customCode,
+      productId,
+      couponCode
+    }: {
+      couponId: string;
+      customCode: string;
+      productId: string;
+      couponCode: string;
+    }) => {
       if (!profile?.id) throw new Error("Perfil não encontrado");
-      const { data, error } = await supabase.from("affiliate_coupons").insert({
+      const {
+        data,
+        error
+      } = await supabase.from("affiliate_coupons").insert({
         affiliate_id: profile.id,
         coupon_id: couponId,
         custom_code: customCode,
@@ -324,92 +358,149 @@ export const RendaRecorrenteCoupons = () => {
       return data;
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["activated-coupons-renda", userId] });
-      toast({ title: "Cupom liberado!", description: "Seu cupom personalizado foi criado com sucesso" });
+      queryClient.invalidateQueries({
+        queryKey: ["activated-coupons-renda", userId]
+      });
+      toast({
+        title: "Cupom liberado!",
+        description: "Seu cupom personalizado foi criado com sucesso"
+      });
       if (userId) {
         logActivity({
           userId,
           activityType: 'coupon_activated',
           description: `Cupom ${variables.customCode} ativado`,
           category: 'coupon',
-          metadata: { coupon_id: variables.couponId, custom_code: variables.customCode, product_id: variables.productId }
+          metadata: {
+            coupon_id: variables.couponId,
+            custom_code: variables.customCode,
+            product_id: variables.productId
+          }
         });
       }
     },
     onError: (error: any) => {
-      toast({ title: "Erro ao liberar cupom", description: error.message || "Tente novamente mais tarde", variant: "destructive" });
+      toast({
+        title: "Erro ao liberar cupom",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
     }
   });
 
   // Deactivate coupon mutation
   const deactivateCoupon = useMutation({
     mutationFn: async (affiliateCouponId: string) => {
-      const { error } = await supabase.from("affiliate_coupons").update({ is_active: false }).eq("id", affiliateCouponId);
+      const {
+        error
+      } = await supabase.from("affiliate_coupons").update({
+        is_active: false
+      }).eq("id", affiliateCouponId);
       if (error) throw error;
     },
     onSuccess: (_, affiliateCouponId) => {
-      queryClient.invalidateQueries({ queryKey: ["activated-coupons-renda", userId] });
-      toast({ title: "Cupom inativado", description: "O cupom foi inativado com sucesso" });
+      queryClient.invalidateQueries({
+        queryKey: ["activated-coupons-renda", userId]
+      });
+      toast({
+        title: "Cupom inativado",
+        description: "O cupom foi inativado com sucesso"
+      });
       if (userId) {
-        logActivity({ userId, activityType: 'coupon_deactivated', description: 'Cupom inativado', category: 'coupon', metadata: { affiliate_coupon_id: affiliateCouponId } });
+        logActivity({
+          userId,
+          activityType: 'coupon_deactivated',
+          description: 'Cupom inativado',
+          category: 'coupon',
+          metadata: {
+            affiliate_coupon_id: affiliateCouponId
+          }
+        });
       }
     },
     onError: (error: any) => {
-      toast({ title: "Erro ao inativar cupom", description: error.message || "Tente novamente mais tarde", variant: "destructive" });
+      toast({
+        title: "Erro ao inativar cupom",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
     }
   });
 
   // Reactivate coupon mutation
   const reactivateCoupon = useMutation({
     mutationFn: async (affiliateCouponId: string) => {
-      const { error } = await supabase.from("affiliate_coupons").update({ is_active: true }).eq("id", affiliateCouponId);
+      const {
+        error
+      } = await supabase.from("affiliate_coupons").update({
+        is_active: true
+      }).eq("id", affiliateCouponId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activated-coupons-renda", userId] });
-      toast({ title: "Cupom ativado", description: "O cupom foi ativado com sucesso" });
+      queryClient.invalidateQueries({
+        queryKey: ["activated-coupons-renda", userId]
+      });
+      toast({
+        title: "Cupom ativado",
+        description: "O cupom foi ativado com sucesso"
+      });
     },
     onError: (error: any) => {
-      toast({ title: "Erro ao ativar cupom", description: error.message || "Tente novamente mais tarde", variant: "destructive" });
+      toast({
+        title: "Erro ao ativar cupom",
+        description: error.message || "Tente novamente mais tarde",
+        variant: "destructive"
+      });
     }
   });
-
   const generateCustomCode = (username: string, couponCode?: string, isPrimary?: boolean) => {
     const cleanUsername = username.toUpperCase().replace(/\s/g, "");
     if (isPrimary) return cleanUsername;
     return couponCode ? cleanUsername + couponCode.toUpperCase().replace(/\s/g, "") : cleanUsername;
   };
-
   const getAffiliateLink = (coupon: any) => {
     if (!coupon.products?.site_landingpage) return null;
     const customCode = coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false);
     const baseUrl = coupon.products.site_landingpage.replace(/\/$/, "");
     return `${baseUrl}/${customCode}`;
   };
-
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast({ title: "Copiado!", description: "Texto copiado para a área de transferência" });
+      toast({
+        title: "Copiado!",
+        description: "Texto copiado para a área de transferência"
+      });
     } catch (err) {
-      toast({ title: "Erro ao copiar", description: "Não foi possível copiar o texto", variant: "destructive" });
+      toast({
+        title: "Erro ao copiar",
+        description: "Não foi possível copiar o texto",
+        variant: "destructive"
+      });
     }
   };
-
   const handleActivateCoupon = (couponId: string, baseCode: string, isPrimary: boolean, productId: string) => {
     if (!profile?.username) {
-      toast({ title: "Username necessário", description: "Configure seu username antes de ativar cupons", variant: "destructive" });
+      toast({
+        title: "Username necessário",
+        description: "Configure seu username antes de ativar cupons",
+        variant: "destructive"
+      });
       return;
     }
     const customCode = generateCustomCode(profile.username, baseCode, isPrimary);
-    activateCoupon.mutate({ couponId, customCode, productId, couponCode: baseCode });
+    activateCoupon.mutate({
+      couponId,
+      customCode,
+      productId,
+      couponCode: baseCode
+    });
   };
-
   const handleDeactivateClick = (couponId: string) => {
     setCouponToDeactivate(couponId);
     setDeactivateConfirmOpen(true);
   };
-
   const handleConfirmDeactivate = () => {
     if (couponToDeactivate) {
       deactivateCoupon.mutate(couponToDeactivate);
@@ -422,45 +513,38 @@ export const RendaRecorrenteCoupons = () => {
   // Merge available coupons with activated coupons
   const couponsWithStatus = availableCoupons?.map(coupon => {
     const activated = activatedCoupons?.find(ac => ac.coupon_id === coupon.id);
-    return { ...coupon, activatedCoupon: activated };
+    return {
+      ...coupon,
+      activatedCoupon: activated
+    };
   }) || [];
-
   const isLoading = profileLoading || couponsLoading || activatedLoading;
-
   if (isLoading) {
-    return (
-      <div className="space-y-4">
+    return <div className="space-y-4">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
-      </div>
-    );
+      </div>;
   }
-
   const productData = couponsWithStatus.length > 0 ? {
     name: couponsWithStatus[0].products?.nome || "APP Renda recorrente",
     iconLight: couponsWithStatus[0].products?.icone_light,
     iconDark: couponsWithStatus[0].products?.icone_dark,
     coupons: couponsWithStatus
   } : null;
-
   if (!productData || productData.coupons.length === 0) {
-    return (
-      <Card>
+    return <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
           Nenhum cupom disponível para este produto.
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <Card className="border-0 shadow-none bg-transparent lg:border lg:shadow-sm lg:bg-card">
         <CardContent className="p-0 lg:p-6">
           {/* Layout Toggle */}
           <div className="flex justify-end mb-4">
-            <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value)}>
+            <ToggleGroup type="single" value={layoutMode} onValueChange={value => value && setLayoutMode(value)}>
               <ToggleGroupItem value="compact" aria-label="Layout compacto">
                 <LayoutList className="h-4 w-4" />
               </ToggleGroupItem>
@@ -471,13 +555,7 @@ export const RendaRecorrenteCoupons = () => {
           </div>
 
           <div className="flex items-center gap-3 mb-4 pb-2 border-b">
-            {(productData.iconLight || productData.iconDark) && (
-              <img 
-                src={productData.iconLight || productData.iconDark || ''} 
-                alt={productData.name} 
-                className="w-10 h-10 rounded-full object-cover border-2 border-border" 
-              />
-            )}
+            {(productData.iconLight || productData.iconDark) && <img src={productData.iconLight || productData.iconDark || ''} alt={productData.name} className="w-10 h-10 rounded-full object-cover border-2 border-border" />}
             <h3 className="text-lg font-semibold text-foreground">{productData.name}</h3>
             <Badge variant="outline" className="ml-auto">
               {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
@@ -485,22 +563,16 @@ export const RendaRecorrenteCoupons = () => {
           </div>
 
           {/* Coupons List */}
-          {isMobile || layoutMode === "cards" ? (
-            <div className="space-y-3">
+          {isMobile || layoutMode === "cards" ? <div className="space-y-3">
               {productData.coupons.map((coupon, couponIndex) => {
-                const isActivated = !!coupon.activatedCoupon;
-                const isActive = coupon.activatedCoupon?.is_active;
-                const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
-
-                return (
-                  <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div 
-                      className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md cursor-pointer ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}
-                      onClick={() => {
-                        setSelectedCoupon(coupon);
-                        setDetailsOpen(true);
-                      }}
-                    >
+            const isActivated = !!coupon.activatedCoupon;
+            const isActive = coupon.activatedCoupon?.is_active;
+            const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
+            return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
+                    <div className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md cursor-pointer ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`} onClick={() => {
+                setSelectedCoupon(coupon);
+                setDetailsOpen(true);
+              }}>
                       {/* Linha 1: Nome */}
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-sm">{coupon.name}</span>
@@ -508,11 +580,7 @@ export const RendaRecorrenteCoupons = () => {
                       
                       {/* Linha 2: Badges de status */}
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        {isActivated ? (
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Liberado</Badge>
-                        ) : (
-                          <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>
-                        )}
+                        {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>}
                         {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
                         {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
                       </div>
@@ -522,39 +590,17 @@ export const RendaRecorrenteCoupons = () => {
                         <code className="text-xs font-mono text-muted-foreground truncate flex-1 bg-muted/50 rounded px-2 py-1">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
-                        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                          {isActivated ? (
-                            isActive ? (
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
-                                <XCircle className="h-3.5 w-3.5" />
-                              </Button>
-                            ) : (
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
-                                <Check className="h-3.5 w-3.5" />
-                              </Button>
-                            )
-                          ) : (
-                            <Button size="sm" className="h-7 text-xs" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
-                              <Check className="h-3.5 w-3.5 mr-1" />
-                              Liberar
-                            </Button>
-                          )}
-                        </div>
+                        
                       </div>
                     </div>
-                  </ScrollAnimation>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="space-y-4">
+                  </ScrollAnimation>;
+          })}
+            </div> : <div className="space-y-4">
               {productData.coupons.map((coupon, couponIndex) => {
-                const isActivated = !!coupon.activatedCoupon;
-                const isActive = coupon.activatedCoupon?.is_active;
-                const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
-
-                return (
-                  <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
+            const isActivated = !!coupon.activatedCoupon;
+            const isActive = coupon.activatedCoupon?.is_active;
+            const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
+            return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
                     <div className={`flex items-center gap-4 p-4 border rounded-lg bg-card transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -565,11 +611,7 @@ export const RendaRecorrenteCoupons = () => {
                             {coupon.type === "days" && `${coupon.value} dias`}
                             {coupon.type === "free_trial" && `${coupon.value} dias`}
                           </Badge>
-                          {isActivated ? (
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge>
-                          ) : (
-                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>
-                          )}
+                          {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>}
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
                           {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                         </div>
@@ -578,92 +620,51 @@ export const RendaRecorrenteCoupons = () => {
                         </code>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <Button variant="outline" size="sm" onClick={() => { setSelectedCoupon(coupon); setDetailsOpen(true); }}>
+                        <Button variant="outline" size="sm" onClick={() => {
+                    setSelectedCoupon(coupon);
+                    setDetailsOpen(true);
+                  }}>
                           <Eye className="h-4 w-4 mr-2" />
                           Ver Detalhes
                         </Button>
-                        {isActivated && isActive && (
-                          <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                        {isActivated && isActive && <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
                             <Copy className="h-4 w-4 mr-2" />
                             Copiar
-                          </Button>
-                        )}
-                        {isActivated ? (
-                          isActive ? (
-                            <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                          </Button>}
+                        {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                               <XCircle className="h-4 w-4 mr-2" />
                               Inativar
-                            </Button>
-                          ) : (
-                            <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                            </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                               <Check className="h-4 w-4 mr-2" />
                               Ativar
-                            </Button>
-                          )
-                        ) : (
-                          <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                            </Button> : <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
                             <Check className="h-4 w-4 mr-2" />
                             Liberar
-                          </Button>
-                        )}
+                          </Button>}
                       </div>
                     </div>
-                  </ScrollAnimation>
-                );
-              })}
-            </div>
-          )}
+                  </ScrollAnimation>;
+          })}
+            </div>}
         </CardContent>
       </Card>
 
       {/* Coupon Details Dialog/Drawer */}
-      {isMobile ? (
-        <Drawer open={detailsOpen} onOpenChange={setDetailsOpen}>
+      {isMobile ? <Drawer open={detailsOpen} onOpenChange={setDetailsOpen}>
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Detalhes do Cupom</DrawerTitle>
             </DrawerHeader>
-            {selectedCoupon && (
-              <CouponDetailsContent
-                coupon={selectedCoupon}
-                profile={profile}
-                generateCustomCode={generateCustomCode}
-                getAffiliateLink={getAffiliateLink}
-                handleCopy={handleCopy}
-                handleActivateCoupon={handleActivateCoupon}
-                handleDeactivateClick={handleDeactivateClick}
-                reactivateCoupon={reactivateCoupon}
-                activateCoupon={activateCoupon}
-                setDetailsOpen={setDetailsOpen}
-                isPendingDeactivate={deactivateCoupon.isPending}
-              />
-            )}
+            {selectedCoupon && <CouponDetailsContent coupon={selectedCoupon} profile={profile} generateCustomCode={generateCustomCode} getAffiliateLink={getAffiliateLink} handleCopy={handleCopy} handleActivateCoupon={handleActivateCoupon} handleDeactivateClick={handleDeactivateClick} reactivateCoupon={reactivateCoupon} activateCoupon={activateCoupon} setDetailsOpen={setDetailsOpen} isPendingDeactivate={deactivateCoupon.isPending} />}
           </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        </Drawer> : <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Detalhes do Cupom</DialogTitle>
             </DialogHeader>
-            {selectedCoupon && (
-              <CouponDetailsContent
-                coupon={selectedCoupon}
-                profile={profile}
-                generateCustomCode={generateCustomCode}
-                getAffiliateLink={getAffiliateLink}
-                handleCopy={handleCopy}
-                handleActivateCoupon={handleActivateCoupon}
-                handleDeactivateClick={handleDeactivateClick}
-                reactivateCoupon={reactivateCoupon}
-                activateCoupon={activateCoupon}
-                setDetailsOpen={setDetailsOpen}
-                isPendingDeactivate={deactivateCoupon.isPending}
-              />
-            )}
+            {selectedCoupon && <CouponDetailsContent coupon={selectedCoupon} profile={profile} generateCustomCode={generateCustomCode} getAffiliateLink={getAffiliateLink} handleCopy={handleCopy} handleActivateCoupon={handleActivateCoupon} handleDeactivateClick={handleDeactivateClick} reactivateCoupon={reactivateCoupon} activateCoupon={activateCoupon} setDetailsOpen={setDetailsOpen} isPendingDeactivate={deactivateCoupon.isPending} />}
           </DialogContent>
-        </Dialog>
-      )}
+        </Dialog>}
 
       {/* Deactivate Confirmation Dialog */}
       <AlertDialog open={deactivateConfirmOpen} onOpenChange={setDeactivateConfirmOpen}>
@@ -680,6 +681,5 @@ export const RendaRecorrenteCoupons = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
