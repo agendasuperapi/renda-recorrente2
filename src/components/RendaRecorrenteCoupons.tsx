@@ -458,6 +458,18 @@ export const RendaRecorrenteCoupons = () => {
     <div className="space-y-4">
       <Card>
         <CardContent className="p-4 sm:p-6">
+          {/* Layout Toggle */}
+          <div className="flex justify-end mb-4">
+            <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value)}>
+              <ToggleGroupItem value="compact" aria-label="Layout compacto">
+                <LayoutList className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="cards" aria-label="Layout em cards">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
           <div className="flex items-center gap-3 mb-4 pb-2 border-b">
             {(productData.iconLight || productData.iconDark) && (
               <img 
@@ -470,18 +482,6 @@ export const RendaRecorrenteCoupons = () => {
             <Badge variant="outline" className="ml-auto">
               {productData.coupons.length} {productData.coupons.length === 1 ? 'cupom' : 'cupons'}
             </Badge>
-          </div>
-
-          {/* Layout Toggle */}
-          <div className="flex justify-end mb-4">
-            <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value)}>
-              <ToggleGroupItem value="compact" aria-label="Layout compacto">
-                <LayoutList className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="cards" aria-label="Layout em cards">
-                <LayoutGrid className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
           </div>
 
           {/* Coupons List */}
