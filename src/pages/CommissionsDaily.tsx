@@ -714,10 +714,6 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                           ? "-top-1 bottom-1/2" 
                                           : "-top-1 -bottom-1"
                                   )} />
-                                  {/* Linha para baixo até perto do próximo header */}
-                                  {isLastOfDay && !isLastDayGroup && (
-                                    <div className="absolute left-[21px] w-0.5 bg-primary/40 top-1/2 h-6" style={{ bottom: '-20px' }} />
-                                  )}
                                   <div className="flex items-center gap-2 relative">
                                     {/* Ponto verde */}
                                     <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
