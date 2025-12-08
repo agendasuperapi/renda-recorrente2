@@ -569,29 +569,29 @@ export const RendaRecorrenteCoupons = () => {
             const isActive = coupon.activatedCoupon?.is_active;
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md cursor-pointer ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`} onClick={() => {
+                    <div className={`p-3 border rounded-lg bg-card transition-all duration-300 hover:shadow-md cursor-pointer flex items-center gap-3 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`} onClick={() => {
                 setSelectedCoupon(coupon);
                 setDetailsOpen(true);
               }}>
-                      {/* Linha 1: Nome */}
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-sm">{coupon.name}</span>
-                      </div>
-                      
-                      {/* Linha 2: Badges de status */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>}
-                        {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
-                        {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
-                      </div>
-                      
-                      {/* Linha 3: Código e ações */}
-                      <div className="flex items-center justify-between gap-2">
-                        <code className="text-xs font-mono text-muted-foreground truncate flex-1 bg-muted/50 rounded px-2 py-1">
+                      <div className="flex-1 space-y-2 min-w-0">
+                        {/* Linha 1: Nome */}
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-sm">{coupon.name}</span>
+                        </div>
+                        
+                        {/* Linha 2: Badges de status */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>}
+                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
+                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
+                        </div>
+                        
+                        {/* Linha 3: Código */}
+                        <code className="text-xs font-mono text-muted-foreground truncate block bg-muted/50 rounded px-2 py-1">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                       </div>
+                      <Eye className="h-5 w-5 text-muted-foreground shrink-0" />
                     </div>
                   </ScrollAnimation>;
           })}
