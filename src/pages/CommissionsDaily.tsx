@@ -701,13 +701,13 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                 className="hover:bg-muted/50"
                                 delay={Math.min(currentIndex * 30, 150)}
                               >
-                                <TableCell>
+                                <TableCell className="relative">
+                                  {/* Linha vertical - contínua, posicionada no nível da célula */}
+                                  <div className={cn(
+                                    "absolute left-[21px] w-0.5 bg-primary/40",
+                                    isVeryLast ? "-top-1 bottom-1/2" : "-top-1 -bottom-1"
+                                  )} />
                                   <div className="flex items-center gap-2 relative">
-                                    {/* Linha vertical - contínua */}
-                                    <div className={cn(
-                                      "absolute left-[5px] w-0.5 bg-primary/40",
-                                      isVeryLast ? "top-0 h-1/2" : "top-0 h-full"
-                                    )} />
                                     {/* Ponto verde */}
                                     <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
                                     <span>{format(new Date(commission.data), 'HH:mm')}</span>
