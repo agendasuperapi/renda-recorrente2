@@ -692,6 +692,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                           {/* Comissões do dia */}
                           {dayCommissions.map((commission, idx) => {
                             const currentIndex = rowIndex++;
+                            const isFirstOfDay = idx === 0;
                             const isLastOfDay = idx === dayCommissions.length - 1;
                             const isLastDayGroup = dayIndex === dateEntries.length - 1;
                             const isVeryLast = isLastOfDay && isLastDayGroup;
@@ -705,8 +706,22 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                   {/* Linha vertical - contínua, posicionada no nível da célula */}
                                   <div className={cn(
                                     "absolute left-[21px] w-0.5 bg-primary/40",
-                                    isVeryLast ? "-top-1 bottom-1/2" : "-top-1 -bottom-1"
+                                    isFirstOfDay && isVeryLast 
+                                      ? "top-1/2 h-0" 
+                                      : isFirstOfDay 
+                                        ? "top-1/2 -bottom-1" 
+                                        : isVeryLast 
+                                          ? "-top-1 bottom-1/2" 
+                                          : "-top-1 -bottom-1"
                                   )} />
+                                  {/* Linha para cima até perto do header */}
+                                  {isFirstOfDay && (
+                                    <div className="absolute left-[21px] w-0.5 bg-primary/40 bottom-1/2 h-6" style={{ top: '-20px' }} />
+                                  )}
+                                  {/* Linha para baixo até perto do próximo header */}
+                                  {isLastOfDay && !isLastDayGroup && (
+                                    <div className="absolute left-[21px] w-0.5 bg-primary/40 top-1/2 h-6" style={{ bottom: '-20px' }} />
+                                  )}
                                   <div className="flex items-center gap-2 relative">
                                     {/* Ponto verde */}
                                     <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
