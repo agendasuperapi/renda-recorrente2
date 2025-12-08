@@ -441,13 +441,13 @@ const Referrals = () => {
                             {isLast}
                             
                             <Card className="transition-all duration-300 hover:shadow-lg mt-2 first:mt-0">
-                              <CardContent className="p-4 space-y-3">
+                              <CardContent className="p-3">
                                 {layoutMode === "compact" && expandedCardId !== referral.id ?
                         // Layout Compacto
                         <>
-                                    <div className="flex justify-between items-start gap-2">
+                                    <div className="flex items-center justify-between gap-2">
                                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                                        <span className="text-xs text-muted-foreground">
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">
                                           {referral.created_at ? format(new Date(referral.created_at), "HH:mm", {
                                   locale: ptBR
                                 }) : "-"}
@@ -456,28 +456,21 @@ const Referrals = () => {
                                       </div>
                                       {getStatusBadge(referral.status)}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                      <div>
-                                        <span className="text-muted-foreground">Produto:</span>
-                                        <p className="font-medium truncate">{referral.product_name || "-"}</p>
+                                    <div className="flex items-center justify-between mt-2">
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        <Badge variant="outline" className="text-xs font-normal">{referral.product_name || "-"}</Badge>
+                                        <Badge variant="secondary" className="text-xs font-normal">{referral.plan_name || "-"}</Badge>
                                       </div>
-                                      <div>
-                                        <span className="text-muted-foreground">Plano:</span>
-                                        <p className="font-medium truncate">{referral.plan_name || "-"}</p>
-                                      </div>
-                                    </div>
-                                    <div className="flex justify-end">
-                                      <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(referral.id)} className="h-7 gap-1 text-xs">
+                                      <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(referral.id)} className="h-6 px-2 gap-1 text-xs">
                                         <Eye className="h-3 w-3" />
-                                        Ver mais
                                       </Button>
                                     </div>
                                   </> :
                         // Layout Completo
                         <>
-                                    <div className="flex justify-between items-start gap-2">
+                                    <div className="flex items-center justify-between gap-2">
                                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                                        <span className="text-xs text-muted-foreground font-medium">
+                                        <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
                                           {referral.created_at ? format(new Date(referral.created_at), "HH:mm", {
                                   locale: ptBR
                                 }) : "-"}
@@ -490,29 +483,19 @@ const Referrals = () => {
                                       {getStatusBadge(referral.status)}
                                     </div>
                                     
-                                    <div className="grid grid-cols-2 gap-2 text-xs">
-                                      <div>
-                                        <span className="text-muted-foreground">Produto:</span>
-                                        <p className="font-medium truncate">{referral.product_name || "-"}</p>
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">Plano:</span>
-                                        <p className="font-medium truncate">{referral.plan_name || "-"}</p>
-                                      </div>
+                                    <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                                      <Badge variant="outline" className="text-xs font-normal">{referral.product_name || "-"}</Badge>
+                                      <Badge variant="secondary" className="text-xs font-normal">{referral.plan_name || "-"}</Badge>
+                                      {referral.cancel_at_period_end && <Badge variant="destructive" className="text-xs">Cancelando</Badge>}
                                     </div>
 
-                                    <div className="flex flex-wrap gap-2 items-center text-xs">
-                                      <span className="text-muted-foreground">Cancelamento:</span>
-                                      {referral.cancel_at_period_end ? <Badge variant="destructive" className="text-xs">Sim</Badge> : <Badge variant="secondary" className="text-xs">Não</Badge>}
-                                    </div>
-
-                                    {referral.trial_end && <div className="text-xs">
+                                    {referral.trial_end && <div className="text-xs mt-2">
                                         <span className="text-muted-foreground">Trial até: </span>
                                         <span className="font-medium">{formatDate(referral.trial_end)}</span>
                                       </div>}
 
-                                    {layoutMode === "compact" && expandedCardId === referral.id && <div className="flex justify-end pt-1">
-                                        <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(null)} className="h-7 gap-1 text-xs">
+                                    {layoutMode === "compact" && expandedCardId === referral.id && <div className="flex justify-end mt-2">
+                                        <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(null)} className="h-6 px-2 gap-1 text-xs">
                                           <ChevronUp className="h-3 w-3" />
                                           Ver menos
                                         </Button>
