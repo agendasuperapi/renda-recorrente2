@@ -742,8 +742,8 @@ const CommissionsDaily = ({
             </div>}
 
           {/* Paginação */}
-          {totalPages > 1 && <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
+          {totalPages > 1 && <div className="mt-4 flex flex-row items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
                 Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, totalCount)} de {totalCount}
               </p>
               <Pagination>
