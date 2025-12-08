@@ -388,36 +388,29 @@ const Referrals = () => {
       </div>
 
       {isMobile ? (() => {
-        // Group referrals by date for mobile/tablet view
-        const groupedByDate = referrals.reduce((acc, referral) => {
-          const dateKey = referral.created_at 
-            ? format(new Date(referral.created_at), "yyyy-MM-dd", { locale: ptBR }) 
-            : "sem-data";
-          if (!acc[dateKey]) {
-            acc[dateKey] = [];
-          }
-          acc[dateKey].push(referral);
-          return acc;
-        }, {} as Record<string, Referral[]>);
-        
-        const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
-        
-        return <div className="space-y-3">
-          {referrals.length === 0 ? (
-            <Card>
+      // Group referrals by date for mobile/tablet view
+      const groupedByDate = referrals.reduce((acc, referral) => {
+        const dateKey = referral.created_at ? format(new Date(referral.created_at), "yyyy-MM-dd", {
+          locale: ptBR
+        }) : "sem-data";
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(referral);
+        return acc;
+      }, {} as Record<string, Referral[]>);
+      const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
+      return <div className="space-y-3">
+          {referrals.length === 0 ? <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
                 Nenhuma indicação encontrada
               </CardContent>
-            </Card>
-          ) : (
-            sortedDates.map((dateKey, dateIndex) => {
-              const dateReferrals = groupedByDate[dateKey];
-              const formattedDate = dateKey !== "sem-data" 
-                ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR }) 
-                : "Sem data";
-              
-              return (
-                <div key={dateKey} className="space-y-0">
+            </Card> : sortedDates.map((dateKey, dateIndex) => {
+          const dateReferrals = groupedByDate[dateKey];
+          const formattedDate = dateKey !== "sem-data" ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+            locale: ptBR
+          }) : "Sem data";
+          return <div key={dateKey} className="space-y-0">
                   {/* Date Header */}
                   <ScrollAnimation animation="fade-up" delay={dateIndex * 100} threshold={0.05}>
                     <Card className="border-t-2 border-t-primary/30 bg-muted/30">
@@ -438,28 +431,26 @@ const Referrals = () => {
                     <div className="absolute left-[7px] top-0 bottom-0 w-0.5 bg-primary/40" />
                     
                     {dateReferrals.map((referral, idx) => {
-                      const isLast = idx === dateReferrals.length - 1;
-                      
-                      return (
-                        <ScrollAnimation key={referral.id} animation="fade-up" delay={Math.min(idx * 50, 200)} threshold={0.05}>
+                const isLast = idx === dateReferrals.length - 1;
+                return <ScrollAnimation key={referral.id} animation="fade-up" delay={Math.min(idx * 50, 200)} threshold={0.05}>
                           <div className="relative">
                             {/* Ponto verde - centralizado verticalmente com o card */}
                             <div className="absolute left-[-22px] top-1/2 -translate-y-1/2 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
                             
                             {/* Cortar linha após último item */}
-                            {isLast && (
-                              <div className="absolute left-[-22px] top-1/2 bottom-0 w-1 bg-background z-10" />
-                            )}
+                            {isLast}
                             
                             <Card className="transition-all duration-300 hover:shadow-lg mt-2 first:mt-0">
                               <CardContent className="p-4 space-y-3">
-                                {layoutMode === "compact" && expandedCardId !== referral.id ? (
-                                  // Layout Compacto
-                                  <>
+                                {layoutMode === "compact" && expandedCardId !== referral.id ?
+                        // Layout Compacto
+                        <>
                                     <div className="flex justify-between items-start gap-2">
                                       <div className="flex items-center gap-2 flex-1 min-w-0">
                                         <span className="text-xs text-muted-foreground">
-                                          {referral.created_at ? format(new Date(referral.created_at), "HH:mm", { locale: ptBR }) : "-"}
+                                          {referral.created_at ? format(new Date(referral.created_at), "HH:mm", {
+                                  locale: ptBR
+                                }) : "-"}
                                         </span>
                                         <p className="font-medium text-sm truncate">{referral.name || "Sem nome"}</p>
                                       </div>
@@ -481,14 +472,15 @@ const Referrals = () => {
                                         Ver mais
                                       </Button>
                                     </div>
-                                  </>
-                                ) : (
-                                  // Layout Completo
-                                  <>
+                                  </> :
+                        // Layout Completo
+                        <>
                                     <div className="flex justify-between items-start gap-2">
                                       <div className="flex items-center gap-2 flex-1 min-w-0">
                                         <span className="text-xs text-muted-foreground font-medium">
-                                          {referral.created_at ? format(new Date(referral.created_at), "HH:mm", { locale: ptBR }) : "-"}
+                                          {referral.created_at ? format(new Date(referral.created_at), "HH:mm", {
+                                  locale: ptBR
+                                }) : "-"}
                                         </span>
                                         <div className="flex-1 min-w-0">
                                           <p className="font-medium text-sm truncate">{referral.name || "Sem nome"}</p>
@@ -511,92 +503,68 @@ const Referrals = () => {
 
                                     <div className="flex flex-wrap gap-2 items-center text-xs">
                                       <span className="text-muted-foreground">Cancelamento:</span>
-                                      {referral.cancel_at_period_end ? (
-                                        <Badge variant="destructive" className="text-xs">Sim</Badge>
-                                      ) : (
-                                        <Badge variant="secondary" className="text-xs">Não</Badge>
-                                      )}
+                                      {referral.cancel_at_period_end ? <Badge variant="destructive" className="text-xs">Sim</Badge> : <Badge variant="secondary" className="text-xs">Não</Badge>}
                                     </div>
 
-                                    {referral.trial_end && (
-                                      <div className="text-xs">
+                                    {referral.trial_end && <div className="text-xs">
                                         <span className="text-muted-foreground">Trial até: </span>
                                         <span className="font-medium">{formatDate(referral.trial_end)}</span>
-                                      </div>
-                                    )}
+                                      </div>}
 
-                                    {layoutMode === "compact" && expandedCardId === referral.id && (
-                                      <div className="flex justify-end pt-1">
+                                    {layoutMode === "compact" && expandedCardId === referral.id && <div className="flex justify-end pt-1">
                                         <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(null)} className="h-7 gap-1 text-xs">
                                           <ChevronUp className="h-3 w-3" />
                                           Ver menos
                                         </Button>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
+                                      </div>}
+                                  </>}
                               </CardContent>
                             </Card>
                           </div>
-                        </ScrollAnimation>
-                      );
-                    })}
+                        </ScrollAnimation>;
+              })}
                   </div>
-                </div>
-              );
-            })
-          )}
+                </div>;
+        })}
 
-          {totalPages > 1 && (
-            <div className="mt-4 space-y-3">
+          {totalPages > 1 && <div className="mt-4 space-y-3">
               <p className="text-xs text-muted-foreground text-center">
                 Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total}
               </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} 
-                    />
+                    <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                   </PaginationItem>
                   
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
-                    }
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationLink 
-                          onClick={() => setCurrentPage(page)} 
-                          isActive={currentPage === page} 
-                          className="cursor-pointer"
-                        >
+                  {Array.from({
+                length: Math.min(5, totalPages)
+              }, (_, i) => {
+                let page;
+                if (totalPages <= 5) {
+                  page = i + 1;
+                } else if (currentPage <= 3) {
+                  page = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  page = totalPages - 4 + i;
+                } else {
+                  page = currentPage - 2 + i;
+                }
+                return <PaginationItem key={page}>
+                        <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer">
                           {page}
                         </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
+                      </PaginationItem>;
+              })}
 
                   <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} 
-                    />
+                    <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-            </div>
-          )}
+            </div>}
         </div>;
-      })() : (() => {
+    })() : (() => {
       // Group referrals by date for desktop view
       const groupedByDate = referrals.reduce((acc, referral) => {
         const dateKey = referral.created_at ? format(new Date(referral.created_at), "yyyy-MM-dd", {
