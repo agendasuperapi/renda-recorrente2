@@ -581,7 +581,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                         </div>
                         
                         {/* Comissões do dia com timeline */}
-                        <div className="relative pl-6">
+                        <div className="relative pl-7">
                           {/* Linha vertical contínua */}
                           <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-primary/40" />
                           
@@ -596,12 +596,12 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                   threshold={0.05}
                                 >
                                   <div className="relative">
-                                    {/* Ponto verde */}
-                                    <div className="absolute -left-[13px] top-4 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                                    {/* Ponto verde - centralizado na linha (left-[11px] + metade da linha - metade do ponto) */}
+                                    <div className="absolute left-[-17px] top-4 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
                                     
                                     {/* Cortar linha após último item */}
                                     {isLast && (
-                                      <div className="absolute -left-[13px] top-[22px] bottom-0 w-0.5 bg-background" />
+                                      <div className="absolute left-[-16px] top-[22px] bottom-0 w-0.5 bg-background" />
                                     )}
                                     
                                     <Card className="transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
