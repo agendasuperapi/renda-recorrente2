@@ -601,7 +601,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                     
                                     {/* Cortar linha após último item */}
                                     {isLast && (
-                                      <div className="absolute left-[-21px] top-[22px] bottom-0 w-0.5 bg-background" />
+                                      <div className="absolute left-[-22px] top-[22px] bottom-0 w-1 bg-background" />
                                     )}
                                     
                                     <Card className="transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
