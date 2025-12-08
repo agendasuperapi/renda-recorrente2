@@ -533,7 +533,7 @@ const Referrals = () => {
                       <TableHead>Status</TableHead>
                       <TableHead>Cancelamento</TableHead>
                       <TableHead>Período Atual</TableHead>
-                      <TableHead>Fim do teste</TableHead>
+                      <TableHead>Fim do Teste</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
