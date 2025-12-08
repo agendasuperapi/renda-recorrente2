@@ -689,15 +689,27 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                             </TableCell>
                           </TableRow>
                           {/* Comissões do dia */}
-                          {dayCommissions.map((commission) => {
+                          {dayCommissions.map((commission, idx) => {
                             const currentIndex = rowIndex++;
+                            const isLast = idx === dayCommissions.length - 1;
                             return (
                               <AnimatedTableRow 
                                 key={commission.id}
                                 className="hover:bg-muted/50"
                                 delay={Math.min(currentIndex * 30, 150)}
                               >
-                                <TableCell>{format(new Date(commission.data), 'HH:mm')}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2 relative">
+                                    {/* Linha vertical */}
+                                    <div className={cn(
+                                      "absolute left-[5px] w-0.5 bg-primary/40",
+                                      idx === 0 ? "top-1/2 h-1/2" : isLast ? "top-0 h-1/2" : "top-0 h-full"
+                                    )} />
+                                    {/* Ponto verde */}
+                                    <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
+                                    <span>{format(new Date(commission.data), 'HH:mm')}</span>
+                                  </div>
+                                </TableCell>
                                 <TableCell>
                                   <div className="flex items-center gap-2">
                                     {(commission.product_icon_light || commission.product_icon_dark) && (
