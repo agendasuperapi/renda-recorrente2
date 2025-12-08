@@ -677,7 +677,8 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                       });
 
                       let rowIndex = 0;
-                      return Object.entries(groupedByDate).map(([dateKey, dayCommissions]) => (
+                      const dateEntries = Object.entries(groupedByDate);
+                      return dateEntries.map(([dateKey, dayCommissions], dayIndex) => (
                         <>
                           {/* Header da data */}
                           <TableRow key={`header-${dateKey}`} className="bg-muted/30 hover:bg-muted/30">
@@ -691,7 +692,9 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                           {/* Comissões do dia */}
                           {dayCommissions.map((commission, idx) => {
                             const currentIndex = rowIndex++;
-                            const isLast = idx === dayCommissions.length - 1;
+                            const isLastOfDay = idx === dayCommissions.length - 1;
+                            const isLastDayGroup = dayIndex === dateEntries.length - 1;
+                            const isVeryLast = isLastOfDay && isLastDayGroup;
                             return (
                               <AnimatedTableRow 
                                 key={commission.id}
@@ -700,10 +703,10 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                               >
                                 <TableCell>
                                   <div className="flex items-center gap-2 relative">
-                                    {/* Linha vertical */}
+                                    {/* Linha vertical - contínua */}
                                     <div className={cn(
                                       "absolute left-[5px] w-0.5 bg-primary/40",
-                                      idx === 0 ? "top-1/2 h-1/2" : isLast ? "top-0 h-1/2" : "top-0 h-full"
+                                      isVeryLast ? "top-0 h-1/2" : "top-0 h-full"
                                     )} />
                                     {/* Ponto verde */}
                                     <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
