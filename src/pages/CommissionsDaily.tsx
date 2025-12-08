@@ -682,9 +682,11 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                         <>
                           {/* Header da data */}
                           <TableRow key={`header-${dateKey}`} className="bg-muted/30 hover:bg-muted/30 border-t border-border">
-                            <TableCell colSpan={8} className="py-2 relative">
-                              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground whitespace-nowrap">
-                                <Calendar className="h-4 w-4 flex-shrink-0" />
+                            <TableCell colSpan={8} className="py-2.5 relative">
+                              <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground/80 whitespace-nowrap">
+                                <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10">
+                                  <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+                                </div>
                                 <span>{format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}</span>
                               </div>
                             </TableCell>
