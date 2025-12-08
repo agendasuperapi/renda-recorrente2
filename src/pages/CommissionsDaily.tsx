@@ -597,7 +597,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                 >
                                   <div className="relative">
                                     {/* Ponto verde */}
-                                    <div className="absolute -left-6 top-4 z-10 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                                    <div className="absolute -left-6 top-4 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
                                     
                                     {/* Cortar linha após último item */}
                                     {isLast && (
