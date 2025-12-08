@@ -494,16 +494,16 @@ export const RendaRecorrenteCoupons = () => {
 
                 return (
                   <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
-                      {/* Linha 1: Nome e botão de detalhes */}
+                    <div 
+                      className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md cursor-pointer ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}
+                      onClick={() => {
+                        setSelectedCoupon(coupon);
+                        setDetailsOpen(true);
+                      }}
+                    >
+                      {/* Linha 1: Nome */}
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-sm">{coupon.name}</span>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
-                          setSelectedCoupon(coupon);
-                          setDetailsOpen(true);
-                        }}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
                       </div>
                       
                       {/* Linha 2: Badges de status */}
@@ -522,12 +522,7 @@ export const RendaRecorrenteCoupons = () => {
                         <code className="text-xs font-mono text-muted-foreground truncate flex-1 bg-muted/50 rounded px-2 py-1">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {isActivated && isActive && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
+                        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                           {isActivated ? (
                             isActive ? (
                               <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
