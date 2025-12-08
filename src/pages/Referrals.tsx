@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
+import { cn } from "@/lib/utils";
 
 interface Referral {
   id: string;
@@ -655,36 +656,84 @@ const Referrals = () => {
                               </TableCell>
                             </TableRow>
                             {/* Referrals for this date */}
-                            {dateReferrals.map((referral, index) => (
-                              <AnimatedTableRow key={referral.id} delay={index * 50}>
-                                <TableCell>
-                                  {referral.created_at 
-                                    ? format(new Date(referral.created_at), "HH:mm", { locale: ptBR })
-                                    : "-"}
-                                </TableCell>
-                                <TableCell>{referral.name || "-"}</TableCell>
-                                <TableCell>{referral.email}</TableCell>
-                                <TableCell>{referral.product_name || "-"}</TableCell>
-                                <TableCell>{referral.plan_name || "-"}</TableCell>
-                                <TableCell>{getStatusBadge(referral.status)}</TableCell>
-                                <TableCell>
-                                  {referral.cancel_at_period_end ? (
-                                    <Badge variant="destructive">Sim</Badge>
-                                  ) : (
-                                    <Badge variant="secondary">Não</Badge>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  {referral.current_period_start && referral.current_period_end ? (
-                                    <div className="text-xs">
-                                      <div>{formatDate(referral.current_period_start)}</div>
-                                      <div>{formatDate(referral.current_period_end)}</div>
+                            {dateReferrals.map((referral, index) => {
+                              const isFirstOfDay = index === 0;
+                              const isLastOfDay = index === dateReferrals.length - 1;
+                              
+                              return (
+                                <AnimatedTableRow 
+                                  key={referral.id} 
+                                  delay={index * 50}
+                                  className="hover:bg-muted/50 border-0"
+                                >
+                                  <TableCell className="relative border-0">
+                                    {/* Linha vertical - contínua, posicionada no nível da célula */}
+                                    <div className={cn(
+                                      "absolute left-[21px] w-0.5 bg-primary/40",
+                                      isFirstOfDay && isLastOfDay
+                                        ? "top-1/2 h-0" 
+                                        : isFirstOfDay 
+                                          ? "top-1/2 -bottom-1" 
+                                          : isLastOfDay 
+                                            ? "-top-1 bottom-1/2" 
+                                            : "-top-1 -bottom-1"
+                                    )} />
+                                    <div className="flex items-center gap-2 relative">
+                                      {/* Ponto verde */}
+                                      <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
+                                      <span>
+                                        {referral.created_at 
+                                          ? format(new Date(referral.created_at), "HH:mm", { locale: ptBR })
+                                          : "-"}
+                                      </span>
                                     </div>
-                                  ) : "-"}
-                                </TableCell>
-                                <TableCell>{formatDate(referral.trial_end)}</TableCell>
-                              </AnimatedTableRow>
-                            ))}
+                                    {/* Linha horizontal que começa após a timeline */}
+                                    <div className="absolute right-0 bottom-0 left-[40px] h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.name || "-"}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.email}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.product_name || "-"}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.plan_name || "-"}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {getStatusBadge(referral.status)}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.cancel_at_period_end ? (
+                                      <Badge variant="destructive">Sim</Badge>
+                                    ) : (
+                                      <Badge variant="secondary">Não</Badge>
+                                    )}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.current_period_start && referral.current_period_end ? (
+                                      <div className="text-xs">
+                                        <div>{formatDate(referral.current_period_start)}</div>
+                                        <div>{formatDate(referral.current_period_end)}</div>
+                                      </div>
+                                    ) : "-"}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {formatDate(referral.trial_end)}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                </AnimatedTableRow>
+                              );
+                            })}
                           </>
                         );
                       })
