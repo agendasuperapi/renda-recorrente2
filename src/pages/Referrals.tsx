@@ -18,7 +18,6 @@ import { ptBR } from "date-fns/locale";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 import { cn } from "@/lib/utils";
-
 interface Referral {
   id: string;
   created_at: string;
@@ -36,36 +35,36 @@ interface Referral {
   current_period_end: string | null;
   environment: string | null;
 }
-
 interface Stats {
   total: number;
   active: number;
   conversionRate: number;
 }
-
 interface Product {
   id: string;
   nome: string;
   icone_light: string | null;
   icone_dark: string | null;
 }
-
 interface Plan {
   id: string;
   name: string;
 }
-
 const Referrals = () => {
   const isMobile = useIsMobile();
   const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, conversionRate: 0 });
+  const [stats, setStats] = useState<Stats>({
+    total: 0,
+    active: 0,
+    conversionRate: 0
+  });
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  
+
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<string>("all");
@@ -82,22 +81,17 @@ const Referrals = () => {
 
   // Card expandido no modo compacto
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
-
   const debouncedSearch = useDebounce(searchTerm, 500);
-
   useEffect(() => {
     loadFiltersData();
   }, []);
-
   useEffect(() => {
     setCurrentPage(1);
   }, [itemsPerPage]);
-
   useEffect(() => {
     loadReferrals();
     loadStats();
   }, [currentPage, debouncedSearch, selectedProduct, selectedPlan, selectedStatus, itemsPerPage]);
-
   useEffect(() => {
     if (selectedProduct !== "all") {
       loadPlansForProduct(selectedProduct);
@@ -106,27 +100,18 @@ const Referrals = () => {
       setSelectedPlan("all");
     }
   }, [selectedProduct]);
-
   const loadFiltersData = async () => {
-    const { data: productsData } = await supabase
-      .from("products")
-      .select("id, nome, icone_light, icone_dark")
-      .order("nome");
-    
+    const {
+      data: productsData
+    } = await supabase.from("products").select("id, nome, icone_light, icone_dark").order("nome");
     if (productsData) setProducts(productsData);
   };
-
   const loadPlansForProduct = async (productId: string) => {
-    const { data: plansData } = await supabase
-      .from("plans")
-      .select("id, name")
-      .eq("product_id", productId)
-      .eq("is_active", true)
-      .order("name");
-    
+    const {
+      data: plansData
+    } = await supabase.from("plans").select("id, name").eq("product_id", productId).eq("is_active", true).order("name");
     if (plansData) setPlans(plansData);
   };
-
   const loadReferrals = async () => {
     if (hasLoadedOnce) {
       setIsFiltering(true);
@@ -134,31 +119,28 @@ const Referrals = () => {
       setInitialLoading(true);
     }
     try {
-      const { data: session } = await supabase.auth.getSession();
+      const {
+        data: session
+      } = await supabase.auth.getSession();
       if (!session?.session) {
         setInitialLoading(false);
         setIsFiltering(false);
         return;
       }
-
-      let query = supabase
-        .from("view_referrals" as any)
-        .select("*", { count: "exact" })
-        .eq("affiliate_id", session.session.user.id);
+      let query = supabase.from("view_referrals" as any).select("*", {
+        count: "exact"
+      }).eq("affiliate_id", session.session.user.id);
 
       // Apply filters
       if (debouncedSearch) {
         query = query.or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%`);
       }
-
       if (selectedProduct !== "all") {
         query = query.eq("product_id", selectedProduct);
       }
-
       if (selectedPlan !== "all") {
         query = query.eq("plan_id", selectedPlan);
       }
-
       if (selectedStatus !== "all") {
         query = query.eq("status", selectedStatus);
       }
@@ -167,12 +149,13 @@ const Referrals = () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
       query = query.range(from, to);
-
-      const { data, error, count } = await query;
-
+      const {
+        data,
+        error,
+        count
+      } = await query;
       if (error) throw error;
-
-      setReferrals((data as any) || []);
+      setReferrals(data as any || []);
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
     } catch (error) {
       console.error("Error loading referrals:", error);
@@ -182,23 +165,20 @@ const Referrals = () => {
       setHasLoadedOnce(true);
     }
   };
-
   const loadStats = async () => {
     try {
-      const { data: session } = await supabase.auth.getSession();
+      const {
+        data: session
+      } = await supabase.auth.getSession();
       if (!session?.session) return;
-
-      let query = supabase
-        .from("view_referrals_stats" as any)
-        .select("*")
-        .eq("affiliate_id", session.session.user.id);
-
+      let query = supabase.from("view_referrals_stats" as any).select("*").eq("affiliate_id", session.session.user.id);
       if (selectedProduct !== "all") {
         query = query.eq("product_id", selectedProduct);
       }
-
-      const { data, error } = await query;
-
+      const {
+        data,
+        error
+      } = await query;
       if (error) throw error;
 
       // Agregar resultados se houver múltiplos produtos
@@ -206,19 +186,19 @@ const Referrals = () => {
         total: acc.total + (curr.total_referrals || 0),
         active: acc.active + (curr.active_subscriptions || 0),
         conversionRate: 0 // Será recalculado abaixo
-      }), { total: 0, active: 0, conversionRate: 0 });
+      }), {
+        total: 0,
+        active: 0,
+        conversionRate: 0
+      });
 
       // Recalcular taxa de conversão agregada
-      aggregated.conversionRate = aggregated.total > 0 
-        ? Math.round((aggregated.active / aggregated.total) * 100)
-        : 0;
-
+      aggregated.conversionRate = aggregated.total > 0 ? Math.round(aggregated.active / aggregated.total * 100) : 0;
       setStats(aggregated);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
   };
-
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedProduct("all");
@@ -226,20 +206,18 @@ const Referrals = () => {
     setSelectedStatus("all");
     setCurrentPage(1);
   };
-
   const handleRefresh = () => {
     loadReferrals();
     loadStats();
   };
-
   const formatDate = (date: string | null) => {
     if (!date) return "-";
-    return format(new Date(date), "dd/MM/yyyy", { locale: ptBR });
+    return format(new Date(date), "dd/MM/yyyy", {
+      locale: ptBR
+    });
   };
-
   const getStatusBadge = (status: string | null) => {
     if (!status) return <Badge variant="secondary">-</Badge>;
-    
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       active: "default",
       trialing: "secondary",
@@ -247,7 +225,6 @@ const Referrals = () => {
       past_due: "destructive",
       incomplete: "outline"
     };
-
     const labels: Record<string, string> = {
       active: "Ativo",
       trialing: "Teste",
@@ -255,16 +232,12 @@ const Referrals = () => {
       past_due: "Atrasado",
       incomplete: "Incompleto"
     };
-
     return <Badge variant={variants[status] || "secondary"}>{labels[status] || status}</Badge>;
   };
-
   if (initialLoading && !hasLoadedOnce) {
     return <TableSkeleton columns={9} rows={10} showSearch />;
   }
-
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
+  return <div className="space-y-6 p-4 sm:p-6">
       <ScrollAnimation animation="fade-up">
         <div>
           <h1 className="text-3xl font-bold mb-2">Indicações</h1>
@@ -322,22 +295,16 @@ const Referrals = () => {
 
       {/* Botão de filtros mobile/tablet */}
       <div className="lg:hidden flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
           <SlidersHorizontal className="h-4 w-4" />
           Filtros
-          {(searchTerm || selectedProduct !== "all" || selectedPlan !== "all" || selectedStatus !== "all") && (
-            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+          {(searchTerm || selectedProduct !== "all" || selectedPlan !== "all" || selectedStatus !== "all") && <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
               !
-            </Badge>
-          )}
+            </Badge>}
         </Button>
         
         {/* Layout mode selector - mobile/tablet */}
-        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
+        <ToggleGroup type="single" value={layoutMode} onValueChange={value => value && setLayoutMode(value as "compact" | "complete")}>
           <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
             <LayoutList className="h-4 w-4" />
           </ToggleGroupItem>
@@ -351,21 +318,12 @@ const Referrals = () => {
       <div className={`bg-transparent lg:bg-card rounded-none lg:rounded-lg border-0 lg:border shadow-none lg:shadow-sm p-0 lg:p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowFilters(false)}
-            className="lg:hidden h-8 w-8"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="lg:hidden h-8 w-8">
             <X className="h-4 w-4" />
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Input
-            placeholder="Buscar por nome ou email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <Input placeholder="Buscar por nome ou email..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
           
           <Select value={selectedProduct} onValueChange={setSelectedProduct}>
             <SelectTrigger>
@@ -373,32 +331,23 @@ const Referrals = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os produtos</SelectItem>
-              {products.map((product) => (
-                <SelectItem key={product.id} value={product.id}>
+              {products.map(product => <SelectItem key={product.id} value={product.id}>
                   {product.nome}
-                </SelectItem>
-              ))}
+                </SelectItem>)}
             </SelectContent>
           </Select>
 
-          {selectedProduct !== "all" && (
-            <Select 
-              value={selectedPlan} 
-              onValueChange={setSelectedPlan}
-            >
+          {selectedProduct !== "all" && <Select value={selectedPlan} onValueChange={setSelectedPlan}>
               <SelectTrigger>
                 <SelectValue placeholder="Plano" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os planos</SelectItem>
-                {plans.map((plan) => (
-                  <SelectItem key={plan.id} value={plan.id}>
+                {plans.map(plan => <SelectItem key={plan.id} value={plan.id}>
                     {plan.name}
-                  </SelectItem>
-                ))}
+                  </SelectItem>)}
               </SelectContent>
-            </Select>
-          )}
+            </Select>}
 
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger>
@@ -414,7 +363,7 @@ const Referrals = () => {
             </SelectContent>
           </Select>
 
-          <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+          <Select value={itemsPerPage.toString()} onValueChange={value => setItemsPerPage(Number(value))}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -438,22 +387,17 @@ const Referrals = () => {
         </div>
       </div>
 
-      {isMobile ? (
-        <div className="space-y-3">
-          {referrals.length === 0 ? (
-            <Card>
+      {isMobile ? <div className="space-y-3">
+          {referrals.length === 0 ? <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
                 Nenhuma indicação encontrada
               </CardContent>
-            </Card>
-          ) : (
-            referrals.map((referral, index) => (
-              <ScrollAnimation key={referral.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+            </Card> : referrals.map((referral, index) => <ScrollAnimation key={referral.id} animation="fade-up" delay={index * 50} threshold={0.05}>
                 <Card className="transition-all duration-300 hover:shadow-lg">
                 <CardContent className="p-4 space-y-3">
-                  {layoutMode === "compact" && expandedCardId !== referral.id ? (
-                    // Layout Compacto: Nome, Produto, Plano, Status, Data de Cadastro
-                    <>
+                  {layoutMode === "compact" && expandedCardId !== referral.id ?
+            // Layout Compacto: Nome, Produto, Plano, Status, Data de Cadastro
+            <>
                       <div className="flex justify-between items-start gap-2">
                         <p className="font-medium text-sm truncate flex-1">{referral.name || "Sem nome"}</p>
                         {getStatusBadge(referral.status)}
@@ -475,21 +419,15 @@ const Referrals = () => {
                           </span>
                         </div>
                         <div className="flex justify-end">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setExpandedCardId(referral.id)}
-                            className="h-7 gap-1 text-xs"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(referral.id)} className="h-7 gap-1 text-xs">
                             <Eye className="h-3 w-3" />
                             Ver mais
                           </Button>
                         </div>
                       </div>
-                    </>
-                  ) : (
-                    // Layout Completo: Todas as informações
-                    <>
+                    </> :
+            // Layout Completo: Todas as informações
+            <>
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{referral.name || "Sem nome"}</p>
@@ -511,111 +449,78 @@ const Referrals = () => {
 
                       <div className="flex flex-wrap gap-2 items-center text-xs">
                         <span className="text-muted-foreground">Cancelamento:</span>
-                        {referral.cancel_at_period_end ? (
-                          <Badge variant="destructive" className="text-xs">Sim</Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-xs">Não</Badge>
-                        )}
+                        {referral.cancel_at_period_end ? <Badge variant="destructive" className="text-xs">Sim</Badge> : <Badge variant="secondary" className="text-xs">Não</Badge>}
                       </div>
 
-                      {referral.trial_end && (
-                        <div className="text-xs">
+                      {referral.trial_end && <div className="text-xs">
                           <span className="text-muted-foreground">Trial até: </span>
                           <span className="font-medium">{formatDate(referral.trial_end)}</span>
-                        </div>
-                      )}
+                        </div>}
 
                       <div className="flex justify-between items-center pt-1">
                         <p className="text-xs text-muted-foreground">
                           Cadastrado em {formatDate(referral.created_at)}
                         </p>
-                        {layoutMode === "compact" && expandedCardId === referral.id && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setExpandedCardId(null)}
-                            className="h-7 gap-1 text-xs"
-                          >
+                        {layoutMode === "compact" && expandedCardId === referral.id && <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(null)} className="h-7 gap-1 text-xs">
                             <ChevronUp className="h-3 w-3" />
                             Ver menos
-                          </Button>
-                        )}
+                          </Button>}
                       </div>
-                    </>
-                  )}
+                    </>}
                 </CardContent>
                 </Card>
-              </ScrollAnimation>
-            ))
-          )}
+              </ScrollAnimation>)}
 
-          {totalPages > 1 && (
-            <div className="mt-4 space-y-3">
+          {totalPages > 1 && <div className="mt-4 space-y-3">
               <p className="text-xs text-muted-foreground text-center">
-                Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total}
+                Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total}
               </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
+                    <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                   </PaginationItem>
                   
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
-                    }
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className="cursor-pointer"
-                        >
+                  {Array.from({
+              length: Math.min(5, totalPages)
+            }, (_, i) => {
+              let page;
+              if (totalPages <= 5) {
+                page = i + 1;
+              } else if (currentPage <= 3) {
+                page = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                page = totalPages - 4 + i;
+              } else {
+                page = currentPage - 2 + i;
+              }
+              return <PaginationItem key={page}>
+                        <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer">
                           {page}
                         </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
+                      </PaginationItem>;
+            })}
 
                   <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
+                    <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-            </div>
-          )}
-        </div>
-      ) : (
-        (() => {
-          // Group referrals by date for desktop view
-          const groupedByDate = referrals.reduce((acc, referral) => {
-            const dateKey = referral.created_at 
-              ? format(new Date(referral.created_at), "yyyy-MM-dd", { locale: ptBR })
-              : "sem-data";
-            if (!acc[dateKey]) {
-              acc[dateKey] = [];
-            }
-            acc[dateKey].push(referral);
-            return acc;
-          }, {} as Record<string, Referral[]>);
-
-          const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
-
-          return (
-            <Card className="rounded-none lg:rounded-lg">
+            </div>}
+        </div> : (() => {
+      // Group referrals by date for desktop view
+      const groupedByDate = referrals.reduce((acc, referral) => {
+        const dateKey = referral.created_at ? format(new Date(referral.created_at), "yyyy-MM-dd", {
+          locale: ptBR
+        }) : "sem-data";
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(referral);
+        return acc;
+      }, {} as Record<string, Referral[]>);
+      const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
+      return <Card className="rounded-none lg:rounded-lg">
               <CardContent className="pt-6">
                 <Table>
                   <TableHeader>
@@ -628,25 +533,20 @@ const Referrals = () => {
                       <TableHead>Status</TableHead>
                       <TableHead>Cancelamento</TableHead>
                       <TableHead>Período Atual</TableHead>
-                      <TableHead>Trial</TableHead>
+                      <TableHead>Fim do teste</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {referrals.length === 0 ? (
-                      <TableRow>
+                    {referrals.length === 0 ? <TableRow>
                         <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                           Nenhuma indicação encontrada
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      sortedDates.map((dateKey) => {
-                        const dateReferrals = groupedByDate[dateKey];
-                        const formattedDate = dateKey !== "sem-data"
-                          ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })
-                          : "Sem data";
-
-                        return (
-                          <>
+                      </TableRow> : sortedDates.map(dateKey => {
+                const dateReferrals = groupedByDate[dateKey];
+                const formattedDate = dateKey !== "sem-data" ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+                  locale: ptBR
+                }) : "Sem data";
+                return <>
                             {/* Date Header Row */}
                             <TableRow key={`date-${dateKey}`} className="bg-muted/30 hover:bg-muted/40 border-t border-border">
                               <TableCell colSpan={9} className="py-2.5">
@@ -660,34 +560,19 @@ const Referrals = () => {
                             </TableRow>
                             {/* Referrals for this date */}
                             {dateReferrals.map((referral, index) => {
-                              const isFirstOfDay = index === 0;
-                              const isLastOfDay = index === dateReferrals.length - 1;
-                              
-                              return (
-                                <AnimatedTableRow 
-                                  key={referral.id} 
-                                  delay={index * 50}
-                                  className="hover:bg-muted/50 border-0"
-                                >
+                    const isFirstOfDay = index === 0;
+                    const isLastOfDay = index === dateReferrals.length - 1;
+                    return <AnimatedTableRow key={referral.id} delay={index * 50} className="hover:bg-muted/50 border-0">
                                   <TableCell className="relative border-0">
                                     {/* Linha vertical - contínua, posicionada no nível da célula */}
-                                    <div className={cn(
-                                      "absolute left-[21px] w-0.5 bg-primary/40",
-                                      isFirstOfDay && isLastOfDay
-                                        ? "top-1/2 h-0" 
-                                        : isFirstOfDay 
-                                          ? "top-1/2 -bottom-1" 
-                                          : isLastOfDay 
-                                            ? "-top-1 bottom-1/2" 
-                                            : "-top-1 -bottom-1"
-                                    )} />
+                                    <div className={cn("absolute left-[21px] w-0.5 bg-primary/40", isFirstOfDay && isLastOfDay ? "top-1/2 h-0" : isFirstOfDay ? "top-1/2 -bottom-1" : isLastOfDay ? "-top-1 bottom-1/2" : "-top-1 -bottom-1")} />
                                     <div className="flex items-center gap-2 relative">
                                       {/* Ponto verde */}
                                       <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
                                       <span>
-                                        {referral.created_at 
-                                          ? format(new Date(referral.created_at), "HH:mm", { locale: ptBR })
-                                          : "-"}
+                                        {referral.created_at ? format(new Date(referral.created_at), "HH:mm", {
+                              locale: ptBR
+                            }) : "-"}
                                       </span>
                                     </div>
                                     {/* Linha horizontal que começa após a timeline */}
@@ -711,12 +596,10 @@ const Referrals = () => {
                                   <TableCell className="border-0 relative">
                                     <div className="flex items-center gap-2">
                                       {(() => {
-                                        const product = products.find(p => p.id === referral.product_id);
-                                        const iconUrl = product?.icone_light || product?.icone_dark;
-                                        return iconUrl ? (
-                                          <img src={iconUrl} alt="" className="h-6 w-6 rounded-full object-cover" />
-                                        ) : null;
-                                      })()}
+                            const product = products.find(p => p.id === referral.product_id);
+                            const iconUrl = product?.icone_light || product?.icone_dark;
+                            return iconUrl ? <img src={iconUrl} alt="" className="h-6 w-6 rounded-full object-cover" /> : null;
+                          })()}
                                       <span>{referral.product_name || "-"}</span>
                                     </div>
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
@@ -730,79 +613,54 @@ const Referrals = () => {
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
-                                    {referral.cancel_at_period_end ? (
-                                      <Badge variant="destructive">Sim</Badge>
-                                    ) : (
-                                      <Badge variant="secondary">Não</Badge>
-                                    )}
+                                    {referral.cancel_at_period_end ? <Badge variant="destructive">Sim</Badge> : <Badge variant="secondary">Não</Badge>}
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
-                                    {referral.current_period_start && referral.current_period_end ? (
-                                      <div className="text-xs">
+                                    {referral.current_period_start && referral.current_period_end ? <div className="text-xs">
                                         <div>{formatDate(referral.current_period_start)}</div>
                                         <div>{formatDate(referral.current_period_end)}</div>
-                                      </div>
-                                    ) : "-"}
+                                      </div> : "-"}
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
                                     {formatDate(referral.trial_end)}
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
-                                </AnimatedTableRow>
-                              );
-                            })}
-                          </>
-                        );
-                      })
-                    )}
+                                </AnimatedTableRow>;
+                  })}
+                          </>;
+              })}
                   </TableBody>
                 </Table>
 
-                {totalPages > 1 && (
-                  <div className="mt-4 flex items-center justify-between">
+                {totalPages > 1 && <div className="mt-4 flex items-center justify-between">
                     <p className="text-sm text-muted-foreground whitespace-nowrap">
-                      Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
+                      Mostrando {(currentPage - 1) * itemsPerPage + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
                     </p>
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
-                          <PaginationPrevious 
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                          />
+                          <PaginationPrevious onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                         </PaginationItem>
                         
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(page)}
-                              isActive={currentPage === page}
-                              className="cursor-pointer"
-                            >
+                        {Array.from({
+                  length: totalPages
+                }, (_, i) => i + 1).map(page => <PaginationItem key={page}>
+                            <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer">
                               {page}
                             </PaginationLink>
-                          </PaginationItem>
-                        ))}
+                          </PaginationItem>)}
 
                         <PaginationItem>
-                          <PaginationNext 
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                          />
+                          <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                         </PaginationItem>
                       </PaginationContent>
                     </Pagination>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
-            </Card>
-          );
-        })()
-      )}
-    </div>
-  );
+            </Card>;
+    })()}
+    </div>;
 };
-
 export default Referrals;
