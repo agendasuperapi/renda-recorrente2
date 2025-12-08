@@ -46,6 +46,8 @@ interface Stats {
 interface Product {
   id: string;
   nome: string;
+  icone_light: string | null;
+  icone_dark: string | null;
 }
 
 interface Plan {
@@ -108,7 +110,7 @@ const Referrals = () => {
   const loadFiltersData = async () => {
     const { data: productsData } = await supabase
       .from("products")
-      .select("id, nome")
+      .select("id, nome, icone_light, icone_dark")
       .order("nome");
     
     if (productsData) setProducts(productsData);
@@ -707,7 +709,16 @@ const Referrals = () => {
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
-                                    {referral.product_name || "-"}
+                                    <div className="flex items-center gap-2">
+                                      {(() => {
+                                        const product = products.find(p => p.id === referral.product_id);
+                                        const iconUrl = product?.icone_light || product?.icone_dark;
+                                        return iconUrl ? (
+                                          <img src={iconUrl} alt="" className="h-6 w-6 rounded-full object-cover" />
+                                        ) : null;
+                                      })()}
+                                      <span>{referral.product_name || "-"}</span>
+                                    </div>
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
