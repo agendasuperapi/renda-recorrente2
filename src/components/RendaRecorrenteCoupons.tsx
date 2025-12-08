@@ -627,10 +627,7 @@ export const RendaRecorrenteCoupons = () => {
                           <Eye className="h-4 w-4 mr-2" />
                           Ver Detalhes
                         </Button>
-                        {isActivated && isActive && <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Copiar
-                          </Button>}
+                        {isActivated && isActive}
                         {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                               <XCircle className="h-4 w-4 mr-2" />
                               Inativar
