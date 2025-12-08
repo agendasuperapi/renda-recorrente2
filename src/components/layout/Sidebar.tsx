@@ -69,10 +69,6 @@ const affiliateMenuItems: MenuItem[] = [{
   label: "Sub Afiliados",
   path: "/user/sub-affiliates",
   isPro: true
-}, {
-  icon: Headphones,
-  label: "Suporte",
-  path: "/user/support"
 }];
 const settingsMenuItems = [{
   icon: User,
@@ -678,6 +674,33 @@ export const Sidebar = ({
             >
               <Settings size={18} />
               <span>Configurações</span>
+            </Link>
+            <Link 
+              to="/user/support" 
+              onClick={() => closeSidebar?.()} 
+              className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
+              style={{
+                backgroundColor: location.pathname === "/user/support" ? accentColor : `${accentColor}15`,
+                color: currentTextColor
+              }} 
+              onMouseEnter={e => {
+                if (location.pathname !== "/user/support") {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }} 
+              onMouseLeave={e => {
+                if (location.pathname !== "/user/support") {
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
+                }
+              }}
+            >
+              <Headphones size={18} />
+              <span className="flex-1">Suporte</span>
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Badge>
+              )}
             </Link>
           </>}
 
