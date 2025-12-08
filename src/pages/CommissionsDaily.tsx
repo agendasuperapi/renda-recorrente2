@@ -548,7 +548,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
               </div>
             )}
             {isMobile ? (
-              <div className="space-y-3 md:-mx-6 lg:mx-0">
+              <div className="md:-mx-6 lg:mx-0">
                 {commissions.length === 0 ? (
                   <Card>
                     <CardContent className="py-8 text-center text-muted-foreground">
@@ -556,91 +556,137 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                     </CardContent>
                   </Card>
                 ) : (
-                  commissions.map((commission, index) => (
-                    <ScrollAnimation 
-                      key={commission.id}
-                      animation="fade-up" 
-                      delay={Math.min(index * 50, 200)}
-                      threshold={0.05}
-                    >
-                      <Card 
-                        className="transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
-                      >
-                        <CardContent className="p-4 space-y-3">
-                          {layoutMode === "compact" && expandedCardId !== commission.id ? (
-                            // Layout Compacto: Nome, Produto, Data, Comissão
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
-                                <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="text-right">
-                                  <div className="text-[10px] text-muted-foreground">{formatDate(commission.data)}</div>
-                                  <div className="font-bold text-sm text-success">{formatCurrency(commission.valor)}</div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="flex-shrink-0 h-8 w-8"
-                                  onClick={() => setExpandedCardId(commission.id)}
-                                  title="Ver detalhes"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            // Layout Completo: Todas as informações
-                            <>
-                              <div className="flex justify-between items-start gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
-                                </div>
-                                {getStatusBadge(commission.status)}
-                              </div>
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
-                                {getLevelBadge(commission.level)}
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div>
-                                  <span className="text-muted-foreground">Produto:</span>
-                                  <p className="font-medium truncate">{commission.produto || "-"}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Plano:</span>
-                                  <p className="font-medium truncate">{commission.plano || "-"}</p>
-                                </div>
-                              </div>
+                  (() => {
+                    // Agrupar por data para mobile
+                    const groupedByDate: Record<string, Commission[]> = {};
+                    commissions.forEach((commission) => {
+                      const dateKey = format(new Date(commission.data), 'yyyy-MM-dd');
+                      if (!groupedByDate[dateKey]) {
+                        groupedByDate[dateKey] = [];
+                      }
+                      groupedByDate[dateKey].push(commission);
+                    });
 
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
-                                <span className="text-muted-foreground">{formatDate(commission.data)}</span>
-                              </div>
-                              
-                              {layoutMode === "compact" && expandedCardId === commission.id && (
-                                <div className="flex justify-end pt-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8"
-                                    onClick={() => setExpandedCardId(null)}
-                                    title="Fechar"
-                                  >
-                                    <ChevronUp className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </ScrollAnimation>
-                  ))
+                    const dateEntries = Object.entries(groupedByDate);
+                    return dateEntries.map(([dateKey, dayCommissions], dayIndex) => (
+                      <div key={dateKey} className="mb-4">
+                        {/* Header da data */}
+                        <div className="flex items-center gap-2.5 py-3 px-1">
+                          <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10">
+                            <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
+                          </div>
+                          <span className="text-sm font-semibold text-foreground/80">
+                            {format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                          </span>
+                        </div>
+                        
+                        {/* Comissões do dia com timeline */}
+                        <div className="relative pl-6">
+                          {/* Linha vertical contínua */}
+                          <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-primary/40" />
+                          
+                          <div className="space-y-3">
+                            {dayCommissions.map((commission, idx) => {
+                              const isLast = idx === dayCommissions.length - 1;
+                              return (
+                                <ScrollAnimation 
+                                  key={commission.id}
+                                  animation="fade-up" 
+                                  delay={Math.min(idx * 50, 200)}
+                                  threshold={0.05}
+                                >
+                                  <div className="relative">
+                                    {/* Ponto verde */}
+                                    <div className="absolute -left-6 top-4 z-10 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                                    
+                                    {/* Cortar linha após último item */}
+                                    {isLast && (
+                                      <div className="absolute -left-[13px] top-[22px] bottom-0 w-0.5 bg-background" />
+                                    )}
+                                    
+                                    <Card className="transition-all duration-300 hover:scale-[1.01] hover:shadow-md">
+                                      <CardContent className="p-4 space-y-3">
+                                        {layoutMode === "compact" && expandedCardId !== commission.id ? (
+                                          // Layout Compacto
+                                          <div className="flex items-center justify-between gap-3">
+                                            <div className="flex-1 min-w-0">
+                                              <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
+                                              <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                              <div className="text-right">
+                                                <div className="text-[10px] text-muted-foreground">{format(new Date(commission.data), 'HH:mm')}</div>
+                                                <div className="font-bold text-sm text-success">{formatCurrency(commission.valor)}</div>
+                                              </div>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="flex-shrink-0 h-8 w-8"
+                                                onClick={() => setExpandedCardId(commission.id)}
+                                                title="Ver detalhes"
+                                              >
+                                                <Eye className="h-4 w-4" />
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          // Layout Completo
+                                          <>
+                                            <div className="flex justify-between items-start gap-2">
+                                              <div className="flex-1 min-w-0">
+                                                <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
+                                                <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
+                                              </div>
+                                              {getStatusBadge(commission.status)}
+                                            </div>
+                                            
+                                            <div className="flex justify-between items-center">
+                                              <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
+                                              {getLevelBadge(commission.level)}
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                              <div>
+                                                <span className="text-muted-foreground">Produto:</span>
+                                                <p className="font-medium truncate">{commission.produto || "-"}</p>
+                                              </div>
+                                              <div>
+                                                <span className="text-muted-foreground">Plano:</span>
+                                                <p className="font-medium truncate">{commission.plano || "-"}</p>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-center justify-between text-xs">
+                                              <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
+                                              <span className="text-muted-foreground">{format(new Date(commission.data), 'HH:mm')}</span>
+                                            </div>
+                                            
+                                            {layoutMode === "compact" && expandedCardId === commission.id && (
+                                              <div className="flex justify-end pt-1">
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  className="h-8 w-8"
+                                                  onClick={() => setExpandedCardId(null)}
+                                                  title="Fechar"
+                                                >
+                                                  <ChevronUp className="h-4 w-4" />
+                                                </Button>
+                                              </div>
+                                            )}
+                                          </>
+                                        )}
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                </ScrollAnimation>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ));
+                  })()
                 )}
               </div>
             ) : (
