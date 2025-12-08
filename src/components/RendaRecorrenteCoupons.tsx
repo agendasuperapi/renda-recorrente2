@@ -491,21 +491,10 @@ export const RendaRecorrenteCoupons = () => {
                 const isActivated = !!coupon.activatedCoupon;
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
-                const cardColors = [
-                  "bg-blue-50/70 dark:bg-blue-950/30",
-                  "bg-emerald-50/70 dark:bg-emerald-950/30",
-                  "bg-violet-50/70 dark:bg-violet-950/30",
-                  "bg-amber-50/70 dark:bg-amber-950/30",
-                  "bg-rose-50/70 dark:bg-rose-950/30",
-                  "bg-cyan-50/70 dark:bg-cyan-950/30",
-                  "bg-indigo-50/70 dark:bg-indigo-950/30",
-                  "bg-pink-50/70 dark:bg-pink-950/30",
-                ];
-                const cardColor = cardColors[couponIndex % cardColors.length];
 
                 return (
                   <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${cardColor} ${isActivated && !isActive ? "border-red-300 dark:border-red-500" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500" : ""}`}>
+                    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 dark:border-red-500" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500" : ""}`}>
                       <CardContent className="p-4 space-y-3">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-sm truncate">{coupon.name}</span>
@@ -572,21 +561,10 @@ export const RendaRecorrenteCoupons = () => {
                 const isActivated = !!coupon.activatedCoupon;
                 const isActive = coupon.activatedCoupon?.is_active;
                 const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
-                const cardColors = [
-                  "bg-blue-50/70 dark:bg-blue-950/30",
-                  "bg-emerald-50/70 dark:bg-emerald-950/30",
-                  "bg-violet-50/70 dark:bg-violet-950/30",
-                  "bg-amber-50/70 dark:bg-amber-950/30",
-                  "bg-rose-50/70 dark:bg-rose-950/30",
-                  "bg-cyan-50/70 dark:bg-cyan-950/30",
-                  "bg-indigo-50/70 dark:bg-indigo-950/30",
-                  "bg-pink-50/70 dark:bg-pink-950/30",
-                ];
-                const cardColor = cardColors[couponIndex % cardColors.length];
 
                 return (
                   <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`flex items-center gap-4 p-4 border rounded-lg transition-all duration-300 hover:shadow-md ${cardColor} ${isActivated && !isActive ? "border-red-300 dark:border-red-500" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500" : ""}`}>
+                    <div className={`flex items-center gap-4 p-4 border rounded-lg bg-card transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold truncate">{coupon.name}</span>
