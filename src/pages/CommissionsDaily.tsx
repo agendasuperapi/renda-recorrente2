@@ -698,10 +698,10 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                             return (
                               <AnimatedTableRow 
                                 key={commission.id}
-                                className="hover:bg-muted/50"
+                                className="hover:bg-muted/50 border-0"
                                 delay={Math.min(currentIndex * 30, 150)}
                               >
-                                <TableCell className="relative">
+                                <TableCell className="relative border-0">
                                   {/* Linha vertical - contínua, posicionada no nível da célula */}
                                   <div className={cn(
                                     "absolute left-[21px] w-0.5 bg-primary/40",
@@ -712,8 +712,10 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                     <div className="relative z-10 w-3 h-3 rounded-full bg-primary border-2 border-background flex-shrink-0" />
                                     <span>{format(new Date(commission.data), 'HH:mm')}</span>
                                   </div>
+                                  {/* Linha horizontal que começa após a timeline */}
+                                  <div className="absolute right-0 bottom-0 left-[40px] h-px bg-border" />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="border-0 relative">
                                   <div className="flex items-center gap-2">
                                     {(commission.product_icon_light || commission.product_icon_dark) && (
                                       <>
@@ -731,18 +733,35 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                     )}
                                     <span>{commission.produto || "-"}</span>
                                   </div>
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="border-0 relative">
                                   <div>
                                     <div className="font-medium">{commission.cliente || "-"}</div>
                                     <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
                                   </div>
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                 </TableCell>
-                                <TableCell>{commission.plano || "-"}</TableCell>
-                                <TableCell>{getLevelBadge(commission.level)}</TableCell>
-                                <TableCell>{commission.percentual}%</TableCell>
-                                <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
-                                <TableCell>{getStatusBadge(commission.status)}</TableCell>
+                                <TableCell className="border-0 relative">
+                                  {commission.plano || "-"}
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                </TableCell>
+                                <TableCell className="border-0 relative">
+                                  {getLevelBadge(commission.level)}
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                </TableCell>
+                                <TableCell className="border-0 relative">
+                                  {commission.percentual}%
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                </TableCell>
+                                <TableCell className="border-0 relative font-medium">
+                                  {formatCurrency(commission.valor)}
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                </TableCell>
+                                <TableCell className="border-0 relative">
+                                  {getStatusBadge(commission.status)}
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                </TableCell>
                               </AnimatedTableRow>
                             );
                           })}
