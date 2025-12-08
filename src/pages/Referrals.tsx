@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid, Eye, ChevronUp } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
@@ -595,98 +595,143 @@ const Referrals = () => {
           )}
         </div>
       ) : (
-        <Card className="rounded-none lg:rounded-lg">
-          <CardContent className="pt-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data Cadastro</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Produto</TableHead>
-                  <TableHead>Plano</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Cancelamento</TableHead>
-                  <TableHead>Período Atual</TableHead>
-                  <TableHead>Trial</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {referrals.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                      Nenhuma indicação encontrada
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  referrals.map((referral, index) => (
-                    <AnimatedTableRow key={referral.id} delay={index * 50}>
-                      <TableCell>{formatDate(referral.created_at)}</TableCell>
-                      <TableCell>{referral.name || "-"}</TableCell>
-                      <TableCell>{referral.email}</TableCell>
-                      <TableCell>{referral.product_name || "-"}</TableCell>
-                      <TableCell>{referral.plan_name || "-"}</TableCell>
-                      <TableCell>{getStatusBadge(referral.status)}</TableCell>
-                      <TableCell>
-                        {referral.cancel_at_period_end ? (
-                          <Badge variant="destructive">Sim</Badge>
-                        ) : (
-                          <Badge variant="secondary">Não</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {referral.current_period_start && referral.current_period_end ? (
-                          <div className="text-xs">
-                            <div>{formatDate(referral.current_period_start)}</div>
-                            <div>{formatDate(referral.current_period_end)}</div>
-                          </div>
-                        ) : "-"}
-                      </TableCell>
-                      <TableCell>{formatDate(referral.trial_end)}</TableCell>
-                    </AnimatedTableRow>
-                  ))
+        (() => {
+          // Group referrals by date for desktop view
+          const groupedByDate = referrals.reduce((acc, referral) => {
+            const dateKey = referral.created_at 
+              ? format(new Date(referral.created_at), "yyyy-MM-dd", { locale: ptBR })
+              : "sem-data";
+            if (!acc[dateKey]) {
+              acc[dateKey] = [];
+            }
+            acc[dateKey].push(referral);
+            return acc;
+          }, {} as Record<string, Referral[]>);
+
+          const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
+
+          return (
+            <Card className="rounded-none lg:rounded-lg">
+              <CardContent className="pt-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Hora</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Produto</TableHead>
+                      <TableHead>Plano</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Cancelamento</TableHead>
+                      <TableHead>Período Atual</TableHead>
+                      <TableHead>Trial</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {referrals.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                          Nenhuma indicação encontrada
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      sortedDates.map((dateKey) => {
+                        const dateReferrals = groupedByDate[dateKey];
+                        const formattedDate = dateKey !== "sem-data"
+                          ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })
+                          : "Sem data";
+
+                        return (
+                          <>
+                            {/* Date Header Row */}
+                            <TableRow key={`date-${dateKey}`} className="bg-muted/30 hover:bg-muted/40 border-t border-border">
+                              <TableCell colSpan={9} className="py-2.5">
+                                <div className="flex items-center gap-2 font-semibold text-foreground/80">
+                                  <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
+                                    <Calendar className="h-4 w-4 text-primary" />
+                                  </div>
+                                  <span className="capitalize">{formattedDate}</span>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                            {/* Referrals for this date */}
+                            {dateReferrals.map((referral, index) => (
+                              <AnimatedTableRow key={referral.id} delay={index * 50}>
+                                <TableCell>
+                                  {referral.created_at 
+                                    ? format(new Date(referral.created_at), "HH:mm", { locale: ptBR })
+                                    : "-"}
+                                </TableCell>
+                                <TableCell>{referral.name || "-"}</TableCell>
+                                <TableCell>{referral.email}</TableCell>
+                                <TableCell>{referral.product_name || "-"}</TableCell>
+                                <TableCell>{referral.plan_name || "-"}</TableCell>
+                                <TableCell>{getStatusBadge(referral.status)}</TableCell>
+                                <TableCell>
+                                  {referral.cancel_at_period_end ? (
+                                    <Badge variant="destructive">Sim</Badge>
+                                  ) : (
+                                    <Badge variant="secondary">Não</Badge>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  {referral.current_period_start && referral.current_period_end ? (
+                                    <div className="text-xs">
+                                      <div>{formatDate(referral.current_period_start)}</div>
+                                      <div>{formatDate(referral.current_period_end)}</div>
+                                    </div>
+                                  ) : "-"}
+                                </TableCell>
+                                <TableCell>{formatDate(referral.trial_end)}</TableCell>
+                              </AnimatedTableRow>
+                            ))}
+                          </>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+
+                {totalPages > 1 && (
+                  <div className="mt-4 flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground whitespace-nowrap">
+                      Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
+                    </p>
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
                 )}
-              </TableBody>
-            </Table>
-
-            {totalPages > 1 && (
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground whitespace-nowrap">
-                  Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, stats.total)} de {stats.total} indicações
-                </p>
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                    
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={currentPage === page}
-                          className="cursor-pointer"
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    ))}
-
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          );
+        })()
       )}
     </div>
   );
