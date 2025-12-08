@@ -3,22 +3,19 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/contexts/UserContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar } from "lucide-react";
+import { Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
 import { format, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Pagination,
   PaginationContent,
@@ -110,14 +107,33 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Layout mode para mobile/tablet
-  const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
-
   // Mostrar/esconder filtros no mobile/tablet
   const [showFilters, setShowFilters] = useState(false);
 
-  // Card expandido no modo compacto
-  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  // Card expandido
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  // Agrupar comissões por data
+  const groupedCommissions = commissions.reduce((groups, commission) => {
+    const date = format(new Date(commission.data), 'yyyy-MM-dd');
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(commission);
+    return groups;
+  }, {} as Record<string, Commission[]>);
 
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
@@ -338,62 +354,56 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ScrollAnimation animation="fade-up" delay={0}>
-          <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
-            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
-              <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Hoje
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(stats.hoje)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.count_hoje} {stats.count_hoje === 1 ? 'comissão' : 'comissões'}
-              </p>
-            </CardContent>
-          </Card>
-        </ScrollAnimation>
+        <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-4 pb-4">
+            <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Hoje
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(stats.hoje)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_hoje} {stats.count_hoje === 1 ? 'comissão' : 'comissões'}
+            </p>
+          </CardContent>
+        </Card>
 
-        <ScrollAnimation animation="fade-up" delay={100}>
-          <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
-            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
-              <Calendar className="h-5 w-5 text-sky-600 dark:text-sky-400" />
-            </div>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Últimos 7 dias
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">{formatCurrency(stats.ultimos_7_dias)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.count_7_dias} {stats.count_7_dias === 1 ? 'comissão' : 'comissões'}
-              </p>
-            </CardContent>
-          </Card>
-        </ScrollAnimation>
+        <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-4 pb-4">
+            <Calendar className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+          </div>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Últimos 7 dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">{formatCurrency(stats.ultimos_7_dias)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_7_dias} {stats.count_7_dias === 1 ? 'comissão' : 'comissões'}
+            </p>
+          </CardContent>
+        </Card>
 
-        <ScrollAnimation animation="fade-up" delay={200}>
-          <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
-            <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
-              <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            </div>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Este Mês
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{formatCurrency(stats.este_mes)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.count_mes} {stats.count_mes === 1 ? 'comissão' : 'comissões'}
-              </p>
-            </CardContent>
-          </Card>
-        </ScrollAnimation>
+        <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+          <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-4 pb-4">
+            <DollarSign className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          </div>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Este Mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{formatCurrency(stats.este_mes)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.count_mes} {stats.count_mes === 1 ? 'comissão' : 'comissões'}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {showTimezoneWarning && (
@@ -406,7 +416,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
       )}
 
       {/* Botão de filtros mobile/tablet */}
-      <div className="lg:hidden flex items-center justify-between">
+      <div className="lg:hidden">
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
@@ -420,16 +430,6 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
             </Badge>
           )}
         </Button>
-        
-        {/* Layout mode selector - mobile/tablet */}
-        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
-          <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
-            <LayoutList className="h-4 w-4" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
-            <LayoutGrid className="h-4 w-4" />
-          </ToggleGroupItem>
-        </ToggleGroup>
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
@@ -536,179 +536,142 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
         </div>
       </div>
 
-      <Card className={isMobile ? "bg-transparent border-0 shadow-none" : ""}>
-        <CardHeader className={isMobile ? "hidden" : ""}>
-          <CardTitle>Histórico Diário</CardTitle>
-        </CardHeader>
-        <CardContent className={isMobile ? "p-0" : ""}>
-          <div className="relative">
-            {isFiltering && (
-              <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
+      {/* Timeline de Comissões */}
+      <Card className="flex-1 flex flex-col min-h-0">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Clock className="h-4 w-4" />
+            Histórico de Comissões
+            {commissions.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {totalCount} registros
+              </Badge>
             )}
-            {isMobile ? (
-              <div className="space-y-3 md:-mx-6 lg:mx-0">
-                {commissions.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">
-                      Nenhuma comissão registrada
-                    </CardContent>
-                  </Card>
-                ) : (
-                  commissions.map((commission, index) => (
-                    <ScrollAnimation 
-                      key={commission.id}
-                      animation="fade-up" 
-                      delay={Math.min(index * 50, 200)}
-                      threshold={0.05}
-                    >
-                      <Card 
-                        className="transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
-                      >
-                        <CardContent className="p-4 space-y-3">
-                          {layoutMode === "compact" && expandedCardId !== commission.id ? (
-                            // Layout Compacto: Nome, Produto, Data, Comissão
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
-                                <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="text-right">
-                                  <div className="text-[10px] text-muted-foreground">{formatDate(commission.data)}</div>
-                                  <div className="font-bold text-sm text-success">{formatCurrency(commission.valor)}</div>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="flex-shrink-0 h-8 w-8"
-                                  onClick={() => setExpandedCardId(commission.id)}
-                                  title="Ver detalhes"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            // Layout Completo: Todas as informações
-                            <>
-                              <div className="flex justify-between items-start gap-2">
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 min-h-0 relative">
+          {isFiltering && (
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
+          
+          {commissions.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhuma comissão encontrada</p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[calc(100vh-480px)] pr-4">
+              <div className="space-y-4">
+                {Object.entries(groupedCommissions).map(([date, dayCommissions]) => (
+                  <div key={date}>
+                    {/* Data Header */}
+                    <div className="sticky top-0 bg-background/95 backdrop-blur z-10 py-1.5 mb-2">
+                      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {format(new Date(date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                      </div>
+                    </div>
+
+                    {/* Comissões do dia */}
+                    <div className="relative pl-4 border-l-2 border-muted space-y-1">
+                      {dayCommissions.map((commission) => (
+                        <Collapsible
+                          key={commission.id}
+                          open={expandedIds.has(commission.id)}
+                          onOpenChange={() => toggleExpanded(commission.id)}
+                        >
+                          <div className="relative">
+                            {/* Dot na timeline */}
+                            <div className="absolute -left-[17px] top-2.5 w-2 h-2 rounded-full bg-primary border-2 border-background" />
+                            
+                            <div className="py-1.5 px-3 rounded-md hover:bg-muted/40 transition-colors">
+                              <div className="flex items-center gap-2">
+                                {/* Ícone do produto */}
+                                {(commission.product_icon_light || commission.product_icon_dark) && (
+                                  <>
+                                    <img 
+                                      src={commission.product_icon_light || commission.product_icon_dark || ''} 
+                                      alt={commission.produto} 
+                                      className="w-6 h-6 object-contain rounded-full dark:hidden flex-shrink-0"
+                                    />
+                                    <img 
+                                      src={commission.product_icon_dark || commission.product_icon_light || ''} 
+                                      alt={commission.produto} 
+                                      className="w-6 h-6 object-contain rounded-full hidden dark:block flex-shrink-0"
+                                    />
+                                  </>
+                                )}
+                                
+                                {/* Cliente e descrição */}
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</span>
+                                    {commission.cliente_email && (
+                                      <span className="text-xs text-muted-foreground truncate hidden sm:inline">
+                                        {commission.cliente_email}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-primary truncate">
+                                    {commission.produto} • {commission.plano} • {formatCurrency(commission.valor)}
+                                  </p>
                                 </div>
+
+                                {/* Status badge */}
                                 {getStatusBadge(commission.status)}
-                              </div>
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-lg font-bold text-success">{formatCurrency(commission.valor)}</span>
+
+                                {/* Nível */}
                                 {getLevelBadge(commission.level)}
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div>
-                                  <span className="text-muted-foreground">Produto:</span>
-                                  <p className="font-medium truncate">{commission.produto || "-"}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Plano:</span>
-                                  <p className="font-medium truncate">{commission.plano || "-"}</p>
-                                </div>
+
+                                {/* Hora */}
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                  {format(new Date(commission.data), 'HH:mm')}
+                                </span>
+
+                                {/* Botão expandir */}
+                                <CollapsibleTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                    {expandedIds.has(commission.id) ? (
+                                      <ChevronUp className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <ChevronDown className="h-3.5 w-3.5" />
+                                    )}
+                                  </Button>
+                                </CollapsibleTrigger>
                               </div>
 
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-muted-foreground">Comissão: {commission.percentual}%</span>
-                                <span className="text-muted-foreground">{formatDate(commission.data)}</span>
-                              </div>
-                              
-                              {layoutMode === "compact" && expandedCardId === commission.id && (
-                                <div className="flex justify-end pt-1">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8"
-                                    onClick={() => setExpandedCardId(null)}
-                                    title="Fechar"
-                                  >
-                                    <ChevronUp className="h-4 w-4" />
-                                  </Button>
+                              <CollapsibleContent>
+                                <div className="mt-2 pt-2 border-t border-border/50 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                                  <div>
+                                    <span className="text-muted-foreground">Produto:</span>
+                                    <p className="font-medium">{commission.produto || "-"}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Plano:</span>
+                                    <p className="font-medium">{commission.plano || "-"}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Percentual:</span>
+                                    <p className="font-medium">{commission.percentual}%</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Valor:</span>
+                                    <p className="font-medium text-primary">{formatCurrency(commission.valor)}</p>
+                                  </div>
                                 </div>
-                              )}
-                            </>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </ScrollAnimation>
-                  ))
-                )}
+                              </CollapsibleContent>
+                            </div>
+                          </div>
+                        </Collapsible>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <Table className={isFiltering ? "pointer-events-none" : ""}>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Produto</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Plano</TableHead>
-                    <TableHead>Nível</TableHead>
-                    <TableHead>Percentual</TableHead>
-                    <TableHead>Valor</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {commissions.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                        Nenhuma comissão registrada
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    commissions.map((commission, index) => (
-                      <AnimatedTableRow 
-                        key={commission.id}
-                        className="hover:bg-muted/50"
-                        delay={Math.min(index * 30, 150)}
-                      >
-                        <TableCell>{formatDate(commission.data)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {(commission.product_icon_light || commission.product_icon_dark) && (
-                              <>
-                                <img 
-                                  src={commission.product_icon_light || commission.product_icon_dark || ''} 
-                                  alt={commission.produto} 
-                                  className="w-5 h-5 object-contain rounded-full dark:hidden"
-                                />
-                                <img 
-                                  src={commission.product_icon_dark || commission.product_icon_light || ''} 
-                                  alt={commission.produto} 
-                                  className="w-5 h-5 object-contain rounded-full hidden dark:block"
-                                />
-                              </>
-                            )}
-                            <span>{commission.produto || "-"}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{commission.cliente || "-"}</div>
-                            <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{commission.plano || "-"}</TableCell>
-                        <TableCell>{getLevelBadge(commission.level)}</TableCell>
-                        <TableCell>{commission.percentual}%</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
-                        <TableCell>{getStatusBadge(commission.status)}</TableCell>
-                      </AnimatedTableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            )}
-          </div>
+            </ScrollArea>
+          )}
 
           {/* Total Filtrado */}
           {commissions.length > 0 && (
