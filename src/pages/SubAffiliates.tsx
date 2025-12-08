@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle, Crown, Check } from "lucide-react";
+import { Users, TrendingUp, RefreshCw, X, ChevronLeft, ChevronRight, Eye, ArrowUpDown, ArrowUp, ArrowDown, LayoutGrid, LayoutList, SlidersHorizontal, AlertTriangle, Crown, Check, Ticket } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -22,6 +22,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RendaRecorrenteCoupons } from "@/components/RendaRecorrenteCoupons";
 
 interface SubAffiliate {
   id: string;
@@ -431,39 +433,53 @@ const SubAffiliates = () => {
         </div>
       </ScrollAnimation>
 
-      {/* Aviso de requisitos para ter sub-afiliados */}
-      {!isLoadingRequirements && !canHaveSubAffiliates && (
-        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
-          <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
-            <AlertDescription className="text-white/90">
-              <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
-              <div className="space-y-2">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isProPlan ? 'border-green-500/40' : 'border-white/20'}`}>
-                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                    {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                  </span>
-                  <span className="flex-1">Ter o plano PRO</span>
-                  {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
-                </div>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${hasEnoughSales ? 'border-green-500/40' : 'border-white/20'}`}>
-                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                    {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
-                  </span>
-                  <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
-                  {hasEnoughSales 
-                    ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
-                    : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
-                  }
-                </div>
-              </div>
-            </AlertDescription>
-          </Alert>
-        </ScrollAnimation>
-      )}
+      {/* Tabs for Sub-Affiliates and Coupons */}
+      <Tabs defaultValue="sub-affiliates" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="sub-affiliates">
+            <Users className="h-4 w-4 mr-2" />
+            Sub Afiliados
+          </TabsTrigger>
+          <TabsTrigger value="coupons">
+            <Ticket className="h-4 w-4 mr-2" />
+            Cupons
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="sub-affiliates" className="mt-4 space-y-4 data-[state=inactive]:hidden" forceMount>
+          {/* Aviso de requisitos para ter sub-afiliados */}
+          {!isLoadingRequirements && !canHaveSubAffiliates && (
+            <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+              <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
+                <AlertDescription className="text-white/90">
+                  <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
+                  <div className="space-y-2">
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isProPlan ? 'border-green-500/40' : 'border-white/20'}`}>
+                      <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                        {isProPlan ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      </span>
+                      <span className="flex-1">Ter o plano PRO</span>
+                      {isProPlan && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>}
+                    </div>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${hasEnoughSales ? 'border-green-500/40' : 'border-white/20'}`}>
+                      <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasEnoughSales ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                        {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                      </span>
+                      <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
+                      {hasEnoughSales 
+                        ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
+                        : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
+                      }
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            </ScrollAnimation>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
           <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-md">
             <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-purple-200/60 dark:bg-purple-800/40 flex items-end justify-start pl-4 pb-4">
@@ -1134,6 +1150,12 @@ const SubAffiliates = () => {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="coupons" className="mt-4 data-[state=inactive]:hidden" forceMount>
+          <RendaRecorrenteCoupons />
+        </TabsContent>
+      </Tabs>
 
       {selectedSubAffiliate && currentUserId && (
         <SubAffiliateCommissionsDialog

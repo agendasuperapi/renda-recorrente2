@@ -203,16 +203,16 @@ const Coupons = () => {
     enabled: !!userId
   });
 
-  // Fetch products for filter
+  // Fetch products for filter (excluding RENDA product which is shown in SubAffiliates page)
   const {
     data: products
   } = useQuery({
-    queryKey: ["products", userId],
+    queryKey: ["products-coupons", userId],
     queryFn: async () => {
       const {
         data,
         error
-      } = await supabase.from("products").select("id, nome").order("nome");
+      } = await supabase.from("products").select("id, nome").neq("id", RENDA_PRODUCT_ID).order("nome");
       if (error) throw error;
       return data;
     },
@@ -567,8 +567,11 @@ const Coupons = () => {
   // Create a map of activated coupons by coupon_id for quick lookup
   const activatedCouponsMap = new Map(activatedCoupons?.map(ac => [ac.coupon_id, ac]) || []);
 
-  // All coupons with activation status
-  const allCoupons = availableCoupons?.filter(coupon => productFilter === "all" || coupon.product_id === productFilter)?.map(coupon => {
+  // All coupons with activation status - exclude RENDA product (shown in SubAffiliates page)
+  const allCoupons = availableCoupons?.filter(coupon => 
+    coupon.product_id !== RENDA_PRODUCT_ID && 
+    (productFilter === "all" || coupon.product_id === productFilter)
+  )?.map(coupon => {
     const activatedCoupon = activatedCouponsMap.get(coupon.id);
     return {
       ...coupon,
