@@ -627,14 +627,11 @@ export const RendaRecorrenteCoupons = () => {
                           <Eye className="h-4 w-4 mr-2" />
                           Ver Detalhes
                         </Button>
-                        {isActivated && isActive}
-                        {isActivated ? isActive ? <Button variant="outline" size="sm" className="bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Inativar
-                            </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                        {isActivated && !isActive && <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                               <Check className="h-4 w-4 mr-2" />
                               Ativar
-                            </Button> : <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                            </Button>}
+                        {!isActivated && <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
                             <Check className="h-4 w-4 mr-2" />
                             Liberar
                           </Button>}
