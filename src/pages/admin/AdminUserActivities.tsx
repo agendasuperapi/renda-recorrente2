@@ -309,7 +309,7 @@ export default function AdminUserActivities() {
                     </div>
 
                     {/* Atividades do dia */}
-                    <div className="relative pl-6 border-l-2 border-muted space-y-4">
+                    <div className="relative pl-4 border-l-2 border-muted space-y-1.5">
                       {dayActivities.map((activity) => (
                         <Collapsible
                           key={activity.id}
@@ -318,81 +318,73 @@ export default function AdminUserActivities() {
                         >
                           <div className="relative">
                             {/* Dot na timeline */}
-                            <div className="absolute -left-[25px] top-3 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+                            <div className="absolute -left-[17px] top-2.5 w-2 h-2 rounded-full bg-primary border-2 border-background" />
                             
-                            <div className="bg-muted/30 rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                              <div className="flex items-start gap-3">
+                            <div className="bg-muted/30 rounded-md px-3 py-2 hover:bg-muted/50 transition-colors">
+                              <div className="flex items-center gap-2">
                                 {/* Avatar */}
-                                <Avatar className="h-10 w-10">
+                                <Avatar className="h-7 w-7">
                                   <AvatarImage src={activity.avatar_url || undefined} />
-                                  <AvatarFallback>
+                                  <AvatarFallback className="text-xs">
                                     {activity.user_name?.charAt(0)?.toUpperCase() || 'U'}
                                   </AvatarFallback>
                                 </Avatar>
 
                                 {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="font-medium">{activity.user_name}</span>
-                                    {activity.username && (
-                                      <span className="text-muted-foreground text-sm">
-                                        @{activity.username}
-                                      </span>
-                                    )}
-                                    {activity.category && (
-                                      <Badge 
-                                        variant="outline" 
-                                        className={`text-xs ${getCategoryColor(activity.category)}`}
-                                      >
-                                        {getCategoryIcon(activity.category)} {activity.category}
-                                      </Badge>
-                                    )}
-                                  </div>
-
-                                  <p className="text-sm mt-1">
-                                    {activity.description || getActivityTypeLabel(activity.activity_type)}
-                                  </p>
-
-                                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                    <span>
-                                      {format(new Date(activity.created_at), 'HH:mm:ss')}
+                                <div className="flex-1 min-w-0 flex items-center gap-2">
+                                  <span className="font-medium text-sm truncate">{activity.user_name}</span>
+                                  {activity.username && (
+                                    <span className="text-muted-foreground text-xs hidden sm:inline">
+                                      @{activity.username}
                                     </span>
-                                    <CollapsibleTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-6 px-2">
-                                        {expandedActivities.has(activity.id) ? (
-                                          <>
-                                            <ChevronUp className="h-3 w-3 mr-1" />
-                                            Menos
-                                          </>
-                                        ) : (
-                                          <>
-                                            <ChevronDown className="h-3 w-3 mr-1" />
-                                            Detalhes
-                                          </>
-                                        )}
-                                      </Button>
-                                    </CollapsibleTrigger>
-                                  </div>
+                                  )}
                                 </div>
+
+                                {activity.category && (
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-[10px] px-1.5 py-0 h-5 ${getCategoryColor(activity.category)}`}
+                                  >
+                                    {getCategoryIcon(activity.category)} {activity.category}
+                                  </Badge>
+                                )}
+
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                  {format(new Date(activity.created_at), 'HH:mm')}
+                                </span>
+
+                                <CollapsibleTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-5 w-5 p-0">
+                                    {expandedActivities.has(activity.id) ? (
+                                      <ChevronUp className="h-3 w-3" />
+                                    ) : (
+                                      <ChevronDown className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </CollapsibleTrigger>
                               </div>
 
+                              <p className="text-xs text-muted-foreground mt-1 ml-9 truncate">
+                                {activity.description || getActivityTypeLabel(activity.activity_type)}
+                              </p>
+
                               <CollapsibleContent>
-                                <div className="mt-4 pt-4 border-t border-border/50 space-y-2 text-sm">
-                                  <div className="grid grid-cols-2 gap-4">
+                                <div className="mt-2 pt-2 border-t border-border/50 space-y-1.5 text-xs ml-9">
+                                  <div className="flex gap-4">
                                     <div>
-                                      <span className="text-muted-foreground">Tipo:</span>
-                                      <p className="font-mono text-xs">{activity.activity_type}</p>
+                                      <span className="text-muted-foreground">Tipo: </span>
+                                      <span className="font-mono">{activity.activity_type}</span>
                                     </div>
-                                    <div>
-                                      <span className="text-muted-foreground">User ID:</span>
-                                      <p className="font-mono text-xs truncate">{activity.user_id}</p>
+                                    <div className="flex-1 min-w-0">
+                                      <span className="text-muted-foreground">User ID: </span>
+                                      <span className="font-mono truncate">{activity.user_id}</span>
                                     </div>
                                   </div>
                                   
                                   {activity.metadata && Object.keys(activity.metadata).length > 0 && (
                                     <div>
                                       <span className="text-muted-foreground">Metadata:</span>
-                                      <pre className="mt-1 p-2 bg-muted rounded text-xs overflow-x-auto">
+                                      <pre className="mt-1 p-1.5 bg-muted rounded text-[10px] overflow-x-auto">
                                         {JSON.stringify(activity.metadata, null, 2)}
                                       </pre>
                                     </div>
@@ -400,8 +392,8 @@ export default function AdminUserActivities() {
 
                                   {activity.user_agent && (
                                     <div>
-                                      <span className="text-muted-foreground">User Agent:</span>
-                                      <p className="text-xs truncate">{activity.user_agent}</p>
+                                      <span className="text-muted-foreground">User Agent: </span>
+                                      <span className="truncate">{activity.user_agent}</span>
                                     </div>
                                   )}
                                 </div>
