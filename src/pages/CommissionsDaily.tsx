@@ -647,7 +647,7 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
               <Table className={isFiltering ? "pointer-events-none" : ""}>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Data</TableHead>
+                    <TableHead>Hora</TableHead>
                     <TableHead>Produto</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Plano</TableHead>
@@ -665,45 +665,75 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                       </TableCell>
                     </TableRow>
                   ) : (
-                    commissions.map((commission, index) => (
-                      <AnimatedTableRow 
-                        key={commission.id}
-                        className="hover:bg-muted/50"
-                        delay={Math.min(index * 30, 150)}
-                      >
-                        <TableCell>{formatDate(commission.data)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {(commission.product_icon_light || commission.product_icon_dark) && (
-                              <>
-                                <img 
-                                  src={commission.product_icon_light || commission.product_icon_dark || ''} 
-                                  alt={commission.produto} 
-                                  className="w-5 h-5 object-contain rounded-full dark:hidden"
-                                />
-                                <img 
-                                  src={commission.product_icon_dark || commission.product_icon_light || ''} 
-                                  alt={commission.produto} 
-                                  className="w-5 h-5 object-contain rounded-full hidden dark:block"
-                                />
-                              </>
-                            )}
-                            <span>{commission.produto || "-"}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{commission.cliente || "-"}</div>
-                            <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{commission.plano || "-"}</TableCell>
-                        <TableCell>{getLevelBadge(commission.level)}</TableCell>
-                        <TableCell>{commission.percentual}%</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
-                        <TableCell>{getStatusBadge(commission.status)}</TableCell>
-                      </AnimatedTableRow>
-                    ))
+                    (() => {
+                      // Agrupar por data
+                      const groupedByDate: Record<string, Commission[]> = {};
+                      commissions.forEach((commission) => {
+                        const dateKey = format(new Date(commission.data), 'yyyy-MM-dd');
+                        if (!groupedByDate[dateKey]) {
+                          groupedByDate[dateKey] = [];
+                        }
+                        groupedByDate[dateKey].push(commission);
+                      });
+
+                      let rowIndex = 0;
+                      return Object.entries(groupedByDate).map(([dateKey, dayCommissions]) => (
+                        <>
+                          {/* Header da data */}
+                          <TableRow key={`header-${dateKey}`} className="bg-muted/30 hover:bg-muted/30">
+                            <TableCell colSpan={8} className="py-2">
+                              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                <Calendar className="h-4 w-4" />
+                                {format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {/* Comissões do dia */}
+                          {dayCommissions.map((commission) => {
+                            const currentIndex = rowIndex++;
+                            return (
+                              <AnimatedTableRow 
+                                key={commission.id}
+                                className="hover:bg-muted/50"
+                                delay={Math.min(currentIndex * 30, 150)}
+                              >
+                                <TableCell>{format(new Date(commission.data), 'HH:mm')}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    {(commission.product_icon_light || commission.product_icon_dark) && (
+                                      <>
+                                        <img 
+                                          src={commission.product_icon_light || commission.product_icon_dark || ''} 
+                                          alt={commission.produto} 
+                                          className="w-5 h-5 object-contain rounded-full dark:hidden"
+                                        />
+                                        <img 
+                                          src={commission.product_icon_dark || commission.product_icon_light || ''} 
+                                          alt={commission.produto} 
+                                          className="w-5 h-5 object-contain rounded-full hidden dark:block"
+                                        />
+                                      </>
+                                    )}
+                                    <span>{commission.produto || "-"}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div>
+                                    <div className="font-medium">{commission.cliente || "-"}</div>
+                                    <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>{commission.plano || "-"}</TableCell>
+                                <TableCell>{getLevelBadge(commission.level)}</TableCell>
+                                <TableCell>{commission.percentual}%</TableCell>
+                                <TableCell className="font-medium">{formatCurrency(commission.valor)}</TableCell>
+                                <TableCell>{getStatusBadge(commission.status)}</TableCell>
+                              </AnimatedTableRow>
+                            );
+                          })}
+                        </>
+                      ));
+                    })()
                   )}
                 </TableBody>
               </Table>
