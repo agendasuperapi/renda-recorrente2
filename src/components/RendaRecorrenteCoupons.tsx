@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList, Share2, AlertTriangle, X } from "lucide-react";
+import { Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList, Share2, AlertTriangle, X, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -590,7 +590,7 @@ export const RendaRecorrenteCoupons = () => {
                         <code className="text-xs font-mono text-muted-foreground truncate flex-1 bg-muted/50 rounded px-2 py-1">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
-                        
+                        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                       </div>
                     </div>
                   </ScrollAnimation>;
