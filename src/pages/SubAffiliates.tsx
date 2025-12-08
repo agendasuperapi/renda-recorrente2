@@ -467,18 +467,22 @@ const SubAffiliates = () => {
 
       {/* Tabs for Sub-Affiliates and Coupons */}
       <Tabs defaultValue="sub-affiliates" className="w-full">
-        <Card className="p-1.5 bg-card/50 backdrop-blur-sm">
-          <TabsList className="grid w-full grid-cols-2 bg-transparent">
-            <TabsTrigger value="sub-affiliates">
-              <Users className="h-4 w-4 mr-2" />
-              Sub Afiliados
-            </TabsTrigger>
-            <TabsTrigger value="coupons">
-              <Ticket className="h-4 w-4 mr-2" />
-              Cupons
-            </TabsTrigger>
-          </TabsList>
-        </Card>
+        <TabsList className="grid grid-cols-2 gap-2 bg-muted/50 p-1.5 rounded-xl">
+          <TabsTrigger 
+            value="sub-affiliates" 
+            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium"
+          >
+            <Users className="h-4 w-4" />
+            Sub Afiliados
+          </TabsTrigger>
+          <TabsTrigger 
+            value="coupons" 
+            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium"
+          >
+            <Ticket className="h-4 w-4" />
+            Cupons
+          </TabsTrigger>
+        </TabsList>
 
         <TabsContent value="sub-affiliates" className="mt-4 space-y-4 data-[state=inactive]:hidden" forceMount>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
