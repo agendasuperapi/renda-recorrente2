@@ -116,6 +116,28 @@ export function TicketChatDialog({
   const [currentStatus, setCurrentStatus] = useState<TicketStatus>(ticket.status);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+  // Detect keyboard open on mobile by checking viewport resize
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    const initialHeight = window.visualViewport?.height || window.innerHeight;
+    
+    const handleResize = () => {
+      const currentHeight = window.visualViewport?.height || window.innerHeight;
+      // If viewport shrinks significantly (keyboard opened)
+      setIsKeyboardOpen(currentHeight < initialHeight * 0.75);
+    };
+    
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isMobile]);
 
   const effectiveUserId = currentUserId || userId;
 
@@ -858,8 +880,8 @@ export function TicketChatDialog({
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2 pt-3 border-t mt-3">
+      {/* Action Buttons - Hidden when keyboard is open on mobile */}
+      <div className={cn("flex flex-wrap gap-2 pt-3 border-t mt-3", isKeyboardOpen && "hidden")}>
         {isAdmin ? (
           <>
             {currentStatus !== "resolved" && currentStatus !== "closed" && (
