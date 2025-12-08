@@ -456,8 +456,8 @@ export const RendaRecorrenteCoupons = () => {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardContent className="p-4 sm:p-6">
+      <Card className="border-0 shadow-none bg-transparent md:border md:shadow-sm md:bg-card">
+        <CardContent className="p-0 md:p-6">
           {/* Layout Toggle */}
           <div className="flex justify-end mb-4">
             <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value)}>
