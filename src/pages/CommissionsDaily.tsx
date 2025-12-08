@@ -706,11 +706,11 @@ const CommissionsDaily = ({ embedded = false, showValues = true }: CommissionsDa
                                   {/* Linha vertical - contínua, posicionada no nível da célula */}
                                   <div className={cn(
                                     "absolute left-[21px] w-0.5 bg-primary/40",
-                                    isFirstOfDay && isVeryLast 
+                                    isFirstOfDay && isLastOfDay
                                       ? "top-1/2 h-0" 
                                       : isFirstOfDay 
                                         ? "top-1/2 -bottom-1" 
-                                        : isVeryLast 
+                                        : isLastOfDay 
                                           ? "-top-1 bottom-1/2" 
                                           : "-top-1 -bottom-1"
                                   )} />
