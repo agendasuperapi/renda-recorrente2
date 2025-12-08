@@ -521,17 +521,18 @@ const Referrals = () => {
                   </PaginationItem>
                   
                   {Array.from({
-                length: Math.min(5, totalPages)
+                length: Math.min(isMobile ? 3 : 5, totalPages)
               }, (_, i) => {
+                const maxItems = isMobile ? 3 : 5;
                 let page;
-                if (totalPages <= 5) {
+                if (totalPages <= maxItems) {
                   page = i + 1;
-                } else if (currentPage <= 3) {
+                } else if (currentPage <= Math.ceil(maxItems / 2)) {
                   page = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  page = totalPages - 4 + i;
+                } else if (currentPage >= totalPages - Math.floor(maxItems / 2)) {
+                  page = totalPages - maxItems + 1 + i;
                 } else {
-                  page = currentPage - 2 + i;
+                  page = currentPage - Math.floor(maxItems / 2) + i;
                 }
                 return <PaginationItem key={page}>
                         <PaginationLink onClick={() => setCurrentPage(page)} isActive={currentPage === page} className="cursor-pointer">
