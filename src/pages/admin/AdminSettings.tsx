@@ -241,40 +241,40 @@ export default function AdminSettings() {
       <Tabs defaultValue="environment" className="w-full">
         <TabsList className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 bg-muted/50 p-1.5 rounded-xl">
           <TabsTrigger value="environment" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Ambiente</span>
+            <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Ambiente</span>
           </TabsTrigger>
           <TabsTrigger value="commissions" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Saques</span>
+            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Saques</span>
           </TabsTrigger>
           <TabsTrigger value="commission-levels" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Níveis</span>
+            <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Níveis</span>
           </TabsTrigger>
           <TabsTrigger value="theme" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Tema</span>
+            <Palette className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Tema</span>
           </TabsTrigger>
           <TabsTrigger value="landing" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Landing</span>
+            <LayoutDashboard className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Landing</span>
           </TabsTrigger>
           <TabsTrigger value="versions" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <GitBranch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Versões</span>
+            <GitBranch className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Versões</span>
           </TabsTrigger>
           <TabsTrigger value="users" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Usuários</span>
+            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Usuários</span>
           </TabsTrigger>
           <TabsTrigger value="cpf-apis" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <FileSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">API CPF</span>
+            <FileSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>API CPF</span>
           </TabsTrigger>
           <TabsTrigger value="legal" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
-            <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Termos</span>
+            <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Termos</span>
           </TabsTrigger>
         </TabsList>
 
