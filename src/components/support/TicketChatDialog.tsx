@@ -850,14 +850,14 @@ export function TicketChatDialog({
               setMessage(e.target.value);
               // Auto-resize textarea
               e.target.style.height = 'auto';
-              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+              e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
             }}
             onPaste={handlePaste}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             placeholder="Digite sua mensagem... (Cole ou arraste imagens aqui)"
-            className="flex-1 min-h-[40px] max-h-[120px] resize-none py-2"
-            rows={1}
+            className="flex-1 min-h-[72px] max-h-[150px] resize-none py-2"
+            rows={3}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
