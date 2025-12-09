@@ -738,19 +738,21 @@ export function TicketChatDialog({
       {/* Input Area */}
       {!isClosed && (
         <div className="flex items-end gap-2 pt-3 border-t mt-3 relative">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isSending || images.length >= 5}
-          >
-            <ImageIcon className="w-5 h-5" />
-          </Button>
-          
-          {/* Reference Attach Button - Only for non-admin users */}
-          {!isAdmin && (
-            <div className="relative">
+          {/* Action buttons - vertical on mobile, horizontal on desktop */}
+          <div className="flex flex-col sm:flex-row gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isSending || images.length >= 5}
+            >
+              <ImageIcon className="w-5 h-5" />
+            </Button>
+            
+            {/* Reference Attach Button - Only for non-admin users */}
+            {!isAdmin && (
+              <div className="relative">
               {/* Menu inicial com 3 opções */}
               <Popover open={referenceMenuOpen} onOpenChange={setReferenceMenuOpen}>
                 <PopoverTrigger asChild>
@@ -834,6 +836,7 @@ export function TicketChatDialog({
               )}
             </div>
           )}
+          </div>
 
           <input
             ref={fileInputRef}
