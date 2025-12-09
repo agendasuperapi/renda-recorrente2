@@ -29,19 +29,19 @@ export default function AdminCadastros() {
 
       <Tabs defaultValue="products" className="w-full">
         <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
-          <TabsTrigger value="products" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="products" className="flex-1 min-w-[80px] gap-1.5 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60">
             <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
             <span>Produtos</span>
           </TabsTrigger>
-          <TabsTrigger value="coupons" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="coupons" className="flex-1 min-w-[80px] gap-1.5 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60">
             <Ticket className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
             <span>Cupons</span>
           </TabsTrigger>
-          <TabsTrigger value="bank-accounts" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="bank-accounts" className="flex-1 min-w-[80px] gap-1.5 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60">
             <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
             <span>Banco e Contas</span>
           </TabsTrigger>
-          <TabsTrigger value="plans" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
+          <TabsTrigger value="plans" className="flex-1 min-w-[80px] gap-1.5 text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60">
             <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
             <span>Planos e Preços</span>
           </TabsTrigger>
