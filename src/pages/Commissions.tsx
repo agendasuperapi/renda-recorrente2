@@ -53,29 +53,29 @@ const Commissions = () => {
               value="daily" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
-              <CalendarDays className="h-4 w-4" />
-              <span className="hidden sm:inline">Diárias</span>
+              <CalendarDays className="h-4 w-4 sm:block hidden" />
+              <span>Diárias</span>
             </TabsTrigger>
             <TabsTrigger 
               value="monthly" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
-              <CalendarRange className="h-4 w-4" />
-              <span className="hidden sm:inline">Mensais</span>
+              <CalendarRange className="h-4 w-4 sm:block hidden" />
+              <span>Mensais</span>
             </TabsTrigger>
             <TabsTrigger 
               value="withdrawals" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
-              <Wallet className="h-4 w-4" />
-              <span className="hidden sm:inline">Saques</span>
+              <Wallet className="h-4 w-4 sm:block hidden" />
+              <span>Saques</span>
             </TabsTrigger>
             <TabsTrigger 
               value="goals" 
               className="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-background/60"
             >
-              <Target className="h-4 w-4" />
-              <span className="hidden sm:inline">Metas</span>
+              <Target className="h-4 w-4 sm:block hidden" />
+              <span>Metas</span>
             </TabsTrigger>
           </TabsList>
 
