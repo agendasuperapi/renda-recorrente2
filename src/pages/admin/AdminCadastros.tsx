@@ -30,20 +30,20 @@ export default function AdminCadastros() {
       <Tabs defaultValue="products" className="w-full">
         <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
           <TabsTrigger value="products" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
-            <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Produtos</span>
+            <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Produtos</span>
           </TabsTrigger>
           <TabsTrigger value="coupons" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
-            <Ticket className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Cupons</span>
+            <Ticket className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Cupons</span>
           </TabsTrigger>
           <TabsTrigger value="bank-accounts" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
-            <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Banco e Contas</span>
+            <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Banco e Contas</span>
           </TabsTrigger>
           <TabsTrigger value="plans" className="flex-1 min-w-[80px] gap-1.5 data-[state=active]:bg-background text-xs sm:text-sm">
-            <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Planos e Preços</span>
+            <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block" />
+            <span>Planos e Preços</span>
           </TabsTrigger>
         </TabsList>
 
