@@ -349,9 +349,20 @@ export default function Support() {
       <CreateTicketDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onSuccess={() => {
+        onSuccess={(ticket) => {
           refetch();
           setCreateDialogOpen(false);
+          // Open chat dialog with the newly created ticket
+          setSelectedTicket({
+            ...ticket,
+            is_resolved: null,
+            rating: null,
+            closed_at: null,
+            assigned_admin_id: null,
+            assigned_admin: null,
+            last_message: null,
+            unread_count: 0,
+          } as SupportTicket);
         }}
       />
 
