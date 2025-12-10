@@ -605,71 +605,90 @@ export const RendaRecorrenteCoupons = () => {
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             const affiliateLink = getAffiliateLink(coupon);
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-4 border rounded-lg bg-card transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
-                      {/* Header: Nome e Badges */}
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="font-semibold">{coupon.name}</span>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {coupon.is_primary && <Badge className="bg-yellow-500 text-white text-xs">Principal</Badge>}
-                          <Badge variant="outline" className="text-xs">
-                            {coupon.type === "percentage" && `${coupon.value}%`}
-                            {coupon.type === "days" && `${coupon.value}d`}
-                            {coupon.type === "free_trial" && `${coupon.value}d`}
+                    <div className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold">{coupon.name}</h3>
+                          {coupon.is_primary && <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">Principal</Badge>}
+                          <Badge variant="outline">
+                            {coupon.type === "percentage" && `${coupon.value}% OFF`}
+                            {coupon.type === "days" && `${coupon.value} dias`}
+                            {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
                           </Badge>
-                          {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>}
-                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
-                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
+                          {isActivated ? (
+                            <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Liberado</Badge>
+                          ) : (
+                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50">Não Liberado</Badge>
+                          )}
+                          {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Ativo</Badge>}
+                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50">Inativo</Badge>}
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {coupon.description || "Sem descrição"}
+                        </p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            {isActivated ? <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
+                                {coupon.activatedCoupon?.custom_code}
+                              </code> : <>
+                                <span className="text-xs text-muted-foreground">
+                                  Seu cupom será:
+                                </span>
+                                <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                                  {customCode}
+                                </code>
+                              </>}
+                          </div>
+                          {affiliateLink && isActive && <div className="text-xs text-muted-foreground">
+                              <span className="font-semibold">Link: </span>
+                              <code className="bg-muted px-2 py-1 rounded">
+                                {affiliateLink}
+                              </code>
+                            </div>}
                         </div>
                       </div>
-                      
-                      {/* Descrição */}
-                      {coupon.description && <p className="text-sm text-muted-foreground mb-3">{coupon.description}</p>}
-                      
-                      {/* Código do cupom */}
-                      <code className="text-sm font-mono font-bold block mb-2 bg-muted/50 rounded px-2 py-1">
-                        {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                      </code>
-                      
-                      {/* Link */}
-                      {affiliateLink && isActivated && isActive && (
-                        <div className="mb-3">
-                          <span className="text-xs text-muted-foreground">Link: </span>
-                          <a href={affiliateLink} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all">
-                            {affiliateLink}
-                          </a>
-                        </div>
-                      )}
-                      
-                      {/* Botões de ação */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                      <div className="flex items-center gap-2">
                         {isActivated ? <>
-                          {isActive && <>
-                            <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                              <Copy className="h-3 w-3 mr-1" />
-                              Cupom
-                            </Button>
-                            {affiliateLink && <>
-                              <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(affiliateLink)}>
-                                <Copy className="h-3 w-3 mr-1" />
-                                Link
+                          {isActive && <div className="flex flex-wrap gap-2">
+                              <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                                <Copy className="h-4 w-4 mr-2" />
+                                Copiar Cupom
                               </Button>
-                              <Button variant="outline" size="sm" className="w-full" onClick={() => window.open(affiliateLink, '_blank')}>
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                Compartilhar
-                              </Button>
-                            </>}
-                          </>}
-                          {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
-                              <XCircle className="h-3 w-3 mr-1" />
-                              Inativar
-                            </Button> : <Button variant="outline" size="sm" className="w-full col-span-2 lg:col-span-4 bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
-                              <Check className="h-3 w-3 mr-1" />
-                              Ativar
-                            </Button>}
-                        </> : <Button size="sm" className="w-full col-span-2 lg:col-span-4" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
-                          <Check className="h-3 w-3 mr-1" />
-                          Liberar Cupom
-                        </Button>}
+                              {affiliateLink && <>
+                                  <Button variant="outline" size="sm" onClick={() => handleCopy(affiliateLink)}>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Copiar Link
+                                  </Button>
+                                  <Button variant="outline" size="sm" onClick={() => window.open(affiliateLink, '_blank')}>
+                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                    Abrir Link
+                                  </Button>
+                                  <Button variant="outline" size="sm" onClick={() => {
+                                    const link = affiliateLink;
+                                    const code = coupon.activatedCoupon?.custom_code || "";
+                                    const text = `Use meu cupom ${code} e aproveite o desconto! ${link}`;
+                                    if (navigator.share) {
+                                      navigator.share({ title: coupon.name, text, url: link });
+                                    } else {
+                                      handleCopy(text);
+                                    }
+                                  }}>
+                                    <Share2 className="h-4 w-4 mr-2" />
+                                    Compartilhar
+                                  </Button>
+                                </>}
+                            </div>}
+                            {isActive ? <Button variant="outline" size="sm" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Inativar
+                              </Button> : <Button variant="outline" size="sm" className="bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                                <Check className="h-4 w-4 mr-2" />
+                                Ativar
+                              </Button>}
+                          </> : <Button onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                            <Check className="h-4 w-4 mr-2" />
+                            Liberar Cupom
+                          </Button>}
                       </div>
                     </div>
                   </ScrollAnimation>;
