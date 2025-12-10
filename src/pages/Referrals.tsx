@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -55,9 +55,6 @@ interface Coupon {
   id: string;
   custom_code: string | null;
   coupon_code_at_creation: string | null;
-  product_id: string | null;
-  product_name: string | null;
-  product_icon: string | null;
 }
 const Referrals = () => {
   const isMobile = useIsMobile();
@@ -121,35 +118,17 @@ const Referrals = () => {
     } = await supabase.from("products").select("id, nome, icone_light, icone_dark").order("nome");
     if (productsData) setProducts(productsData);
     
-    // Load affiliate coupons with product info
+    // Load affiliate coupons
     if (session?.session) {
       const {
         data: couponsData
       } = await supabase
         .from("affiliate_coupons")
-        .select(`
-          id, 
-          custom_code, 
-          coupon_code_at_creation, 
-          product_id,
-          products:product_id (nome, icone_light, icone_dark)
-        `)
+        .select("id, custom_code, coupon_code_at_creation")
         .eq("affiliate_id", session.session.user.id)
         .is("deleted_at", null)
-        .order("product_id")
         .order("created_at", { ascending: false });
-      
-      if (couponsData) {
-        const formattedCoupons = couponsData.map((c: any) => ({
-          id: c.id,
-          custom_code: c.custom_code,
-          coupon_code_at_creation: c.coupon_code_at_creation,
-          product_id: c.product_id,
-          product_name: c.products?.nome || null,
-          product_icon: c.products?.icone_light || c.products?.icone_dark || null
-        }));
-        setCoupons(formattedCoupons);
-      }
+      if (couponsData) setCoupons(couponsData);
     }
   };
   const loadPlansForProduct = async (productId: string) => {
@@ -423,39 +402,11 @@ const Referrals = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os cupons</SelectItem>
-              {(() => {
-                // Group coupons by product
-                const grouped = coupons.reduce((acc, coupon) => {
-                  const key = coupon.product_id || "sem-produto";
-                  if (!acc[key]) {
-                    acc[key] = {
-                      name: coupon.product_name || "Sem produto",
-                      icon: coupon.product_icon,
-                      coupons: []
-                    };
-                  }
-                  acc[key].coupons.push(coupon);
-                  return acc;
-                }, {} as Record<string, { name: string; icon: string | null; coupons: Coupon[] }>);
-                
-                return Object.entries(grouped).map(([productId, group], index) => (
-                  <SelectGroup key={productId}>
-                    <div className={`flex items-center gap-2 px-2 py-2 bg-muted/50 ${index > 0 ? 'mt-2 border-t border-border' : ''}`}>
-                      {group.icon ? (
-                        <img src={group.icon} alt="" className="h-5 w-5 rounded-full object-cover" />
-                      ) : (
-                        <div className="h-5 w-5 rounded-full bg-primary/20" />
-                      )}
-                      <span className="text-sm font-semibold text-foreground">{group.name}</span>
-                    </div>
-                    {group.coupons.map(coupon => (
-                      <SelectItem key={coupon.id} value={coupon.id} className="pl-9">
-                        {coupon.custom_code || coupon.coupon_code_at_creation || "Sem código"}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                ));
-              })()}
+              {coupons.map(coupon => (
+                <SelectItem key={coupon.id} value={coupon.id}>
+                  {coupon.custom_code || coupon.coupon_code_at_creation || "Sem código"}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
