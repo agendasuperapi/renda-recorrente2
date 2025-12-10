@@ -554,33 +554,35 @@ const AdminStripeEvents = () => {
       <Card>
         <CardHeader>
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative flex-1 min-w-[280px]">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por ID do evento, Subscription ID, tipo, email..."
-                  className="pl-9"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  type="text"
-                  autoComplete="off"
-                />
-              </div>
+            {/* Search Input */}
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por ID do evento, Subscription ID, tipo, email..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                type="text"
+                autoComplete="off"
+              />
+            </div>
             
+            {/* Filters Row */}
+            <div className="flex flex-wrap items-center gap-2">
               <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[150px]">
                   <SelectValue placeholder="Ambiente" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos os ambientes</SelectItem>
+                  <SelectItem value="all">Todos ambientes</SelectItem>
                   <SelectItem value="test">Teste</SelectItem>
                   <SelectItem value="production">Produção</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
-                <SelectTrigger className="w-[220px]">
-                  <SelectValue placeholder="Filtrar por tipo" />
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Tipo de evento" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os tipos</SelectItem>
@@ -596,9 +598,11 @@ const AdminStripeEvents = () => {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2 flex-1 sm:flex-none justify-start">
                     <CalendarIcon className="h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "dd/MM/yyyy", { locale: ptBR }) : "Data inicial"}
+                    <span className="truncate">
+                      {dateFrom ? format(dateFrom, "dd/MM/yy", { locale: ptBR }) : "Data inicial"}
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -614,9 +618,11 @@ const AdminStripeEvents = () => {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2 flex-1 sm:flex-none justify-start">
                     <CalendarIcon className="h-4 w-4" />
-                    {dateTo ? format(dateTo, "dd/MM/yyyy", { locale: ptBR }) : "Data final"}
+                    <span className="truncate">
+                      {dateTo ? format(dateTo, "dd/MM/yy", { locale: ptBR }) : "Data final"}
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -629,6 +635,31 @@ const AdminStripeEvents = () => {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+
+            {/* Action Buttons Row */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant={showCancelAtPeriodEnd ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowCancelAtPeriodEnd(!showCancelAtPeriodEnd)}
+                className="gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                <span className="hidden sm:inline">Cancelamento Agendado</span>
+                <span className="sm:hidden">Cancelados</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="gap-2"
+                disabled={isFetching}
+              >
+                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Atualizar</span>
+              </Button>
 
               {(dateFrom || dateTo || eventTypeFilter !== "all" || environmentFilter !== "all") && (
                 <Button
@@ -644,27 +675,6 @@ const AdminStripeEvents = () => {
                   Limpar filtros
                 </Button>
               )}
-
-              <Button
-                variant={showCancelAtPeriodEnd ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowCancelAtPeriodEnd(!showCancelAtPeriodEnd)}
-                className="gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Cancelamento Agendado
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                className="gap-2"
-                disabled={isFetching}
-              >
-                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-                Atualizar
-              </Button>
             </div>
           </div>
         </CardHeader>
@@ -672,135 +682,225 @@ const AdminStripeEvents = () => {
           {isLoading && !eventsData ? (
             <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
-            <div className="rounded-md border relative">
-              {isFetching && !isLoading && (
-                <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                    Buscando...
+            <>
+              {/* Mobile/Tablet Cards View */}
+              <div className="lg:hidden space-y-3">
+                {isFetching && !isLoading && (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Buscando...
+                    </div>
                   </div>
-                </div>
-              )}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("event_type")} className="h-8 p-0 hover:bg-transparent">
-                        Tipo
-                        <SortIcon column="event_type" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
-                        Email
-                        <SortIcon column="email" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
-                        Data
-                        <SortIcon column="created_at" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("processed")} className="h-8 p-0 hover:bg-transparent">
-                        Status
-                        <SortIcon column="processed" />
-                      </Button>
-                    </TableHead>
-                    <TableHead className="text-center">Cancelamento</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {events && events.length > 0 ? (
-                    events.map((event) => (
-                      <TableRow key={event.id}>
-                        <TableCell>
-                          {getEventTypeBadge(event.event_type)}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {event.email || "-"}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {(event as any).reason || "-"}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
-                            locale: ptBR,
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(event.processed)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {event.event_type === 'customer.subscription.updated' && 
-                          (event.event_data as any)?.cancel_at_period_end === true && (
-                            <div className="flex justify-center">
-                              <Badge variant="destructive" className="gap-1 text-xs">
-                                <AlertCircle className="w-3 h-3" />
-                                Agendado
-                              </Badge>
-                            </div>
+                )}
+                {events && events.length > 0 ? (
+                  events.map((event) => (
+                    <Card key={event.id} className="overflow-hidden">
+                      <CardContent className="p-4 space-y-3">
+                        {/* Header with Type Badge and Status */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            {getEventTypeBadge(event.event_type)}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getStatusBadge(event.processed)}
+                          </div>
+                        </div>
+
+                        {/* Email */}
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Email</p>
+                          <p className="text-sm font-medium truncate">{event.email || "-"}</p>
+                        </div>
+
+                        {/* Date and Reason Row */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">Data</p>
+                            <p className="text-sm">
+                              {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">Reason</p>
+                            <p className="text-sm truncate">{(event as any).reason || "-"}</p>
+                          </div>
+                        </div>
+
+                        {/* Cancellation Badge */}
+                        {event.event_type === 'customer.subscription.updated' && 
+                        (event.event_data as any)?.cancel_at_period_end === true && (
+                          <Badge variant="destructive" className="gap-1 text-xs">
+                            <AlertCircle className="w-3 h-3" />
+                            Cancelamento Agendado
+                          </Badge>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 pt-2 border-t">
+                          {(event as any).stripe_subscription_id && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                              className="flex-1 gap-2"
+                            >
+                              <Database className="w-4 h-4 text-primary" />
+                              Subscription
+                            </Button>
                           )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {(event as any).stripe_subscription_id && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleViewDetails(event)}
+                            className="flex-1 gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Detalhes
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    Nenhum evento encontrado
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden lg:block rounded-md border relative">
+                {isFetching && !isLoading && (
+                  <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Buscando...
+                    </div>
+                  </div>
+                )}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("event_type")} className="h-8 p-0 hover:bg-transparent">
+                          Tipo
+                          <SortIcon column="event_type" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
+                          Email
+                          <SortIcon column="email" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>Reason</TableHead>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
+                          Data
+                          <SortIcon column="created_at" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("processed")} className="h-8 p-0 hover:bg-transparent">
+                          Status
+                          <SortIcon column="processed" />
+                        </Button>
+                      </TableHead>
+                      <TableHead className="text-center">Cancelamento</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {events && events.length > 0 ? (
+                      events.map((event) => (
+                        <TableRow key={event.id}>
+                          <TableCell>
+                            {getEventTypeBadge(event.event_type)}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {event.email || "-"}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {(event as any).reason || "-"}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
+                              locale: ptBR,
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(event.processed)}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {event.event_type === 'customer.subscription.updated' && 
+                            (event.event_data as any)?.cancel_at_period_end === true && (
+                              <div className="flex justify-center">
+                                <Badge variant="destructive" className="gap-1 text-xs">
+                                  <AlertCircle className="w-3 h-3" />
+                                  Agendado
+                                </Badge>
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {(event as any).stripe_subscription_id && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                                  title="Ver dados da subscription"
+                                >
+                                  <Database className="w-4 h-4 text-primary" />
+                                </Button>
+                              )}
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
-                                title="Ver dados da subscription"
+                                onClick={() => handleViewDetails(event)}
                               >
-                                <Database className="w-4 h-4 text-primary" />
+                                <Eye className="w-4 h-4" />
                               </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewDetails(event)}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={7}
+                          className="text-center text-muted-foreground py-8"
+                        >
+                          Nenhum evento encontrado
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={6}
-                        className="text-center text-muted-foreground py-8"
-                      >
-                        Nenhum evento encontrado
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
 
-          <div className="flex items-center justify-between px-4 py-4 border-t">
-            <span className="text-sm text-muted-foreground">
-              Mostrando {events.length > 0 ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, totalCount)} de {totalCount} eventos
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 border-t">
+            <span className="text-sm text-muted-foreground text-center sm:text-left">
+              {events.length > 0 ? (page - 1) * pageSize + 1 : 0}-{Math.min(page * pageSize, totalCount)} de {totalCount}
             </span>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1 || isFetching}
               >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Anterior
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">Anterior</span>
               </Button>
 
-              <span className="text-sm text-muted-foreground">
-                Página {page} de {totalPages || 1}
+              <span className="text-sm text-muted-foreground px-2">
+                {page}/{totalPages || 1}
               </span>
 
               <Button
@@ -809,15 +909,15 @@ const AdminStripeEvents = () => {
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages || isFetching}
               >
-                Próxima
-                <ChevronRight className="h-4 w-4 ml-2" />
+                <span className="hidden sm:inline mr-1">Próxima</span>
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Itens por página:</span>
+              <span className="text-sm text-muted-foreground hidden sm:inline">Itens:</span>
               <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(Number(v)); setPage(1); }}>
-                <SelectTrigger className="w-[100px]">
+                <SelectTrigger className="w-[80px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
