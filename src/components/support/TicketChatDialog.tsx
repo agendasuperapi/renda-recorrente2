@@ -739,7 +739,7 @@ export function TicketChatDialog({
       {!isClosed && (
         <div className="flex items-end gap-2 pt-3 border-t mt-3 relative">
           {/* Action buttons - vertical on mobile, horizontal on desktop */}
-          <div className="flex flex-col sm:flex-row gap-1">
+          <div className="flex flex-col gap-1">
             <Button
               type="button"
               variant="ghost"
