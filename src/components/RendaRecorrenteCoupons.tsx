@@ -563,7 +563,7 @@ export const RendaRecorrenteCoupons = () => {
           </div>
 
           {/* Coupons List */}
-          {layoutMode === "cards" ? <div className="space-y-3">
+          {(isMobile || layoutMode === "cards") ? <div className="space-y-3">
               {productData.coupons.map((coupon, couponIndex) => {
             const isActivated = !!coupon.activatedCoupon;
             const isActive = coupon.activatedCoupon?.is_active;
