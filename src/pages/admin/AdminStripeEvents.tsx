@@ -1147,7 +1147,7 @@ const AdminStripeEvents = () => {
           </DialogHeader>
           {selectedEvent && (
             <Tabs defaultValue="event" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
                 <TabsTrigger value="event">
                   <Database className="w-4 h-4 mr-2" />
                   Detalhes do Evento
