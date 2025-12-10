@@ -4,6 +4,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code, ArrowUpDown, ArrowUp, ArrowDown, LayoutList, LayoutGrid } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { supabase } from "@/integrations/supabase/client";
@@ -377,6 +379,7 @@ const PlanInfo = ({ userId }: { userId: string | null }) => {
 
 const AdminStripeEvents = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -1140,124 +1143,247 @@ const AdminStripeEvents = () => {
         </Card>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Evento</DialogTitle>
-          </DialogHeader>
-          {selectedEvent && (
-            <Tabs defaultValue="event" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-                <TabsTrigger value="event">
-                  <Database className="w-4 h-4 mr-2" />
-                  Detalhes do Evento
-                </TabsTrigger>
-                <TabsTrigger value="json">
-                  <Code className="w-4 h-4 mr-2" />
-                  Evento Json
-                </TabsTrigger>
-                <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
-                  <User className="w-4 h-4 mr-2" />
-                  Cliente
-                </TabsTrigger>
-                <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Plano
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="event" className="space-y-4 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Event ID</p>
-                    <p className="text-sm font-mono break-all">{selectedEvent.event_id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Tipo</p>
-                    <div className="mt-1">{getEventTypeBadge(selectedEvent.event_type)}</div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Email</p>
-                    <p className="text-sm">{selectedEvent.email || "-"}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Data</p>
-                    <p className="text-sm">
-                      {format(new Date(selectedEvent.created_at), "dd/MM/yyyy HH:mm:ss", {
-                        locale: ptBR,
-                      })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Status</p>
-                    <div className="mt-1">{getStatusBadge(selectedEvent.processed)}</div>
-                  </div>
-                  {selectedEvent.user_id && (
+      {isMobile ? (
+        <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DrawerContent className="max-h-[85vh]">
+            <DrawerHeader className="text-left">
+              <DrawerTitle>Detalhes do Evento</DrawerTitle>
+            </DrawerHeader>
+            <ScrollArea className="px-4 pb-4 max-h-[calc(85vh-80px)]">
+              {selectedEvent && (
+                <Tabs defaultValue="event" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="event">
+                      <Database className="w-4 h-4 mr-2" />
+                      Detalhes do Evento
+                    </TabsTrigger>
+                    <TabsTrigger value="json">
+                      <Code className="w-4 h-4 mr-2" />
+                      Evento Json
+                    </TabsTrigger>
+                    <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
+                      <User className="w-4 h-4 mr-2" />
+                      Cliente
+                    </TabsTrigger>
+                    <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Plano
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="event" className="space-y-4 mt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Event ID</p>
+                        <p className="text-sm font-mono break-all">{selectedEvent.event_id}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Tipo</p>
+                        <div className="mt-1">{getEventTypeBadge(selectedEvent.event_type)}</div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Email</p>
+                        <p className="text-sm">{selectedEvent.email || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Data</p>
+                        <p className="text-sm">
+                          {format(new Date(selectedEvent.created_at), "dd/MM/yyyy HH:mm:ss", {
+                            locale: ptBR,
+                          })}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Status</p>
+                        <div className="mt-1">{getStatusBadge(selectedEvent.processed)}</div>
+                      </div>
+                      {selectedEvent.user_id && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                          <p className="text-sm font-mono text-xs break-all">{selectedEvent.user_id}</p>
+                        </div>
+                      )}
+                      {selectedEvent.event_type === 'customer.subscription.updated' && 
+                       (selectedEvent.event_data as any)?.cancel_at_period_end && (
+                        <div className="col-span-2">
+                          <Badge variant="destructive" className="gap-1">
+                            <Clock className="w-3 h-3" />
+                            Cancelamento Agendado para o Final do Período
+                          </Badge>
+                        </div>
+                      )}
+                      {selectedEvent.event_type === 'customer.subscription.updated' && 
+                       (selectedEvent.event_data as any)?.cancel_at_period_end && 
+                       (selectedEvent.event_data as any)?.cancellation_details && (
+                        <div className="col-span-2">
+                          <p className="text-sm font-medium text-muted-foreground mb-2">
+                            Detalhes do Cancelamento
+                          </p>
+                          <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                            <pre className="text-xs whitespace-pre-wrap break-words w-full">
+                              {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="json" className="space-y-4 mt-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">User ID</p>
-                      <p className="text-sm font-mono text-xs break-all">{selectedEvent.user_id}</p>
-                    </div>
-                  )}
-                  {selectedEvent.event_type === 'customer.subscription.updated' && 
-                   (selectedEvent.event_data as any)?.cancel_at_period_end && (
-                    <div className="col-span-2">
-                      <Badge variant="destructive" className="gap-1">
-                        <Clock className="w-3 h-3" />
-                        Cancelamento Agendado para o Final do Período
-                      </Badge>
-                    </div>
-                  )}
-                  {selectedEvent.event_type === 'customer.subscription.updated' && 
-                   (selectedEvent.event_data as any)?.cancel_at_period_end && 
-                   (selectedEvent.event_data as any)?.cancellation_details && (
-                    <div className="col-span-2">
-                      <p className="text-sm font-medium text-muted-foreground mb-2">
-                        Detalhes do Cancelamento
-                      </p>
-                      <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
-                        <pre className="text-xs whitespace-pre-wrap break-words w-full">
-                          {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          JSON Completo do Evento
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopyJson}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copiar
+                        </Button>
+                      </div>
+                      <div className="max-h-[300px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                        <pre className="text-xs whitespace-pre-wrap break-all w-full overflow-wrap-anywhere">
+                          {JSON.stringify(selectedEvent.event_data, null, 2)}
                         </pre>
                       </div>
                     </div>
-                  )}
-                </div>
-              </TabsContent>
+                  </TabsContent>
+                  
+                  <TabsContent value="client" className="space-y-4 mt-4">
+                    <ClientProfile userId={selectedEvent.user_id} />
+                  </TabsContent>
+                  
+                  <TabsContent value="plan" className="space-y-4 mt-4">
+                    <PlanInfo userId={selectedEvent.user_id} />
+                  </TabsContent>
+                </Tabs>
+              )}
+            </ScrollArea>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[85vh]">
+            <DialogHeader>
+              <DialogTitle>Detalhes do Evento</DialogTitle>
+            </DialogHeader>
+            {selectedEvent && (
+              <Tabs defaultValue="event" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="event">
+                    <Database className="w-4 h-4 mr-2" />
+                    Detalhes do Evento
+                  </TabsTrigger>
+                  <TabsTrigger value="json">
+                    <Code className="w-4 h-4 mr-2" />
+                    Evento Json
+                  </TabsTrigger>
+                  <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
+                    <User className="w-4 h-4 mr-2" />
+                    Cliente
+                  </TabsTrigger>
+                  <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Plano
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="event" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Event ID</p>
+                      <p className="text-sm font-mono break-all">{selectedEvent.event_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Tipo</p>
+                      <div className="mt-1">{getEventTypeBadge(selectedEvent.event_type)}</div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Email</p>
+                      <p className="text-sm">{selectedEvent.email || "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Data</p>
+                      <p className="text-sm">
+                        {format(new Date(selectedEvent.created_at), "dd/MM/yyyy HH:mm:ss", {
+                          locale: ptBR,
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                      <div className="mt-1">{getStatusBadge(selectedEvent.processed)}</div>
+                    </div>
+                    {selectedEvent.user_id && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                        <p className="text-sm font-mono text-xs break-all">{selectedEvent.user_id}</p>
+                      </div>
+                    )}
+                    {selectedEvent.event_type === 'customer.subscription.updated' && 
+                     (selectedEvent.event_data as any)?.cancel_at_period_end && (
+                      <div className="col-span-2">
+                        <Badge variant="destructive" className="gap-1">
+                          <Clock className="w-3 h-3" />
+                          Cancelamento Agendado para o Final do Período
+                        </Badge>
+                      </div>
+                    )}
+                    {selectedEvent.event_type === 'customer.subscription.updated' && 
+                     (selectedEvent.event_data as any)?.cancel_at_period_end && 
+                     (selectedEvent.event_data as any)?.cancellation_details && (
+                      <div className="col-span-2">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Detalhes do Cancelamento
+                        </p>
+                        <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                          <pre className="text-xs whitespace-pre-wrap break-words w-full">
+                            {JSON.stringify((selectedEvent.event_data as any).cancellation_details, null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
 
-              <TabsContent value="json" className="space-y-4 mt-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      JSON Completo do Evento
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopyJson}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copiar
-                    </Button>
+                <TabsContent value="json" className="space-y-4 mt-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        JSON Completo do Evento
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCopyJson}
+                      >
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copiar
+                      </Button>
+                    </div>
+                    <div className="max-h-[500px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                      <pre className="text-xs whitespace-pre-wrap break-all w-full overflow-wrap-anywhere">
+                        {JSON.stringify(selectedEvent.event_data, null, 2)}
+                      </pre>
+                    </div>
                   </div>
-                  <div className="max-h-[500px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
-                    <pre className="text-xs whitespace-pre-wrap break-all w-full overflow-wrap-anywhere">
-                      {JSON.stringify(selectedEvent.event_data, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="client" className="space-y-4 mt-4">
-                <ClientProfile userId={selectedEvent.user_id} />
-              </TabsContent>
-              
-              <TabsContent value="plan" className="space-y-4 mt-4">
-                <PlanInfo userId={selectedEvent.user_id} />
-              </TabsContent>
-            </Tabs>
-          )}
-        </DialogContent>
-      </Dialog>
+                </TabsContent>
+                
+                <TabsContent value="client" className="space-y-4 mt-4">
+                  <ClientProfile userId={selectedEvent.user_id} />
+                </TabsContent>
+                
+                <TabsContent value="plan" className="space-y-4 mt-4">
+                  <PlanInfo userId={selectedEvent.user_id} />
+                </TabsContent>
+              </Tabs>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
 
       <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh]">
