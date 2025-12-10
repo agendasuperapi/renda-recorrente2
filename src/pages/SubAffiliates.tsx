@@ -436,7 +436,7 @@ const SubAffiliates = () => {
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle className="text-white font-semibold">Atenção!</AlertTitle>
             <AlertDescription className="text-white/90">
-              <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
+              <p className="mb-3">Para conseguir indicar outros afiliados você precisa atender aos seguintes requisitos:</p>
               <div className="space-y-2">
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isProPlan ? 'border-green-500/40' : 'border-white/20'}`}>
                   <span className={`flex items-center justify-center w-5 h-5 rounded-full ${isProPlan ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
