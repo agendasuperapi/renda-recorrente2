@@ -952,11 +952,9 @@ const AdminStripeEvents = () => {
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-foreground">
-                            {(event as any).user_name || event.email || "-"}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {(event as any).plan_name || "-"}
+                          <div className="mb-1">{getEventTypeBadge(event.event_type)}</div>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {event.email || "-"}
                           </p>
                         </div>
                         <p className="text-sm text-muted-foreground shrink-0">
@@ -1005,26 +1003,36 @@ const AdminStripeEvents = () => {
               events.map((event) => (
                 <Card key={event.id} className="overflow-hidden">
                   <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-foreground">
-                          {(event as any).user_name || event.email || "-"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {(event as any).plan_name || "-"}
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground">
+                            {(event as any).user_name || event.email || "-"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {(event as any).plan_name || "-"}
+                          </p>
+                          {(event as any).user_name && event.email && (
+                            <p className="text-sm text-muted-foreground truncate">
+                              {event.email}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground"
+                          onClick={() => handleViewDetails(event)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>{getEventTypeBadge(event.event_type)}</div>
+                        <p className="text-sm text-muted-foreground shrink-0">
+                          {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                         </p>
                       </div>
-                      <p className="text-sm text-muted-foreground shrink-0">
-                        {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                      </p>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 shrink-0 text-muted-foreground"
-                        onClick={() => handleViewDetails(event)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
