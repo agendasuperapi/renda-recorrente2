@@ -24,7 +24,6 @@ import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RendaRecorrenteCoupons } from "@/components/RendaRecorrenteCoupons";
-
 interface SubAffiliate {
   id: string;
   parent_affiliate_id: string;
@@ -42,15 +41,19 @@ interface SubAffiliate {
   my_commission_from_sub: number;
   level: number;
 }
-
 const SubAffiliates = () => {
   const [subAffiliates, setSubAffiliates] = useState<SubAffiliate[]>([]);
   const [filteredData, setFilteredData] = useState<SubAffiliate[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [isFiltering, setIsFiltering] = useState(false);
-  const [stats, setStats] = useState({ total: 0, commissions: 0 });
-  const { toast } = useToast();
+  const [stats, setStats] = useState({
+    total: 0,
+    commissions: 0
+  });
+  const {
+    toast
+  } = useToast();
   const [selectedSubAffiliate, setSelectedSubAffiliate] = useState<SubAffiliate | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -86,18 +89,19 @@ const SubAffiliates = () => {
   const RENDA_PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
 
   // Fetch affiliate's current subscription/plan
-  const { data: affiliateSubscription, isLoading: isLoadingSubscription } = useQuery({
+  const {
+    data: affiliateSubscription,
+    isLoading: isLoadingSubscription
+  } = useQuery({
     queryKey: ["affiliate-subscription-subaffiliates", currentUserId],
     queryFn: async () => {
       if (!currentUserId) return null;
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select("plan_id, status, plans(name, is_free)")
-        .eq("user_id", currentUserId)
-        .in("status", ["active", "trialing"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const {
+        data,
+        error
+      } = await supabase.from("subscriptions").select("plan_id, status, plans(name, is_free)").eq("user_id", currentUserId).in("status", ["active", "trialing"]).order("created_at", {
+        ascending: false
+      }).limit(1).maybeSingle();
       if (error) {
         console.error("Error fetching subscription:", error);
         return null;
@@ -113,33 +117,39 @@ const SubAffiliates = () => {
   const isLoadingRequirements = isLoadingSubscription || !currentUserId;
 
   // Fetch minimum sales setting for Renda product
-  const { data: minSalesSetting } = useQuery({
+  const {
+    data: minSalesSetting
+  } = useQuery({
     queryKey: ["min-sales-renda-setting-subaffiliates"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "min_sales_for_renda_coupons")
-        .single();
+      const {
+        data,
+        error
+      } = await supabase.from("app_settings").select("value").eq("key", "min_sales_for_renda_coupons").single();
       if (error) {
         console.log("No setting found, using default");
-        return { value: "10" };
+        return {
+          value: "10"
+        };
       }
       return data;
     }
   });
 
   // Count affiliate's sales from other products (commissions with status available or paid)
-  const { data: otherProductsSalesCount } = useQuery({
+  const {
+    data: otherProductsSalesCount
+  } = useQuery({
     queryKey: ["other-products-sales-subaffiliates", currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
-      const { count, error } = await supabase
-        .from("commissions")
-        .select("id", { count: "exact", head: true })
-        .eq("affiliate_id", currentUserId)
-        .neq("product_id", RENDA_PRODUCT_ID)
-        .in("status", ["available", "paid"]);
+      const {
+        count,
+        error
+      } = await supabase.from("commissions").select("id", {
+        count: "exact",
+        head: true
+      }).eq("affiliate_id", currentUserId).neq("product_id", RENDA_PRODUCT_ID).in("status", ["available", "paid"]);
       if (error) {
         console.error("Error counting sales:", error);
         return 0;
@@ -148,12 +158,10 @@ const SubAffiliates = () => {
     },
     enabled: !!currentUserId
   });
-
   const minSalesRequired = parseInt(minSalesSetting?.value || "10", 10);
   const hasEnoughSales = (otherProductsSalesCount || 0) >= minSalesRequired;
   const salesNeeded = minSalesRequired - (otherProductsSalesCount || 0);
   const canHaveSubAffiliates = isProPlan && hasEnoughSales;
-
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -162,7 +170,6 @@ const SubAffiliates = () => {
     }
     loadSubAffiliates();
   }, [currentPage, itemsPerPage, debouncedNameFilter, planFilter, statusFilter, levelFilter, startDateFilter, endDateFilter]);
-
   const loadSubAffiliates = async () => {
     try {
       if (hasLoadedOnce) {
@@ -170,46 +177,42 @@ const SubAffiliates = () => {
       } else {
         setInitialLoading(true);
       }
-      
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) {
         toast({
           title: "Erro",
           description: "Usuário não autenticado",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
-      
       setCurrentUserId(user.id);
 
       // Construir query base
-      let query = supabase
-        .from('view_sub_affiliates' as any)
-        .select('*', { count: 'exact' })
-        .eq('parent_affiliate_id', user.id);
+      let query = supabase.from('view_sub_affiliates' as any).select('*', {
+        count: 'exact'
+      }).eq('parent_affiliate_id', user.id);
 
       // Aplicar filtros
       if (debouncedNameFilter) {
         query = query.or(`name.ilike.%${debouncedNameFilter}%,username.ilike.%${debouncedNameFilter}%,email.ilike.%${debouncedNameFilter}%`);
       }
-
       if (planFilter && planFilter !== "all") {
         query = query.eq('plan_name', planFilter);
       }
-
       if (statusFilter && statusFilter !== "all") {
         query = query.eq('status', statusFilter);
       }
-
       if (levelFilter && levelFilter !== "all") {
         query = query.eq('level', parseInt(levelFilter));
       }
-
       if (startDateFilter) {
         query = query.gte('created_at', format(startDateFilter, 'yyyy-MM-dd'));
       }
-
       if (endDateFilter) {
         query = query.lte('created_at', format(endDateFilter, 'yyyy-MM-dd') + "T23:59:59");
       }
@@ -219,37 +222,39 @@ const SubAffiliates = () => {
       const to = from + itemsPerPage - 1;
 
       // Buscar dados com paginação
-      const { data, error, count } = await query
-        .order('created_at', { ascending: false })
-        .range(from, to);
-
+      const {
+        data,
+        error,
+        count
+      } = await query.order('created_at', {
+        ascending: false
+      }).range(from, to);
       if (error) throw error;
+      setSubAffiliates(data as any || []);
+      setFilteredData(data as any || []);
 
-      setSubAffiliates((data as any) || []);
-      setFilteredData((data as any) || []);
-      
       // Calcular estatísticas com base no total filtrado
-      const { data: statsData, error: statsError } = await supabase
-        .from('view_sub_affiliates_stats' as any)
-        .select('total_sub_affiliates, total_commission')
-        .eq('parent_affiliate_id', user.id)
-        .maybeSingle();
-
+      const {
+        data: statsData,
+        error: statsError
+      } = await supabase.from('view_sub_affiliates_stats' as any).select('total_sub_affiliates, total_commission').eq('parent_affiliate_id', user.id).maybeSingle();
       if (!statsError && statsData) {
-        setStats({ 
-          total: Number((statsData as any).total_sub_affiliates) || 0, 
-          commissions: Number((statsData as any).total_commission) || 0 
+        setStats({
+          total: Number((statsData as any).total_sub_affiliates) || 0,
+          commissions: Number((statsData as any).total_commission) || 0
         });
       } else {
-        setStats({ total: count || 0, commissions: 0 });
+        setStats({
+          total: count || 0,
+          commissions: 0
+        });
       }
-
     } catch (error: any) {
       console.error('Erro ao carregar sub-afiliados:', error);
       toast({
         title: "Erro ao carregar dados",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setInitialLoading(false);
@@ -257,8 +262,6 @@ const SubAffiliates = () => {
       setHasLoadedOnce(true);
     }
   };
-
-
   const clearFilters = () => {
     setNameFilter("");
     setPlanFilter("all");
@@ -267,14 +270,11 @@ const SubAffiliates = () => {
     setStartDateFilter(undefined);
     setEndDateFilter(undefined);
   };
-
   const handleSort = (column: string) => {
     let newDirection: "asc" | "desc" = "asc";
-    
     if (sortColumn === column) {
       newDirection = sortDirection === "asc" ? "desc" : "asc";
     }
-    
     setSortColumn(column);
     setSortDirection(newDirection);
 
@@ -289,11 +289,8 @@ const SubAffiliates = () => {
 
       // Compare based on type
       if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return newDirection === "asc" 
-          ? aValue.localeCompare(bValue, 'pt-BR')
-          : bValue.localeCompare(aValue, 'pt-BR');
+        return newDirection === "asc" ? aValue.localeCompare(bValue, 'pt-BR') : bValue.localeCompare(aValue, 'pt-BR');
       }
-
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return newDirection === "asc" ? aValue - bValue : bValue - aValue;
       }
@@ -304,51 +301,57 @@ const SubAffiliates = () => {
         const dateB = new Date(bValue as string).getTime();
         return newDirection === "asc" ? dateA - dateB : dateB - dateA;
       }
-
       return 0;
     });
-
     setFilteredData(sorted);
   };
-
   const getSortIcon = (column: string) => {
     if (sortColumn !== column) {
       return <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />;
     }
-    return sortDirection === "asc" 
-      ? <ArrowUp className="ml-2 h-4 w-4" />
-      : <ArrowDown className="ml-2 h-4 w-4" />;
+    return sortDirection === "asc" ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />;
   };
-
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      active: { label: "Ativo", variant: "default" as const },
-      trialing: { label: "Teste", variant: "secondary" as const },
-      canceled: { label: "Cancelado", variant: "destructive" as const },
-      past_due: { label: "Atrasado", variant: "destructive" as const },
-      unpaid: { label: "Não Pago", variant: "destructive" as const },
+      active: {
+        label: "Ativo",
+        variant: "default" as const
+      },
+      trialing: {
+        label: "Teste",
+        variant: "secondary" as const
+      },
+      canceled: {
+        label: "Cancelado",
+        variant: "destructive" as const
+      },
+      past_due: {
+        label: "Atrasado",
+        variant: "destructive" as const
+      },
+      unpaid: {
+        label: "Não Pago",
+        variant: "destructive" as const
+      }
     };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: "secondary" as const };
+    const config = statusConfig[status as keyof typeof statusConfig] || {
+      label: status,
+      variant: "secondary" as const
+    };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
-
   const getLevelBadge = (level: number) => {
     const levelColors: Record<number, string> = {
       1: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30",
       2: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30",
       3: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
       4: "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/30",
-      5: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/30",
+      5: "bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/30"
     };
-
     const colorClass = levelColors[level] || "bg-muted text-muted-foreground border-border";
-
-    return (
-      <Badge variant="outline" className={`font-mono ${colorClass}`}>
+    return <Badge variant="outline" className={`font-mono ${colorClass}`}>
         N{level}
-      </Badge>
-    );
+      </Badge>;
   };
 
   // Paginação
@@ -360,20 +363,19 @@ const SubAffiliates = () => {
   const [uniquePlans, setUniquePlans] = useState<string[]>([]);
   const [uniqueStatuses, setUniqueStatuses] = useState<string[]>([]);
   const [uniqueLevels, setUniqueLevels] = useState<number[]>([]);
-
   useEffect(() => {
     loadFilterOptions();
   }, []);
-
   const loadFilterOptions = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: {
+        user
+      }
+    } = await supabase.auth.getUser();
     if (!user) return;
-
-    const { data } = await supabase
-      .from('view_sub_affiliates' as any)
-      .select('plan_name, status, level')
-      .eq('parent_affiliate_id', user.id);
-
+    const {
+      data
+    } = await supabase.from('view_sub_affiliates' as any).select('plan_name, status, level').eq('parent_affiliate_id', user.id);
     if (data) {
       const plans = Array.from(new Set(data.map((item: any) => item.plan_name).filter(Boolean)));
       const statuses = Array.from(new Set(data.map((item: any) => item.status)));
@@ -383,10 +385,8 @@ const SubAffiliates = () => {
       setUniqueLevels(levels as number[]);
     }
   };
-
   if (initialLoading && !hasLoadedOnce) {
-    return (
-      <div className="space-y-4 sm:space-y-6">
+    return <div className="space-y-4 sm:space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sub Afiliados</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
@@ -412,12 +412,9 @@ const SubAffiliates = () => {
           </Card>
         </div>
         <TableSkeleton columns={7} rows={5} />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+  return <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       <ScrollAnimation animation="fade-up">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-2">
@@ -434,11 +431,10 @@ const SubAffiliates = () => {
       </ScrollAnimation>
 
       {/* Aviso de requisitos para ter sub-afiliados */}
-      {!isLoadingRequirements && !canHaveSubAffiliates && (
-        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+      {!isLoadingRequirements && !canHaveSubAffiliates && <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
           <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="text-white font-semibold">Rede de sub-afiliados bloqueada</AlertTitle>
+            <AlertTitle className="text-white font-semibold">Atenção!</AlertTitle>
             <AlertDescription className="text-white/90">
               <p className="mb-3">Para ter uma rede de sub-afiliados, você precisa atender aos seguintes requisitos:</p>
               <div className="space-y-2">
@@ -454,31 +450,21 @@ const SubAffiliates = () => {
                     {hasEnoughSales ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                   </span>
                   <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
-                  {hasEnoughSales 
-                    ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span>
-                    : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>
-                  }
+                  {hasEnoughSales ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span> : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>}
                 </div>
               </div>
             </AlertDescription>
           </Alert>
-        </ScrollAnimation>
-      )}
+        </ScrollAnimation>}
 
       {/* Tabs for Sub-Affiliates and Coupons */}
       <Tabs defaultValue="sub-affiliates" className="w-full">
         <TabsList className="grid grid-cols-2 gap-2 bg-card/60 backdrop-blur-sm p-1.5 rounded-xl">
-          <TabsTrigger 
-            value="sub-affiliates" 
-            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium data-[state=inactive]:bg-white data-[state=inactive]:text-foreground"
-          >
+          <TabsTrigger value="sub-affiliates" className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium data-[state=inactive]:bg-white data-[state=inactive]:text-foreground">
             <Users className="h-4 w-4" />
             Sub Afiliados
           </TabsTrigger>
-          <TabsTrigger 
-            value="coupons" 
-            className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium data-[state=inactive]:bg-white data-[state=inactive]:text-foreground"
-          >
+          <TabsTrigger value="coupons" className="flex items-center justify-center gap-2 px-3 py-2.5 text-sm font-medium data-[state=inactive]:bg-white data-[state=inactive]:text-foreground">
             <Ticket className="h-4 w-4" />
             Cupons
           </TabsTrigger>
@@ -515,9 +501,9 @@ const SubAffiliates = () => {
             <CardContent>
               <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                 {new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                }).format(stats.commissions)}
+                    style: 'currency',
+                    currency: 'BRL'
+                  }).format(stats.commissions)}
               </div>
             </CardContent>
           </Card>
@@ -526,22 +512,16 @@ const SubAffiliates = () => {
 
       {/* Botão de filtros mobile/tablet */}
       <div className="lg:hidden flex items-center justify-between">
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
           <SlidersHorizontal className="h-4 w-4" />
           Filtros
-          {(nameFilter || planFilter !== "all" || statusFilter !== "all" || levelFilter !== "all" || startDateFilter || endDateFilter) && (
-            <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+          {(nameFilter || planFilter !== "all" || statusFilter !== "all" || levelFilter !== "all" || startDateFilter || endDateFilter) && <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
               !
-            </Badge>
-          )}
+            </Badge>}
         </Button>
         
         {/* Layout mode selector - mobile/tablet */}
-        <ToggleGroup type="single" value={layoutMode} onValueChange={(value) => value && setLayoutMode(value as "compact" | "complete")}>
+        <ToggleGroup type="single" value={layoutMode} onValueChange={value => value && setLayoutMode(value as "compact" | "complete")}>
           <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
             <LayoutList className="h-4 w-4" />
           </ToggleGroupItem>
@@ -555,21 +535,12 @@ const SubAffiliates = () => {
       <div className={`bg-transparent lg:bg-card rounded-none lg:rounded-lg border-0 lg:border shadow-none lg:shadow-sm p-0 lg:p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowFilters(false)}
-            className="lg:hidden h-8 w-8"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="lg:hidden h-8 w-8">
             <X className="h-4 w-4" />
           </Button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Input
-            placeholder="Nome/Username/Email"
-            value={nameFilter}
-            onChange={(e) => setNameFilter(e.target.value)}
-          />
+          <Input placeholder="Nome/Username/Email" value={nameFilter} onChange={e => setNameFilter(e.target.value)} />
 
           <Select value={planFilter} onValueChange={setPlanFilter}>
             <SelectTrigger>
@@ -577,11 +548,9 @@ const SubAffiliates = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os planos</SelectItem>
-              {uniquePlans.map((plan) => (
-                <SelectItem key={plan} value={plan || "no-plan"}>
+              {uniquePlans.map(plan => <SelectItem key={plan} value={plan || "no-plan"}>
                   {plan || "Sem plano"}
-                </SelectItem>
-              ))}
+                </SelectItem>)}
             </SelectContent>
           </Select>
 
@@ -591,20 +560,18 @@ const SubAffiliates = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
-              {uniqueStatuses.map((status) => {
-                const statusLabels: Record<string, string> = {
-                  active: "Ativo",
-                  trialing: "Teste",
-                  canceled: "Cancelado",
-                  past_due: "Atrasado",
-                  unpaid: "Não Pago",
-                };
-                return (
-                  <SelectItem key={status} value={status}>
+              {uniqueStatuses.map(status => {
+                  const statusLabels: Record<string, string> = {
+                    active: "Ativo",
+                    trialing: "Teste",
+                    canceled: "Cancelado",
+                    past_due: "Atrasado",
+                    unpaid: "Não Pago"
+                  };
+                  return <SelectItem key={status} value={status}>
                     {statusLabels[status] || status}
-                  </SelectItem>
-                );
-              })}
+                  </SelectItem>;
+                })}
             </SelectContent>
           </Select>
 
@@ -614,33 +581,20 @@ const SubAffiliates = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os níveis</SelectItem>
-              {uniqueLevels.map((level) => (
-                <SelectItem key={level} value={level.toString()}>
+              {uniqueLevels.map(level => <SelectItem key={level} value={level.toString()}>
                   Nível {level}
-                </SelectItem>
-              ))}
+                </SelectItem>)}
             </SelectContent>
           </Select>
 
-          <DatePickerFilter
-            value={startDateFilter}
-            onChange={setStartDateFilter}
-            placeholder="Data inicial"
-          />
+          <DatePickerFilter value={startDateFilter} onChange={setStartDateFilter} placeholder="Data inicial" />
 
-          <DatePickerFilter
-            value={endDateFilter}
-            onChange={setEndDateFilter}
-            placeholder="Data final"
-          />
+          <DatePickerFilter value={endDateFilter} onChange={setEndDateFilter} placeholder="Data final" />
 
-          <Select
-            value={itemsPerPage.toString()}
-            onValueChange={(value) => {
+          <Select value={itemsPerPage.toString()} onValueChange={value => {
               setItemsPerPage(Number(value));
               setCurrentPage(1);
-            }}
-          >
+            }}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -653,20 +607,12 @@ const SubAffiliates = () => {
             </SelectContent>
           </Select>
 
-          <Button
-            variant="outline"
-            onClick={clearFilters}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={clearFilters} className="gap-2">
             <X className="h-4 w-4" />
             Limpar filtros
           </Button>
 
-          <Button
-            variant="outline"
-            onClick={loadSubAffiliates}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={loadSubAffiliates} className="gap-2">
             <RefreshCw className="h-4 w-4" />
             Atualizar
           </Button>
@@ -677,86 +623,58 @@ const SubAffiliates = () => {
         <CardContent className="!p-0 lg:!p-6 space-y-4">
 
           {/* Desktop - Tabela */}
-          {!isMobile && (
-            <Table>
+          {!isMobile && <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("name")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("name")}>
                     <div className="flex items-center">
                       Nome/Username
                       {getSortIcon("name")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("email")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("email")}>
                     <div className="flex items-center">
                       Email
                       {getSortIcon("email")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("plan_name")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("plan_name")}>
                     <div className="flex items-center">
                       Plano
                       {getSortIcon("plan_name")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("level")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("level")}>
                     <div className="flex items-center">
                       Nível
                       {getSortIcon("level")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("status")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("status")}>
                     <div className="flex items-center">
                       Status
                       {getSortIcon("status")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("created_at")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("created_at")}>
                     <div className="flex items-center">
                       Data Cadastro
                       {getSortIcon("created_at")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("referrals_count")}
-                  >
+                  <TableHead className="text-center cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("referrals_count")}>
                     <div className="flex items-center justify-center">
                       Indicações
                       {getSortIcon("referrals_count")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("total_commission")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("total_commission")}>
                     <div className="flex items-center">
                       Comissão do Sub
                       {getSortIcon("total_commission")}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleSort("my_commission_from_sub")}
-                  >
+                  <TableHead className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort("my_commission_from_sub")}>
                     <div className="flex items-center">
                       Minha Comissão
                       {getSortIcon("my_commission_from_sub")}
@@ -766,15 +684,11 @@ const SubAffiliates = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.length === 0 ? (
-                  <TableRow>
+                {filteredData.length === 0 ? <TableRow>
                     <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       Nenhum sub-afiliado encontrado
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredData.map((sub, index) => (
-                    <AnimatedTableRow key={sub.id} delay={index * 50}>
+                  </TableRow> : filteredData.map((sub, index) => <AnimatedTableRow key={sub.id} delay={index * 50}>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
@@ -785,11 +699,9 @@ const SubAffiliates = () => {
                           </Avatar>
                           <div>
                             <div className="font-medium">{sub.name}</div>
-                            {sub.username && (
-                              <div className="text-xs text-muted-foreground">
+                            {sub.username && <div className="text-xs text-muted-foreground">
                                 @{sub.username}
-                              </div>
-                            )}
+                              </div>}
                           </div>
                         </div>
                       </TableCell>
@@ -802,56 +714,44 @@ const SubAffiliates = () => {
                       </TableCell>
                       <TableCell>{getStatusBadge(sub.status)}</TableCell>
                       <TableCell>
-                        {format(new Date(sub.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                        {format(new Date(sub.created_at), "dd/MM/yyyy", {
+                      locale: ptBR
+                    })}
                       </TableCell>
                       <TableCell className="text-center">{sub.referrals_count}</TableCell>
                       <TableCell className="text-left font-medium">
                         {new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL'
-                        }).format(Number(sub.total_commission) || 0)}
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format(Number(sub.total_commission) || 0)}
                       </TableCell>
                       <TableCell className="text-left font-semibold text-success">
                         {new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL'
-                        }).format(Number(sub.my_commission_from_sub) || 0)}
+                      style: 'currency',
+                      currency: 'BRL'
+                    }).format(Number(sub.my_commission_from_sub) || 0)}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedSubAffiliate(sub);
-                            setDialogOpen(true);
-                          }}
-                          title="Ver detalhes das comissões"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => {
+                      setSelectedSubAffiliate(sub);
+                      setDialogOpen(true);
+                    }} title="Ver detalhes das comissões">
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                    </AnimatedTableRow>
-                  ))
-                )}
+                    </AnimatedTableRow>)}
               </TableBody>
-            </Table>
-          )}
+            </Table>}
 
           {/* Mobile/Tablet - Cards */}
-          {isMobile && (
-            <div className="space-y-3 md:space-y-2">
-              {filteredData.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
+          {isMobile && <div className="space-y-3 md:space-y-2">
+              {filteredData.length === 0 ? <div className="text-center text-muted-foreground py-8">
                   Nenhum sub-afiliado encontrado
-                </div>
-              ) : (
-                filteredData.map((sub, index) => (
-                  <ScrollAnimation key={sub.id} animation="fade-up" delay={index * 50} threshold={0.05}>
+                </div> : filteredData.map((sub, index) => <ScrollAnimation key={sub.id} animation="fade-up" delay={index * 50} threshold={0.05}>
                     <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
                       <CardContent className="p-0">
                       {/* Mobile Layout - Compact */}
-                      {layoutMode === "compact" && (
-                        <div className="md:hidden p-4 space-y-3">
+                      {layoutMode === "compact" && <div className="md:hidden p-4 space-y-3">
                           {/* Linha 1: Avatar, Nome e Botão */}
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -863,29 +763,19 @@ const SubAffiliates = () => {
                               </Avatar>
                               <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-sm">{sub.name}</div>
-                                {sub.username && (
-                                  <div className="text-xs text-muted-foreground">
+                                {sub.username && <div className="text-xs text-muted-foreground">
                                     @{sub.username}
-                                  </div>
-                                )}
+                                  </div>}
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              {sub.level && (
-                                <Badge variant="outline" className="text-xs">
+                              {sub.level && <Badge variant="outline" className="text-xs">
                                   N{sub.level}
-                                </Badge>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="flex-shrink-0 h-8 w-8"
-                                onClick={() => {
-                                  setSelectedSubAffiliate(sub);
-                                  setDialogOpen(true);
-                                }}
-                                title="Ver detalhes"
-                              >
+                                </Badge>}
+                              <Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8" onClick={() => {
+                            setSelectedSubAffiliate(sub);
+                            setDialogOpen(true);
+                          }} title="Ver detalhes">
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </div>
@@ -901,16 +791,17 @@ const SubAffiliates = () => {
                             <div className="text-center flex-1">
                               <div className="text-[10px] text-muted-foreground uppercase">Minha Comissão</div>
                               <div className="font-bold text-sm text-success">
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                                {new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(Number(sub.my_commission_from_sub) || 0)}
                               </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        </div>}
 
                       {/* Mobile Layout - Complete */}
-                      {layoutMode === "complete" && (
-                        <div className="md:hidden p-4">
+                      {layoutMode === "complete" && <div className="md:hidden p-4">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                               <Avatar className="h-10 w-10 flex-shrink-0">
@@ -921,26 +812,18 @@ const SubAffiliates = () => {
                               </Avatar>
                               <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-sm truncate">{sub.name}</div>
-                                {sub.username && (
-                                  <div className="text-xs text-muted-foreground truncate">
+                                {sub.username && <div className="text-xs text-muted-foreground truncate">
                                     @{sub.username}
-                                  </div>
-                                )}
+                                  </div>}
                                 <div className="text-xs text-muted-foreground truncate mt-0.5">
                                   {sub.email}
                                 </div>
                               </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="flex-shrink-0 h-8 w-8"
-                              onClick={() => {
-                                setSelectedSubAffiliate(sub);
-                                setDialogOpen(true);
-                              }}
-                              title="Ver detalhes das comissões"
-                            >
+                            <Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8" onClick={() => {
+                          setSelectedSubAffiliate(sub);
+                          setDialogOpen(true);
+                        }} title="Ver detalhes das comissões">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -959,7 +842,9 @@ const SubAffiliates = () => {
                             </div>
                             <div>
                               <span className="text-muted-foreground">Cadastro</span>
-                              <div className="font-medium">{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</div>
+                              <div className="font-medium">{format(new Date(sub.created_at), "dd/MM/yy", {
+                              locale: ptBR
+                            })}</div>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Indicações</span>
@@ -967,21 +852,25 @@ const SubAffiliates = () => {
                             </div>
                             <div>
                               <span className="text-muted-foreground">Com. Sub</span>
-                              <div className="font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</div>
+                              <div className="font-medium">{new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(Number(sub.total_commission) || 0)}</div>
                             </div>
                           </div>
                           <div className="mt-2 pt-2 border-t flex items-center justify-between">
                             <span className="text-xs text-muted-foreground">Minha Comissão</span>
                             <div className="text-sm font-bold text-success">
-                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                              {new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                          }).format(Number(sub.my_commission_from_sub) || 0)}
                             </div>
                           </div>
-                        </div>
-                      )}
+                        </div>}
 
                       {/* Tablet Layout - Compact */}
-                      {layoutMode === "compact" && (
-                        <div className="hidden md:flex md:items-center md:justify-between md:gap-4 md:p-4">
+                      {layoutMode === "compact" && <div className="hidden md:flex md:items-center md:justify-between md:gap-4 md:p-4">
                           <div className="flex items-center gap-3 min-w-[180px]">
                             <Avatar className="h-9 w-9 flex-shrink-0">
                               <AvatarImage src={sub.avatar_url || undefined} />
@@ -991,9 +880,7 @@ const SubAffiliates = () => {
                             </Avatar>
                             <div className="min-w-0">
                               <div className="font-medium text-sm truncate">{sub.name}</div>
-                              {sub.username && (
-                                <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>
-                              )}
+                              {sub.username && <div className="text-xs text-muted-foreground truncate">@{sub.username}</div>}
                             </div>
                           </div>
                           <div className="flex items-center gap-6">
@@ -1004,28 +891,23 @@ const SubAffiliates = () => {
                             <div className="text-right">
                               <div className="text-[10px] text-muted-foreground">Minha Comissão</div>
                               <div className="text-sm font-bold text-success whitespace-nowrap">
-                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}
+                                {new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(Number(sub.my_commission_from_sub) || 0)}
                               </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 flex-shrink-0"
-                              onClick={() => {
-                                setSelectedSubAffiliate(sub);
-                                setDialogOpen(true);
-                              }}
-                              title="Ver detalhes"
-                            >
+                            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => {
+                          setSelectedSubAffiliate(sub);
+                          setDialogOpen(true);
+                        }} title="Ver detalhes">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
-                        </div>
-                      )}
+                        </div>}
 
                       {/* Tablet Layout - Complete */}
-                      {layoutMode === "complete" && (
-                        <div className="hidden md:block md:p-4 space-y-3">
+                      {layoutMode === "complete" && <div className="hidden md:block md:p-4 space-y-3">
                           {/* Linha 1: Avatar, Nome, Status e Botão */}
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -1048,16 +930,10 @@ const SubAffiliates = () => {
                                 </div>
                               </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-9 w-9 flex-shrink-0"
-                              onClick={() => {
-                                setSelectedSubAffiliate(sub);
-                                setDialogOpen(true);
-                              }}
-                              title="Ver detalhes das comissões"
-                            >
+                            <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0" onClick={() => {
+                          setSelectedSubAffiliate(sub);
+                          setDialogOpen(true);
+                        }} title="Ver detalhes das comissões">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -1070,7 +946,9 @@ const SubAffiliates = () => {
                             </div>
                             <div>
                               <div className="text-[10px] text-muted-foreground uppercase">Cadastro</div>
-                              <div className="text-xs font-medium">{format(new Date(sub.created_at), "dd/MM/yy", { locale: ptBR })}</div>
+                              <div className="text-xs font-medium">{format(new Date(sub.created_at), "dd/MM/yy", {
+                              locale: ptBR
+                            })}</div>
                             </div>
                             <div>
                               <div className="text-[10px] text-muted-foreground uppercase">Indicações</div>
@@ -1078,22 +956,24 @@ const SubAffiliates = () => {
                             </div>
                             <div>
                               <div className="text-[10px] text-muted-foreground uppercase">Com. Sub</div>
-                              <div className="text-xs font-medium">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.total_commission) || 0)}</div>
+                              <div className="text-xs font-medium">{new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(Number(sub.total_commission) || 0)}</div>
                             </div>
                             <div>
                               <div className="text-[10px] text-muted-foreground uppercase">Minha Com.</div>
-                              <div className="text-xs font-bold text-success">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(sub.my_commission_from_sub) || 0)}</div>
+                              <div className="text-xs font-bold text-success">{new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            }).format(Number(sub.my_commission_from_sub) || 0)}</div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        </div>}
                     </CardContent>
                   </Card>
-                </ScrollAnimation>
-                ))
-              )}
-            </div>
-          )}
+                </ScrollAnimation>)}
+            </div>}
 
           {/* Controles de paginação e informações */}
           <div className="flex flex-col items-center gap-3 mt-4">
@@ -1101,21 +981,16 @@ const SubAffiliates = () => {
               Mostrando {startIndex + 1} a {endIndex} de {stats.total} resultados
             </div>
             
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className="h-8 px-2 sm:px-3"
-                >
+            {totalPages > 1 && <div className="flex items-center justify-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="h-8 px-2 sm:px-3">
                   <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline ml-1">Anterior</span>
                 </Button>
                 
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  {Array.from({
+                    length: Math.min(5, totalPages)
+                  }, (_, i) => {
                     let pageNumber;
                     if (totalPages <= 5) {
                       pageNumber = i + 1;
@@ -1126,33 +1001,17 @@ const SubAffiliates = () => {
                     } else {
                       pageNumber = currentPage - 2 + i;
                     }
-                    
-                    return (
-                      <Button
-                        key={pageNumber}
-                        variant={currentPage === pageNumber ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentPage(pageNumber)}
-                        className="w-7 h-7 sm:w-8 sm:h-8 p-0 text-xs sm:text-sm"
-                      >
+                    return <Button key={pageNumber} variant={currentPage === pageNumber ? "default" : "outline"} size="sm" onClick={() => setCurrentPage(pageNumber)} className="w-7 h-7 sm:w-8 sm:h-8 p-0 text-xs sm:text-sm">
                         {pageNumber}
-                      </Button>
-                    );
+                      </Button>;
                   })}
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                  className="h-8 px-2 sm:px-3"
-                >
+                <Button variant="outline" size="sm" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="h-8 px-2 sm:px-3">
                   <span className="hidden sm:inline mr-1">Próxima</span>
                   <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
-              </div>
-            )}
+              </div>}
           </div>
         </CardContent>
       </Card>
@@ -1163,29 +1022,20 @@ const SubAffiliates = () => {
         </TabsContent>
       </Tabs>
 
-      {selectedSubAffiliate && currentUserId && (
-        <SubAffiliateCommissionsDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          subAffiliate={{
-            id: selectedSubAffiliate.external_user_id,
-            name: selectedSubAffiliate.name,
-            username: selectedSubAffiliate.username,
-            email: selectedSubAffiliate.email,
-            avatar_url: selectedSubAffiliate.avatar_url,
-            plan_name: selectedSubAffiliate.plan_name,
-            level: selectedSubAffiliate.level,
-            status: selectedSubAffiliate.status,
-            created_at: selectedSubAffiliate.created_at,
-            referrals_count: selectedSubAffiliate.referrals_count,
-            total_commission: selectedSubAffiliate.total_commission,
-            my_commission_from_sub: selectedSubAffiliate.my_commission_from_sub,
-          }}
-          parentAffiliateId={currentUserId}
-        />
-      )}
-    </div>
-  );
+      {selectedSubAffiliate && currentUserId && <SubAffiliateCommissionsDialog open={dialogOpen} onOpenChange={setDialogOpen} subAffiliate={{
+      id: selectedSubAffiliate.external_user_id,
+      name: selectedSubAffiliate.name,
+      username: selectedSubAffiliate.username,
+      email: selectedSubAffiliate.email,
+      avatar_url: selectedSubAffiliate.avatar_url,
+      plan_name: selectedSubAffiliate.plan_name,
+      level: selectedSubAffiliate.level,
+      status: selectedSubAffiliate.status,
+      created_at: selectedSubAffiliate.created_at,
+      referrals_count: selectedSubAffiliate.referrals_count,
+      total_commission: selectedSubAffiliate.total_commission,
+      my_commission_from_sub: selectedSubAffiliate.my_commission_from_sub
+    }} parentAffiliateId={currentUserId} />}
+    </div>;
 };
-
 export default SubAffiliates;
