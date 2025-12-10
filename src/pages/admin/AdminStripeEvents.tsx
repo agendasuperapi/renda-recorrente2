@@ -1148,20 +1148,20 @@ const AdminStripeEvents = () => {
           {selectedEvent && (
             <Tabs defaultValue="event" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="event">
-                  <Database className="w-4 h-4 mr-2" />
-                  Detalhes do Evento
+                <TabsTrigger value="event" className="flex-col sm:flex-row gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Database className="w-4 h-4" />
+                  <span className="leading-tight text-center sm:text-left">Detalhes<span className="sm:hidden"><br /></span><span className="hidden sm:inline"> </span>do Evento</span>
                 </TabsTrigger>
-                <TabsTrigger value="json">
-                  <Code className="w-4 h-4 mr-2" />
-                  Evento Json
+                <TabsTrigger value="json" className="flex-col sm:flex-row gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <Code className="w-4 h-4" />
+                  <span className="leading-tight text-center sm:text-left">Evento<span className="sm:hidden"><br /></span><span className="hidden sm:inline"> </span>Json</span>
                 </TabsTrigger>
-                <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
-                  <User className="w-4 h-4 mr-2" />
+                <TabsTrigger value="client" disabled={!selectedEvent.user_id} className="flex-col sm:flex-row gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <User className="w-4 h-4" />
                   Cliente
                 </TabsTrigger>
-                <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
-                  <CreditCard className="w-4 h-4 mr-2" />
+                <TabsTrigger value="plan" disabled={!selectedEvent.user_id} className="flex-col sm:flex-row gap-1 sm:gap-2 text-xs sm:text-sm py-2">
+                  <CreditCard className="w-4 h-4" />
                   Plano
                 </TabsTrigger>
               </TabsList>
