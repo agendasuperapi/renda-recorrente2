@@ -545,10 +545,10 @@ export const RendaRecorrenteCoupons = () => {
           {/* Layout Toggle */}
           <div className="flex justify-end mb-4">
             <ToggleGroup type="single" value={layoutMode} onValueChange={value => value && setLayoutMode(value)}>
-              <ToggleGroupItem value="full" aria-label="Layout completo">
+              <ToggleGroupItem value="cards" aria-label="Layout compacto">
                 <LayoutList className="h-4 w-4" />
               </ToggleGroupItem>
-              <ToggleGroupItem value="cards" aria-label="Layout compacto">
+              <ToggleGroupItem value="full" aria-label="Layout completo">
                 <LayoutGrid className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
