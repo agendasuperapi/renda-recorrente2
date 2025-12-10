@@ -57,6 +57,7 @@ interface Coupon {
   coupon_code_at_creation: string | null;
   product_id: string | null;
   product_name: string | null;
+  product_icon: string | null;
 }
 const Referrals = () => {
   const isMobile = useIsMobile();
@@ -131,7 +132,7 @@ const Referrals = () => {
           custom_code, 
           coupon_code_at_creation, 
           product_id,
-          products:product_id (nome)
+          products:product_id (nome, icone_light, icone_dark)
         `)
         .eq("affiliate_id", session.session.user.id)
         .is("deleted_at", null)
@@ -144,7 +145,8 @@ const Referrals = () => {
           custom_code: c.custom_code,
           coupon_code_at_creation: c.coupon_code_at_creation,
           product_id: c.product_id,
-          product_name: c.products?.nome || null
+          product_name: c.products?.nome || null,
+          product_icon: c.products?.icone_light || c.products?.icone_dark || null
         }));
         setCoupons(formattedCoupons);
       }
@@ -424,17 +426,30 @@ const Referrals = () => {
               {(() => {
                 // Group coupons by product
                 const grouped = coupons.reduce((acc, coupon) => {
-                  const key = coupon.product_name || "Sem produto";
-                  if (!acc[key]) acc[key] = [];
-                  acc[key].push(coupon);
+                  const key = coupon.product_id || "sem-produto";
+                  if (!acc[key]) {
+                    acc[key] = {
+                      name: coupon.product_name || "Sem produto",
+                      icon: coupon.product_icon,
+                      coupons: []
+                    };
+                  }
+                  acc[key].coupons.push(coupon);
                   return acc;
-                }, {} as Record<string, Coupon[]>);
+                }, {} as Record<string, { name: string; icon: string | null; coupons: Coupon[] }>);
                 
-                return Object.entries(grouped).map(([productName, productCoupons]) => (
-                  <SelectGroup key={productName}>
-                    <SelectLabel className="text-xs font-semibold text-muted-foreground">{productName}</SelectLabel>
-                    {productCoupons.map(coupon => (
-                      <SelectItem key={coupon.id} value={coupon.id}>
+                return Object.entries(grouped).map(([productId, group], index) => (
+                  <SelectGroup key={productId}>
+                    <div className={`flex items-center gap-2 px-2 py-2 bg-muted/50 ${index > 0 ? 'mt-2 border-t border-border' : ''}`}>
+                      {group.icon ? (
+                        <img src={group.icon} alt="" className="h-5 w-5 rounded-full object-cover" />
+                      ) : (
+                        <div className="h-5 w-5 rounded-full bg-primary/20" />
+                      )}
+                      <span className="text-sm font-semibold text-foreground">{group.name}</span>
+                    </div>
+                    {group.coupons.map(coupon => (
+                      <SelectItem key={coupon.id} value={coupon.id} className="pl-9">
                         {coupon.custom_code || coupon.coupon_code_at_creation || "Sem código"}
                       </SelectItem>
                     ))}
