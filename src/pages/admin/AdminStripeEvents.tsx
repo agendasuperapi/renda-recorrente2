@@ -1385,133 +1385,263 @@ const AdminStripeEvents = () => {
         </Dialog>
       )}
 
-      <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Detalhes da Subscription</DialogTitle>
-          </DialogHeader>
-          {subscriptionData ? (
-            <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Subscription ID</p>
-                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
-                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.stripe_subscription_id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">User ID</p>
-                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.user_id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Plan ID</p>
-                    <p className="text-sm font-mono text-xs break-all">{subscriptionData.plan_id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Status</p>
-                    <Badge variant={subscriptionData.status === 'active' ? 'default' : 'secondary'}>
-                      {subscriptionData.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Ambiente</p>
-                    <Badge variant={subscriptionData.environment === 'production' ? 'default' : 'secondary'}>
-                      {subscriptionData.environment || 'test'}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Início do Período</p>
-                    <p className="text-sm">
-                      {subscriptionData.current_period_start 
-                        ? format(new Date(subscriptionData.current_period_start), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                        : "-"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Fim do Período</p>
-                    <p className="text-sm">
-                      {subscriptionData.current_period_end 
-                        ? format(new Date(subscriptionData.current_period_end), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                        : "-"}
-                    </p>
-                  </div>
-                  {subscriptionData.trial_end && (
+      {isMobile ? (
+        <Drawer open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
+          <DrawerContent className="max-h-[85vh]">
+            <DrawerHeader className="text-left">
+              <DrawerTitle>Detalhes da Subscription</DrawerTitle>
+            </DrawerHeader>
+            <ScrollArea className="px-4 pb-4 max-h-[calc(85vh-80px)]">
+              {subscriptionData ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Fim do Trial</p>
+                      <p className="text-sm font-medium text-muted-foreground">Subscription ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.stripe_subscription_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.user_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Plan ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.plan_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                      <Badge variant={subscriptionData.status === 'active' ? 'default' : 'secondary'}>
+                        {subscriptionData.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Ambiente</p>
+                      <Badge variant={subscriptionData.environment === 'production' ? 'default' : 'secondary'}>
+                        {subscriptionData.environment || 'test'}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Início do Período</p>
                       <p className="text-sm">
-                        {format(new Date(subscriptionData.trial_end), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        {subscriptionData.current_period_start 
+                          ? format(new Date(subscriptionData.current_period_start), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : "-"}
                       </p>
                     </div>
-                  )}
-                  {subscriptionData.cancel_at && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Cancelamento Agendado</p>
-                      <p className="text-sm text-destructive">
-                        {format(new Date(subscriptionData.cancel_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                      </p>
-                    </div>
-                  )}
-                  {subscriptionData.cancelled_at && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Cancelado em</p>
+                      <p className="text-sm font-medium text-muted-foreground">Fim do Período</p>
                       <p className="text-sm">
-                        {format(new Date(subscriptionData.cancelled_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        {subscriptionData.current_period_end 
+                          ? format(new Date(subscriptionData.current_period_end), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : "-"}
                       </p>
                     </div>
-                  )}
-                  {(subscriptionData as any).cancellation_details && (
-                    <div className="col-span-2">
+                    {subscriptionData.trial_end && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Fim do Trial</p>
+                        <p className="text-sm">
+                          {format(new Date(subscriptionData.trial_end), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    {subscriptionData.cancel_at && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Cancelamento Agendado</p>
+                        <p className="text-sm text-destructive">
+                          {format(new Date(subscriptionData.cancel_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    {subscriptionData.cancelled_at && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Cancelado em</p>
+                        <p className="text-sm">
+                          {format(new Date(subscriptionData.cancelled_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    {(subscriptionData as any).cancellation_details && (
+                      <div className="col-span-2">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Detalhes do Cancelamento (JSON)
+                        </p>
+                        <div className="max-h-[150px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                          <pre className="text-xs whitespace-pre-wrap break-words w-full">
+                            {JSON.stringify((subscriptionData as any).cancellation_details, null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Criado em</p>
+                      <p className="text-sm">
+                        {format(new Date(subscriptionData.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Atualizado em</p>
+                      <p className="text-sm">
+                        {format(new Date(subscriptionData.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {subscriptionData.payment_method_data && (
+                    <div>
                       <p className="text-sm font-medium text-muted-foreground mb-2">
-                        Detalhes do Cancelamento (JSON)
+                        Dados do Método de Pagamento
                       </p>
-                      <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                      <div className="max-h-[150px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
                         <pre className="text-xs whitespace-pre-wrap break-words w-full">
-                          {JSON.stringify((subscriptionData as any).cancellation_details, null, 2)}
+                          {JSON.stringify(subscriptionData.payment_method_data, null, 2)}
                         </pre>
                       </div>
                     </div>
                   )}
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Criado em</p>
-                    <p className="text-sm">
-                      {format(new Date(subscriptionData.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Atualizado em</p>
-                    <p className="text-sm">
-                      {format(new Date(subscriptionData.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                    </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Carregando dados da subscription...
                   </div>
                 </div>
-
-                {subscriptionData.payment_method_data && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Dados do Método de Pagamento
-                    </p>
-                    <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
-                      <pre className="text-xs whitespace-pre-wrap break-words w-full">
-                        {JSON.stringify(subscriptionData.payment_method_data, null, 2)}
-                      </pre>
+              )}
+            </ScrollArea>
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Detalhes da Subscription</DialogTitle>
+            </DialogHeader>
+            {subscriptionData ? (
+              <ScrollArea className="max-h-[60vh]">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Subscription ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Stripe Subscription ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.stripe_subscription_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.user_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Plan ID</p>
+                      <p className="text-sm font-mono text-xs break-all">{subscriptionData.plan_id}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                      <Badge variant={subscriptionData.status === 'active' ? 'default' : 'secondary'}>
+                        {subscriptionData.status}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Ambiente</p>
+                      <Badge variant={subscriptionData.environment === 'production' ? 'default' : 'secondary'}>
+                        {subscriptionData.environment || 'test'}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Início do Período</p>
+                      <p className="text-sm">
+                        {subscriptionData.current_period_start 
+                          ? format(new Date(subscriptionData.current_period_start), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Fim do Período</p>
+                      <p className="text-sm">
+                        {subscriptionData.current_period_end 
+                          ? format(new Date(subscriptionData.current_period_end), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : "-"}
+                      </p>
+                    </div>
+                    {subscriptionData.trial_end && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Fim do Trial</p>
+                        <p className="text-sm">
+                          {format(new Date(subscriptionData.trial_end), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    {subscriptionData.cancel_at && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Cancelamento Agendado</p>
+                        <p className="text-sm text-destructive">
+                          {format(new Date(subscriptionData.cancel_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    {subscriptionData.cancelled_at && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Cancelado em</p>
+                        <p className="text-sm">
+                          {format(new Date(subscriptionData.cancelled_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    {(subscriptionData as any).cancellation_details && (
+                      <div className="col-span-2">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">
+                          Detalhes do Cancelamento (JSON)
+                        </p>
+                        <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                          <pre className="text-xs whitespace-pre-wrap break-words w-full">
+                            {JSON.stringify((subscriptionData as any).cancellation_details, null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Criado em</p>
+                      <p className="text-sm">
+                        {format(new Date(subscriptionData.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Atualizado em</p>
+                      <p className="text-sm">
+                        {format(new Date(subscriptionData.updated_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
                     </div>
                   </div>
-                )}
+
+                  {subscriptionData.payment_method_data && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-2">
+                        Dados do Método de Pagamento
+                      </p>
+                      <div className="max-h-[200px] w-full overflow-y-auto overflow-x-hidden rounded-md border bg-muted/50 p-4">
+                        <pre className="text-xs whitespace-pre-wrap break-words w-full">
+                          {JSON.stringify(subscriptionData.payment_method_data, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Carregando dados da subscription...
+                </div>
               </div>
-            </ScrollArea>
-          ) : (
-            <div className="flex items-center justify-center py-8">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                Carregando dados da subscription...
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
