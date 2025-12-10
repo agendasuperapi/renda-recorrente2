@@ -949,7 +949,7 @@ const AdminStripeEvents = () => {
               <div className="space-y-3">
                 {events.map((event) => (
                   <Card key={event.id} className="overflow-hidden">
-                    <CardContent className="p-4 md:p-6">
+                    <CardContent className="p-4 md:p-8">
                       <div className="flex items-center gap-3">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-foreground">
@@ -1004,7 +1004,7 @@ const AdminStripeEvents = () => {
             {events && events.length > 0 ? (
               events.map((event) => (
                 <Card key={event.id} className="overflow-hidden">
-                  <CardContent className="p-4 md:p-6">
+                  <CardContent className="p-4 md:p-8">
                     <div className="flex items-center gap-3">
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-foreground">
