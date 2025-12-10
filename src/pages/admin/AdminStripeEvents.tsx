@@ -960,14 +960,27 @@ const AdminStripeEvents = () => {
                         <p className="text-sm text-muted-foreground shrink-0">
                           {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                         </p>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 text-muted-foreground"
-                          onClick={() => handleViewDetails(event)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {(event as any).stripe_subscription_id && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground"
+                              onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                              title="Ver Subscription"
+                            >
+                              <Database className="w-4 h-4 text-primary" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground"
+                            onClick={() => handleViewDetails(event)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -1018,14 +1031,27 @@ const AdminStripeEvents = () => {
                             </p>
                           )}
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 text-muted-foreground"
-                          onClick={() => handleViewDetails(event)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {(event as any).stripe_subscription_id && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground"
+                              onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                              title="Ver Subscription"
+                            >
+                              <Database className="w-4 h-4 text-primary" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground"
+                            onClick={() => handleViewDetails(event)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                       <div className="flex items-center justify-between gap-3">
                         <div>{getEventTypeBadge(event.event_type)}</div>
