@@ -1215,7 +1215,7 @@ const AdminStripeEvents = () => {
                     </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="event" className="space-y-4 mt-4">
+                  <TabsContent value="event" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Event ID</p>
@@ -1273,7 +1273,7 @@ const AdminStripeEvents = () => {
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="json" className="space-y-4 mt-4">
+                  <TabsContent value="json" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium text-muted-foreground">
@@ -1296,11 +1296,11 @@ const AdminStripeEvents = () => {
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="client" className="space-y-4 mt-4">
+                  <TabsContent value="client" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                     <ClientProfile userId={selectedEvent.user_id} email={selectedEvent.email} />
                   </TabsContent>
                   
-                  <TabsContent value="plan" className="space-y-4 mt-4">
+                  <TabsContent value="plan" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                     <PlanInfo userId={selectedEvent.user_id} email={selectedEvent.email} />
                   </TabsContent>
                 </Tabs>
@@ -1335,7 +1335,7 @@ const AdminStripeEvents = () => {
                   </TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="event" className="space-y-4 mt-4">
+                <TabsContent value="event" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Event ID</p>
@@ -1393,7 +1393,7 @@ const AdminStripeEvents = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="json" className="space-y-4 mt-4">
+                <TabsContent value="json" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm font-medium text-muted-foreground">
@@ -1416,11 +1416,11 @@ const AdminStripeEvents = () => {
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="client" className="space-y-4 mt-4">
+                <TabsContent value="client" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                   <ClientProfile userId={selectedEvent.user_id} email={selectedEvent.email} />
                 </TabsContent>
                 
-                <TabsContent value="plan" className="space-y-4 mt-4">
+                <TabsContent value="plan" className="space-y-4 mt-4 data-[state=inactive]:hidden" forceMount>
                   <PlanInfo userId={selectedEvent.user_id} email={selectedEvent.email} />
                 </TabsContent>
               </Tabs>
