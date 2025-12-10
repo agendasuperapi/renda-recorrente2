@@ -34,6 +34,7 @@ interface Referral {
   current_period_start: string | null;
   current_period_end: string | null;
   environment: string | null;
+  coupon_code: string | null;
 }
 interface Stats {
   total: number;
@@ -460,6 +461,11 @@ const Referrals = () => {
                                       <div className="flex items-center gap-1.5 flex-wrap">
                                         <Badge variant="outline" className="text-xs font-normal">{referral.product_name || "-"}</Badge>
                                         <Badge variant="secondary" className="text-xs font-normal">{referral.plan_name || "-"}</Badge>
+                                        {referral.coupon_code && (
+                                          <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
+                                            {referral.coupon_code}
+                                          </Badge>
+                                        )}
                                       </div>
                                       <Button variant="ghost" size="sm" onClick={() => setExpandedCardId(referral.id)} className="h-6 px-2 gap-1 text-xs">
                                         <Eye className="h-3 w-3" />
@@ -486,6 +492,11 @@ const Referrals = () => {
                                     <div className="flex items-center gap-1.5 flex-wrap mt-2">
                                       <Badge variant="outline" className="text-xs font-normal">{referral.product_name || "-"}</Badge>
                                       <Badge variant="secondary" className="text-xs font-normal">{referral.plan_name || "-"}</Badge>
+                                      {referral.coupon_code && (
+                                        <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
+                                          {referral.coupon_code}
+                                        </Badge>
+                                      )}
                                       {referral.cancel_at_period_end && <Badge variant="destructive" className="text-xs">Cancelando</Badge>}
                                     </div>
 
@@ -569,6 +580,7 @@ const Referrals = () => {
                       <TableHead>Hora</TableHead>
                       <TableHead>Nome</TableHead>
                       <TableHead>Email</TableHead>
+                      <TableHead>Cupom</TableHead>
                       <TableHead>Produto</TableHead>
                       <TableHead>Plano</TableHead>
                       <TableHead>Status</TableHead>
@@ -579,7 +591,7 @@ const Referrals = () => {
                   </TableHeader>
                   <TableBody>
                     {referrals.length === 0 ? <TableRow>
-                        <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                           Nenhuma indicação encontrada
                         </TableCell>
                       </TableRow> : sortedDates.map(dateKey => {
@@ -590,7 +602,7 @@ const Referrals = () => {
                 return <>
                             {/* Date Header Row */}
                             <TableRow key={`date-${dateKey}`} className="bg-muted/30 hover:bg-muted/40 border-t border-border">
-                              <TableCell colSpan={9} className="py-2.5">
+                              <TableCell colSpan={10} className="py-2.5">
                                 <div className="flex items-center gap-2 font-semibold text-foreground/80">
                                   <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
                                     <Calendar className="h-4 w-4 text-primary" />
@@ -632,6 +644,16 @@ const Referrals = () => {
                                   </TableCell>
                                   <TableCell className="border-0 relative">
                                     {referral.email}
+                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                  </TableCell>
+                                  <TableCell className="border-0 relative">
+                                    {referral.coupon_code ? (
+                                      <Badge variant="outline" className="font-mono text-xs">
+                                        {referral.coupon_code}
+                                      </Badge>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">

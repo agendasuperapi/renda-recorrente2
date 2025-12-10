@@ -3599,6 +3599,7 @@ export type Database = {
           affiliate_code: string | null
           affiliate_id: string | null
           cancel_at_period_end: boolean | null
+          coupon_code: string | null
           cpf: string | null
           created_at: string | null
           current_period_end: string | null
