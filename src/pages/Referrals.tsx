@@ -137,7 +137,13 @@ const Referrals = () => {
             uniqueCouponsMap.set(code, { id: c.id, custom_code: c.custom_code, coupon_code_at_creation: c.coupon_code_at_creation });
           }
         });
-        setCoupons(Array.from(uniqueCouponsMap.values()));
+        // Ordenar alfabeticamente pelo código
+        const sortedCoupons = Array.from(uniqueCouponsMap.values()).sort((a, b) => {
+          const codeA = (a.custom_code || a.coupon_code_at_creation || '').toLowerCase();
+          const codeB = (b.custom_code || b.coupon_code_at_creation || '').toLowerCase();
+          return codeA.localeCompare(codeB);
+        });
+        setCoupons(sortedCoupons);
       }
     }
   };
