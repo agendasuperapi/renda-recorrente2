@@ -51,6 +51,11 @@ interface Plan {
   id: string;
   name: string;
 }
+interface Coupon {
+  id: string;
+  custom_code: string | null;
+  coupon_code_at_creation: string | null;
+}
 const Referrals = () => {
   const isMobile = useIsMobile();
   const [referrals, setReferrals] = useState<Referral[]>([]);
@@ -71,8 +76,10 @@ const Referrals = () => {
   const [selectedProduct, setSelectedProduct] = useState<string>("all");
   const [selectedPlan, setSelectedPlan] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedCoupon, setSelectedCoupon] = useState<string>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
 
   // Layout mode para mobile/tablet
   const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
@@ -92,7 +99,7 @@ const Referrals = () => {
   useEffect(() => {
     loadReferrals();
     loadStats();
-  }, [currentPage, debouncedSearch, selectedProduct, selectedPlan, selectedStatus, itemsPerPage]);
+  }, [currentPage, debouncedSearch, selectedProduct, selectedPlan, selectedStatus, selectedCoupon, itemsPerPage]);
   useEffect(() => {
     if (selectedProduct !== "all") {
       loadPlansForProduct(selectedProduct);
@@ -103,9 +110,26 @@ const Referrals = () => {
   }, [selectedProduct]);
   const loadFiltersData = async () => {
     const {
+      data: session
+    } = await supabase.auth.getSession();
+    
+    const {
       data: productsData
     } = await supabase.from("products").select("id, nome, icone_light, icone_dark").order("nome");
     if (productsData) setProducts(productsData);
+    
+    // Load affiliate coupons
+    if (session?.session) {
+      const {
+        data: couponsData
+      } = await supabase
+        .from("affiliate_coupons")
+        .select("id, custom_code, coupon_code_at_creation")
+        .eq("affiliate_id", session.session.user.id)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false });
+      if (couponsData) setCoupons(couponsData);
+    }
   };
   const loadPlansForProduct = async (productId: string) => {
     const {
@@ -144,6 +168,13 @@ const Referrals = () => {
       }
       if (selectedStatus !== "all") {
         query = query.eq("status", selectedStatus);
+      }
+      if (selectedCoupon !== "all") {
+        const coupon = coupons.find(c => c.id === selectedCoupon);
+        const couponCode = coupon?.custom_code || coupon?.coupon_code_at_creation;
+        if (couponCode) {
+          query = query.eq("coupon_code", couponCode);
+        }
       }
 
       // Pagination
@@ -205,6 +236,7 @@ const Referrals = () => {
     setSelectedProduct("all");
     setSelectedPlan("all");
     setSelectedStatus("all");
+    setSelectedCoupon("all");
     setCurrentPage(1);
   };
   const handleRefresh = () => {
@@ -361,6 +393,20 @@ const Referrals = () => {
               <SelectItem value="canceled">Cancelado</SelectItem>
               <SelectItem value="past_due">Atrasado</SelectItem>
               <SelectItem value="incomplete">Incompleto</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedCoupon} onValueChange={setSelectedCoupon}>
+            <SelectTrigger>
+              <SelectValue placeholder="Cupom" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os cupons</SelectItem>
+              {coupons.map(coupon => (
+                <SelectItem key={coupon.id} value={coupon.id}>
+                  {coupon.custom_code || coupon.coupon_code_at_creation || "Sem código"}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
