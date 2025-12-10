@@ -752,7 +752,10 @@ const AdminStripeEvents = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="pt-6">
           {isLoading && !eventsData ? (
             <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
