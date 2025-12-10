@@ -23,20 +23,33 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const ClientProfile = ({ userId }: { userId: string | null }) => {
+const ClientProfile = ({ userId, email }: { userId: string | null; email?: string | null }) => {
   const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile", userId],
+    queryKey: ["profile", userId, email],
     queryFn: async () => {
-      if (!userId) return null;
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      if (error) throw error;
-      return data;
+      // Primeiro tenta buscar por userId
+      if (userId) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
+        if (!error && data) return data;
+      }
+      
+      // Se não encontrou por userId, tenta buscar por email
+      if (email) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("email", email)
+          .maybeSingle();
+        if (!error && data) return data;
+      }
+      
+      return null;
     },
-    enabled: !!userId,
+    enabled: !!userId || !!email,
   });
 
   if (isLoading) {
@@ -166,30 +179,61 @@ const ClientProfile = ({ userId }: { userId: string | null }) => {
   );
 };
 
-const PlanInfo = ({ userId }: { userId: string | null }) => {
+const PlanInfo = ({ userId, email }: { userId: string | null; email?: string | null }) => {
   const { data: subscription, isLoading: loadingSubscription } = useQuery({
-    queryKey: ["user-subscription", userId],
+    queryKey: ["user-subscription", userId, email],
     queryFn: async () => {
-      if (!userId) return null;
-      const { data, error } = await supabase
-        .from("subscriptions")
-        .select(`
-          *,
-          plans (
-            name,
-            price,
-            billing_period,
-            commission_percentage
-          )
-        `)
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+      // Primeiro tenta buscar subscription pelo userId
+      if (userId) {
+        const { data, error } = await supabase
+          .from("subscriptions")
+          .select(`
+            *,
+            plans (
+              name,
+              price,
+              billing_period,
+              commission_percentage
+            )
+          `)
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (!error && data) return data;
+      }
+      
+      // Se não encontrou por userId, tenta buscar o profile pelo email primeiro
+      if (email) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("email", email)
+          .maybeSingle();
+        
+        if (profile) {
+          const { data, error } = await supabase
+            .from("subscriptions")
+            .select(`
+              *,
+              plans (
+                name,
+                price,
+                billing_period,
+                commission_percentage
+              )
+            `)
+            .eq("user_id", profile.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (!error && data) return data;
+        }
+      }
+      
+      return null;
     },
-    enabled: !!userId,
+    enabled: !!userId || !!email,
   });
 
   const { data: commission } = useQuery({
@@ -1161,11 +1205,11 @@ const AdminStripeEvents = () => {
                       <Code className="w-4 h-4 mr-2" />
                       Evento Json
                     </TabsTrigger>
-                    <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
+                    <TabsTrigger value="client" disabled={!selectedEvent.user_id && !selectedEvent.email}>
                       <User className="w-4 h-4 mr-2" />
                       Cliente
                     </TabsTrigger>
-                    <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
+                    <TabsTrigger value="plan" disabled={!selectedEvent.user_id && !selectedEvent.email}>
                       <CreditCard className="w-4 h-4 mr-2" />
                       Plano
                     </TabsTrigger>
@@ -1253,11 +1297,11 @@ const AdminStripeEvents = () => {
                   </TabsContent>
                   
                   <TabsContent value="client" className="space-y-4 mt-4">
-                    <ClientProfile userId={selectedEvent.user_id} />
+                    <ClientProfile userId={selectedEvent.user_id} email={selectedEvent.email} />
                   </TabsContent>
                   
                   <TabsContent value="plan" className="space-y-4 mt-4">
-                    <PlanInfo userId={selectedEvent.user_id} />
+                    <PlanInfo userId={selectedEvent.user_id} email={selectedEvent.email} />
                   </TabsContent>
                 </Tabs>
               )}
@@ -1281,11 +1325,11 @@ const AdminStripeEvents = () => {
                     <Code className="w-4 h-4 mr-2" />
                     Evento Json
                   </TabsTrigger>
-                  <TabsTrigger value="client" disabled={!selectedEvent.user_id}>
+                  <TabsTrigger value="client" disabled={!selectedEvent.user_id && !selectedEvent.email}>
                     <User className="w-4 h-4 mr-2" />
                     Cliente
                   </TabsTrigger>
-                  <TabsTrigger value="plan" disabled={!selectedEvent.user_id}>
+                  <TabsTrigger value="plan" disabled={!selectedEvent.user_id && !selectedEvent.email}>
                     <CreditCard className="w-4 h-4 mr-2" />
                     Plano
                   </TabsTrigger>
@@ -1373,11 +1417,11 @@ const AdminStripeEvents = () => {
                 </TabsContent>
                 
                 <TabsContent value="client" className="space-y-4 mt-4">
-                  <ClientProfile userId={selectedEvent.user_id} />
+                  <ClientProfile userId={selectedEvent.user_id} email={selectedEvent.email} />
                 </TabsContent>
                 
                 <TabsContent value="plan" className="space-y-4 mt-4">
-                  <PlanInfo userId={selectedEvent.user_id} />
+                  <PlanInfo userId={selectedEvent.user_id} email={selectedEvent.email} />
                 </TabsContent>
               </Tabs>
             )}
