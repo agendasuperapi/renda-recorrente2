@@ -295,7 +295,7 @@ export default function Support() {
                             {priorityConfig[ticket.priority].label}
                           </Badge>
                         )}
-                        {ticket.unread_count && ticket.unread_count > 0 && (
+                        {ticket.unread_count !== undefined && ticket.unread_count > 0 && (
                           <Badge className="bg-destructive text-destructive-foreground text-xs">
                             <MessageCircle className="w-3 h-3 mr-1" />
                             {ticket.unread_count} nova{ticket.unread_count > 1 ? "s" : ""}
