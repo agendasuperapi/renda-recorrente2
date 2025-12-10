@@ -948,29 +948,20 @@ const AdminStripeEvents = () => {
             {events && events.length > 0 ? (
               <div className="space-y-3">
                 {events.map((event) => (
-                  <Card key={event.id} className="overflow-hidden border-l-4 border-l-primary/30">
+                  <Card key={event.id} className="overflow-hidden">
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 shrink-0">
-                          <AvatarImage src={(event as any).user_avatar_url} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                            {((event as any).user_name || event.email || "U").slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-foreground truncate">
+                          <p className="font-semibold text-foreground">
                             {(event as any).user_name || event.email || "-"}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                          </p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <p className="text-sm text-muted-foreground">
                             {(event as any).plan_name || "-"}
                           </p>
-                          {getStatusBadge(event.processed)}
                         </div>
+                        <p className="text-sm text-muted-foreground shrink-0">
+                          {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </p>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1012,29 +1003,20 @@ const AdminStripeEvents = () => {
             )}
             {events && events.length > 0 ? (
               events.map((event) => (
-                <Card key={event.id} className="overflow-hidden border-l-4 border-l-primary/30">
+                <Card key={event.id} className="overflow-hidden">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 shrink-0">
-                        <AvatarImage src={(event as any).user_avatar_url} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                          {((event as any).user_name || event.email || "U").slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-foreground truncate">
+                        <p className="font-semibold text-foreground">
                           {(event as any).user_name || event.email || "-"}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <p className="text-sm text-muted-foreground">
                           {(event as any).plan_name || "-"}
                         </p>
-                        {getStatusBadge(event.processed)}
                       </div>
+                      <p className="text-sm text-muted-foreground shrink-0">
+                        {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </p>
                       <Button
                         variant="ghost"
                         size="icon"
