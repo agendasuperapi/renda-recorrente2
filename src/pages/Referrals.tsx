@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -55,6 +55,8 @@ interface Coupon {
   id: string;
   custom_code: string | null;
   coupon_code_at_creation: string | null;
+  product_id: string | null;
+  product_name: string | null;
 }
 const Referrals = () => {
   const isMobile = useIsMobile();
@@ -118,17 +120,34 @@ const Referrals = () => {
     } = await supabase.from("products").select("id, nome, icone_light, icone_dark").order("nome");
     if (productsData) setProducts(productsData);
     
-    // Load affiliate coupons
+    // Load affiliate coupons with product info
     if (session?.session) {
       const {
         data: couponsData
       } = await supabase
         .from("affiliate_coupons")
-        .select("id, custom_code, coupon_code_at_creation")
+        .select(`
+          id, 
+          custom_code, 
+          coupon_code_at_creation, 
+          product_id,
+          products:product_id (nome)
+        `)
         .eq("affiliate_id", session.session.user.id)
         .is("deleted_at", null)
+        .order("product_id")
         .order("created_at", { ascending: false });
-      if (couponsData) setCoupons(couponsData);
+      
+      if (couponsData) {
+        const formattedCoupons = couponsData.map((c: any) => ({
+          id: c.id,
+          custom_code: c.custom_code,
+          coupon_code_at_creation: c.coupon_code_at_creation,
+          product_id: c.product_id,
+          product_name: c.products?.nome || null
+        }));
+        setCoupons(formattedCoupons);
+      }
     }
   };
   const loadPlansForProduct = async (productId: string) => {
@@ -402,11 +421,26 @@ const Referrals = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os cupons</SelectItem>
-              {coupons.map(coupon => (
-                <SelectItem key={coupon.id} value={coupon.id}>
-                  {coupon.custom_code || coupon.coupon_code_at_creation || "Sem código"}
-                </SelectItem>
-              ))}
+              {(() => {
+                // Group coupons by product
+                const grouped = coupons.reduce((acc, coupon) => {
+                  const key = coupon.product_name || "Sem produto";
+                  if (!acc[key]) acc[key] = [];
+                  acc[key].push(coupon);
+                  return acc;
+                }, {} as Record<string, Coupon[]>);
+                
+                return Object.entries(grouped).map(([productName, productCoupons]) => (
+                  <SelectGroup key={productName}>
+                    <SelectLabel className="text-xs font-semibold text-muted-foreground">{productName}</SelectLabel>
+                    {productCoupons.map(coupon => (
+                      <SelectItem key={coupon.id} value={coupon.id}>
+                        {coupon.custom_code || coupon.coupon_code_at_creation || "Sem código"}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ));
+              })()}
             </SelectContent>
           </Select>
 
