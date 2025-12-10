@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code, ArrowUpDown, ArrowUp, ArrowDown, LayoutList, LayoutGrid } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -440,6 +441,7 @@ const AdminStripeEvents = () => {
   const [sortColumn, setSortColumn] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"compact" | "full">("compact");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const { data: eventsData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, environmentFilter, sortColumn, sortDirection],
@@ -600,7 +602,7 @@ const AdminStripeEvents = () => {
         </p>
       </div>
 
-      <Card>
+      <Card className="hidden lg:block">
         <CardHeader>
           <div className="space-y-4">
             {/* Search Input */}
@@ -727,7 +729,7 @@ const AdminStripeEvents = () => {
                 )}
               </div>
 
-              {/* View Mode Toggle - Hidden on mobile */}
+              {/* View Mode Toggle */}
               <ToggleGroup
                 type="single"
                 value={viewMode}
@@ -754,15 +756,186 @@ const AdminStripeEvents = () => {
         </CardHeader>
       </Card>
 
+      {/* Mobile/Tablet Filters Header */}
+      <div className="flex items-center justify-between lg:hidden">
+        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Filter className="h-4 w-4" />
+              Filtros
+              {(dateFrom || dateTo || eventTypeFilter !== "all" || environmentFilter !== "all" || searchTerm) && (
+                <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  !
+                </Badge>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-xl">
+            <SheetHeader>
+              <SheetTitle>Filtros</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4 py-4">
+              {/* Search Input */}
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar..."
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  type="text"
+                  autoComplete="off"
+                />
+              </div>
+
+              {/* Filters */}
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ambiente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos ambientes</SelectItem>
+                    <SelectItem value="test">Teste</SelectItem>
+                    <SelectItem value="production">Produção</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={eventTypeFilter} onValueChange={setEventTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
+                    <SelectItem value="checkout.session.completed">Checkout Completed</SelectItem>
+                    <SelectItem value="customer.subscription.created">Subscription Created</SelectItem>
+                    <SelectItem value="customer.subscription.updated">Subscription Updated</SelectItem>
+                    <SelectItem value="customer.subscription.deleted">Subscription Deleted</SelectItem>
+                    <SelectItem value="invoice.paid">Invoice Paid</SelectItem>
+                    <SelectItem value="invoice.payment_failed">Invoice Failed</SelectItem>
+                    <SelectItem value="payment_method.attached">Payment Method</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="gap-2 justify-start">
+                      <CalendarIcon className="h-4 w-4" />
+                      <span className="truncate text-sm">
+                        {dateFrom ? format(dateFrom, "dd/MM/yy", { locale: ptBR }) : "Data inicial"}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateFrom}
+                      onSelect={setDateFrom}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="gap-2 justify-start">
+                      <CalendarIcon className="h-4 w-4" />
+                      <span className="truncate text-sm">
+                        {dateTo ? format(dateTo, "dd/MM/yy", { locale: ptBR }) : "Data final"}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateTo}
+                      onSelect={setDateTo}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant={showCancelAtPeriodEnd ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowCancelAtPeriodEnd(!showCancelAtPeriodEnd)}
+                  className="gap-2"
+                >
+                  <Filter className="w-4 h-4" />
+                  Cancelados
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => refetch()}
+                  className="gap-2"
+                  disabled={isFetching}
+                >
+                  <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                </Button>
+
+                {(dateFrom || dateTo || eventTypeFilter !== "all" || environmentFilter !== "all") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setDateFrom(undefined);
+                      setDateTo(undefined);
+                      setEventTypeFilter("all");
+                      setEnvironmentFilter("all");
+                    }}
+                  >
+                    Limpar
+                  </Button>
+                )}
+              </div>
+
+              <Button onClick={() => setFiltersOpen(false)} className="w-full">
+                Aplicar
+              </Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* View Mode Toggle */}
+        <ToggleGroup
+          type="single"
+          value={viewMode}
+          onValueChange={(value) => value && setViewMode(value as "compact" | "full")}
+          className="flex bg-muted/50 rounded-lg p-1"
+        >
+          <ToggleGroupItem 
+            value="compact" 
+            aria-label="Layout compacto"
+            className="data-[state=on]:bg-background data-[state=on]:shadow-sm px-3"
+          >
+            <LayoutList className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="full" 
+            aria-label="Layout completo"
+            className="data-[state=on]:bg-background data-[state=on]:shadow-sm px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
       <Card>
         <CardContent className="pt-6">
           {isLoading && !eventsData ? (
             <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
             <>
-              {/* Mobile Compact View */}
+              {/* Mobile/Tablet Compact View */}
               <div className={cn(
-                "sm:hidden rounded-md border",
+                "lg:hidden space-y-3",
                 viewMode !== "compact" && "hidden"
               )}>
                 {isFetching && !isLoading && (
@@ -774,39 +947,40 @@ const AdminStripeEvents = () => {
                   </div>
                 )}
                 {events && events.length > 0 ? (
-                  <div className="divide-y">
+                  <div className="space-y-3">
                     {events.map((event) => (
-                      <div key={event.id} className="flex items-center gap-3 p-3">
-                        <div className="flex-1 min-w-0 space-y-1">
-                          <div className="flex items-center gap-2">
-                            {getEventTypeBadge(event.event_type)}
-                          </div>
-                          <p className="text-sm truncate">{event.email || "-"}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {(event as any).stripe_subscription_id && (
+                      <Card key={event.id} className="overflow-hidden">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">
+                                {(event as any).user_name || event.email || "-"}
+                              </p>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {(event as any).plan_name || getEventTypeBadge(event.event_type)}
+                              </p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-sm text-muted-foreground">
+                                {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                              </p>
+                              {(event as any).amount && (
+                                <p className="text-sm font-medium text-primary">
+                                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((event as any).amount / 100)}
+                                </p>
+                              )}
+                            </div>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                              className="h-8 w-8 shrink-0"
+                              onClick={() => handleViewDetails(event)}
                             >
-                              <Database className="w-4 h-4 text-primary" />
+                              <Eye className="w-4 h-4" />
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleViewDetails(event)}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 ) : (
@@ -816,9 +990,9 @@ const AdminStripeEvents = () => {
                 )}
               </div>
 
-              {/* Mobile Full Cards View */}
+              {/* Mobile/Tablet Full Cards View */}
               <div className={cn(
-                "sm:hidden space-y-3",
+                "lg:hidden space-y-3",
                 viewMode !== "full" && "hidden"
               )}>
                 {isFetching && !isLoading && (
@@ -833,23 +1007,27 @@ const AdminStripeEvents = () => {
                   events.map((event) => (
                     <Card key={event.id} className="overflow-hidden">
                       <CardContent className="p-4 space-y-3">
-                        {/* Header with Type Badge and Status */}
+                        {/* Header with Name and Status */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            {getEventTypeBadge(event.event_type)}
+                            <p className="font-medium truncate">
+                              {(event as any).user_name || event.email || "-"}
+                            </p>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {(event as any).plan_name || "-"}
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
                             {getStatusBadge(event.processed)}
                           </div>
                         </div>
 
-                        {/* Email */}
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Email</p>
-                          <p className="text-sm font-medium truncate">{event.email || "-"}</p>
+                        {/* Type Badge */}
+                        <div>
+                          {getEventTypeBadge(event.event_type)}
                         </div>
 
-                        {/* Date and Reason Row */}
+                        {/* Date and Amount Row */}
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1">
                             <p className="text-xs text-muted-foreground">Data</p>
@@ -858,8 +1036,12 @@ const AdminStripeEvents = () => {
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground">Reason</p>
-                            <p className="text-sm truncate">{(event as any).reason || "-"}</p>
+                            <p className="text-xs text-muted-foreground">Valor</p>
+                            <p className="text-sm font-medium text-primary">
+                              {(event as any).amount 
+                                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((event as any).amount / 100)
+                                : "-"}
+                            </p>
                           </div>
                         </div>
 
@@ -905,10 +1087,10 @@ const AdminStripeEvents = () => {
                 )}
               </div>
 
-              {/* Desktop/Tablet Table View - Compact Mode */}
+              {/* Desktop Table View - Compact Mode */}
               <div className={cn(
-                "hidden sm:block rounded-md border relative",
-                viewMode !== "compact" && "sm:hidden"
+                "hidden lg:block rounded-md border relative",
+                viewMode !== "compact" && "lg:hidden"
               )}>
                 {isFetching && !isLoading && (
                   <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
@@ -997,10 +1179,10 @@ const AdminStripeEvents = () => {
                 </Table>
               </div>
 
-              {/* Desktop/Tablet Table View - Full Mode */}
+              {/* Desktop Table View - Full Mode */}
               <div className={cn(
-                "hidden sm:block rounded-md border relative",
-                viewMode !== "full" && "sm:hidden"
+                "hidden lg:block rounded-md border relative",
+                viewMode !== "full" && "lg:hidden"
               )}>
                 {isFetching && !isLoading && (
                   <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
