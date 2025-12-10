@@ -681,11 +681,11 @@ const AdminStripeEvents = () => {
               </div>
 
               {/* View Mode Toggle - Hidden on mobile */}
-              <ToggleGroup 
-                type="single" 
-                value={viewMode} 
+              <ToggleGroup
+                type="single"
+                value={viewMode}
                 onValueChange={(value) => value && setViewMode(value as "compact" | "full")}
-                className="hidden sm:flex bg-muted/50 rounded-lg p-1"
+                className="flex bg-muted/50 rounded-lg p-1"
               >
                 <ToggleGroupItem 
                   value="compact" 
@@ -710,8 +710,67 @@ const AdminStripeEvents = () => {
             <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
             <>
-              {/* Mobile Cards View */}
-              <div className="sm:hidden space-y-3">
+              {/* Mobile Compact View */}
+              <div className={cn(
+                "sm:hidden rounded-md border",
+                viewMode !== "compact" && "hidden"
+              )}>
+                {isFetching && !isLoading && (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Buscando...
+                    </div>
+                  </div>
+                )}
+                {events && events.length > 0 ? (
+                  <div className="divide-y">
+                    {events.map((event) => (
+                      <div key={event.id} className="flex items-center gap-3 p-3">
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center gap-2">
+                            {getEventTypeBadge(event.event_type)}
+                          </div>
+                          <p className="text-sm truncate">{event.email || "-"}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {(event as any).stripe_subscription_id && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                            >
+                              <Database className="w-4 h-4 text-primary" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleViewDetails(event)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                    Nenhum evento encontrado
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Full Cards View */}
+              <div className={cn(
+                "sm:hidden space-y-3",
+                viewMode !== "full" && "hidden"
+              )}>
                 {isFetching && !isLoading && (
                   <div className="flex items-center justify-center py-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
