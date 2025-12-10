@@ -4,7 +4,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, Copy, Filter, AlertCircle, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Database, RefreshCw, User, CreditCard, Code, ArrowUpDown, ArrowUp, ArrowDown, LayoutList, LayoutGrid } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -391,6 +392,7 @@ const AdminStripeEvents = () => {
   const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
   const [sortColumn, setSortColumn] = useState<string>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [viewMode, setViewMode] = useState<"compact" | "full">("compact");
 
   const { data: eventsData, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["stripe-events", debouncedSearch, showCancelAtPeriodEnd, page, pageSize, eventTypeFilter, dateFrom, dateTo, environmentFilter, sortColumn, sortDirection],
@@ -638,43 +640,68 @@ const AdminStripeEvents = () => {
             </div>
 
             {/* Action Buttons Row */}
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant={showCancelAtPeriodEnd ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowCancelAtPeriodEnd(!showCancelAtPeriodEnd)}
-                className="gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                <span className="hidden sm:inline">Cancelamento Agendado</span>
-                <span className="sm:hidden">Cancelados</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => refetch()}
-                className="gap-2"
-                disabled={isFetching}
-              >
-                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Atualizar</span>
-              </Button>
-
-              {(dateFrom || dateTo || eventTypeFilter !== "all" || environmentFilter !== "all") && (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
-                  variant="ghost"
+                  variant={showCancelAtPeriodEnd ? "default" : "outline"}
                   size="sm"
-                  onClick={() => {
-                    setDateFrom(undefined);
-                    setDateTo(undefined);
-                    setEventTypeFilter("all");
-                    setEnvironmentFilter("all");
-                  }}
+                  onClick={() => setShowCancelAtPeriodEnd(!showCancelAtPeriodEnd)}
+                  className="gap-2"
                 >
-                  Limpar filtros
+                  <Filter className="w-4 h-4" />
+                  <span className="hidden sm:inline">Cancelamento Agendado</span>
+                  <span className="sm:hidden">Cancelados</span>
                 </Button>
-              )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => refetch()}
+                  className="gap-2"
+                  disabled={isFetching}
+                >
+                  <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">Atualizar</span>
+                </Button>
+
+                {(dateFrom || dateTo || eventTypeFilter !== "all" || environmentFilter !== "all") && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setDateFrom(undefined);
+                      setDateTo(undefined);
+                      setEventTypeFilter("all");
+                      setEnvironmentFilter("all");
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
+                )}
+              </div>
+
+              {/* View Mode Toggle - Hidden on mobile */}
+              <ToggleGroup 
+                type="single" 
+                value={viewMode} 
+                onValueChange={(value) => value && setViewMode(value as "compact" | "full")}
+                className="hidden sm:flex bg-muted/50 rounded-lg p-1"
+              >
+                <ToggleGroupItem 
+                  value="compact" 
+                  aria-label="Layout compacto"
+                  className="data-[state=on]:bg-background data-[state=on]:shadow-sm px-3"
+                >
+                  <LayoutList className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem 
+                  value="full" 
+                  aria-label="Layout completo"
+                  className="data-[state=on]:bg-background data-[state=on]:shadow-sm px-3"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
             </div>
           </div>
         </CardHeader>
@@ -683,8 +710,8 @@ const AdminStripeEvents = () => {
             <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
             <>
-              {/* Mobile/Tablet Cards View */}
-              <div className="lg:hidden space-y-3">
+              {/* Mobile Cards View */}
+              <div className="sm:hidden space-y-3">
                 {isFetching && !isLoading && (
                   <div className="flex items-center justify-center py-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -769,8 +796,103 @@ const AdminStripeEvents = () => {
                 )}
               </div>
 
-              {/* Desktop Table View */}
-              <div className="hidden lg:block rounded-md border relative">
+              {/* Desktop/Tablet Table View - Compact Mode */}
+              <div className={cn(
+                "hidden sm:block rounded-md border relative",
+                viewMode !== "compact" && "sm:hidden"
+              )}>
+                {isFetching && !isLoading && (
+                  <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Buscando...
+                    </div>
+                  </div>
+                )}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("event_type")} className="h-8 p-0 hover:bg-transparent">
+                          Tipo
+                          <SortIcon column="event_type" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
+                          Email
+                          <SortIcon column="email" />
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
+                          Data
+                          <SortIcon column="created_at" />
+                        </Button>
+                      </TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {events && events.length > 0 ? (
+                      events.map((event) => (
+                        <TableRow key={event.id}>
+                          <TableCell>
+                            {getEventTypeBadge(event.event_type)}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {event.email || "-"}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
+                              locale: ptBR,
+                            })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              {(event as any).stripe_subscription_id && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
+                                  title="Ver dados da subscription"
+                                >
+                                  <Database className="w-4 h-4 text-primary" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleViewDetails(event)}
+                                title="Ver detalhes"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
+                          className="text-center text-muted-foreground py-8"
+                        >
+                          Nenhum evento encontrado
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Desktop/Tablet Table View - Full Mode */}
+              <div className={cn(
+                "hidden sm:block rounded-md border relative",
+                viewMode !== "full" && "sm:hidden"
+              )}>
                 {isFetching && !isLoading && (
                   <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -844,11 +966,12 @@ const AdminStripeEvents = () => {
                             )}
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-1">
                               {(event as any).stripe_subscription_id && (
                                 <Button
                                   variant="ghost"
-                                  size="sm"
+                                  size="icon"
+                                  className="h-8 w-8"
                                   onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
                                   title="Ver dados da subscription"
                                 >
@@ -857,8 +980,10 @@ const AdminStripeEvents = () => {
                               )}
                               <Button
                                 variant="ghost"
-                                size="sm"
+                                size="icon"
+                                className="h-8 w-8"
                                 onClick={() => handleViewDetails(event)}
+                                title="Ver detalhes"
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
