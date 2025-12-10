@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -927,170 +928,173 @@ const AdminStripeEvents = () => {
         </ToggleGroup>
       </div>
 
-      <Card>
+      {/* Mobile/Tablet Compact View */}
+      <div className={cn(
+        "lg:hidden space-y-3",
+        viewMode !== "compact" && "hidden"
+      )}>
+        {isLoading && !eventsData ? (
+          <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
+        ) : (
+          <>
+            {isFetching && !isLoading && (
+              <div className="flex items-center justify-center py-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Buscando...
+                </div>
+              </div>
+            )}
+            {events && events.length > 0 ? (
+              <div className="space-y-3">
+                {events.map((event) => (
+                  <Card key={event.id} className="overflow-hidden border-l-4 border-l-primary/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage src={(event as any).user_avatar_url} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                            {((event as any).user_name || event.email || "U").slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground truncate">
+                            {(event as any).user_name || event.email || "-"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <p className="text-sm text-muted-foreground">
+                            {(event as any).plan_name || "-"}
+                          </p>
+                          {getStatusBadge(event.processed)}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground"
+                          onClick={() => handleViewDetails(event)}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                Nenhum evento encontrado
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Mobile/Tablet Full Cards View */}
+      <div className={cn(
+        "lg:hidden space-y-3",
+        viewMode !== "full" && "hidden"
+      )}>
+        {isLoading && !eventsData ? (
+          <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
+        ) : (
+          <>
+            {isFetching && !isLoading && (
+              <div className="flex items-center justify-center py-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Buscando...
+                </div>
+              </div>
+            )}
+            {events && events.length > 0 ? (
+              events.map((event) => (
+                <Card key={event.id} className="overflow-hidden border-l-4 border-l-primary/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 shrink-0">
+                        <AvatarImage src={(event as any).user_avatar_url} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                          {((event as any).user_name || event.email || "U").slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground truncate">
+                          {(event as any).user_name || event.email || "-"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(event.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <p className="text-sm text-muted-foreground">
+                          {(event as any).plan_name || "-"}
+                        </p>
+                        {getStatusBadge(event.processed)}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 shrink-0 text-muted-foreground"
+                        onClick={() => handleViewDetails(event)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                Nenhum evento encontrado
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Mobile/Tablet Pagination */}
+      <div className="lg:hidden flex flex-col items-center gap-4 py-4">
+        <span className="text-sm text-muted-foreground">
+          {events.length > 0 ? (page - 1) * pageSize + 1 : 0}-{Math.min(page * pageSize, totalCount)} de {totalCount}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1 || isFetching}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground px-2">
+            {page}/{totalPages || 1}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages || isFetching}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Content */}
+      <Card className="hidden lg:block">
         <CardContent className="pt-6">
           {isLoading && !eventsData ? (
             <TableSkeleton title="Eventos Stripe" columns={7} rows={10} showSearch />
           ) : (
             <>
-              {/* Mobile/Tablet Compact View */}
-              <div className={cn(
-                "lg:hidden space-y-3",
-                viewMode !== "compact" && "hidden"
-              )}>
-                {isFetching && !isLoading && (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                      Buscando...
-                    </div>
-                  </div>
-                )}
-                {events && events.length > 0 ? (
-                  <div className="space-y-3">
-                    {events.map((event) => (
-                      <Card key={event.id} className="overflow-hidden">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">
-                                {(event as any).user_name || event.email || "-"}
-                              </p>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {(event as any).plan_name || getEventTypeBadge(event.event_type)}
-                              </p>
-                            </div>
-                            <div className="text-right shrink-0">
-                              <p className="text-sm text-muted-foreground">
-                                {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                              </p>
-                              {(event as any).amount && (
-                                <p className="text-sm font-medium text-primary">
-                                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((event as any).amount / 100)}
-                                </p>
-                              )}
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                              onClick={() => handleViewDetails(event)}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    Nenhum evento encontrado
-                  </div>
-                )}
-              </div>
-
-              {/* Mobile/Tablet Full Cards View */}
-              <div className={cn(
-                "lg:hidden space-y-3",
-                viewMode !== "full" && "hidden"
-              )}>
-                {isFetching && !isLoading && (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                      Buscando...
-                    </div>
-                  </div>
-                )}
-                {events && events.length > 0 ? (
-                  events.map((event) => (
-                    <Card key={event.id} className="overflow-hidden">
-                      <CardContent className="p-4 space-y-3">
-                        {/* Header with Name and Status */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">
-                              {(event as any).user_name || event.email || "-"}
-                            </p>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {(event as any).plan_name || "-"}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getStatusBadge(event.processed)}
-                          </div>
-                        </div>
-
-                        {/* Type Badge */}
-                        <div>
-                          {getEventTypeBadge(event.event_type)}
-                        </div>
-
-                        {/* Date and Amount Row */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground">Data</p>
-                            <p className="text-sm">
-                              {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground">Valor</p>
-                            <p className="text-sm font-medium text-primary">
-                              {(event as any).amount 
-                                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((event as any).amount / 100)
-                                : "-"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Cancellation Badge */}
-                        {event.event_type === 'customer.subscription.updated' && 
-                        (event.event_data as any)?.cancel_at_period_end === true && (
-                          <Badge variant="destructive" className="gap-1 text-xs">
-                            <AlertCircle className="w-3 h-3" />
-                            Cancelamento Agendado
-                          </Badge>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex items-center gap-2 pt-2 border-t">
-                          {(event as any).stripe_subscription_id && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
-                              className="flex-1 gap-2"
-                            >
-                              <Database className="w-4 h-4 text-primary" />
-                              Subscription
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewDetails(event)}
-                            className="flex-1 gap-2"
-                          >
-                            <Eye className="w-4 h-4" />
-                            Detalhes
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    Nenhum evento encontrado
-                  </div>
-                )}
-              </div>
-
               {/* Desktop Table View - Compact Mode */}
               <div className={cn(
-                "hidden lg:block rounded-md border relative",
-                viewMode !== "compact" && "lg:hidden"
+                "rounded-md border relative",
+                viewMode !== "compact" && "hidden"
               )}>
                 {isFetching && !isLoading && (
                   <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
@@ -1103,24 +1107,12 @@ const AdminStripeEvents = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("event_type")} className="h-8 p-0 hover:bg-transparent">
-                          Tipo
-                          <SortIcon column="event_type" />
-                        </Button>
-                      </TableHead>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
-                          Email
-                          <SortIcon column="email" />
-                        </Button>
-                      </TableHead>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
-                          Data
-                          <SortIcon column="created_at" />
-                        </Button>
-                      </TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Usuário</TableHead>
+                      <TableHead>Plano</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Ambiente</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1128,26 +1120,48 @@ const AdminStripeEvents = () => {
                     {events && events.length > 0 ? (
                       events.map((event) => (
                         <TableRow key={event.id}>
+                          <TableCell>{getEventTypeBadge(event.event_type)}</TableCell>
                           <TableCell>
-                            {getEventTypeBadge(event.event_type)}
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={(event as any).user_avatar_url} />
+                                <AvatarFallback className="text-xs">
+                                  {((event as any).user_name || event.email || "U").slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0">
+                                <p className="font-medium truncate max-w-[150px]">
+                                  {(event as any).user_name || "-"}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                                  {event.email || "-"}
+                                </p>
+                              </div>
+                            </div>
                           </TableCell>
-                          <TableCell className="text-sm">
-                            {event.email || "-"}
+                          <TableCell>
+                            <span className="text-sm">{(event as any).plan_name || "-"}</span>
                           </TableCell>
-                          <TableCell className="text-sm">
-                            {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
-                              locale: ptBR,
-                            })}
+                          <TableCell>
+                            <span className="text-sm">
+                              {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </span>
                           </TableCell>
+                          <TableCell>
+                            <Badge variant={event.environment === "production" ? "default" : "secondary"}>
+                              {event.environment === "production" ? "Produção" : "Teste"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{getStatusBadge(event.processed)}</TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="flex items-center justify-end gap-2">
                               {(event as any).stripe_subscription_id && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8"
                                   onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
-                                  title="Ver dados da subscription"
+                                  title="Ver Subscription"
                                 >
                                   <Database className="w-4 h-4 text-primary" />
                                 </Button>
@@ -1157,7 +1171,7 @@ const AdminStripeEvents = () => {
                                 size="icon"
                                 className="h-8 w-8"
                                 onClick={() => handleViewDetails(event)}
-                                title="Ver detalhes"
+                                title="Ver Detalhes"
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
@@ -1167,10 +1181,7 @@ const AdminStripeEvents = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          className="text-center text-muted-foreground py-8"
-                        >
+                        <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                           Nenhum evento encontrado
                         </TableCell>
                       </TableRow>
@@ -1181,8 +1192,8 @@ const AdminStripeEvents = () => {
 
               {/* Desktop Table View - Full Mode */}
               <div className={cn(
-                "hidden lg:block rounded-md border relative",
-                viewMode !== "full" && "lg:hidden"
+                "rounded-md border relative",
+                viewMode !== "full" && "hidden"
               )}>
                 {isFetching && !isLoading && (
                   <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-10 flex items-center justify-center">
@@ -1195,32 +1206,13 @@ const AdminStripeEvents = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("event_type")} className="h-8 p-0 hover:bg-transparent">
-                          Tipo
-                          <SortIcon column="event_type" />
-                        </Button>
-                      </TableHead>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("email")} className="h-8 p-0 hover:bg-transparent">
-                          Email
-                          <SortIcon column="email" />
-                        </Button>
-                      </TableHead>
-                      <TableHead>Reason</TableHead>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-8 p-0 hover:bg-transparent">
-                          Data
-                          <SortIcon column="created_at" />
-                        </Button>
-                      </TableHead>
-                      <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("processed")} className="h-8 p-0 hover:bg-transparent">
-                          Status
-                          <SortIcon column="processed" />
-                        </Button>
-                      </TableHead>
-                      <TableHead className="text-center">Cancelamento</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      <TableHead>Usuário</TableHead>
+                      <TableHead>Plano</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Ambiente</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1228,43 +1220,55 @@ const AdminStripeEvents = () => {
                     {events && events.length > 0 ? (
                       events.map((event) => (
                         <TableRow key={event.id}>
+                          <TableCell>{getEventTypeBadge(event.event_type)}</TableCell>
                           <TableCell>
-                            {getEventTypeBadge(event.event_type)}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {event.email || "-"}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {(event as any).reason || "-"}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", {
-                              locale: ptBR,
-                            })}
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(event.processed)}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {event.event_type === 'customer.subscription.updated' && 
-                            (event.event_data as any)?.cancel_at_period_end === true && (
-                              <div className="flex justify-center">
-                                <Badge variant="destructive" className="gap-1 text-xs">
-                                  <AlertCircle className="w-3 h-3" />
-                                  Agendado
-                                </Badge>
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={(event as any).user_avatar_url} />
+                                <AvatarFallback className="text-xs">
+                                  {((event as any).user_name || event.email || "U").slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0">
+                                <p className="font-medium truncate max-w-[150px]">
+                                  {(event as any).user_name || "-"}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                                  {event.email || "-"}
+                                </p>
                               </div>
-                            )}
+                            </div>
                           </TableCell>
+                          <TableCell>
+                            <span className="text-sm">{(event as any).plan_name || "-"}</span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm font-medium text-primary">
+                              {(event as any).amount 
+                                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format((event as any).amount / 100)
+                                : "-"}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-sm">
+                              {format(new Date(event.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={event.environment === "production" ? "default" : "secondary"}>
+                              {event.environment === "production" ? "Produção" : "Teste"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{getStatusBadge(event.processed)}</TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="flex items-center justify-end gap-2">
                               {(event as any).stripe_subscription_id && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8"
                                   onClick={() => handleViewSubscription((event as any).stripe_subscription_id)}
-                                  title="Ver dados da subscription"
+                                  title="Ver Subscription"
                                 >
                                   <Database className="w-4 h-4 text-primary" />
                                 </Button>
@@ -1274,7 +1278,7 @@ const AdminStripeEvents = () => {
                                 size="icon"
                                 className="h-8 w-8"
                                 onClick={() => handleViewDetails(event)}
-                                title="Ver detalhes"
+                                title="Ver Detalhes"
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
@@ -1284,10 +1288,7 @@ const AdminStripeEvents = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell
-                          colSpan={7}
-                          className="text-center text-muted-foreground py-8"
-                        >
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                           Nenhum evento encontrado
                         </TableCell>
                       </TableRow>
@@ -1298,7 +1299,7 @@ const AdminStripeEvents = () => {
             </>
           )}
 
-          {/* Pagination */}
+          {/* Desktop Pagination */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 border-t">
             <span className="text-sm text-muted-foreground text-center sm:text-left">
               {events.length > 0 ? (page - 1) * pageSize + 1 : 0}-{Math.min(page * pageSize, totalCount)} de {totalCount}
