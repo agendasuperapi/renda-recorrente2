@@ -118,7 +118,7 @@ const Referrals = () => {
     } = await supabase.from("products").select("id, nome, icone_light, icone_dark").order("nome");
     if (productsData) setProducts(productsData);
     
-    // Load affiliate coupons
+    // Load affiliate coupons (agrupados por código único)
     if (session?.session) {
       const {
         data: couponsData
@@ -128,7 +128,17 @@ const Referrals = () => {
         .eq("affiliate_id", session.session.user.id)
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
-      if (couponsData) setCoupons(couponsData);
+      if (couponsData) {
+        // Agrupar cupons pelo código para mostrar apenas um de cada
+        const uniqueCouponsMap = new Map<string, Coupon>();
+        couponsData.forEach(c => {
+          const code = c.custom_code || c.coupon_code_at_creation || '';
+          if (code && !uniqueCouponsMap.has(code)) {
+            uniqueCouponsMap.set(code, { id: c.id, custom_code: c.custom_code, coupon_code_at_creation: c.coupon_code_at_creation });
+          }
+        });
+        setCoupons(Array.from(uniqueCouponsMap.values()));
+      }
     }
   };
   const loadPlansForProduct = async (productId: string) => {
