@@ -69,6 +69,7 @@ const AdminProducts = () => {
   const [logoLightPreview, setLogoLightPreview] = useState<string | null>(null);
   const [importingProductId, setImportingProductId] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [dialogTab, setDialogTab] = useState<string>("produto");
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -358,6 +359,7 @@ const AdminProducts = () => {
     setLogoDarkPreview(null);
     setLogoLightPreview(null);
     setShowApiKey(false);
+    setDialogTab("produto");
     form.reset();
   };
 
@@ -729,7 +731,6 @@ const AdminProducts = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products?.map((product, index) => {
             const productPlans = getPlansForProduct(product.id);
-            const isImporting = importingProductId === product.id;
 
             return (
               <ScrollAnimation key={product.id} animation="fade-up" delay={index * 50}>
@@ -745,143 +746,70 @@ const AdminProducts = () => {
                       <CardTitle className="text-lg">{product.nome}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-0">
-                    <Tabs defaultValue="produto" className="w-full">
-                      <TabsList className="grid grid-cols-2 mb-3">
-                        <TabsTrigger value="produto" className="text-xs gap-1.5">
-                          <Package className="w-3.5 h-3.5" />
-                          Produto
-                        </TabsTrigger>
-                        <TabsTrigger value="planos" className="text-xs gap-1.5">
-                          <CreditCard className="w-3.5 h-3.5" />
-                          Planos
-                          {productPlans.length > 0 && (
-                            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
-                              {productPlans.length}
-                            </Badge>
-                          )}
-                        </TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="produto" className="mt-0 space-y-3">
-                        {(product.logo_dark || product.logo_light) && (
-                          <div className="flex justify-center py-2 bg-muted/30 rounded">
-                            {product.logo_dark && (
-                              <img src={product.logo_dark} alt={`${product.nome} logo`} className="h-12 object-contain dark:block hidden" />
-                            )}
-                            {product.logo_light && (
-                              <img src={product.logo_light} alt={`${product.nome} logo`} className="h-12 object-contain dark:hidden block" />
-                            )}
-                          </div>
+                  <CardContent className="pt-0 space-y-3">
+                    {(product.logo_dark || product.logo_light) && (
+                      <div className="flex justify-center py-2 bg-muted/30 rounded">
+                        {product.logo_dark && (
+                          <img src={product.logo_dark} alt={`${product.nome} logo`} className="h-12 object-contain dark:block hidden" />
                         )}
-                        {product.descricao && (
-                          <p className="text-muted-foreground line-clamp-2 text-sm">{product.descricao}</p>
+                        {product.logo_light && (
+                          <img src={product.logo_light} alt={`${product.nome} logo`} className="h-12 object-contain dark:hidden block" />
                         )}
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1.5">
-                          <span className="font-medium">ID:</span>
-                          <code className="flex-1 truncate font-mono">{product.id}</code>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 shrink-0"
-                            onClick={() => {
-                              navigator.clipboard.writeText(product.id);
-                              toast({ title: "ID copiado!", description: product.id });
-                            }}
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
+                      </div>
+                    )}
+                    {product.descricao && (
+                      <p className="text-muted-foreground line-clamp-2 text-sm">{product.descricao}</p>
+                    )}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1.5">
+                      <span className="font-medium">ID:</span>
+                      <code className="flex-1 truncate font-mono">{product.id}</code>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0"
+                        onClick={() => {
+                          navigator.clipboard.writeText(product.id);
+                          toast({ title: "ID copiado!", description: product.id });
+                        }}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    
+                    {/* Status indicators */}
+                    <div className="flex items-center gap-3 flex-wrap">
+                      {product.api_url && (
+                        <div className="flex items-center gap-1.5 text-xs text-primary">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>API configurada</span>
                         </div>
-                        <div className="space-y-1 text-sm">
-                          {product.telefone && (
-                            <p><span className="font-medium">Telefone:</span> {product.telefone}</p>
-                          )}
-                          {product.email && (
-                            <p><span className="font-medium">Email:</span> {product.email}</p>
-                          )}
-                          {product.site && (
-                            <p><span className="font-medium">Site:</span> {product.site}</p>
-                          )}
-                        </div>
-                        {product.api_url && (
-                          <div className="flex items-center gap-1.5 text-xs text-primary">
-                            <Check className="w-3.5 h-3.5" />
-                            <span>API configurada</span>
-                          </div>
-                        )}
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditProduct(product)}
-                            className="gap-2"
-                          >
-                            <Pencil className="w-4 h-4" />
-                            Editar
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => deleteProductMutation.mutate(product.id)}
-                            className="gap-2"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Excluir
-                          </Button>
-                        </div>
-                      </TabsContent>
-
-                      <TabsContent value="planos" className="mt-0 space-y-3">
-                        {productPlans.length === 0 ? (
-                          <div className="text-center py-4 text-muted-foreground text-sm">
-                            Nenhum plano cadastrado
-                          </div>
-                        ) : (
-                          <div className="space-y-2 max-h-48 overflow-y-auto">
-                            {productPlans.map((plan) => (
-                              <div 
-                                key={plan.id} 
-                                className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm"
-                              >
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate">{plan.name}</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {formatCurrency(plan.price)}
-                                    {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
-                                      <span className="ml-2">• {(plan.features as any).credits} créditos</span>
-                                    )}
-                                  </p>
-                                </div>
-                                <Badge variant={plan.is_active ? "default" : "secondary"} className="text-[10px]">
-                                  {plan.is_active ? "Ativo" : "Inativo"}
-                                </Badge>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        
-                        {product.api_url ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleImportPlans(product)}
-                            disabled={isImporting}
-                            className="w-full gap-2"
-                          >
-                            {isImporting ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Download className="w-4 h-4" />
-                            )}
-                            {isImporting ? "Importando..." : "Importar Planos"}
-                          </Button>
-                        ) : (
-                          <p className="text-xs text-muted-foreground text-center py-2">
-                            Configure a API nas configurações do produto para importar planos
-                          </p>
-                        )}
-                      </TabsContent>
-                    </Tabs>
+                      )}
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <CreditCard className="w-3.5 h-3.5" />
+                        <span>{productPlans.length} plano{productPlans.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditProduct(product)}
+                        className="gap-2"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteProductMutation.mutate(product.id)}
+                        className="gap-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Excluir
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </ScrollAnimation>
@@ -908,19 +836,106 @@ const AdminProducts = () => {
             </DrawerHeader>
             <ScrollArea className="h-[calc(95vh-140px)]">
               <div className="px-4 pb-4">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                    <ProductFormFields isMobileView />
-                    <div className="flex gap-2 justify-end pt-3">
-                      <Button type="button" variant="outline" onClick={handleCloseDialog} className="text-xs">
-                        Cancelar
-                      </Button>
-                      <Button type="submit" disabled={uploading} className="text-xs">
-                        {uploading ? "Enviando..." : editingProduct ? "Atualizar" : "Criar"}
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
+                {editingProduct ? (
+                  <Tabs value={dialogTab} onValueChange={setDialogTab} className="w-full">
+                    <TabsList className="grid grid-cols-2 mb-4 bg-muted/50 p-1.5 rounded-xl">
+                      <TabsTrigger value="produto" className="text-xs gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">
+                        <Package className="w-3.5 h-3.5" />
+                        Produto
+                      </TabsTrigger>
+                      <TabsTrigger value="planos" className="text-xs gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">
+                        <CreditCard className="w-3.5 h-3.5" />
+                        Planos
+                        {getPlansForProduct(editingProduct.id).length > 0 && (
+                          <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+                            {getPlansForProduct(editingProduct.id).length}
+                          </Badge>
+                        )}
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="produto" className="mt-0 data-[state=inactive]:hidden" forceMount>
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                          <ProductFormFields isMobileView />
+                          <div className="flex gap-2 justify-end pt-3">
+                            <Button type="button" variant="outline" onClick={handleCloseDialog} className="text-xs">
+                              Cancelar
+                            </Button>
+                            <Button type="submit" disabled={uploading} className="text-xs">
+                              {uploading ? "Enviando..." : "Atualizar"}
+                            </Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </TabsContent>
+
+                    <TabsContent value="planos" className="mt-0 space-y-3 data-[state=inactive]:hidden" forceMount>
+                      {getPlansForProduct(editingProduct.id).length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground text-sm">
+                          Nenhum plano cadastrado
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {getPlansForProduct(editingProduct.id).map((plan) => (
+                            <div 
+                              key={plan.id} 
+                              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg text-sm border"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{plan.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatCurrency(plan.price)}
+                                  {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
+                                    <span className="ml-2">• {(plan.features as any).credits} créditos</span>
+                                  )}
+                                </p>
+                              </div>
+                              <Badge variant={plan.is_active ? "default" : "secondary"} className="text-[10px]">
+                                {plan.is_active ? "Ativo" : "Inativo"}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {editingProduct.api_url ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleImportPlans(editingProduct)}
+                          disabled={importingProductId === editingProduct.id}
+                          className="w-full gap-2"
+                        >
+                          {importingProductId === editingProduct.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                          {importingProductId === editingProduct.id ? "Importando..." : "Importar Planos"}
+                        </Button>
+                      ) : (
+                        <p className="text-xs text-muted-foreground text-center py-2">
+                          Configure a API na aba "Produto" para importar planos
+                        </p>
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                ) : (
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                      <ProductFormFields isMobileView />
+                      <div className="flex gap-2 justify-end pt-3">
+                        <Button type="button" variant="outline" onClick={handleCloseDialog} className="text-xs">
+                          Cancelar
+                        </Button>
+                        <Button type="submit" disabled={uploading} className="text-xs">
+                          {uploading ? "Enviando..." : "Criar"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                )}
               </div>
             </ScrollArea>
           </DrawerContent>
@@ -933,19 +948,106 @@ const AdminProducts = () => {
                 {editingProduct ? "Editar Produto" : "Novo Produto"}
               </DialogTitle>
             </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <ProductFormFields />
-                <div className="flex gap-2 justify-end pt-4">
-                  <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={uploading}>
-                    {uploading ? "Enviando..." : editingProduct ? "Atualizar" : "Criar"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
+            
+            {editingProduct ? (
+              <Tabs value={dialogTab} onValueChange={setDialogTab} className="w-full">
+                <TabsList className="grid grid-cols-2 mb-4 bg-muted/50 p-1.5 rounded-xl">
+                  <TabsTrigger value="produto" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">
+                    <Package className="w-4 h-4" />
+                    Produto
+                  </TabsTrigger>
+                  <TabsTrigger value="planos" className="gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">
+                    <CreditCard className="w-4 h-4" />
+                    Planos
+                    {getPlansForProduct(editingProduct.id).length > 0 && (
+                      <Badge variant="secondary" className="ml-1.5 h-5 px-1.5 text-xs">
+                        {getPlansForProduct(editingProduct.id).length}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="produto" className="mt-0 data-[state=inactive]:hidden" forceMount>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      <ProductFormFields />
+                      <div className="flex gap-2 justify-end pt-4">
+                        <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                          Cancelar
+                        </Button>
+                        <Button type="submit" disabled={uploading}>
+                          {uploading ? "Enviando..." : "Atualizar"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </TabsContent>
+
+                <TabsContent value="planos" className="mt-0 space-y-4 data-[state=inactive]:hidden" forceMount>
+                  {getPlansForProduct(editingProduct.id).length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      Nenhum plano cadastrado
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {getPlansForProduct(editingProduct.id).map((plan) => (
+                        <div 
+                          key={plan.id} 
+                          className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{plan.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {formatCurrency(plan.price)}
+                              {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
+                                <span className="ml-2">• {(plan.features as any).credits} créditos</span>
+                              )}
+                            </p>
+                          </div>
+                          <Badge variant={plan.is_active ? "default" : "secondary"}>
+                            {plan.is_active ? "Ativo" : "Inativo"}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {editingProduct.api_url ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => handleImportPlans(editingProduct)}
+                      disabled={importingProductId === editingProduct.id}
+                      className="w-full gap-2"
+                    >
+                      {importingProductId === editingProduct.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      {importingProductId === editingProduct.id ? "Importando..." : "Importar Planos"}
+                    </Button>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Configure a API na aba "Produto" para importar planos
+                    </p>
+                  )}
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <ProductFormFields />
+                  <div className="flex gap-2 justify-end pt-4">
+                    <Button type="button" variant="outline" onClick={handleCloseDialog}>
+                      Cancelar
+                    </Button>
+                    <Button type="submit" disabled={uploading}>
+                      {uploading ? "Enviando..." : "Criar"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            )}
           </DialogContent>
         </Dialog>
       )}
