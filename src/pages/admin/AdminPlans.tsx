@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Check, X, Edit, Trash2, Tag, Plus, Minus, FileText, CreditCard } from "lucide-react";
+import { Check, X, Edit, Trash2, Tag, Plus, Minus, FileText, CreditCard, Package, FileQuestion, Box } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -626,11 +626,32 @@ const AdminPlans = () => {
                   <SelectValue placeholder="Filtrar por produto" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos os produtos</SelectItem>
-                  <SelectItem value="no-product">Sem produto</SelectItem>
+                  <SelectItem value="all">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                      Todos os produtos
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="no-product">
+                    <div className="flex items-center gap-2">
+                      <FileQuestion className="h-4 w-4 text-muted-foreground" />
+                      Sem produto
+                    </div>
+                  </SelectItem>
                   {products?.map((product: any) => (
                     <SelectItem key={product.id} value={product.id}>
-                      {product.nome}
+                      <div className="flex items-center gap-2">
+                        {product.icone_light ? (
+                          <img 
+                            src={product.icone_light} 
+                            alt="" 
+                            className="h-4 w-4 rounded object-contain"
+                          />
+                        ) : (
+                          <Box className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        {product.nome}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
