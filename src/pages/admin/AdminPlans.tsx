@@ -613,13 +613,13 @@ const AdminPlans = () => {
   };
 
   return (
-    <div className="min-h-screen p-3 lg:p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6 lg:mb-8">
-            <h1 className="text-2xl lg:text-3xl font-bold">Planos</h1>
+    <div className="min-h-screen">
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl lg:text-2xl font-bold">Planos</h1>
           </div>
 
-          <div className="space-y-4 lg:space-y-6">
+          <div className="space-y-3 lg:space-y-4">
             <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-end">
               <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
                 <SelectTrigger className="w-full sm:w-[280px]">
@@ -641,7 +641,7 @@ const AdminPlans = () => {
               </Button>
             </div>
 
-            <div className="space-y-8">
+          <div className="space-y-4">
               {(isLoading || isFetching) ? (
                 <div className="text-center py-12">
                   <div className="inline-flex items-center gap-2 text-muted-foreground">
@@ -685,24 +685,24 @@ const AdminPlans = () => {
                       }, {});
 
                       return (
-                        <div key={period} className="space-y-6">
-                          <h2 className="text-2xl font-bold text-purple-400 border-b border-purple-600/30 pb-2">{periodTitle}</h2>
+                        <div key={period} className="space-y-3">
+                          <h2 className="text-lg font-bold text-purple-400 border-b border-purple-600/30 pb-1">{periodTitle}</h2>
                           
                           {/* Plans grouped by product */}
                           {Object.entries(productGroups).map(([productId, productPlans]: [string, any]) => {
                             const product = (productPlans as any[])[0]?.products;
                             return (
-                              <div key={productId} className="space-y-3">
-                                <div className="flex items-center gap-2 pl-4">
+                              <div key={productId} className="space-y-2">
+                                <div className="flex items-center gap-2 pl-2">
                                   {product?.icone_light && (
-                                    <img src={product.icone_light} alt={product.nome} className="w-6 h-6 dark:hidden" />
+                                    <img src={product.icone_light} alt={product.nome} className="w-5 h-5 dark:hidden" />
                                   )}
                                   {product?.icone_dark && (
-                                    <img src={product.icone_dark} alt={product.nome} className="w-6 h-6 hidden dark:block" />
+                                    <img src={product.icone_dark} alt={product.nome} className="w-5 h-5 hidden dark:block" />
                                   )}
-                                  <h3 className="text-lg font-semibold">{product?.nome || "Produto"}</h3>
+                                  <h3 className="text-sm font-semibold text-muted-foreground">{product?.nome || "Produto"}</h3>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                                   {(productPlans as any[]).sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any, index: number) => {
                                     const features = Array.isArray(plan.features) ? plan.features : [];
                                     const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
@@ -713,46 +713,44 @@ const AdminPlans = () => {
                                       <Card 
                                         className={`hover:border-primary/50 hover:shadow-md transition-all ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
                                       >
-                                        <CardHeader>
-                                          <div className="flex items-start justify-between">
-                                            <CardTitle className="text-base">{plan.name}</CardTitle>
-                                            <div className="flex gap-1">
+                                        <CardHeader className="p-3 pb-2">
+                                          <div className="flex items-start justify-between gap-1">
+                                            <CardTitle className="text-sm font-medium leading-tight">{plan.name}</CardTitle>
+                                            <div className="flex gap-0.5 -mr-1 -mt-1">
                                               <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8"
+                                                className="h-6 w-6"
                                               onClick={() => handleEditPlan(plan)}
                                               >
-                                                <Edit className="h-4 w-4" />
+                                                <Edit className="h-3 w-3" />
                                               </Button>
                                               <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8 hover:text-destructive"
+                                                className="h-6 w-6 hover:text-destructive"
                                               onClick={() => handleDeletePlan(plan.id)}
                                               >
-                                                <Trash2 className="h-4 w-4" />
+                                                <Trash2 className="h-3 w-3" />
                                               </Button>
                                             </div>
                                           </div>
                                         </CardHeader>
-                                        <CardContent className="space-y-3">
-                                          <div className="space-y-1">
-                                            <span className="text-2xl font-bold text-foreground">
-                                              R$ {parseFloat(plan.price).toFixed(2)}
-                                            </span>
-                                          </div>
+                                        <CardContent className="p-3 pt-0 space-y-2">
+                                          <span className="text-lg font-bold text-foreground">
+                                            R$ {parseFloat(plan.price).toFixed(2)}
+                                          </span>
                                           {coupon && (
-                                            <Badge variant="outline" className="gap-1">
-                                              <Tag className="h-3 w-3" />
+                                            <Badge variant="outline" className="gap-1 text-xs">
+                                              <Tag className="h-2.5 w-2.5" />
                                               {coupon.code}
                                             </Badge>
                                           )}
-                                          <div className="flex flex-wrap gap-2 pt-2">
-                                            <Badge variant={plan.is_active ? "default" : "secondary"}>
+                                          <div className="flex flex-wrap gap-1">
+                                            <Badge variant={plan.is_active ? "default" : "secondary"} className="text-xs px-1.5 py-0">
                                               {plan.is_active ? "Ativo" : "Inativo"}
                                             </Badge>
-                                            <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
+                                            <Badge variant="outline" className="text-xs px-1.5 py-0">{plan.commission_percentage}% comissão</Badge>
                                         </div>
                                       </CardContent>
                                     </Card>
@@ -766,9 +764,9 @@ const AdminPlans = () => {
 
                           {/* Plans without product */}
                           {plansWithoutProduct.length > 0 && (
-                            <div className="space-y-3">
-                              <h3 className="text-lg font-semibold pl-4">Sem produto associado</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <h3 className="text-sm font-semibold text-muted-foreground pl-2">Sem produto associado</h3>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                                 {plansWithoutProduct.map((plan: any) => {
                                   const features = Array.isArray(plan.features) ? plan.features : [];
                                   const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
@@ -779,46 +777,44 @@ const AdminPlans = () => {
                                       key={plan.id} 
                                       className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
                                     >
-                                      <CardHeader>
-                                        <div className="flex items-start justify-between">
-                                          <CardTitle className="text-base">{plan.name}</CardTitle>
-                                          <div className="flex gap-1">
+                                      <CardHeader className="p-3 pb-2">
+                                        <div className="flex items-start justify-between gap-1">
+                                          <CardTitle className="text-sm font-medium leading-tight">{plan.name}</CardTitle>
+                                          <div className="flex gap-0.5 -mr-1 -mt-1">
                                             <Button
                                               variant="ghost"
                                               size="icon"
-                                              className="h-8 w-8"
+                                              className="h-6 w-6"
                                             onClick={() => handleEditPlan(plan)}
                                             >
-                                              <Edit className="h-4 w-4" />
+                                              <Edit className="h-3 w-3" />
                                             </Button>
                                             <Button
                                               variant="ghost"
                                               size="icon"
-                                              className="h-8 w-8 hover:text-destructive"
+                                              className="h-6 w-6 hover:text-destructive"
                                             onClick={() => handleDeletePlan(plan.id)}
                                             >
-                                              <Trash2 className="h-4 w-4" />
+                                              <Trash2 className="h-3 w-3" />
                                             </Button>
                                           </div>
                                         </div>
                                       </CardHeader>
-                                      <CardContent className="space-y-3">
-                                        <div className="space-y-1">
-                                          <span className="text-2xl font-bold text-foreground">
-                                            R$ {parseFloat(plan.price).toFixed(2)}
-                                          </span>
-                                        </div>
+                                      <CardContent className="p-3 pt-0 space-y-2">
+                                        <span className="text-lg font-bold text-foreground">
+                                          R$ {parseFloat(plan.price).toFixed(2)}
+                                        </span>
                                         {coupon && (
-                                          <Badge variant="outline" className="gap-1">
-                                            <Tag className="h-3 w-3" />
+                                          <Badge variant="outline" className="gap-1 text-xs">
+                                            <Tag className="h-2.5 w-2.5" />
                                             {coupon.code}
                                           </Badge>
                                         )}
-                                        <div className="flex flex-wrap gap-2 pt-2">
-                                          <Badge variant={plan.is_active ? "default" : "secondary"}>
+                                        <div className="flex flex-wrap gap-1">
+                                          <Badge variant={plan.is_active ? "default" : "secondary"} className="text-xs px-1.5 py-0">
                                             {plan.is_active ? "Ativo" : "Inativo"}
                                           </Badge>
-                                          <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
+                                          <Badge variant="outline" className="text-xs px-1.5 py-0">{plan.commission_percentage}% comissão</Badge>
                                         </div>
                                       </CardContent>
                                     </Card>
