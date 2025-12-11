@@ -317,6 +317,19 @@ const AdminProducts = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
+                    {(product.logo_dark || product.logo_light) && (
+                      <div className="flex justify-center py-2 bg-muted/30 rounded">
+                        {product.logo_dark && (
+                          <img src={product.logo_dark} alt={`${product.nome} logo`} className="h-12 object-contain dark:block hidden" />
+                        )}
+                        {product.logo_light && (
+                          <img src={product.logo_light} alt={`${product.nome} logo`} className="h-12 object-contain dark:hidden block" />
+                        )}
+                      </div>
+                    )}
+                    {product.descricao && (
+                      <p className="text-muted-foreground line-clamp-2 text-sm">{product.descricao}</p>
+                    )}
                     <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1.5">
                       <span className="font-medium">ID:</span>
                       <code className="flex-1 truncate font-mono">{product.id}</code>
@@ -332,19 +345,6 @@ const AdminProducts = () => {
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                     </div>
-                    {(product.logo_dark || product.logo_light) && (
-                      <div className="flex justify-center py-2 bg-muted/30 rounded">
-                        {product.logo_dark && (
-                          <img src={product.logo_dark} alt={`${product.nome} logo`} className="h-12 object-contain dark:block hidden" />
-                        )}
-                        {product.logo_light && (
-                          <img src={product.logo_light} alt={`${product.nome} logo`} className="h-12 object-contain dark:hidden block" />
-                        )}
-                      </div>
-                    )}
-                    {product.descricao && (
-                      <p className="text-muted-foreground line-clamp-2 text-sm">{product.descricao}</p>
-                    )}
                     <div className="space-y-1 text-sm">
                       {product.telefone && (
                         <p><span className="font-medium">Telefone:</span> {product.telefone}</p>
