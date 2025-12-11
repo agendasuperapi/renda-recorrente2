@@ -1721,6 +1721,8 @@ export type Database = {
       }
       products: {
         Row: {
+          api_key: string | null
+          api_url: string | null
           created_at: string | null
           descricao: string | null
           email: string | null
@@ -1739,6 +1741,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          api_key?: string | null
+          api_url?: string | null
           created_at?: string | null
           descricao?: string | null
           email?: string | null
@@ -1757,6 +1761,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          api_key?: string | null
+          api_url?: string | null
           created_at?: string | null
           descricao?: string | null
           email?: string | null
