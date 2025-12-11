@@ -29,7 +29,7 @@ interface SyncPaymentData {
   external_user_id: string;
   product_id: string;
   plan_id?: string;
-  stripe_invoice_id: string;
+  stripe_invoice_id?: string; // Opcional para pagamentos avulsos
   stripe_subscription_id?: string;
   amount: number;
   currency?: string;
@@ -240,11 +240,11 @@ Deno.serve(async (req) => {
       const { payment } = body;
 
       // Validar campos obrigatórios
-      if (!payment.external_user_id || !payment.product_id || !payment.amount || !payment.stripe_invoice_id) {
-        throw new Error('Missing required payment fields: external_user_id, product_id, amount, stripe_invoice_id');
+      if (!payment.external_user_id || !payment.product_id || !payment.amount) {
+        throw new Error('Missing required payment fields: external_user_id, product_id, amount');
       }
 
-      console.log('💰 Syncing payment:', payment.stripe_invoice_id);
+      console.log('💰 Syncing payment:', payment.stripe_invoice_id || payment.external_payment_id || 'one-time payment');
 
       // Buscar o unified_user_id
       const { data: unifiedUser, error: findUserError } = await supabase
