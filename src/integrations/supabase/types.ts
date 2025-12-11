@@ -2646,6 +2646,10 @@ export type Database = {
           affiliate_id: string | null
           amount: number
           billing_reason: string | null
+          commission_error: string | null
+          commission_processed: boolean | null
+          commission_processed_at: string | null
+          commissions_generated: number | null
           created_at: string | null
           currency: string | null
           environment: string | null
@@ -2665,6 +2669,10 @@ export type Database = {
           affiliate_id?: string | null
           amount: number
           billing_reason?: string | null
+          commission_error?: string | null
+          commission_processed?: boolean | null
+          commission_processed_at?: string | null
+          commissions_generated?: number | null
           created_at?: string | null
           currency?: string | null
           environment?: string | null
@@ -2684,6 +2692,10 @@ export type Database = {
           affiliate_id?: string | null
           amount?: number
           billing_reason?: string | null
+          commission_error?: string | null
+          commission_processed?: boolean | null
+          commission_processed_at?: string | null
+          commissions_generated?: number | null
           created_at?: string | null
           currency?: string | null
           environment?: string | null
