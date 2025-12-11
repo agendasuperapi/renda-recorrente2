@@ -392,6 +392,20 @@ export const AdminCommissionsTab = () => {
                                     <CardContent className="p-4 space-y-3">
                                       {layoutMode === "compact" && expandedCardId !== commission.id ? (
                                         <div className="flex items-center justify-between gap-3">
+                                          {commission.product_icon_light && (
+                                            <img 
+                                              src={commission.product_icon_light} 
+                                              alt={commission.produto} 
+                                              className="w-8 h-8 rounded-md object-contain flex-shrink-0 dark:hidden"
+                                            />
+                                          )}
+                                          {commission.product_icon_dark && (
+                                            <img 
+                                              src={commission.product_icon_dark} 
+                                              alt={commission.produto} 
+                                              className="w-8 h-8 rounded-md object-contain flex-shrink-0 hidden dark:block"
+                                            />
+                                          )}
                                           <div className="flex-1 min-w-0">
                                             <div className="font-semibold text-sm truncate">{commission.affiliate_name}</div>
                                             <div className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</div>
@@ -409,6 +423,20 @@ export const AdminCommissionsTab = () => {
                                       ) : (
                                         <>
                                           <div className="flex justify-between items-start gap-2">
+                                            {commission.product_icon_light && (
+                                              <img 
+                                                src={commission.product_icon_light} 
+                                                alt={commission.produto} 
+                                                className="w-10 h-10 rounded-md object-contain flex-shrink-0 dark:hidden"
+                                              />
+                                            )}
+                                            {commission.product_icon_dark && (
+                                              <img 
+                                                src={commission.product_icon_dark} 
+                                                alt={commission.produto} 
+                                                className="w-10 h-10 rounded-md object-contain flex-shrink-0 hidden dark:block"
+                                              />
+                                            )}
                                             <div className="flex-1 min-w-0">
                                               <p className="font-medium text-sm truncate">{commission.affiliate_name}</p>
                                               <p className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</p>
