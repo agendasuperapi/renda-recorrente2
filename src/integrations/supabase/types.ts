@@ -689,6 +689,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "commissions_unified_payment_id_fkey"
+            columns: ["unified_payment_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_commission_processing"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_commissions_unified_user_id"
             columns: ["unified_user_id"]
             isOneToOne: false
@@ -3195,6 +3202,124 @@ export type Database = {
         }
         Relationships: []
       }
+      view_admin_commission_processing: {
+        Row: {
+          affiliate_id: string | null
+          affiliate_name: string | null
+          amount: number | null
+          billing_reason: string | null
+          commission_error: string | null
+          commission_processed: boolean | null
+          commission_processed_at: string | null
+          commissions_generated: number | null
+          created_at: string | null
+          currency: string | null
+          customer_email: string | null
+          customer_name: string | null
+          external_payment_id: string | null
+          id: string | null
+          payment_date: string | null
+          payment_status: string | null
+          plan_id: string | null
+          plan_name: string | null
+          product_id: string | null
+          product_name: string | null
+          unified_user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["plan_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_unified_user_id_fkey"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_unified_user_id_fkey"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["unified_user_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_unified_user_id_fkey"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_unified_user_id_fkey"
+            columns: ["unified_user_id"]
+            isOneToOne: false
+            referencedRelation: "view_sub_affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       view_admin_payments: {
         Row: {
           affiliate_name: string | null
@@ -3479,6 +3604,13 @@ export type Database = {
             columns: ["unified_payment_id"]
             isOneToOne: false
             referencedRelation: "unified_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commissions_unified_payment_id_fkey"
+            columns: ["unified_payment_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_commission_processing"
             referencedColumns: ["id"]
           },
         ]
