@@ -62,6 +62,12 @@ interface SyncRequest {
   api_key?: string;
 }
 
+// Helper para validar UUID
+const isValidUUID = (str: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
 // Helper para log com timestamp
 const log = (level: string, message: string, data?: any) => {
   const timestamp = new Date().toISOString();
@@ -239,6 +245,24 @@ Deno.serve(async (req) => {
         throw new Error('Missing required user fields: external_user_id, product_id, email');
       }
 
+      // Validar UUIDs
+      if (!isValidUUID(user.external_user_id)) {
+        log('error', `[${requestId}] Invalid UUID for external_user_id: ${user.external_user_id}`);
+        throw new Error(`Invalid UUID format for external_user_id: ${user.external_user_id}`);
+      }
+      if (!isValidUUID(user.product_id)) {
+        log('error', `[${requestId}] Invalid UUID for product_id: ${user.product_id}`);
+        throw new Error(`Invalid UUID format for product_id: ${user.product_id}`);
+      }
+      if (user.affiliate_id && !isValidUUID(user.affiliate_id)) {
+        log('error', `[${requestId}] Invalid UUID for affiliate_id: ${user.affiliate_id}`);
+        throw new Error(`Invalid UUID format for affiliate_id: ${user.affiliate_id}`);
+      }
+      if (user.plan_id && !isValidUUID(user.plan_id)) {
+        log('error', `[${requestId}] Invalid UUID for plan_id: ${user.plan_id}`);
+        throw new Error(`Invalid UUID format for plan_id: ${user.plan_id}`);
+      }
+
       log('info', `[${requestId}] Upserting user: ${user.email} (${user.external_user_id})`);
       log('debug', `[${requestId}] User data to upsert:`, {
         external_user_id: user.external_user_id,
@@ -314,6 +338,20 @@ Deno.serve(async (req) => {
         throw new Error('Missing required subscription fields: external_user_id, product_id');
       }
 
+      // Validar UUIDs
+      if (!isValidUUID(subscription.external_user_id)) {
+        log('error', `[${requestId}] Invalid UUID for external_user_id: ${subscription.external_user_id}`);
+        throw new Error(`Invalid UUID format for external_user_id: ${subscription.external_user_id}`);
+      }
+      if (!isValidUUID(subscription.product_id)) {
+        log('error', `[${requestId}] Invalid UUID for product_id: ${subscription.product_id}`);
+        throw new Error(`Invalid UUID format for product_id: ${subscription.product_id}`);
+      }
+      if (subscription.plan_id && !isValidUUID(subscription.plan_id)) {
+        log('error', `[${requestId}] Invalid UUID for plan_id: ${subscription.plan_id}`);
+        throw new Error(`Invalid UUID format for plan_id: ${subscription.plan_id}`);
+      }
+
       log('info', `[${requestId}] Updating subscription for user: ${subscription.external_user_id}`);
 
       const updateData: any = {
@@ -370,6 +408,28 @@ Deno.serve(async (req) => {
           has_amount: !!payment.amount,
         });
         throw new Error('Missing required payment fields: external_user_id, product_id, amount');
+      }
+
+      // Validar UUIDs
+      if (!isValidUUID(payment.external_user_id)) {
+        log('error', `[${requestId}] Invalid UUID for external_user_id: ${payment.external_user_id}`);
+        throw new Error(`Invalid UUID format for external_user_id: ${payment.external_user_id}`);
+      }
+      if (!isValidUUID(payment.product_id)) {
+        log('error', `[${requestId}] Invalid UUID for product_id: ${payment.product_id}`);
+        throw new Error(`Invalid UUID format for product_id: ${payment.product_id}`);
+      }
+      if (payment.affiliate_id && !isValidUUID(payment.affiliate_id)) {
+        log('error', `[${requestId}] Invalid UUID for affiliate_id: ${payment.affiliate_id}`);
+        throw new Error(`Invalid UUID format for affiliate_id: ${payment.affiliate_id}`);
+      }
+      if (payment.plan_id && !isValidUUID(payment.plan_id)) {
+        log('error', `[${requestId}] Invalid UUID for plan_id: ${payment.plan_id}`);
+        throw new Error(`Invalid UUID format for plan_id: ${payment.plan_id}`);
+      }
+      if (payment.affiliate_coupon_id && !isValidUUID(payment.affiliate_coupon_id)) {
+        log('error', `[${requestId}] Invalid UUID for affiliate_coupon_id: ${payment.affiliate_coupon_id}`);
+        throw new Error(`Invalid UUID format for affiliate_coupon_id: ${payment.affiliate_coupon_id}`);
       }
 
       log('info', `[${requestId}] Processing payment: ${payment.stripe_invoice_id || payment.external_payment_id || 'one-time'}`);
