@@ -1074,170 +1074,196 @@ const AdminPlans = () => {
                         />
 
 
-                        {/* Funcionalidades */}
-                        <div className="md:col-span-2 space-y-3">
-                          <FormLabel>Funcionalidades do Plano</FormLabel>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border rounded-md">
-                            {landingFeatures?.map((feature) => (
-                              <div key={feature.id} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`feature-${feature.id}`}
-                                  checked={selectedFeatures.includes(feature.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setSelectedFeatures([...selectedFeatures, feature.id]);
-                                    } else {
-                                      setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
-                                    }
-                                  }}
-                                />
-                                <label
-                                  htmlFor={`feature-${feature.id}`}
-                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                                >
-                                  {feature.name}
-                                </label>
+                        {/* Campos específicos do APP Renda Recorrente */}
+                        {form.watch("product_id") === "bb582482-b006-47b8-b6ea-a6944d8cfdfd" && (
+                          <>
+                            {/* Funcionalidades */}
+                            <div className="md:col-span-2 space-y-3">
+                              <FormLabel>Funcionalidades do Plano</FormLabel>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 border rounded-md">
+                                {landingFeatures?.map((feature) => (
+                                  <div key={feature.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`feature-${feature.id}`}
+                                      checked={selectedFeatures.includes(feature.id)}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setSelectedFeatures([...selectedFeatures, feature.id]);
+                                        } else {
+                                          setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
+                                        }
+                                      }}
+                                    />
+                                    <label
+                                      htmlFor={`feature-${feature.id}`}
+                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                    >
+                                      {feature.name}
+                                    </label>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        </div>
+                            </div>
 
-                        <FormField
-                          control={form.control}
-                          name="obs_plan"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Observação do Plano</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: Mais contratado"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            <FormField
+                              control={form.control}
+                              name="obs_plan"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Observação do Plano</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: Mais contratado"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                        <FormField
-                          control={form.control}
-                          name="obs_discount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Observação de Desconto</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: R$10,00 de desconto"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            <FormField
+                              control={form.control}
+                              name="obs_discount"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Observação de Desconto</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: R$10,00 de desconto"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                        <FormField
-                          control={form.control}
-                          name="obs_coupon"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Observação Cupom</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  placeholder="Ex: Cupom de desconto 10%"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            <FormField
+                              control={form.control}
+                              name="obs_coupon"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Observação Cupom</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      placeholder="Ex: Cupom de desconto 10%"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                        <FormField
-                          control={form.control}
-                          name="coupon_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Selecione o CUPOM</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                value={field.value || ""}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Selecione um cupom" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {coupons?.map((coupon: Coupon) => (
-                                    <SelectItem key={coupon.id} value={coupon.id}>
-                                      {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            <FormField
+                              control={form.control}
+                              name="coupon_id"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Selecione o CUPOM</FormLabel>
+                                  <Select 
+                                    onValueChange={field.onChange} 
+                                    value={field.value || ""}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Selecione um cupom" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {coupons?.map((coupon: Coupon) => (
+                                        <SelectItem key={coupon.id} value={coupon.id}>
+                                          {coupon.code} - {coupon.name} ({coupon.value}{coupon.type === 'percentage' ? '%' : ' dias'})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                        <FormField
-                          control={form.control}
-                          name="trial_days"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tempo de teste (dias)</FormLabel>
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => field.onChange(Math.max(0, field.value - 1))}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    type="number"
-                                    className="text-center"
-                                  />
-                                </FormControl>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => field.onChange(field.value + 1)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <FormDescription className="text-xs">
-                                Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            <FormField
+                              control={form.control}
+                              name="trial_days"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Tempo de teste (dias)</FormLabel>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => field.onChange(Math.max(0, field.value - 1))}
+                                    >
+                                      <Minus className="h-4 w-4" />
+                                    </Button>
+                                    <FormControl>
+                                      <Input 
+                                        {...field} 
+                                        type="number"
+                                        className="text-center"
+                                      />
+                                    </FormControl>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() => field.onChange(field.value + 1)}
+                                    >
+                                      <Plus className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                  <FormDescription className="text-xs">
+                                    Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                        <FormField
-                          control={form.control}
-                          name="commission_percentage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Percentual de Comissão (%)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  {...field} 
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                            <FormField
+                              control={form.control}
+                              name="commission_percentage"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Percentual de Comissão (%)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="is_free"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                  <div className="space-y-0.5">
+                                    <FormLabel>Plano Gratuito</FormLabel>
+                                    <FormDescription className="text-xs">
+                                      Marque se este plano é FREE (não pago)
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          </>
+                        )}
 
                         <FormField
                           control={form.control}
@@ -1248,27 +1274,6 @@ const AdminPlans = () => {
                                 <FormLabel>Ativo</FormLabel>
                                 <FormDescription className="text-xs">
                                   Plano disponível para assinatura
-                                </FormDescription>
-                              </div>
-                              <FormControl>
-                                <Switch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="is_free"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                              <div className="space-y-0.5">
-                                <FormLabel>Plano Gratuito</FormLabel>
-                                <FormDescription className="text-xs">
-                                  Marque se este plano é FREE (não pago)
                                 </FormDescription>
                               </div>
                               <FormControl>
