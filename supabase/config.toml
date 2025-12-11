@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.delete-user-account]
 verify_jwt = true
+
+[functions.reprocess-commissions]
+verify_jwt = true
