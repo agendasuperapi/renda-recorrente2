@@ -711,46 +711,38 @@ const AdminPlans = () => {
                                     return (
                                       <ScrollAnimation key={plan.id} animation="fade-up" delay={index * 50}>
                                       <Card 
-                                        className={`hover:border-primary/50 hover:shadow-md transition-all ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                                        className={`hover:border-primary/50 hover:shadow-sm transition-all ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
                                       >
-                                        <CardHeader className="p-3 pb-2">
-                                          <div className="flex items-start justify-between gap-1">
-                                            <CardTitle className="text-sm font-medium leading-tight">{plan.name}</CardTitle>
-                                            <div className="flex gap-0.5 -mr-1 -mt-1">
+                                        <CardContent className="p-2 space-y-1">
+                                          <div className="flex items-center justify-between gap-1">
+                                            <span className="text-xs font-medium truncate">{plan.name}</span>
+                                            <div className="flex gap-0.5 -mr-0.5">
                                               <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-6 w-6"
+                                                className="h-5 w-5"
                                               onClick={() => handleEditPlan(plan)}
                                               >
-                                                <Edit className="h-3 w-3" />
+                                                <Edit className="h-2.5 w-2.5" />
                                               </Button>
                                               <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-6 w-6 hover:text-destructive"
+                                                className="h-5 w-5 hover:text-destructive"
                                               onClick={() => handleDeletePlan(plan.id)}
                                               >
-                                                <Trash2 className="h-3 w-3" />
+                                                <Trash2 className="h-2.5 w-2.5" />
                                               </Button>
                                             </div>
                                           </div>
-                                        </CardHeader>
-                                        <CardContent className="p-3 pt-0 space-y-2">
-                                          <span className="text-lg font-bold text-foreground">
+                                          <span className="text-sm font-bold text-foreground block">
                                             R$ {parseFloat(plan.price).toFixed(2)}
                                           </span>
-                                          {coupon && (
-                                            <Badge variant="outline" className="gap-1 text-xs">
-                                              <Tag className="h-2.5 w-2.5" />
-                                              {coupon.code}
-                                            </Badge>
-                                          )}
                                           <div className="flex flex-wrap gap-1">
-                                            <Badge variant={plan.is_active ? "default" : "secondary"} className="text-xs px-1.5 py-0">
+                                            <Badge variant={plan.is_active ? "default" : "secondary"} className="text-[10px] px-1 py-0 h-4">
                                               {plan.is_active ? "Ativo" : "Inativo"}
                                             </Badge>
-                                            <Badge variant="outline" className="text-xs px-1.5 py-0">{plan.commission_percentage}% comissão</Badge>
+                                            <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{plan.commission_percentage}%</Badge>
                                         </div>
                                       </CardContent>
                                     </Card>
@@ -775,46 +767,38 @@ const AdminPlans = () => {
                                   return (
                                     <Card 
                                       key={plan.id} 
-                                      className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
+                                      className={`hover:border-primary/50 hover:shadow-sm transition-all ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
                                     >
-                                      <CardHeader className="p-3 pb-2">
-                                        <div className="flex items-start justify-between gap-1">
-                                          <CardTitle className="text-sm font-medium leading-tight">{plan.name}</CardTitle>
-                                          <div className="flex gap-0.5 -mr-1 -mt-1">
+                                      <CardContent className="p-2 space-y-1">
+                                        <div className="flex items-center justify-between gap-1">
+                                          <span className="text-xs font-medium truncate">{plan.name}</span>
+                                          <div className="flex gap-0.5 -mr-0.5">
                                             <Button
                                               variant="ghost"
                                               size="icon"
-                                              className="h-6 w-6"
+                                              className="h-5 w-5"
                                             onClick={() => handleEditPlan(plan)}
                                             >
-                                              <Edit className="h-3 w-3" />
+                                              <Edit className="h-2.5 w-2.5" />
                                             </Button>
                                             <Button
                                               variant="ghost"
                                               size="icon"
-                                              className="h-6 w-6 hover:text-destructive"
+                                              className="h-5 w-5 hover:text-destructive"
                                             onClick={() => handleDeletePlan(plan.id)}
                                             >
-                                              <Trash2 className="h-3 w-3" />
+                                              <Trash2 className="h-2.5 w-2.5" />
                                             </Button>
                                           </div>
                                         </div>
-                                      </CardHeader>
-                                      <CardContent className="p-3 pt-0 space-y-2">
-                                        <span className="text-lg font-bold text-foreground">
+                                        <span className="text-sm font-bold text-foreground block">
                                           R$ {parseFloat(plan.price).toFixed(2)}
                                         </span>
-                                        {coupon && (
-                                          <Badge variant="outline" className="gap-1 text-xs">
-                                            <Tag className="h-2.5 w-2.5" />
-                                            {coupon.code}
-                                          </Badge>
-                                        )}
                                         <div className="flex flex-wrap gap-1">
-                                          <Badge variant={plan.is_active ? "default" : "secondary"} className="text-xs px-1.5 py-0">
+                                          <Badge variant={plan.is_active ? "default" : "secondary"} className="text-[10px] px-1 py-0 h-4">
                                             {plan.is_active ? "Ativo" : "Inativo"}
                                           </Badge>
-                                          <Badge variant="outline" className="text-xs px-1.5 py-0">{plan.commission_percentage}% comissão</Badge>
+                                          <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{plan.commission_percentage}%</Badge>
                                         </div>
                                       </CardContent>
                                     </Card>
