@@ -3414,6 +3414,8 @@ export type Database = {
           cliente: string | null
           cliente_email: string | null
           commission_type: string | null
+          coupon_code: string | null
+          coupon_name: string | null
           created_at: string | null
           data: string | null
           data_filtro: string | null
