@@ -404,8 +404,8 @@ export const AdminCommissionProcessingTab = () => {
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <p className="font-medium">Pagamentos Pendentes</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="font-medium text-destructive">Pagamentos Pendentes</p>
+                <p className="text-sm text-destructive/80">
                   {stats.pending} pagamento(s) aguardando processamento de comissão
                 </p>
               </div>
