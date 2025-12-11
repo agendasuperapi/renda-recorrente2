@@ -938,10 +938,12 @@ const AdminPlans = () => {
                     <FileText className="h-4 w-4" />
                     Dados do Plano
                   </TabsTrigger>
-                  <TabsTrigger value="stripe" className="gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    Integração Stripe
-                  </TabsTrigger>
+                  {form.watch("product_id") === "bb582482-b006-47b8-b6ea-a6944d8cfdfd" && (
+                    <TabsTrigger value="stripe" className="gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Integração Stripe
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="plan" className="space-y-6 px-6 pb-6 overflow-y-auto flex-1 mt-6">
