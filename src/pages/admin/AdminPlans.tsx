@@ -863,7 +863,7 @@ const AdminPlans = () => {
                     }
 
                     return (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                         {filteredPlans.sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)).map((plan: any) => {
                       const features = Array.isArray(plan.features) ? plan.features : [];
                       const couponId = features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "");
@@ -874,46 +874,44 @@ const AdminPlans = () => {
                           key={plan.id} 
                           className={`hover:border-primary/50 transition-colors ${!plan.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}
                         >
-                          <CardHeader>
-                            <div className="flex items-start justify-between">
-                              <CardTitle className="text-base">{plan.name}</CardTitle>
-                              <div className="flex gap-1">
+                          <CardHeader className="p-2 pb-1">
+                            <div className="flex items-start justify-between gap-1">
+                              <CardTitle className="text-xs font-medium leading-tight line-clamp-2">{plan.name}</CardTitle>
+                              <div className="flex gap-0.5 shrink-0">
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8"
+                                  className="h-5 w-5"
                                   onClick={() => handleEditPlan(plan)}
                                 >
-                                  <Edit className="h-4 w-4" />
+                                  <Edit className="h-2.5 w-2.5" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 hover:text-destructive"
+                                  className="h-5 w-5 hover:text-destructive"
                                   onClick={() => handleDeletePlan(plan.id)}
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-2.5 w-2.5" />
                                 </Button>
                               </div>
                             </div>
                           </CardHeader>
-                          <CardContent className="space-y-3">
-                            <div className="space-y-1">
-                              <span className="text-2xl font-bold text-foreground">
-                                R$ {parseFloat(plan.price).toFixed(2)}
-                              </span>
-                            </div>
+                          <CardContent className="p-2 pt-0 space-y-1.5">
+                            <span className="text-sm font-bold text-foreground">
+                              R$ {parseFloat(plan.price).toFixed(2)}
+                            </span>
                             {coupon && (
-                              <Badge variant="outline" className="gap-1">
-                                <Tag className="h-3 w-3" />
+                              <Badge variant="outline" className="gap-0.5 h-4 text-[10px] px-1">
+                                <Tag className="h-2 w-2" />
                                 {coupon.code}
                               </Badge>
                             )}
-                            <div className="flex flex-wrap gap-2 pt-2">
-                              <Badge variant={plan.is_active ? "default" : "secondary"}>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge variant={plan.is_active ? "default" : "secondary"} className="h-4 text-[10px] px-1.5 py-0">
                                 {plan.is_active ? "Ativo" : "Inativo"}
                               </Badge>
-                              <Badge variant="outline">{plan.commission_percentage}% comissão</Badge>
+                              <Badge variant="outline" className="h-4 text-[10px] px-1.5 py-0">{plan.commission_percentage}%</Badge>
                             </div>
                           </CardContent>
                         </Card>
