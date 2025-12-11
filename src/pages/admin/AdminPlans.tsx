@@ -667,11 +667,11 @@ const AdminPlans = () => {
               ) : selectedProductFilter === "all" ? (
                 // Group by period and then by product when "all" is selected
                 <>
-                  {["monthly", "yearly", "daily"].map((period) => {
+                  {["monthly", "yearly", "daily", "one_time"].map((period) => {
                       const periodPlans = plans?.filter((p: any) => p.billing_period === period) || [];
                       if (periodPlans.length === 0) return null;
 
-                      const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : "Diário";
+                      const periodTitle = period === "monthly" ? "Mensal" : period === "yearly" ? "Anual" : period === "daily" ? "Diário" : "Avulso";
                       
                       // Group plans by product for this period
                       const plansWithProduct = periodPlans.filter((p: any) => p.product_id);
@@ -962,6 +962,7 @@ const AdminPlans = () => {
                                   <SelectItem value="monthly">Mensal</SelectItem>
                                   <SelectItem value="yearly">Anual</SelectItem>
                                   <SelectItem value="daily">Diário</SelectItem>
+                                  <SelectItem value="one_time">Avulso</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
