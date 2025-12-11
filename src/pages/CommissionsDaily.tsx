@@ -35,6 +35,8 @@ interface Commission {
   valor: number;
   status: string;
   level: number;
+  coupon_code: string | null;
+  coupon_name: string | null;
 }
 interface Stats {
   hoje: number;
@@ -603,6 +605,12 @@ const CommissionsDaily = ({
                                                 <span className="text-muted-foreground">Plano:</span>
                                                 <p className="font-medium truncate">{commission.plano || "-"}</p>
                                               </div>
+                                              {commission.coupon_code && (
+                                                <div className="col-span-2">
+                                                  <span className="text-muted-foreground">Cupom:</span>
+                                                  <p className="font-medium">{commission.coupon_code} {commission.coupon_name && <span className="text-muted-foreground font-normal">• {commission.coupon_name}</span>}</p>
+                                                </div>
+                                              )}
                                             </div>
 
                                             <div className="flex items-center justify-between text-xs">
@@ -632,6 +640,7 @@ const CommissionsDaily = ({
                     <TableHead>Produto</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Plano</TableHead>
+                    <TableHead>Cupom</TableHead>
                     <TableHead>Nível</TableHead>
                     <TableHead>Percentual</TableHead>
                     <TableHead>Valor</TableHead>
@@ -640,7 +649,7 @@ const CommissionsDaily = ({
                 </TableHeader>
                 <TableBody>
                   {commissions.length === 0 ? <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
                         Nenhuma comissão registrada
                       </TableCell>
                     </TableRow> : (() => {
@@ -658,7 +667,7 @@ const CommissionsDaily = ({
                 return dateEntries.map(([dateKey, dayCommissions], dayIndex) => <>
                           {/* Header da data */}
                           <TableRow key={`header-${dateKey}`} className="bg-muted/30 hover:bg-muted/30 border-t border-border">
-                            <TableCell colSpan={8} className="py-2.5 relative">
+                            <TableCell colSpan={9} className="py-2.5 relative">
                               <div className="flex items-center gap-2.5 text-sm font-semibold text-foreground/80 whitespace-nowrap">
                                 <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10">
                                   <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
@@ -707,6 +716,19 @@ const CommissionsDaily = ({
                                 </TableCell>
                                 <TableCell className="border-0 relative">
                                   {commission.plano || "-"}
+                                  <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
+                                </TableCell>
+                                <TableCell className="border-0 relative">
+                                  {commission.coupon_code ? (
+                                    <div className="flex flex-col">
+                                      <span className="font-medium text-xs">{commission.coupon_code}</span>
+                                      {commission.coupon_name && (
+                                        <span className="text-xs text-muted-foreground">{commission.coupon_name}</span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="text-muted-foreground">-</span>
+                                  )}
                                   <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                 </TableCell>
                                 <TableCell className="border-0 relative">
