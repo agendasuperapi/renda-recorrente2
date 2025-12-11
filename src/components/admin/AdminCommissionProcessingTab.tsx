@@ -400,7 +400,7 @@ export const AdminCommissionProcessingTab = () => {
 
       {/* Reprocess All Button */}
       {stats && stats.pending > 0 && (
-        <Card className="bg-amber-500/5 border-amber-500/20">
+        <Card className="bg-destructive/10 border-destructive/30">
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
