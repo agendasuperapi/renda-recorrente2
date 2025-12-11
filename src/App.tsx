@@ -44,6 +44,7 @@ import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminUserActivities from "./pages/admin/AdminUserActivities";
+import AdminCommissions from "./pages/admin/AdminCommissions";
 import AdminCommissionProcessing from "./pages/admin/AdminCommissionProcessing";
 import Payments from "./pages/Payments";
 import Support from "./pages/Support";
@@ -126,7 +127,8 @@ const App = () => {
               <Route path="/admin/cadastros" element={<AdminCadastros />} />
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/activities" element={<AdminUserActivities />} />
-              <Route path="/admin/commission-processing" element={<AdminCommissionProcessing />} />
+              <Route path="/admin/commissions" element={<AdminCommissions />} />
+              <Route path="/admin/commission-processing" element={<Navigate to="/admin/commissions?tab=processing" replace />} />
             </Route>
             
             {/* Catch-all - Intercepta cupons ou mostra 404 */}

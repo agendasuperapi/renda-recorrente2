@@ -96,9 +96,9 @@ const adminMenuItems = [{
   label: "Saques",
   path: "/admin/withdrawals"
 }, {
-  icon: Zap,
-  label: "Proc. Comissões",
-  path: "/admin/commission-processing"
+  icon: Coins,
+  label: "Comissões",
+  path: "/admin/commissions"
 }, {
   icon: Calendar,
   label: "Eventos Stripe",
