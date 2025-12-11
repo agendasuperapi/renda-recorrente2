@@ -880,20 +880,35 @@ const AdminProducts = () => {
                           {getPlansForProduct(editingProduct.id).map((plan) => (
                             <div 
                               key={plan.id} 
-                              className="flex items-center justify-between p-3 bg-muted/30 rounded-lg text-sm border"
+                              className="p-3 bg-muted/30 rounded-lg text-sm border space-y-2"
                             >
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">{plan.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {formatCurrency(plan.price)}
-                                  {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
-                                    <span className="ml-2">• {(plan.features as any).credits} créditos</span>
-                                  )}
-                                </p>
+                              <div className="flex items-center justify-between">
+                                <p className="font-medium truncate flex-1">{plan.name}</p>
+                                <Badge variant={plan.is_active ? "default" : "secondary"} className="text-[10px]">
+                                  {plan.is_active ? "Ativo" : "Inativo"}
+                                </Badge>
                               </div>
-                              <Badge variant={plan.is_active ? "default" : "secondary"} className="text-[10px]">
-                                {plan.is_active ? "Ativo" : "Inativo"}
-                              </Badge>
+                              <p className="text-xs text-muted-foreground">
+                                {formatCurrency(plan.price)}
+                                {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
+                                  <span className="ml-2">• {(plan.features as any).credits} créditos</span>
+                                )}
+                              </p>
+                              <div className="flex items-center gap-2 text-[10px] text-muted-foreground bg-muted/50 rounded px-2 py-1">
+                                <span className="font-medium">ID:</span>
+                                <code className="flex-1 truncate font-mono">{plan.id}</code>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5 shrink-0"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(plan.id);
+                                    toast({ title: "ID copiado!", description: plan.id });
+                                  }}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -993,20 +1008,35 @@ const AdminProducts = () => {
                       {getPlansForProduct(editingProduct.id).map((plan) => (
                         <div 
                           key={plan.id} 
-                          className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border"
+                          className="p-3 bg-muted/30 rounded-lg border space-y-2"
                         >
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{plan.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {formatCurrency(plan.price)}
-                              {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
-                                <span className="ml-2">• {(plan.features as any).credits} créditos</span>
-                              )}
-                            </p>
+                          <div className="flex items-center justify-between">
+                            <p className="font-medium truncate flex-1">{plan.name}</p>
+                            <Badge variant={plan.is_active ? "default" : "secondary"}>
+                              {plan.is_active ? "Ativo" : "Inativo"}
+                            </Badge>
                           </div>
-                          <Badge variant={plan.is_active ? "default" : "secondary"}>
-                            {plan.is_active ? "Ativo" : "Inativo"}
-                          </Badge>
+                          <p className="text-sm text-muted-foreground">
+                            {formatCurrency(plan.price)}
+                            {plan.features && typeof plan.features === 'object' && 'credits' in plan.features && (
+                              <span className="ml-2">• {(plan.features as any).credits} créditos</span>
+                            )}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded px-2 py-1.5">
+                            <span className="font-medium">ID:</span>
+                            <code className="flex-1 truncate font-mono">{plan.id}</code>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 shrink-0"
+                              onClick={() => {
+                                navigator.clipboard.writeText(plan.id);
+                                toast({ title: "ID copiado!", description: plan.id });
+                              }}
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
