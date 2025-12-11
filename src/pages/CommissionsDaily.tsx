@@ -127,7 +127,7 @@ const CommissionsDaily = ({
   const loadFiltersData = async () => {
     const {
       data: productsData
-    } = await supabase.from("products").select("id, nome").order("nome");
+    } = await supabase.from("products").select("id, nome, icone_light, icone_dark").order("nome");
     setProducts(productsData || []);
   };
   const loadPlansForProduct = async (productId: string) => {
@@ -433,7 +433,27 @@ const CommissionsDaily = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value=" ">Todos os produtos</SelectItem>
-              {products.map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
+              {products.map(p => (
+                <SelectItem key={p.id} value={p.id}>
+                  <div className="flex items-center gap-2">
+                    {(p.icone_light || p.icone_dark) && (
+                      <img 
+                        src={p.icone_light || p.icone_dark} 
+                        alt={p.nome} 
+                        className="w-5 h-5 rounded object-contain dark:hidden"
+                      />
+                    )}
+                    {(p.icone_dark || p.icone_light) && (
+                      <img 
+                        src={p.icone_dark || p.icone_light} 
+                        alt={p.nome} 
+                        className="w-5 h-5 rounded object-contain hidden dark:block"
+                      />
+                    )}
+                    <span>{p.nome}</span>
+                  </div>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
