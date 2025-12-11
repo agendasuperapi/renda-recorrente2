@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X } from "lucide-react";
+import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X, Play, Loader2 } from "lucide-react";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
+import { toast } from "sonner";
 
 type ProcessingStatus = "all" | "processed" | "pending" | "error";
 
@@ -41,8 +42,16 @@ interface PaymentProcessing {
   customer_email: string;
 }
 
+interface ReprocessResult {
+  payment_id: string;
+  status: "already_processed" | "commissions_found" | "reprocessed" | "error";
+  message: string;
+  commissions_count?: number;
+}
+
 export const AdminCommissionProcessingTab = () => {
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProcessingStatus>("all");
   const [productId, setProductId] = useState<string>("all");
@@ -52,6 +61,9 @@ export const AdminCommissionProcessingTab = () => {
   const [perPage, setPerPage] = useState(20);
   const [selectedPayment, setSelectedPayment] = useState<PaymentProcessing | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [isReprocessing, setIsReprocessing] = useState(false);
+  const [showReprocessDialog, setShowReprocessDialog] = useState(false);
+  const [reprocessResults, setReprocessResults] = useState<ReprocessResult[] | null>(null);
 
   useEffect(() => {
     setPage(1);
@@ -174,6 +186,72 @@ export const AdminCommissionProcessingTab = () => {
     return id.substring(0, length) + "...";
   };
 
+  const handleReprocessPending = async () => {
+    setIsReprocessing(true);
+    setReprocessResults(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("reprocess-commissions", {
+        body: { process_all_pending: true },
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        setReprocessResults(data.results || []);
+        toast.success(
+          `Processamento concluído: ${data.summary?.commissions_found || 0} encontrados, ${data.summary?.reprocessed || 0} reprocessados, ${data.summary?.errors || 0} erros`
+        );
+        
+        // Refresh data
+        queryClient.invalidateQueries({ queryKey: ["commission-processing"] });
+        queryClient.invalidateQueries({ queryKey: ["commission-processing-stats"] });
+        refetch();
+      } else {
+        throw new Error(data?.error || "Erro desconhecido");
+      }
+    } catch (error) {
+      console.error("Error reprocessing:", error);
+      toast.error(error instanceof Error ? error.message : "Erro ao reprocessar comissões");
+    } finally {
+      setIsReprocessing(false);
+    }
+  };
+
+  const handleReprocessSingle = async (paymentId: string) => {
+    setIsReprocessing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("reprocess-commissions", {
+        body: { payment_ids: [paymentId] },
+      });
+
+      if (error) throw error;
+
+      if (data?.success && data.results?.length > 0) {
+        const result = data.results[0];
+        if (result.status === "error") {
+          toast.error(result.message);
+        } else {
+          toast.success(result.message);
+        }
+        
+        // Refresh data
+        queryClient.invalidateQueries({ queryKey: ["commission-processing"] });
+        queryClient.invalidateQueries({ queryKey: ["commission-processing-stats"] });
+        refetch();
+        setSelectedPayment(null);
+      } else {
+        throw new Error(data?.error || "Erro desconhecido");
+      }
+    } catch (error) {
+      console.error("Error reprocessing:", error);
+      toast.error(error instanceof Error ? error.message : "Erro ao reprocessar");
+    } finally {
+      setIsReprocessing(false);
+    }
+  };
+
   const DetailContent = ({ payment }: { payment: PaymentProcessing }) => (
     <div className="space-y-4 p-4">
       <div className="grid grid-cols-2 gap-4">
@@ -241,6 +319,24 @@ export const AdminCommissionProcessingTab = () => {
           <p className="text-sm text-destructive/80 font-mono break-all">{payment.commission_error}</p>
         </div>
       )}
+
+      {/* Reprocess button for non-processed or error payments */}
+      {(!payment.commission_processed || payment.commission_error) && (
+        <div className="mt-4 pt-4 border-t">
+          <Button 
+            onClick={() => handleReprocessSingle(payment.id)}
+            disabled={isReprocessing}
+            className="w-full gap-2"
+          >
+            {isReprocessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+            Reprocessar Comissão
+          </Button>
+        </div>
+      )}
     </div>
   );
 
@@ -301,6 +397,34 @@ export const AdminCommissionProcessingTab = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Reprocess All Button */}
+      {stats && stats.pending > 0 && (
+        <Card className="bg-amber-500/5 border-amber-500/20">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <p className="font-medium">Pagamentos Pendentes</p>
+                <p className="text-sm text-muted-foreground">
+                  {stats.pending} pagamento(s) aguardando processamento de comissão
+                </p>
+              </div>
+              <Button 
+                onClick={() => setShowReprocessDialog(true)}
+                disabled={isReprocessing}
+                className="gap-2 whitespace-nowrap"
+              >
+                {isReprocessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                Processar Pendentes
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card>
@@ -539,6 +663,117 @@ export const AdminCommissionProcessingTab = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Reprocess Confirmation Dialog */}
+      <Dialog open={showReprocessDialog} onOpenChange={setShowReprocessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Processar Comissões Pendentes</DialogTitle>
+            <DialogDescription>
+              Esta ação irá verificar e processar até 100 pagamentos pendentes.
+              Para cada pagamento:
+              <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                <li>Se as comissões já existem mas não foram registradas, o registro será atualizado</li>
+                <li>Se não existem comissões, serão geradas automaticamente</li>
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReprocessDialog(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowReprocessDialog(false);
+                handleReprocessPending();
+              }}
+              disabled={isReprocessing}
+              className="gap-2"
+            >
+              {isReprocessing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              Processar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reprocess Results Dialog */}
+      <Dialog open={!!reprocessResults} onOpenChange={() => setReprocessResults(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Resultado do Processamento</DialogTitle>
+          </DialogHeader>
+          {reprocessResults && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="p-3 bg-muted rounded-lg text-center">
+                  <p className="text-2xl font-bold">{reprocessResults.length}</p>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                </div>
+                <div className="p-3 bg-blue-500/10 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-blue-600">
+                    {reprocessResults.filter(r => r.status === "commissions_found").length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Encontrados</p>
+                </div>
+                <div className="p-3 bg-emerald-500/10 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {reprocessResults.filter(r => r.status === "reprocessed").length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Reprocessados</p>
+                </div>
+                <div className="p-3 bg-destructive/10 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-destructive">
+                    {reprocessResults.filter(r => r.status === "error").length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Erros</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2 max-h-[40vh] overflow-auto">
+                {reprocessResults.map((result, idx) => (
+                  <div 
+                    key={idx}
+                    className={`p-3 rounded-lg border ${
+                      result.status === "error" 
+                        ? "bg-destructive/5 border-destructive/20" 
+                        : result.status === "commissions_found"
+                        ? "bg-blue-500/5 border-blue-500/20"
+                        : "bg-emerald-500/5 border-emerald-500/20"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-mono text-xs truncate flex-1">{result.payment_id}</p>
+                      <Badge 
+                        variant={result.status === "error" ? "destructive" : "secondary"}
+                        className={
+                          result.status === "commissions_found" 
+                            ? "bg-blue-500/10 text-blue-600" 
+                            : result.status === "reprocessed"
+                            ? "bg-emerald-500/10 text-emerald-600"
+                            : ""
+                        }
+                      >
+                        {result.status === "commissions_found" && "Encontrado"}
+                        {result.status === "reprocessed" && "Reprocessado"}
+                        {result.status === "error" && "Erro"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{result.message}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setReprocessResults(null)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
