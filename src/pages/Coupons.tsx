@@ -790,7 +790,7 @@ const Coupons = () => {
                     </div>
                     {/* Linha 4: Link com ícone de copiar */}
                     {getAffiliateLink(coupon) && isActive && <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <span className="font-semibold">Link: </span>
+                        <span className="font-semibold hidden sm:inline">Link: </span>
                         <code className="bg-muted px-2 py-1 rounded truncate flex-1">
                           {getAffiliateLink(coupon)}
                         </code>
