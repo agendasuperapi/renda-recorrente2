@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Upload, X, Copy, Download, Package, CreditCard, Loader2, Check, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X, Copy, Download, Package, CreditCard, Loader2, Check, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -993,6 +993,17 @@ const AdminProducts = () => {
                 </TabsContent>
 
                 <TabsContent value="planos" className="mt-0 space-y-4 data-[state=inactive]:hidden flex flex-col flex-1 min-h-0" forceMount>
+                  <div className="flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => queryClient.invalidateQueries({ queryKey: ['all-plans'] })}
+                      className="gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Atualizar
+                    </Button>
+                  </div>
                   {getPlansForProduct(editingProduct.id).length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       Nenhum plano cadastrado
