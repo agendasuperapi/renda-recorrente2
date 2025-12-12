@@ -1014,11 +1014,18 @@ const Coupons = () => {
                                       </code>
                                     </>}
                                 </div>
-                                {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground">
+                                {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1">
                                     <span className="font-semibold">Link: </span>
                                     <code className="bg-muted px-2 py-1 rounded">
                                       {getAffiliateLink(coupon)}
                                     </code>
+                                    <button
+                                      onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                                      className="p-1 hover:bg-muted rounded transition-colors"
+                                      title="Copiar link"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </button>
                                   </div>}
                               </div>
                             </div>
