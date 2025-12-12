@@ -415,34 +415,6 @@ const AdminCommissionLevels = () => {
       <Card>
         <CardHeader className="p-3 md:p-6">
           <CardTitle className="text-base md:text-lg flex items-center gap-2">
-            <Layers className="h-4 w-4 md:h-5 md:w-5" />
-            Limite Máximo de Níveis
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
-          <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-4">
-            <div className="flex-1">
-              <Label htmlFor="maxLevels" className="text-sm">Níveis Permitidos (configuração global)</Label>
-              <Input
-                id="maxLevels"
-                type="number"
-                min="1"
-                max="10"
-                value={maxLevels}
-                onChange={(e) => setMaxLevels(e.target.value)}
-              />
-            </div>
-            <Button onClick={handleSaveMaxLevels} disabled={isSaving} className="w-full md:w-auto">
-              <Save className="h-4 w-4 mr-2" />
-              {isSaving ? "Salvando..." : "Salvar"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="p-3 md:p-6">
-          <CardTitle className="text-base md:text-lg flex items-center gap-2">
             <Package className="h-4 w-4 md:h-5 md:w-5" />
             Produto
           </CardTitle>
