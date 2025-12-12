@@ -333,7 +333,7 @@ export const SecurityContent = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => navigate("/settings?tab=plan")}
+                          onClick={() => navigate("/user/settings?tab=plan")}
                           className="mt-2"
                         >
                           Ir para Meu Plano
