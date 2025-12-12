@@ -789,24 +789,19 @@ const Coupons = () => {
                       {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
                     </div>
                     
-                    {/* Linha 3: Código e ações */}
-                    <div className="flex items-center justify-between gap-2">
-                      <code className="text-xs font-mono text-muted-foreground truncate flex-1 bg-muted/50 rounded px-2 py-1">
-                        {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                      </code>
-                      <div className="flex items-center gap-1 shrink-0">
-                        {isActivated && isActive && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>}
-                        {isActivated ? isActive ? <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
-                              <XCircle className="h-3.5 w-3.5" />
-                            </Button> : <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
-                              <Check className="h-3.5 w-3.5" />
-                            </Button> : <Button size="sm" className="h-7 text-xs" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
-                            <Check className="h-3.5 w-3.5 mr-1" />
-                            Liberar
-                          </Button>}
-                      </div>
+                    {/* Linha 3: Ações */}
+                    <div className="flex items-center justify-end gap-1">
+                      {isActivated && isActive && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>}
+                      {isActivated ? isActive ? <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                            <XCircle className="h-3.5 w-3.5" />
+                          </Button> : <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                            <Check className="h-3.5 w-3.5" />
+                          </Button> : <Button size="sm" className="h-7 text-xs" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                          <Check className="h-3.5 w-3.5 mr-1" />
+                          Liberar
+                        </Button>}
                     </div>
                     {/* Linha 4: Link com ícone de copiar */}
                     {getAffiliateLink(coupon) && isActive && <div className="flex items-center gap-1 text-xs text-muted-foreground">
