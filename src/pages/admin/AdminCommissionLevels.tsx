@@ -31,6 +31,8 @@ interface CommissionLevel {
 interface Product {
   id: string;
   nome: string;
+  icone_light: string | null;
+  icone_dark: string | null;
 }
 
 interface GroupedLevel {
@@ -57,7 +59,7 @@ const AdminCommissionLevels = () => {
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("id, nome")
+        .select("id, nome, icone_light, icone_dark")
         .order("nome");
 
       if (error) throw error;
@@ -355,10 +357,35 @@ const AdminCommissionLevels = () => {
               <SelectValue placeholder="Selecione um produto..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos os produtos</SelectItem>
+              <SelectItem value="all">
+                <span className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                  Todos os produtos
+                </span>
+              </SelectItem>
               {products.map((product) => (
                 <SelectItem key={product.id} value={product.id}>
-                  {product.nome}
+                  <span className="flex items-center gap-2">
+                    {product.icone_light ? (
+                      <img 
+                        src={product.icone_light} 
+                        alt="" 
+                        className="h-4 w-4 rounded object-contain dark:hidden" 
+                      />
+                    ) : (
+                      <Package className="h-4 w-4 text-muted-foreground dark:hidden" />
+                    )}
+                    {product.icone_dark ? (
+                      <img 
+                        src={product.icone_dark} 
+                        alt="" 
+                        className="h-4 w-4 rounded object-contain hidden dark:block" 
+                      />
+                    ) : (
+                      <Package className="h-4 w-4 text-muted-foreground hidden dark:block" />
+                    )}
+                    {product.nome}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -372,13 +399,32 @@ const AdminCommissionLevels = () => {
         return (
           <Card key={product.id} className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
             <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 !pb-4 md:!pt-4 lg:!p-6">
-              <div>
-                <CardTitle className="text-base md:text-lg">
-                  {product.nome}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {groupedLevels.length} nível(is) configurado(s)
-                </p>
+              <div className="flex items-center gap-3">
+                {product.icone_light && (
+                  <img 
+                    src={product.icone_light} 
+                    alt="" 
+                    className="h-8 w-8 rounded object-contain dark:hidden" 
+                  />
+                )}
+                {product.icone_dark && (
+                  <img 
+                    src={product.icone_dark} 
+                    alt="" 
+                    className="h-8 w-8 rounded object-contain hidden dark:block" 
+                  />
+                )}
+                {!product.icone_light && !product.icone_dark && (
+                  <Package className="h-8 w-8 text-muted-foreground" />
+                )}
+                <div>
+                  <CardTitle className="text-base md:text-lg">
+                    {product.nome}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {groupedLevels.length} nível(is) configurado(s)
+                  </p>
+                </div>
               </div>
               <Button 
                 onClick={() => handleAddLevel(product.id)} 
