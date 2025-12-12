@@ -808,6 +808,20 @@ const Coupons = () => {
                           </Button>}
                       </div>
                     </div>
+                    {/* Linha 4: Link com ícone de copiar */}
+                    {getAffiliateLink(coupon) && isActive && <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span className="font-semibold">Link: </span>
+                        <code className="bg-muted px-2 py-1 rounded truncate flex-1">
+                          {getAffiliateLink(coupon)}
+                        </code>
+                        <button
+                          onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                          className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                          title="Copiar link"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                      </div>}
                     </div>
                   </ScrollAnimation>;
                 }
@@ -843,11 +857,18 @@ const Coupons = () => {
                                     <code className="font-mono bg-muted px-2 py-1 rounded">{customCode}</code>
                                   </div>}
                                 
-                                {getAffiliateLink(coupon) && isActive && <div className="text-xs">
+                                {getAffiliateLink(coupon) && isActive && <div className="text-xs flex items-center gap-1">
                                     <span className="text-muted-foreground font-semibold">Link: </span>
-                                    <code className="bg-muted px-2 py-1 rounded text-xs break-all">
+                                    <code className="bg-muted px-2 py-1 rounded text-xs break-all flex-1">
                                       {getAffiliateLink(coupon)}
                                     </code>
+                                    <button
+                                      onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                                      className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                                      title="Copiar link"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </button>
                                   </div>}
                               </div>
                               
@@ -959,6 +980,19 @@ const Coupons = () => {
                       <code className="text-sm font-mono text-muted-foreground">
                         {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                       </code>
+                      {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <span className="font-semibold">Link: </span>
+                        <code className="bg-muted px-2 py-1 rounded truncate">
+                          {getAffiliateLink(coupon)}
+                        </code>
+                        <button
+                          onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                          className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                          title="Copiar link"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </button>
+                      </div>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <Button variant="outline" size="sm" onClick={() => {
@@ -1230,6 +1264,19 @@ const Coupons = () => {
                   <code className="text-sm font-mono text-muted-foreground">
                     {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                   </code>
+                  {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <span className="font-semibold">Link: </span>
+                    <code className="bg-muted px-2 py-1 rounded truncate">
+                      {getAffiliateLink(coupon)}
+                    </code>
+                    <button
+                      onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                      className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                      title="Copiar link"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </button>
+                  </div>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Button variant="outline" size="sm" onClick={() => {
@@ -1294,11 +1341,18 @@ const Coupons = () => {
                                  </code>
                                </>}
                            </div>
-                           {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground">
+                           {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1">
                                <span className="font-semibold">Link: </span>
                                <code className="bg-muted px-2 py-1 rounded">
                                  {getAffiliateLink(coupon)}
                                </code>
+                               <button
+                                 onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+                                 className="p-1 hover:bg-muted rounded transition-colors"
+                                 title="Copiar link"
+                               >
+                                 <Copy className="h-3 w-3" />
+                               </button>
                              </div>}
                          </div>
                       </div>
