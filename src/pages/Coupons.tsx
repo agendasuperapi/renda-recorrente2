@@ -838,7 +838,7 @@ const Coupons = () => {
                                   </div>}
                                 
                                 {getAffiliateLink(coupon) && isActive && <div className="text-xs flex items-center gap-1">
-                                    <span className="text-muted-foreground font-semibold">Link: </span>
+                                    <span className="text-muted-foreground font-semibold hidden sm:inline">Link: </span>
                                     <code className="bg-muted px-2 py-1 rounded text-xs break-all flex-1">
                                       {getAffiliateLink(coupon)}
                                     </code>
