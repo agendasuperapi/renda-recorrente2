@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -1027,6 +1029,11 @@ const AdminProducts = () => {
                               <Copy className="h-3.5 w-3.5" />
                             </Button>
                           </div>
+                          {plan.updated_at && (
+                            <p className="text-xs text-muted-foreground">
+                              Atualizado em: {format(new Date(plan.updated_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
