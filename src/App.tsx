@@ -29,7 +29,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPlans from "./pages/admin/AdminPlans";
 import AdminLandingPage from "./pages/admin/AdminLandingPage";
-import AdminStripeEvents from "./pages/admin/AdminStripeEvents";
+import AdminStripe from "./pages/admin/AdminStripe";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminBankAccounts from "./pages/admin/AdminBankAccounts";
@@ -37,7 +37,6 @@ import AdminCpfApis from "./pages/admin/AdminCpfApis";
 import AdminLegalDocuments from "./pages/admin/AdminLegalDocuments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminVersions from "./pages/admin/AdminVersions";
-import AdminPayments from "./pages/admin/AdminPayments";
 import AdminAffiliates from "./pages/admin/AdminAffiliates";
 import AdminCadastros from "./pages/admin/AdminCadastros";
 import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
@@ -113,12 +112,13 @@ const App = () => {
               <Route path="/admin/affiliates" element={<AdminAffiliates />} />
               <Route path="/admin/plans" element={<AdminPlans />} />
               <Route path="/admin/landing-page" element={<AdminLandingPage />} />
-              <Route path="/admin/stripe-events" element={<AdminStripeEvents />} />
+              <Route path="/admin/stripe" element={<AdminStripe />} />
+              <Route path="/admin/stripe-events" element={<Navigate to="/admin/stripe?tab=events" replace />} />
+              <Route path="/admin/payments" element={<Navigate to="/admin/stripe?tab=payments" replace />} />
               <Route path="/admin/coupons" element={<AdminCoupons />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
               <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
-              <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
               <Route path="/admin/commission-levels" element={<AdminCommissionLevels />} />
               <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
