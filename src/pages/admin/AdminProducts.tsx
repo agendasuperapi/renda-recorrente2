@@ -949,7 +949,9 @@ const AdminProducts = () => {
         </Drawer>
       ) : (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className={`max-w-2xl overflow-y-auto flex flex-col ${
+            dialogTab === "planos" && editingProduct ? "h-[90vh]" : "max-h-[90vh]"
+          }`}>
             <DialogHeader>
               <DialogTitle>
                 {editingProduct ? "Editar Produto" : "Novo Produto"}
@@ -990,13 +992,13 @@ const AdminProducts = () => {
                   </Form>
                 </TabsContent>
 
-                <TabsContent value="planos" className="mt-0 space-y-4 data-[state=inactive]:hidden" forceMount>
+                <TabsContent value="planos" className="mt-0 space-y-4 data-[state=inactive]:hidden flex flex-col flex-1 min-h-0" forceMount>
                   {getPlansForProduct(editingProduct.id).length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       Nenhum plano cadastrado
                     </div>
                   ) : (
-                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                    <div className="space-y-2 flex-1 overflow-y-auto">
                       {getPlansForProduct(editingProduct.id).map((plan) => (
                         <div 
                           key={plan.id} 
