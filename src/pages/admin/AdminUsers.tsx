@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X, Save, Calendar, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
+import { Search, UserPlus, ChevronLeft, ChevronRight, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, X, Save, Calendar, SlidersHorizontal, LayoutList, LayoutGrid, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 const WEEKDAYS = [{
   value: 1,
   label: "Segunda-feira"
@@ -63,6 +65,8 @@ const AdminUsers = () => {
   const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
   const [activitiesPage, setActivitiesPage] = useState(1);
   const [activitiesPageSize, setActivitiesPageSize] = useState(5);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const {
     data: usersData,
@@ -198,6 +202,32 @@ const AdminUsers = () => {
       toast.error("Erro ao atualizar dia de saque");
     }
   });
+
+  // Mutation para excluir usuário
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { data, error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Usuário excluído com sucesso! Os dados foram anonimizados.");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setIsDetailsOpen(false);
+      setSelectedUser(null);
+      setDeleteConfirmText("");
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error: any) => {
+      console.error("Error deleting user:", error);
+      toast.error(error.message || "Erro ao excluir usuário");
+    }
+  });
+
+  const handleDeleteUser = () => {
+    if (!selectedUser || deleteConfirmText !== "EXCLUIR") return;
+    deleteUserMutation.mutate(selectedUser.id);
+  };
   const handleSaveBlockStatus = () => {
     if (!selectedUser) return;
     if (isBlocked && !editedBlockMessage.trim()) {
@@ -694,6 +724,67 @@ const AdminUsers = () => {
                         </div>
 
                         <Separator />
+
+                        {/* Excluir Conta */}
+                        <Collapsible>
+                          <CollapsibleTrigger className="w-full">
+                            <div className="flex items-center justify-between p-3 border border-destructive/20 rounded-lg hover:bg-destructive/5 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <span className="font-medium text-destructive">Excluir Conta</span>
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-destructive" />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-3">
+                            <div className="p-4 border border-destructive/30 rounded-lg bg-destructive/5 space-y-4">
+                              <div className="flex items-start gap-3">
+                                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-destructive">Atenção: Esta ação é irreversível!</p>
+                                  <ul className="text-xs text-muted-foreground space-y-1">
+                                    <li>• Os dados pessoais serão anonimizados</li>
+                                    <li>• O email será liberado para novo cadastro</li>
+                                    <li>• O histórico de comissões será mantido para auditoria</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="delete-confirm-mobile" className="text-sm">
+                                  Digite <span className="font-bold">EXCLUIR</span> para confirmar
+                                </Label>
+                                <Input
+                                  id="delete-confirm-mobile"
+                                  value={deleteConfirmText}
+                                  onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                                  placeholder="EXCLUIR"
+                                />
+                              </div>
+
+                              <Button
+                                variant="destructive"
+                                className="w-full"
+                                disabled={deleteConfirmText !== "EXCLUIR" || deleteUserMutation.isPending}
+                                onClick={handleDeleteUser}
+                              >
+                                {deleteUserMutation.isPending ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Excluindo...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Excluir Conta Permanentemente
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+
+                        <Separator />
                       </>}
 
                     {/* Histórico de Atividades */}
@@ -902,6 +993,67 @@ const AdminUsers = () => {
                               </p>}
                           </div>
                         </div>
+
+                        <Separator />
+
+                        {/* Excluir Conta */}
+                        <Collapsible>
+                          <CollapsibleTrigger className="w-full">
+                            <div className="flex items-center justify-between p-4 border border-destructive/20 rounded-lg hover:bg-destructive/5 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <Trash2 className="h-5 w-5 text-destructive" />
+                                <span className="font-semibold text-destructive">Excluir Conta</span>
+                              </div>
+                              <ChevronRight className="h-4 w-4 text-destructive" />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-3">
+                            <div className="p-4 border border-destructive/30 rounded-lg bg-destructive/5 space-y-4">
+                              <div className="flex items-start gap-3">
+                                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                                <div className="space-y-2">
+                                  <p className="text-sm font-medium text-destructive">Atenção: Esta ação é irreversível!</p>
+                                  <ul className="text-sm text-muted-foreground space-y-1">
+                                    <li>• Os dados pessoais serão anonimizados</li>
+                                    <li>• O email será liberado para novo cadastro</li>
+                                    <li>• O histórico de comissões será mantido para auditoria</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="delete-confirm-desktop" className="text-sm">
+                                  Digite <span className="font-bold">EXCLUIR</span> para confirmar
+                                </Label>
+                                <Input
+                                  id="delete-confirm-desktop"
+                                  value={deleteConfirmText}
+                                  onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                                  placeholder="EXCLUIR"
+                                  className="max-w-xs"
+                                />
+                              </div>
+
+                              <Button
+                                variant="destructive"
+                                disabled={deleteConfirmText !== "EXCLUIR" || deleteUserMutation.isPending}
+                                onClick={handleDeleteUser}
+                              >
+                                {deleteUserMutation.isPending ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Excluindo...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Excluir Conta Permanentemente
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
 
                         <Separator />
                       </>}
