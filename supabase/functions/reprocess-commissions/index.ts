@@ -182,29 +182,15 @@ async function generateCommissionsForPayment(
   payment: any
 ): Promise<{ success: boolean; count: number; error?: string }> {
   try {
-    // Get plan commission percentage
+    // Get plan info to check commission percentage
     const { data: plan, error: planError } = await supabase
       .from("plans")
-      .select("commission_percentage")
+      .select("commission_percentage, is_free")
       .eq("id", payment.plan_id)
       .single();
 
     if (planError || !plan) {
       // Update as processed with 0 commissions (no valid plan)
-      await supabase
-        .from("unified_payments")
-        .update({
-          commission_processed: true,
-          commission_processed_at: new Date().toISOString(),
-          commissions_generated: 0,
-          commission_error: null,
-        })
-        .eq("id", payment.id);
-
-      return { success: true, count: 0 };
-    }
-
-    if (!plan.commission_percentage || plan.commission_percentage === 0) {
       await supabase
         .from("unified_payments")
         .update({
@@ -240,6 +226,24 @@ async function generateCommissionsForPayment(
     const productName = product?.nome || "N/A";
     let commissionsGenerated = 0;
 
+    // Helper function to determine affiliate plan type (FREE or PRO)
+    async function getAffiliatePlanType(affiliateId: string): Promise<string> {
+      const { data: affiliateSub } = await supabase
+        .from("subscriptions")
+        .select("plan_id, plans!inner(is_free)")
+        .eq("user_id", affiliateId)
+        .in("status", ["active", "trialing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!affiliateSub || affiliateSub.plans?.is_free === undefined) {
+        return "FREE"; // Default to FREE if no active plan
+      }
+
+      return affiliateSub.plans.is_free ? "FREE" : "PRO";
+    }
+
     // Try to get affiliate hierarchy from sub_affiliates
     if (externalUserId) {
       const { data: affiliateHierarchy } = await supabase
@@ -254,28 +258,25 @@ async function generateCommissionsForPayment(
 
       if (affiliateHierarchy && affiliateHierarchy.length > 0) {
         for (const affiliate of affiliateHierarchy) {
-          // Get affiliate's active plan
-          const { data: affiliateSub } = await supabase
-            .from("subscriptions")
-            .select("plan_id")
-            .eq("user_id", affiliate.parent_affiliate_id)
-            .in("status", ["active", "trialing"])
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .single();
+          // Get affiliate's plan type (FREE or PRO)
+          const affiliatePlanType = await getAffiliatePlanType(affiliate.parent_affiliate_id);
 
-          const affiliatePlanId = affiliateSub?.plan_id || payment.plan_id;
+          console.log(`Affiliate ${affiliate.parent_affiliate_id} is ${affiliatePlanType}, level ${affiliate.level}`);
 
-          // Get commission percentage for this level
+          // Get commission percentage from product_commission_levels using product + type + level
           const { data: levelConfig } = await supabase
-            .from("plan_commission_levels")
+            .from("product_commission_levels")
             .select("percentage")
-            .eq("plan_id", affiliatePlanId)
+            .eq("product_id", payment.product_id)
+            .eq("plan_type", affiliatePlanType)
             .eq("level", affiliate.level)
             .eq("is_active", true)
             .single();
 
-          if (!levelConfig?.percentage) continue;
+          if (!levelConfig?.percentage) {
+            console.log(`No commission config found for product ${payment.product_id}, type ${affiliatePlanType}, level ${affiliate.level}`);
+            continue;
+          }
 
           const commissionAmount = (payment.amount * levelConfig.percentage) / 100;
 
@@ -300,12 +301,12 @@ async function generateCommissionsForPayment(
               reference_month: payment.payment_date 
                 ? new Date(payment.payment_date).toISOString().slice(0, 7) + "-01"
                 : null,
-              notes: `Comissão N${affiliate.level} (reprocessada) - Produto: ${productName}`,
+              notes: `Comissão N${affiliate.level} (${affiliatePlanType}) (reprocessada) - Produto: ${productName}`,
             });
 
           if (!insertError) {
             commissionsGenerated++;
-            console.log(`Commission N${affiliate.level} generated for affiliate ${affiliate.parent_affiliate_id}`);
+            console.log(`Commission N${affiliate.level} generated for affiliate ${affiliate.parent_affiliate_id} (${affiliatePlanType})`);
           } else {
             console.error(`Error inserting commission:`, insertError);
           }
@@ -317,23 +318,17 @@ async function generateCommissionsForPayment(
     if (commissionsGenerated === 0 && payment.affiliate_id) {
       console.log(`Using fallback affiliate_id: ${payment.affiliate_id}`);
 
-      // Get affiliate's active plan
-      const { data: affiliateSub } = await supabase
-        .from("subscriptions")
-        .select("plan_id")
-        .eq("user_id", payment.affiliate_id)
-        .in("status", ["active", "trialing"])
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
+      // Get affiliate's plan type (FREE or PRO)
+      const affiliatePlanType = await getAffiliatePlanType(payment.affiliate_id);
 
-      const affiliatePlanId = affiliateSub?.plan_id || payment.plan_id;
+      console.log(`Fallback affiliate is ${affiliatePlanType}`);
 
-      // Get level 1 commission percentage
+      // Get level 1 commission percentage from product_commission_levels
       const { data: levelConfig } = await supabase
-        .from("plan_commission_levels")
+        .from("product_commission_levels")
         .select("percentage")
-        .eq("plan_id", affiliatePlanId)
+        .eq("product_id", payment.product_id)
+        .eq("plan_type", affiliatePlanType)
         .eq("level", 1)
         .eq("is_active", true)
         .single();
@@ -361,12 +356,14 @@ async function generateCommissionsForPayment(
             reference_month: payment.payment_date 
               ? new Date(payment.payment_date).toISOString().slice(0, 7) + "-01"
               : null,
-            notes: `Comissão N1 (reprocessada - direto) - Produto: ${productName}`,
+            notes: `Comissão N1 (${affiliatePlanType}) (reprocessada - direto) - Produto: ${productName}`,
           });
 
         if (!insertError) {
           commissionsGenerated++;
         }
+      } else {
+        console.log(`No commission config found for product ${payment.product_id}, type ${affiliatePlanType}, level 1`);
       }
     }
 

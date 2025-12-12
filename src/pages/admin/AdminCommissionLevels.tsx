@@ -27,7 +27,8 @@ import {
 
 interface CommissionLevel {
   id: string;
-  plan_id: string;
+  product_id: string;
+  plan_type: string;
   level: number;
   percentage: number;
   is_active: boolean;
@@ -35,17 +36,21 @@ interface CommissionLevel {
   created_at: string;
 }
 
-interface Plan {
+interface Product {
   id: string;
-  name: string;
-  price: number;
-  billing_period: string;
+  nome: string;
 }
+
+const PLAN_TYPES = [
+  { value: "FREE", label: "FREE" },
+  { value: "PRO", label: "PRO" },
+];
 
 const AdminCommissionLevels = () => {
   const [levels, setLevels] = useState<CommissionLevel[]>([]);
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string>("");
+  const [selectedPlanType, setSelectedPlanType] = useState<string>("PRO");
   const [maxLevels, setMaxLevels] = useState<string>("3");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -62,33 +67,31 @@ const AdminCommissionLevels = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedPlanId) {
+    if (selectedProductId && selectedPlanType) {
       loadLevels();
     }
-  }, [selectedPlanId]);
+  }, [selectedProductId, selectedPlanType]);
 
-  const loadPlans = async () => {
+  const loadProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from("plans")
-        .select("id, name, price, billing_period")
-        .eq("product_id", "bb582482-b006-47b8-b6ea-a6944d8cfdfd")
-        .eq("is_active", true)
-        .order("price");
+        .from("products")
+        .select("id, nome")
+        .order("nome");
 
       if (error) throw error;
       
-      const plansData = data || [];
-      setPlans(plansData);
+      const productsData = data || [];
+      setProducts(productsData);
       
-      // Auto-selecionar o primeiro plano se existir
-      if (plansData.length > 0 && !selectedPlanId) {
-        setSelectedPlanId(plansData[0].id);
+      // Auto-selecionar o primeiro produto se existir
+      if (productsData.length > 0 && !selectedProductId) {
+        setSelectedProductId(productsData[0].id);
       }
     } catch (error: any) {
-      console.error("Erro ao carregar planos:", error);
+      console.error("Erro ao carregar produtos:", error);
       toast({
-        title: "Erro ao carregar planos",
+        title: "Erro ao carregar produtos",
         description: error.message,
         variant: "destructive",
       });
@@ -96,13 +99,14 @@ const AdminCommissionLevels = () => {
   };
 
   const loadLevels = async () => {
-    if (!selectedPlanId) return;
+    if (!selectedProductId || !selectedPlanType) return;
 
     try {
       const { data: levelsData, error: levelsError } = await supabase
-        .from("plan_commission_levels" as any)
+        .from("product_commission_levels" as any)
         .select("*")
-        .eq("plan_id", selectedPlanId)
+        .eq("product_id", selectedProductId)
+        .eq("plan_type", selectedPlanType)
         .order("level", { ascending: true });
 
       if (levelsError) throw levelsError;
@@ -121,8 +125,8 @@ const AdminCommissionLevels = () => {
     try {
       setIsLoading(true);
 
-      // Carregar planos primeiro
-      await loadPlans();
+      // Carregar produtos primeiro
+      await loadProducts();
 
       // Carregar limite máximo
       const { data: settingData, error: settingError } = await supabase
@@ -176,7 +180,7 @@ const AdminCommissionLevels = () => {
   const handleUpdateLevel = async (id: string, field: string, value: any) => {
     try {
       const { error } = await supabase
-        .from("plan_commission_levels" as any)
+        .from("product_commission_levels" as any)
         .update({ [field]: value })
         .eq("id", id);
 
@@ -203,10 +207,10 @@ const AdminCommissionLevels = () => {
 
   const handleAddLevel = async () => {
     try {
-      if (!selectedPlanId) {
+      if (!selectedProductId || !selectedPlanType) {
         toast({
           title: "Erro",
-          description: "Selecione um plano primeiro",
+          description: "Selecione um produto e tipo primeiro",
           variant: "destructive",
         });
         return;
@@ -230,8 +234,9 @@ const AdminCommissionLevels = () => {
         return;
       }
 
-      const { error } = await supabase.from("plan_commission_levels" as any).insert({
-        plan_id: selectedPlanId,
+      const { error } = await supabase.from("product_commission_levels" as any).insert({
+        product_id: selectedProductId,
+        plan_type: selectedPlanType,
         level: newLevel.level,
         percentage: newLevel.percentage,
         description: newLevel.description,
@@ -261,7 +266,7 @@ const AdminCommissionLevels = () => {
 
     try {
       const { error } = await supabase
-        .from("plan_commission_levels" as any)
+        .from("product_commission_levels" as any)
         .delete()
         .eq("id", id);
 
@@ -282,13 +287,15 @@ const AdminCommissionLevels = () => {
     }
   };
 
+  const selectedProduct = products.find((p) => p.id === selectedProductId);
+
   if (isLoading) {
     return (
       <div className="space-y-3 md:space-y-6 p-2 md:p-0">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Níveis de Comissão</h1>
           <p className="text-sm md:text-base text-muted-foreground">
-            Configure os percentuais de comissão por nível
+            Configure os percentuais de comissão por produto e tipo
           </p>
         </div>
         <TableSkeleton columns={5} rows={5} />
@@ -301,7 +308,7 @@ const AdminCommissionLevels = () => {
       <div>
         <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Níveis de Comissão</h1>
         <p className="text-sm md:text-base text-muted-foreground">
-          Configure os percentuais de comissão por nível e por plano
+          Configure os percentuais de comissão por produto e tipo (FREE/PRO)
         </p>
       </div>
 
@@ -335,31 +342,56 @@ const AdminCommissionLevels = () => {
 
       <Card>
         <CardHeader className="p-3 md:p-6">
-          <CardTitle className="text-base md:text-lg">Selecione o Plano</CardTitle>
+          <CardTitle className="text-base md:text-lg">Filtros</CardTitle>
         </CardHeader>
         <CardContent className="p-3 md:p-6">
-          <div className="space-y-2">
-            <Label htmlFor="plan-select" className="text-sm">Plano do APP Renda Recorrente</Label>
-            <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
-              <SelectTrigger id="plan-select">
-                <SelectValue placeholder="Selecione um plano..." />
-              </SelectTrigger>
-              <SelectContent>
-                {plans.map((plan) => (
-                  <SelectItem key={plan.id} value={plan.id}>
-                    {plan.name} - R$ {plan.price.toFixed(2)} / {plan.billing_period}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="product-select" className="text-sm">Produto</Label>
+              <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                <SelectTrigger id="product-select">
+                  <SelectValue placeholder="Selecione um produto..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="type-select" className="text-sm">Tipo do Plano</Label>
+              <Select value={selectedPlanType} onValueChange={setSelectedPlanType}>
+                <SelectTrigger id="type-select">
+                  <SelectValue placeholder="Selecione o tipo..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLAN_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {selectedPlanId && (
+      {selectedProductId && selectedPlanType && (
         <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
         <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 !pb-4 md:!pt-4 lg:!p-6">
-          <CardTitle className="text-base md:text-lg">Percentuais por Nível</CardTitle>
+          <div>
+            <CardTitle className="text-base md:text-lg">
+              Percentuais por Nível
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {selectedProduct?.nome} - {selectedPlanType}
+            </p>
+          </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full md:w-auto">
@@ -372,6 +404,14 @@ const AdminCommissionLevels = () => {
                 <DialogTitle>Adicionar Novo Nível</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    Produto: <strong>{selectedProduct?.nome}</strong>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Tipo: <strong>{selectedPlanType}</strong>
+                  </p>
+                </div>
                 <div>
                   <Label htmlFor="newLevel" className="text-sm">Nível (1-10)</Label>
                   <Input
@@ -424,7 +464,7 @@ const AdminCommissionLevels = () => {
           <div className="lg:hidden space-y-2">
             {levels.length === 0 ? (
               <div className="text-center text-muted-foreground py-8 text-sm">
-                Nenhum nível cadastrado
+                Nenhum nível cadastrado para {selectedProduct?.nome} - {selectedPlanType}
               </div>
             ) : (
               levels.map((level) => (
@@ -501,84 +541,79 @@ const AdminCommissionLevels = () => {
           </div>
 
           {/* Layout Desktop - Table */}
-          <div className="hidden lg:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nível</TableHead>
-                <TableHead>Porcentagem</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Ativo</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {levels.length === 0 ? (
+          <div className="hidden lg:block overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-muted-foreground py-8"
-                  >
-                    Nenhum nível cadastrado
-                  </TableCell>
+                  <TableHead className="w-20">Nível</TableHead>
+                  <TableHead className="w-32">Porcentagem</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead className="w-24">Ativo</TableHead>
+                  <TableHead className="w-16 text-right">Ações</TableHead>
                 </TableRow>
-              ) : (
-                levels.map((level) => (
-                  <TableRow key={level.id}>
-                    <TableCell className="font-medium">
-                      Nível {level.level}
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={level.percentage}
-                        onChange={(e) =>
-                          handleUpdateLevel(
-                            level.id,
-                            "percentage",
-                            Number(e.target.value)
-                          )
-                        }
-                        className="w-24"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={level.description || ""}
-                        onChange={(e) =>
-                          handleUpdateLevel(
-                            level.id,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Descrição..."
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Switch
-                        checked={level.is_active}
-                        onCheckedChange={(checked) =>
-                          handleUpdateLevel(level.id, "is_active", checked)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteLevel(level.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+              </TableHeader>
+              <TableBody>
+                {levels.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      Nenhum nível cadastrado para {selectedProduct?.nome} - {selectedPlanType}
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  levels.map((level) => (
+                    <TableRow key={level.id}>
+                      <TableCell className="font-medium">N{level.level}</TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={level.percentage}
+                          onChange={(e) =>
+                            handleUpdateLevel(
+                              level.id,
+                              "percentage",
+                              Number(e.target.value)
+                            )
+                          }
+                          className="w-24"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          value={level.description || ""}
+                          onChange={(e) =>
+                            handleUpdateLevel(
+                              level.id,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Descrição..."
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          checked={level.is_active}
+                          onCheckedChange={(checked) =>
+                            handleUpdateLevel(level.id, "is_active", checked)
+                          }
+                        />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteLevel(level.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>
