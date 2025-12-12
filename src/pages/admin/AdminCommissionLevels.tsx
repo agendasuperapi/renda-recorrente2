@@ -404,14 +404,14 @@ const AdminCommissionLevels = () => {
                   <img 
                     src={product.icone_light} 
                     alt="" 
-                    className="h-8 w-8 rounded object-contain dark:hidden" 
+                    className="h-8 w-8 rounded-full object-contain dark:hidden" 
                   />
                 )}
                 {product.icone_dark && (
                   <img 
                     src={product.icone_dark} 
                     alt="" 
-                    className="h-8 w-8 rounded object-contain hidden dark:block" 
+                    className="h-8 w-8 rounded-full object-contain hidden dark:block" 
                   />
                 )}
                 {!product.icone_light && !product.icone_dark && (
