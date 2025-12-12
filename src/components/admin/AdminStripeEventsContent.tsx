@@ -435,44 +435,43 @@ export default function AdminStripeEventsContent() {
   const { data: stripeEvents, isLoading, refetch } = useQuery({
     queryKey: ["stripe-events", debouncedSearch, page, pageSize, eventTypeFilter, dateFrom, dateTo, showCancelAtPeriodEnd, environmentFilter, sortColumn, sortDirection],
     queryFn: async () => {
-      let query = supabase
+      const rangeFrom = (page - 1) * pageSize;
+      const rangeTo = rangeFrom + pageSize - 1;
+
+      const query = supabase
         .from("stripe_events")
         .select("*", { count: "exact" });
       
-      if (debouncedSearch) {
-        query = query.or(`event_type.ilike.%${debouncedSearch}%,customer_email.ilike.%${debouncedSearch}%,stripe_customer_id.ilike.%${debouncedSearch}%,stripe_subscription_id.ilike.%${debouncedSearch}%`);
-      }
+      // Build query with filters
+      let filteredQuery = query;
       
+      if (debouncedSearch) {
+        filteredQuery = filteredQuery.or(`event_type.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,stripe_subscription_id.ilike.%${debouncedSearch}%`);
+      }
+
       if (eventTypeFilter !== "all") {
-        query = query.eq("event_type", eventTypeFilter);
+        filteredQuery = filteredQuery.eq("event_type", eventTypeFilter);
       }
 
       if (environmentFilter !== "all") {
-        query = query.eq("environment", environmentFilter);
+        filteredQuery = filteredQuery.eq("environment", environmentFilter);
       }
-      
+
       if (dateFrom) {
-        query = query.gte("created_at", dateFrom.toISOString());
+        filteredQuery = filteredQuery.gte("created_at", dateFrom.toISOString());
       }
-      
+
       if (dateTo) {
         const endOfDay = new Date(dateTo);
         endOfDay.setHours(23, 59, 59, 999);
-        query = query.lte("created_at", endOfDay.toISOString());
-      }
-      
-      if (showCancelAtPeriodEnd) {
-        query = query.eq("cancel_at_period_end", true);
+        filteredQuery = filteredQuery.lte("created_at", endOfDay.toISOString());
       }
 
       if (sortColumn) {
-        query = query.order(sortColumn, { ascending: sortDirection === "asc" });
+        filteredQuery = filteredQuery.order(sortColumn, { ascending: sortDirection === "asc" });
       }
       
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      
-      const { data, error, count } = await query.range(from, to);
+      const { data, error, count } = await filteredQuery.range(rangeFrom, rangeTo);
       
       if (error) throw error;
       return { data, count };
