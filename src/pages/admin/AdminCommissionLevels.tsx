@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
-import { Layers, Save, Plus, Trash2, Package } from "lucide-react";
+import { Layers, Plus, Trash2, Package } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -42,24 +42,16 @@ interface GroupedLevel {
 }
 
 const AdminCommissionLevels = () => {
-  const [levels, setLevels] = useState<CommissionLevel[]>([]);
+  const [allLevels, setAllLevels] = useState<CommissionLevel[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<string>("");
-  const [maxLevels, setMaxLevels] = useState<string>("3");
+  const [selectedProductId, setSelectedProductId] = useState<string>("all");
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isAddingLevel, setIsAddingLevel] = useState(false);
+  const [isAddingLevel, setIsAddingLevel] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     loadData();
   }, []);
-
-  useEffect(() => {
-    if (selectedProductId) {
-      loadLevels();
-    }
-  }, [selectedProductId]);
 
   const loadProducts = async () => {
     try {
@@ -69,13 +61,7 @@ const AdminCommissionLevels = () => {
         .order("nome");
 
       if (error) throw error;
-      
-      const productsData = data || [];
-      setProducts(productsData);
-      
-      if (productsData.length > 0 && !selectedProductId) {
-        setSelectedProductId(productsData[0].id);
-      }
+      setProducts(data || []);
     } catch (error: any) {
       console.error("Erro ao carregar produtos:", error);
       toast({
@@ -86,18 +72,15 @@ const AdminCommissionLevels = () => {
     }
   };
 
-  const loadLevels = async () => {
-    if (!selectedProductId) return;
-
+  const loadAllLevels = async () => {
     try {
       const { data: levelsData, error: levelsError } = await supabase
         .from("product_commission_levels" as any)
         .select("*")
-        .eq("product_id", selectedProductId)
         .order("level", { ascending: true });
 
       if (levelsError) throw levelsError;
-      setLevels((levelsData as any) || []);
+      setAllLevels((levelsData as any) || []);
     } catch (error: any) {
       console.error("Erro ao carregar níveis:", error);
       toast({
@@ -111,17 +94,7 @@ const AdminCommissionLevels = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-
-      await loadProducts();
-
-      const { data: settingData, error: settingError } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "max_affiliate_levels")
-        .single();
-
-      if (settingError && settingError.code !== "PGRST116") throw settingError;
-      if (settingData) setMaxLevels(settingData.value);
+      await Promise.all([loadProducts(), loadAllLevels()]);
     } catch (error: any) {
       console.error("Erro ao carregar dados:", error);
       toast({
@@ -134,34 +107,6 @@ const AdminCommissionLevels = () => {
     }
   };
 
-  const handleSaveMaxLevels = async () => {
-    try {
-      setIsSaving(true);
-      const { error } = await supabase
-        .from("app_settings")
-        .upsert({
-          key: "max_affiliate_levels",
-          value: maxLevels,
-          description: "Número máximo de níveis permitidos na hierarquia de afiliados",
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Sucesso",
-        description: "Limite máximo de níveis atualizado!",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erro ao salvar",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleUpdateLevel = async (id: string, field: string, value: any) => {
     try {
       const { error } = await supabase
@@ -171,8 +116,8 @@ const AdminCommissionLevels = () => {
 
       if (error) throw error;
 
-      setLevels(
-        levels.map((level) =>
+      setAllLevels(
+        allLevels.map((level) =>
           level.id === id ? { ...level, [field]: value } : level
         )
       );
@@ -190,8 +135,7 @@ const AdminCommissionLevels = () => {
     }
   };
 
-  // Update both FREE and PRO is_active at once
-  const handleToggleActive = async (grouped: GroupedLevel, checked: boolean) => {
+  const handleToggleActive = async (productId: string, grouped: GroupedLevel, checked: boolean) => {
     try {
       const idsToUpdate = [grouped.free?.id, grouped.pro?.id].filter(Boolean) as string[];
       
@@ -203,9 +147,9 @@ const AdminCommissionLevels = () => {
         if (error) throw error;
       }
 
-      setLevels(
-        levels.map((level) => {
-          if (level.level === grouped.level && level.product_id === selectedProductId) {
+      setAllLevels(
+        allLevels.map((level) => {
+          if (level.level === grouped.level && level.product_id === productId) {
             return { ...level, is_active: checked };
           }
           return level;
@@ -225,8 +169,7 @@ const AdminCommissionLevels = () => {
     }
   };
 
-  // Update description for both FREE and PRO
-  const handleUpdateDescription = async (grouped: GroupedLevel, description: string) => {
+  const handleUpdateDescription = async (productId: string, grouped: GroupedLevel, description: string) => {
     try {
       const idsToUpdate = [grouped.free?.id, grouped.pro?.id].filter(Boolean) as string[];
       
@@ -238,9 +181,9 @@ const AdminCommissionLevels = () => {
         if (error) throw error;
       }
 
-      setLevels(
-        levels.map((level) => {
-          if (level.level === grouped.level && level.product_id === selectedProductId) {
+      setAllLevels(
+        allLevels.map((level) => {
+          if (level.level === grouped.level && level.product_id === productId) {
             return { ...level, description };
           }
           return level;
@@ -260,23 +203,12 @@ const AdminCommissionLevels = () => {
     }
   };
 
-  const handleAddLevel = async () => {
+  const handleAddLevel = async (productId: string) => {
     try {
-      if (!selectedProductId) {
-        toast({
-          title: "Erro",
-          description: "Selecione um produto primeiro",
-          variant: "destructive",
-        });
-        return;
-      }
+      setIsAddingLevel(productId);
 
-      setIsAddingLevel(true);
-
-      // Find the next level number
-      const existingLevelNumbers = levels
-        .filter(l => l.product_id === selectedProductId)
-        .map(l => l.level);
+      const productLevels = allLevels.filter(l => l.product_id === productId);
+      const existingLevelNumbers = productLevels.map(l => l.level);
       const nextLevel = existingLevelNumbers.length > 0 
         ? Math.max(...existingLevelNumbers) + 1 
         : 1;
@@ -290,17 +222,16 @@ const AdminCommissionLevels = () => {
         return;
       }
 
-      // Insert both FREE and PRO levels
       const { error } = await supabase.from("product_commission_levels" as any).insert([
         {
-          product_id: selectedProductId,
+          product_id: productId,
           plan_type: "FREE",
           level: nextLevel,
           percentage: 0,
           description: `Nível ${nextLevel}`,
         },
         {
-          product_id: selectedProductId,
+          product_id: productId,
           plan_type: "PRO",
           level: nextLevel,
           percentage: 0,
@@ -315,7 +246,7 @@ const AdminCommissionLevels = () => {
         description: `Nível ${nextLevel} adicionado!`,
       });
 
-      loadLevels();
+      loadAllLevels();
     } catch (error: any) {
       toast({
         title: "Erro ao adicionar",
@@ -323,24 +254,23 @@ const AdminCommissionLevels = () => {
         variant: "destructive",
       });
     } finally {
-      setIsAddingLevel(false);
+      setIsAddingLevel(null);
     }
   };
 
-  const handleDeleteLevel = async (levelNumber: number) => {
+  const handleDeleteLevel = async (productId: string, levelNumber: number) => {
     if (!confirm(`Tem certeza que deseja excluir o nível ${levelNumber}? Isso removerá as configurações FREE e PRO.`)) return;
 
     try {
-      // Delete both FREE and PRO for this level
       const { error } = await supabase
         .from("product_commission_levels" as any)
         .delete()
-        .eq("product_id", selectedProductId)
+        .eq("product_id", productId)
         .eq("level", levelNumber);
 
       if (error) throw error;
 
-      setLevels(levels.filter((level) => !(level.level === levelNumber && level.product_id === selectedProductId)));
+      setAllLevels(allLevels.filter((level) => !(level.level === levelNumber && level.product_id === productId)));
 
       toast({
         title: "Sucesso",
@@ -355,13 +285,11 @@ const AdminCommissionLevels = () => {
     }
   };
 
-  const selectedProduct = products.find((p) => p.id === selectedProductId);
-
-  // Group levels by level number
-  const groupedLevels: GroupedLevel[] = (() => {
+  const getGroupedLevelsForProduct = (productId: string): GroupedLevel[] => {
+    const productLevels = allLevels.filter(l => l.product_id === productId);
     const grouped: Record<number, GroupedLevel> = {};
     
-    levels.forEach((level) => {
+    productLevels.forEach((level) => {
       if (!grouped[level.level]) {
         grouped[level.level] = {
           level: level.level,
@@ -378,16 +306,18 @@ const AdminCommissionLevels = () => {
         grouped[level.level].pro = level;
       }
       
-      // Use description from any available level
       if (level.description) {
         grouped[level.level].description = level.description;
       }
-      // is_active should be same for both, use either
       grouped[level.level].is_active = level.is_active;
     });
     
     return Object.values(grouped).sort((a, b) => a.level - b.level);
-  })();
+  };
+
+  const productsToShow = selectedProductId === "all" 
+    ? products 
+    : products.filter(p => p.id === selectedProductId);
 
   if (isLoading) {
     return (
@@ -425,6 +355,7 @@ const AdminCommissionLevels = () => {
               <SelectValue placeholder="Selecione um produto..." />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="all">Todos os produtos</SelectItem>
               {products.map((product) => (
                 <SelectItem key={product.id} value={product.id}>
                   {product.nome}
@@ -435,188 +366,192 @@ const AdminCommissionLevels = () => {
         </CardContent>
       </Card>
 
-      {selectedProductId && (
-        <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
-          <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 !pb-4 md:!pt-4 lg:!p-6">
-            <div>
-              <CardTitle className="text-base md:text-lg">
-                Níveis de {selectedProduct?.nome}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Configure os percentuais FREE e PRO para cada nível
-              </p>
-            </div>
-            <Button 
-              onClick={handleAddLevel} 
-              disabled={isAddingLevel}
-              className="w-full md:w-auto"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isAddingLevel ? "Adicionando..." : "Adicionar Nível"}
-            </Button>
-          </CardHeader>
-          <CardContent className="!p-0 lg:!p-6">
-            {/* Layout Mobile - Cards */}
-            <div className="lg:hidden space-y-3">
-              {groupedLevels.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8 text-sm">
-                  Nenhum nível cadastrado para {selectedProduct?.nome}
-                </div>
-              ) : (
-                groupedLevels.map((grouped) => (
-                  <Card key={grouped.level} className="p-3 bg-card border shadow-sm">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-base">Nível {grouped.level}</h3>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handleDeleteLevel(grouped.level)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label className="text-xs text-muted-foreground">FREE (%)</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={grouped.free?.percentage ?? 0}
-                            onChange={(e) => {
-                              if (grouped.free) {
-                                handleUpdateLevel(grouped.free.id, "percentage", Number(e.target.value));
-                              }
-                            }}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-xs text-muted-foreground">PRO (%)</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={grouped.pro?.percentage ?? 0}
-                            onChange={(e) => {
-                              if (grouped.pro) {
-                                handleUpdateLevel(grouped.pro.id, "percentage", Number(e.target.value));
-                              }
-                            }}
-                            className="mt-1"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Descrição</Label>
-                        <Input
-                          value={grouped.description}
-                          onChange={(e) => handleUpdateDescription(grouped, e.target.value)}
-                          placeholder="Descrição..."
-                          className="mt-1"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between pt-1">
-                        <Label className="text-xs text-muted-foreground">Ativo</Label>
-                        <Switch
-                          checked={grouped.is_active}
-                          onCheckedChange={(checked) => handleToggleActive(grouped, checked)}
-                        />
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              )}
-            </div>
-
-            {/* Layout Desktop - Table */}
-            <div className="hidden lg:block overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-20">Nível</TableHead>
-                    <TableHead className="w-28">FREE (%)</TableHead>
-                    <TableHead className="w-28">PRO (%)</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead className="w-24">Ativo</TableHead>
-                    <TableHead className="w-16 text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {groupedLevels.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                        Nenhum nível cadastrado para {selectedProduct?.nome}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    groupedLevels.map((grouped) => (
-                      <TableRow key={grouped.level}>
-                        <TableCell className="font-medium">N{grouped.level}</TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={grouped.free?.percentage ?? 0}
-                            onChange={(e) => {
-                              if (grouped.free) {
-                                handleUpdateLevel(grouped.free.id, "percentage", Number(e.target.value));
-                              }
-                            }}
-                            className="w-20"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={grouped.pro?.percentage ?? 0}
-                            onChange={(e) => {
-                              if (grouped.pro) {
-                                handleUpdateLevel(grouped.pro.id, "percentage", Number(e.target.value));
-                              }
-                            }}
-                            className="w-20"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            value={grouped.description}
-                            onChange={(e) => handleUpdateDescription(grouped, e.target.value)}
-                            placeholder="Descrição..."
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Switch
-                            checked={grouped.is_active}
-                            onCheckedChange={(checked) => handleToggleActive(grouped, checked)}
-                          />
-                        </TableCell>
-                        <TableCell className="text-right">
+      {productsToShow.map((product) => {
+        const groupedLevels = getGroupedLevelsForProduct(product.id);
+        
+        return (
+          <Card key={product.id} className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
+            <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 !p-0 !pb-4 md:!pt-4 lg:!p-6">
+              <div>
+                <CardTitle className="text-base md:text-lg">
+                  {product.nome}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {groupedLevels.length} nível(is) configurado(s)
+                </p>
+              </div>
+              <Button 
+                onClick={() => handleAddLevel(product.id)} 
+                disabled={isAddingLevel === product.id}
+                className="w-full md:w-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isAddingLevel === product.id ? "Adicionando..." : "Adicionar Nível"}
+              </Button>
+            </CardHeader>
+            <CardContent className="!p-0 lg:!p-6">
+              {/* Layout Mobile - Cards */}
+              <div className="lg:hidden space-y-3">
+                {groupedLevels.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8 text-sm">
+                    Nenhum nível cadastrado para {product.nome}
+                  </div>
+                ) : (
+                  groupedLevels.map((grouped) => (
+                    <Card key={grouped.level} className="p-3 bg-card border shadow-sm">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold text-base">Nível {grouped.level}</h3>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDeleteLevel(grouped.level)}
+                            className="h-8 w-8"
+                            onClick={() => handleDeleteLevel(product.id, grouped.level)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground">FREE (%)</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={grouped.free?.percentage ?? 0}
+                              onChange={(e) => {
+                                if (grouped.free) {
+                                  handleUpdateLevel(grouped.free.id, "percentage", Number(e.target.value));
+                                }
+                              }}
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">PRO (%)</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={grouped.pro?.percentage ?? 0}
+                              onChange={(e) => {
+                                if (grouped.pro) {
+                                  handleUpdateLevel(grouped.pro.id, "percentage", Number(e.target.value));
+                                }
+                              }}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Descrição</Label>
+                          <Input
+                            value={grouped.description}
+                            onChange={(e) => handleUpdateDescription(product.id, grouped, e.target.value)}
+                            placeholder="Descrição..."
+                            className="mt-1"
+                          />
+                        </div>
+                        
+                        <div className="flex items-center justify-between pt-1">
+                          <Label className="text-xs text-muted-foreground">Ativo</Label>
+                          <Switch
+                            checked={grouped.is_active}
+                            onCheckedChange={(checked) => handleToggleActive(product.id, grouped, checked)}
+                          />
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+
+              {/* Layout Desktop - Table */}
+              <div className="hidden lg:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-20">Nível</TableHead>
+                      <TableHead className="w-28">FREE (%)</TableHead>
+                      <TableHead className="w-28">PRO (%)</TableHead>
+                      <TableHead>Descrição</TableHead>
+                      <TableHead className="w-24">Ativo</TableHead>
+                      <TableHead className="w-16 text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {groupedLevels.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                          Nenhum nível cadastrado para {product.nome}
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                    ) : (
+                      groupedLevels.map((grouped) => (
+                        <TableRow key={grouped.level}>
+                          <TableCell className="font-medium">N{grouped.level}</TableCell>
+                          <TableCell>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={grouped.free?.percentage ?? 0}
+                              onChange={(e) => {
+                                if (grouped.free) {
+                                  handleUpdateLevel(grouped.free.id, "percentage", Number(e.target.value));
+                                }
+                              }}
+                              className="w-20"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={grouped.pro?.percentage ?? 0}
+                              onChange={(e) => {
+                                if (grouped.pro) {
+                                  handleUpdateLevel(grouped.pro.id, "percentage", Number(e.target.value));
+                                }
+                              }}
+                              className="w-20"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              value={grouped.description}
+                              onChange={(e) => handleUpdateDescription(product.id, grouped, e.target.value)}
+                              placeholder="Descrição..."
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Switch
+                              checked={grouped.is_active}
+                              onCheckedChange={(checked) => handleToggleActive(product.id, grouped, checked)}
+                            />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteLevel(product.id, grouped.level)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };
