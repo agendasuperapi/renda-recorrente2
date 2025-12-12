@@ -997,7 +997,7 @@ const AdminProducts = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => queryClient.invalidateQueries({ queryKey: ['all-plans'] })}
+                      onClick={() => queryClient.invalidateQueries({ queryKey: ['plans-by-product'] })}
                       className="gap-2"
                     >
                       <RefreshCw className="h-4 w-4" />
