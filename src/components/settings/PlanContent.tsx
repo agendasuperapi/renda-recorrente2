@@ -19,7 +19,6 @@ interface Plan {
   price: number;
   original_price: number | null;
   billing_period: string;
-  commission_percentage: number;
   is_free: boolean;
   plan_features?: { feature_id: string }[];
 }
@@ -140,6 +139,29 @@ export const PlanContent = () => {
       return data as Feature[];
     },
   });
+
+  // Fetch commission levels for the product
+  const { data: commissionLevels = [] } = useQuery({
+    queryKey: ["product-commission-levels", PRODUCT_ID],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_commission_levels")
+        .select("*")
+        .eq("product_id", PRODUCT_ID)
+        .eq("level", 1)
+        .eq("is_active", true);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Helper to get commission percentage based on plan type
+  const getCommissionPercentage = (isFree: boolean): number => {
+    const planType = isFree ? "FREE" : "PRO";
+    const level = commissionLevels.find(l => l.plan_type === planType);
+    return level?.percentage ?? 0;
+  };
 
   const getIconComponent = (iconName: string): React.ComponentType<any> => {
     const IconComponent = (LucideIcons as any)[iconName];
@@ -355,7 +377,7 @@ export const PlanContent = () => {
                 <CreditCard className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Comissão</p>
-                  <p className="text-lg font-semibold text-primary">{subscription.plan.commission_percentage}%</p>
+                  <p className="text-lg font-semibold text-primary">{getCommissionPercentage(subscription.plan.is_free)}%</p>
                 </div>
               </div>
             </div>
@@ -458,7 +480,7 @@ export const PlanContent = () => {
                     <div className="flex items-center justify-between gap-4">
                       <p className="text-sm font-medium">Comissão recorrente</p>
                       <p className="text-2xl font-bold text-primary">
-                        {plan.commission_percentage}%
+                        {getCommissionPercentage(plan.is_free)}%
                       </p>
                     </div>
                   </div>

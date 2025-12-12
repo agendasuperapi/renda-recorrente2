@@ -34,7 +34,6 @@ const planFormSchema = z.object({
   obs_coupon: z.string().optional(),
   coupon_id: z.string().optional(),
   trial_days: z.coerce.number().min(0).default(0),
-  commission_percentage: z.coerce.number().min(0).max(100).default(25),
   is_active: z.boolean().default(true),
   is_free: z.boolean().default(false),
   product_id: z.string().optional(),
@@ -88,7 +87,6 @@ const AdminPlans = () => {
       obs_coupon: "",
       coupon_id: "",
       trial_days: 0,
-      commission_percentage: 25,
       is_active: true,
       is_free: false,
       product_id: "",
@@ -224,7 +222,6 @@ const AdminPlans = () => {
         price: data.price,
         original_price: data.original_price,
         billing_period: data.billing_period,
-        commission_percentage: data.commission_percentage,
         is_active: data.is_active,
         is_free: data.is_free,
         features,
@@ -278,7 +275,6 @@ const AdminPlans = () => {
           price: data.price,
           original_price: data.original_price,
           billing_period: data.billing_period,
-          commission_percentage: data.commission_percentage,
           is_active: data.is_active,
           is_free: data.is_free,
           features,
@@ -367,7 +363,6 @@ const AdminPlans = () => {
       obs_coupon: features.find((f: string) => f.startsWith("obs_coupon:"))?.replace("obs_coupon:", "") || "",
       coupon_id: features.find((f: string) => f.startsWith("coupon_id:"))?.replace("coupon_id:", "") || "",
       trial_days: parseInt(features.find((f: string) => f.startsWith("trial_days:"))?.replace("trial_days:", "") || "0"),
-      commission_percentage: plan.commission_percentage,
       is_active: plan.is_active,
       is_free: plan.is_free ?? false,
       product_id: plan.product_id || "",
@@ -407,7 +402,6 @@ const AdminPlans = () => {
       obs_coupon: "",
       coupon_id: "",
       trial_days: 0,
-      commission_percentage: 25,
       is_active: true,
       is_free: false,
       product_id: "",
@@ -1220,25 +1214,6 @@ const AdminPlans = () => {
                                   <FormDescription className="text-xs">
                                     Será ignorado quando o cliente digitar cupom de dias/mês/ano grátis
                                   </FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="commission_percentage"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Percentual de Comissão (%)</FormLabel>
-                                  <FormControl>
-                                    <Input 
-                                      {...field} 
-                                      type="number"
-                                      min="0"
-                                      max="100"
-                                    />
-                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
