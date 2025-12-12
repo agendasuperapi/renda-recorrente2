@@ -977,9 +977,6 @@ const Coupons = () => {
                         {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
                         {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                       </div>
-                      <code className="text-sm font-mono text-muted-foreground">
-                        {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                      </code>
                       {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <span className="font-semibold">Link: </span>
                         <code className="bg-muted px-2 py-1 rounded truncate">
