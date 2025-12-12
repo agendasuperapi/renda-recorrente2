@@ -31,9 +31,9 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } }
     });
 
-    // Get the authenticated user
-    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
-    if (userError || !user) {
+    // Get the authenticated user (the one making the request)
+    const { data: { user: requester }, error: userError } = await supabaseUser.auth.getUser();
+    if (userError || !requester) {
       console.error('Auth error:', userError);
       return new Response(
         JSON.stringify({ error: 'Usuário não autenticado' }),
@@ -41,12 +41,8 @@ serve(async (req) => {
       );
     }
 
-    const userId = user.id;
-    const userEmail = user.email;
-    console.log(`Processing account deletion for user: ${userId}`);
-
     // Parse request body
-    const { deletion_reason } = await req.json();
+    const { deletion_reason, target_user_id } = await req.json();
     if (!deletion_reason || deletion_reason.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: 'Motivo da exclusão é obrigatório' }),
@@ -57,47 +53,89 @@ serve(async (req) => {
     // Create admin client for privileged operations
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 1. Check if user is super_admin (they cannot delete their own account)
-    const { data: roleData, error: roleError } = await supabaseAdmin
+    // Check if requester is super_admin
+    const { data: requesterRoleData, error: requesterRoleError } = await supabaseAdmin
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', requester.id)
+      .single();
+
+    if (requesterRoleError && requesterRoleError.code !== 'PGRST116') {
+      console.error('Requester role check error:', requesterRoleError);
+    }
+
+    const isAdmin = requesterRoleData?.role === 'super_admin';
+
+    // Determine target user ID (self-deletion or admin deleting another user)
+    let userId: string;
+    let deletedByAdmin = false;
+
+    if (target_user_id && target_user_id !== requester.id) {
+      // Admin trying to delete another user
+      if (!isAdmin) {
+        return new Response(
+          JSON.stringify({ error: 'Apenas administradores podem excluir contas de outros usuários' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      userId = target_user_id;
+      deletedByAdmin = true;
+      console.log(`Admin ${requester.id} deleting user: ${userId}`);
+    } else {
+      // Self-deletion
+      userId = requester.id;
+      console.log(`User self-deleting: ${userId}`);
+    }
+
+    // Check if target user is super_admin (they cannot be deleted)
+    const { data: targetRoleData, error: targetRoleError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
       .single();
 
-    if (roleError && roleError.code !== 'PGRST116') {
-      console.error('Role check error:', roleError);
+    if (targetRoleError && targetRoleError.code !== 'PGRST116') {
+      console.error('Target role check error:', targetRoleError);
     }
 
-    if (roleData?.role === 'super_admin') {
+    if (targetRoleData?.role === 'super_admin') {
       return new Response(
-        JSON.stringify({ error: 'Super administradores não podem excluir a própria conta' }),
+        JSON.stringify({ error: 'Contas de super administradores não podem ser excluídas' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // 2. Check for active subscription without pending cancellation
-    const { data: subscription, error: subError } = await supabaseAdmin
-      .from('subscriptions')
-      .select('id, status, cancel_at_period_end, plan_id')
-      .eq('user_id', userId)
-      .in('status', ['active', 'trialing'])
-      .single();
+    // Check for active subscription without pending cancellation (skip for admin deletions)
+    if (!deletedByAdmin) {
+      const { data: subscription, error: subError } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id, status, cancel_at_period_end, plan_id')
+        .eq('user_id', userId)
+        .in('status', ['active', 'trialing'])
+        .single();
 
-    if (subError && subError.code !== 'PGRST116') {
-      console.error('Subscription check error:', subError);
+      if (subError && subError.code !== 'PGRST116') {
+        console.error('Subscription check error:', subError);
+      }
+
+      if (subscription && !subscription.cancel_at_period_end) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Você possui um plano ativo. Cancele seu plano antes de excluir a conta.',
+            has_active_plan: true
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
-    if (subscription && !subscription.cancel_at_period_end) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Você possui um plano ativo. Cancele seu plano antes de excluir a conta.',
-          has_active_plan: true
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Get target user's auth data for email
+    const { data: { user: targetAuthUser }, error: targetAuthError } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (targetAuthError) {
+      console.error('Target auth user fetch error:', targetAuthError);
     }
 
-    // 3. Get user profile data for audit log
+    // Get user profile data for audit log
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('name, email')
@@ -113,9 +151,9 @@ serve(async (req) => {
     }
 
     const userName = profile?.name || 'Usuário';
-    const profileEmail = profile?.email || userEmail || 'email@desconhecido.com';
+    const profileEmail = profile?.email || targetAuthUser?.email || 'email@desconhecido.com';
 
-    // 4. Register deletion in audit table
+    // Register deletion in audit table
     const { error: auditError } = await supabaseAdmin
       .from('deleted_users')
       .insert({
@@ -123,10 +161,11 @@ serve(async (req) => {
         name: userName,
         email: profileEmail,
         deletion_reason: deletion_reason.trim(),
+        deleted_by: deletedByAdmin ? requester.id : null,
         metadata: {
           deleted_at_timestamp: new Date().toISOString(),
-          had_subscription: !!subscription,
-          subscription_was_cancelled: subscription?.cancel_at_period_end || false
+          deleted_by_admin: deletedByAdmin,
+          admin_id: deletedByAdmin ? requester.id : null
         }
       });
 
@@ -140,7 +179,7 @@ serve(async (req) => {
 
     console.log(`Audit record created for user: ${userId}`);
 
-    // 5. Anonymize profile data
+    // Anonymize profile data
     const deletedUsername = `deleted_${userId.substring(0, 8)}_${Date.now()}`;
     
     const { error: profileUpdateError } = await supabaseAdmin
@@ -184,7 +223,7 @@ serve(async (req) => {
 
     console.log(`Profile anonymized for user: ${userId}`);
 
-    // 6. Mark unified_users as deleted
+    // Mark unified_users as deleted
     const { error: unifiedError } = await supabaseAdmin
       .from('unified_users')
       .update({ deleted_at: new Date().toISOString() })
@@ -197,7 +236,7 @@ serve(async (req) => {
 
     console.log(`Unified users marked as deleted for user: ${userId}`);
 
-    // 7. Delete auth.users using Admin API
+    // Delete auth.users using Admin API
     const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteAuthError) {
@@ -213,7 +252,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Conta excluída com sucesso' 
+        message: deletedByAdmin ? 'Conta do usuário excluída com sucesso' : 'Conta excluída com sucesso' 
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

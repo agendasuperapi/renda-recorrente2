@@ -66,7 +66,7 @@ const AdminUsers = () => {
   const [activitiesPage, setActivitiesPage] = useState(1);
   const [activitiesPageSize, setActivitiesPageSize] = useState(5);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
   const queryClient = useQueryClient();
   const {
     data: usersData,
@@ -203,12 +203,22 @@ const AdminUsers = () => {
     }
   });
 
-  // Mutation para excluir usuário
+  // Mutation para excluir usuário via edge function
   const deleteUserMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { data, error } = await supabase.auth.admin.deleteUser(userId);
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ userId, reason }: { userId: string; reason: string }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Não autenticado");
+
+      const response = await supabase.functions.invoke('delete-user-account', {
+        body: { 
+          target_user_id: userId,
+          deletion_reason: reason 
+        }
+      });
+
+      if (response.error) throw response.error;
+      if (response.data?.error) throw new Error(response.data.error);
+      return response.data;
     },
     onSuccess: () => {
       toast.success("Usuário excluído com sucesso! Os dados foram anonimizados.");
@@ -216,7 +226,7 @@ const AdminUsers = () => {
       setIsDetailsOpen(false);
       setSelectedUser(null);
       setDeleteConfirmText("");
-      setIsDeleteDialogOpen(false);
+      setDeleteReason("");
     },
     onError: (error: any) => {
       console.error("Error deleting user:", error);
@@ -225,8 +235,8 @@ const AdminUsers = () => {
   });
 
   const handleDeleteUser = () => {
-    if (!selectedUser || deleteConfirmText !== "EXCLUIR") return;
-    deleteUserMutation.mutate(selectedUser.id);
+    if (!selectedUser || deleteConfirmText !== "EXCLUIR" || !deleteReason.trim()) return;
+    deleteUserMutation.mutate({ userId: selectedUser.id, reason: deleteReason.trim() });
   };
   const handleSaveBlockStatus = () => {
     if (!selectedUser) return;
@@ -751,6 +761,19 @@ const AdminUsers = () => {
                               </div>
                               
                               <div className="space-y-2">
+                                <Label htmlFor="delete-reason-mobile" className="text-sm">
+                                  Motivo da exclusão <span className="text-destructive">*</span>
+                                </Label>
+                                <Textarea
+                                  id="delete-reason-mobile"
+                                  value={deleteReason}
+                                  onChange={(e) => setDeleteReason(e.target.value)}
+                                  placeholder="Informe o motivo da exclusão..."
+                                  rows={3}
+                                />
+                              </div>
+
+                              <div className="space-y-2">
                                 <Label htmlFor="delete-confirm-mobile" className="text-sm">
                                   Digite <span className="font-bold">EXCLUIR</span> para confirmar
                                 </Label>
@@ -765,7 +788,7 @@ const AdminUsers = () => {
                               <Button
                                 variant="destructive"
                                 className="w-full"
-                                disabled={deleteConfirmText !== "EXCLUIR" || deleteUserMutation.isPending}
+                                disabled={deleteConfirmText !== "EXCLUIR" || !deleteReason.trim() || deleteUserMutation.isPending}
                                 onClick={handleDeleteUser}
                               >
                                 {deleteUserMutation.isPending ? (
@@ -1022,6 +1045,20 @@ const AdminUsers = () => {
                               </div>
                               
                               <div className="space-y-2">
+                                <Label htmlFor="delete-reason-desktop" className="text-sm">
+                                  Motivo da exclusão <span className="text-destructive">*</span>
+                                </Label>
+                                <Textarea
+                                  id="delete-reason-desktop"
+                                  value={deleteReason}
+                                  onChange={(e) => setDeleteReason(e.target.value)}
+                                  placeholder="Informe o motivo da exclusão..."
+                                  rows={3}
+                                  className="max-w-md"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
                                 <Label htmlFor="delete-confirm-desktop" className="text-sm">
                                   Digite <span className="font-bold">EXCLUIR</span> para confirmar
                                 </Label>
@@ -1036,7 +1073,7 @@ const AdminUsers = () => {
 
                               <Button
                                 variant="destructive"
-                                disabled={deleteConfirmText !== "EXCLUIR" || deleteUserMutation.isPending}
+                                disabled={deleteConfirmText !== "EXCLUIR" || !deleteReason.trim() || deleteUserMutation.isPending}
                                 onClick={handleDeleteUser}
                               >
                                 {deleteUserMutation.isPending ? (
