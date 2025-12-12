@@ -263,24 +263,31 @@ export const Sidebar = ({
 
         // Buscar plano do usuário através de subscriptions
         const {
-          data: subscription
-        } = await supabase.from('subscriptions').select('plan_id, current_period_start, current_period_end, status, cancel_at_period_end, plans(name, is_free, commission_percentage)').eq('user_id', user.id).in('status', ['active', 'trialing', 'past_due']).order('created_at', {
+          data: subscription,
+          error: subscriptionError
+        } = await supabase.from('subscriptions').select('plan_id, current_period_start, current_period_end, status, cancel_at_period_end, plans(name, is_free)').eq('user_id', user.id).in('status', ['active', 'trialing', 'past_due']).order('created_at', {
           ascending: false
         }).limit(1).maybeSingle();
+        
+        console.log('📋 Subscription query result:', { subscription, error: subscriptionError });
+        
         if (subscription && subscription.plans) {
+          const planData = subscription.plans as any;
+          console.log('📋 Plan data:', planData);
           setUserPlan({
-            is_free: (subscription.plans as any).is_free || false,
-            plan_name: (subscription.plans as any).name || null
+            is_free: planData.is_free === true,
+            plan_name: planData.name || null
           });
           setUserSubscription({
             current_period_start: subscription.current_period_start,
             current_period_end: subscription.current_period_end,
             status: subscription.status,
-            commission_percentage: (subscription.plans as any).commission_percentage || 0,
+            commission_percentage: 0,
             cancel_at_period_end: subscription.cancel_at_period_end
           });
         } else {
           // Usuário sem plano ativo = FREE
+          console.log('📋 No active subscription found, setting FREE');
           setUserPlan({
             is_free: true,
             plan_name: null
