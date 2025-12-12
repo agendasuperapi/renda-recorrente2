@@ -1639,7 +1639,6 @@ export type Database = {
       plans: {
         Row: {
           billing_period: string
-          commission_percentage: number
           created_at: string | null
           features: Json | null
           id: string
@@ -1656,7 +1655,6 @@ export type Database = {
         }
         Insert: {
           billing_period: string
-          commission_percentage?: number
           created_at?: string | null
           features?: Json | null
           id?: string
@@ -1673,7 +1671,6 @@ export type Database = {
         }
         Update: {
           billing_period?: string
-          commission_percentage?: number
           created_at?: string | null
           features?: Json | null
           id?: string

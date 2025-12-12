@@ -46,7 +46,6 @@ interface Plan {
   plan_features?: {
     feature_id: string;
   }[];
-  commission_percentage: number;
   is_free?: boolean;
 }
 interface Testimonial {
@@ -152,6 +151,7 @@ const LandingPage = () => {
   const isOnline = useOnlineStatus();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
+  const [commissionLevels, setCommissionLevels] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [faqs, setFaqs] = useState<FAQ[]>(defaultFaqs);
   const [features, setFeatures] = useState<Feature[]>([]);
@@ -499,6 +499,8 @@ const LandingPage = () => {
 
     // Fetch plans
     fetchPlans();
+    // Fetch commission levels
+    fetchCommissionLevels();
     // Fetch testimonials
     fetchTestimonials();
     // Fetch FAQs
@@ -603,6 +605,28 @@ const LandingPage = () => {
       const cached = getFromCache<Plan[]>(CACHE_KEYS.LANDING_PLANS);
       if (cached) setPlans(cached);
     }
+  };
+  
+  const fetchCommissionLevels = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("product_commission_levels")
+        .select("*")
+        .eq("product_id", PRODUCT_ID)
+        .eq("level", 1)
+        .eq("is_active", true);
+      if (data) {
+        setCommissionLevels(data);
+      }
+    } catch (error) {
+      console.error('Error fetching commission levels:', error);
+    }
+  };
+  
+  const getCommissionPercentage = (isFree: boolean): number => {
+    const planType = isFree ? "FREE" : "PRO";
+    const level = commissionLevels.find(l => l.plan_type === planType);
+    return level?.percentage ?? 0;
   };
   const fetchTestimonials = async () => {
     try {
@@ -1775,7 +1799,7 @@ const LandingPage = () => {
                         Comissão recorrente
                       </p>
                       <p className={`text-2xl font-bold ${!plan.is_free ? 'text-primary-foreground drop-shadow-lg' : 'text-primary'}`}>
-                        {plan.commission_percentage}%
+                        {getCommissionPercentage(plan.is_free ?? false)}%
                       </p>
                     </div>
                   </div>

@@ -182,10 +182,10 @@ async function generateCommissionsForPayment(
   payment: any
 ): Promise<{ success: boolean; count: number; error?: string }> {
   try {
-    // Get plan info to check commission percentage
+    // Get plan info
     const { data: plan, error: planError } = await supabase
       .from("plans")
-      .select("commission_percentage, is_free")
+      .select("is_free")
       .eq("id", payment.plan_id)
       .single();
 
