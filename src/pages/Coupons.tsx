@@ -1266,7 +1266,7 @@ const Coupons = () => {
             }
             
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-              <div className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
+              <div className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:shadow-md bg-background ${isActivated && !isActive ? "border-red-300 dark:border-red-500" : ""} ${!isActivated ? "border-orange-400 dark:border-orange-500" : "border-border hover:bg-accent/50"}`}>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold">{coupon.name}</h3>
