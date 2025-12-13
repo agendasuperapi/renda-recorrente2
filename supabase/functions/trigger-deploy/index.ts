@@ -55,8 +55,8 @@ serve(async (req) => {
       })
     }
 
-    const GITHUB_OWNER = '[USUARIO]'
-    const GITHUB_REPO = '[REPOSITORIO]'
+    const GITHUB_OWNER = 'agendasuperapi'
+    const GITHUB_REPO = 'renda-recorrente2'
     const WORKFLOW_FILE = 'deploy-hostinger.yml'
 
     console.log(`Triggering deploy for ${GITHUB_OWNER}/${GITHUB_REPO}`)
