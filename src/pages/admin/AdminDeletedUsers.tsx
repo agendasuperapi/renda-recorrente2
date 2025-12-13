@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search, UserX, Calendar, Mail, User, MessageSquare, ShieldAlert, Loader2 } from "lucide-react";
+import { Search, UserX, Calendar, Mail, User, MessageSquare, ShieldAlert, Loader2, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -52,7 +52,7 @@ export default function AdminDeletedUsers() {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
 
-  const { data: deletedUsers, isLoading } = useQuery({
+  const { data: deletedUsers, isLoading, refetch } = useQuery({
     queryKey: ['deleted-users'],
     queryFn: async () => {
       // Buscar deleted_users
@@ -308,14 +308,24 @@ export default function AdminDeletedUsers() {
               </div>
             )}
 
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Buscar por nome, email ou motivo..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Buscar por nome, email ou motivo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => refetch()}
+                title="Atualizar lista"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </div>
 
             {isLoading ? (
