@@ -21,7 +21,7 @@ import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import laptopImage from "@/assets/laptop-dashboard.png";
-import { APP_VERSION } from "@/config/version";
+import { useDeployedVersion } from "@/hooks/useDeployedVersion";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
 const PRODUCT_ID = "bb582482-b006-47b8-b6ea-a6944d8cfdfd";
@@ -148,6 +148,7 @@ const LandingPage = () => {
     theme
   } = useTheme();
   const { checkVersion, ...versionInfo } = useVersionCheck();
+  const { formattedVersion } = useDeployedVersion();
   const isOnline = useOnlineStatus();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -935,7 +936,7 @@ const LandingPage = () => {
                           style={{ color: currentSidebarTextColor }}
                           onClick={() => checkVersion()}
                         >
-                          <span>v{APP_VERSION}</span>
+                          {formattedVersion && <span>{formattedVersion}</span>}
                           {versionInfo.isChecking ? (
                             <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                           ) : versionInfo.hasUpdate ? (
@@ -2027,13 +2028,15 @@ const LandingPage = () => {
           <div className="border-t border-border pt-6 md:pt-8 text-center text-xs md:text-sm text-muted-foreground">
             <p>© 2025 APP Renda Recorrente. Todos os direitos reservados.</p>
             <div className="mt-2 flex items-center justify-center gap-2 text-muted-foreground/70">
-              <span 
-                className="cursor-pointer hover:opacity-70 transition-opacity"
-                onClick={() => checkVersion()}
-              >
-                v{APP_VERSION}
-                {versionInfo.isChecking && <RefreshCw className="h-3 w-3 ml-1 inline animate-spin" />}
-              </span>
+              {formattedVersion && (
+                <span 
+                  className="cursor-pointer hover:opacity-70 transition-opacity"
+                  onClick={() => checkVersion()}
+                >
+                  {formattedVersion}
+                  {versionInfo.isChecking && <RefreshCw className="h-3 w-3 ml-1 inline animate-spin" />}
+                </span>
+              )}
               {versionInfo.hasUpdate && versionInfo.newVersion ? <Button variant="outline" size="sm" className="h-6 text-xs px-2 gap-1" onClick={() => window.location.reload()}>
                   <RefreshCw className="h-3 w-3" />
                   Atualizar para v{versionInfo.newVersion}
@@ -2044,7 +2047,7 @@ const LandingPage = () => {
                         checkVersion();
                         toast({
                           title: "Verificando versão...",
-                          description: `Versão atual: v${APP_VERSION}`
+                          description: `Versão atual: ${formattedVersion || 'carregando...'}`
                         });
                       }}>
                         <Check className="h-3 w-3 text-green-500" />
