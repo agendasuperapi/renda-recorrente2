@@ -285,16 +285,6 @@ export const PlanContent = () => {
   const isTrialActive = subscription?.trial_end && new Date(subscription.trial_end) > new Date();
   const trialEndDate = subscription?.trial_end ? new Date(subscription.trial_end) : null;
 
-  if (subscriptionLoading || plansLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-1/2"></div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8">
