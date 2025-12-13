@@ -204,7 +204,7 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
           Configurar Fundo
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" overlayClassName="bg-transparent">
         <DialogHeader>
           <DialogTitle>Personalizar Fundo das Páginas</DialogTitle>
         </DialogHeader>
