@@ -55,13 +55,30 @@ export default function AdminDeletedUsers() {
   const { data: deletedUsers, isLoading } = useQuery({
     queryKey: ['deleted-users'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Buscar deleted_users
+      const { data: deletedData, error: deletedError } = await supabase
         .from('deleted_users')
         .select('*')
         .order('deleted_at', { ascending: false });
 
-      if (error) throw error;
-      return data as DeletedUser[];
+      if (deletedError) throw deletedError;
+      
+      // Buscar profiles correspondentes para verificar status real de anonimização
+      const userIds = deletedData?.map(d => d.user_id) || [];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', userIds);
+      
+      // Criar mapa de profiles para lookup rápido
+      const profilesMap = new Map(profilesData?.map(p => [p.id, p.name]) || []);
+      
+      // Retornar dados com status real de anonimização baseado no profile
+      return deletedData?.map(user => ({
+        ...user,
+        // Verificar se o profile está realmente anonimizado
+        isProfileAnonymized: profilesMap.get(user.user_id) === '##EXCLUÍDO##' || !profilesMap.has(user.user_id)
+      })) as (DeletedUser & { isProfileAnonymized: boolean })[];
     },
   });
 
@@ -71,9 +88,9 @@ export default function AdminDeletedUsers() {
     user.deletion_reason?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Usuários não anonimizados (nome não é ##EXCLUÍDO##)
+  // Usuários não anonimizados (profile.name não é ##EXCLUÍDO##)
   const nonAnonymizedUsers = deletedUsers?.filter(user => 
-    user.name !== "##EXCLUÍDO##"
+    !user.isProfileAnonymized
   ) || [];
 
   const handleAnonymizeUser = async (userId: string) => {
@@ -229,7 +246,8 @@ export default function AdminDeletedUsers() {
     setIsAnonymizing(false);
   };
 
-  const isUserAnonymized = (user: DeletedUser) => user.name === "##EXCLUÍDO##";
+  const isUserAnonymized = (user: DeletedUser & { isProfileAnonymized?: boolean }) => 
+    user.isProfileAnonymized ?? user.name === "##EXCLUÍDO##";
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
