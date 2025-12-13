@@ -144,7 +144,7 @@ export default function Support() {
   const openTicketsCount = tickets?.filter(t => !["resolved", "closed"].includes(t.status)).length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
