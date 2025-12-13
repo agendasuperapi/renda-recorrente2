@@ -99,16 +99,28 @@ const CouponDetailsContent = ({
     <div className="space-y-3">
       <div>
         <span className="text-sm text-muted-foreground block mb-1">Seu cupom:</span>
-        <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-2 rounded block">
-          {coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false)}
-        </code>
+        <div 
+          className="flex items-center justify-between gap-2 bg-primary/10 px-3 py-2 rounded cursor-pointer hover:bg-primary/15 transition-colors"
+          onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false))}
+        >
+          <code className="text-lg font-mono font-bold">
+            {coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false)}
+          </code>
+          <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        </div>
       </div>
 
       {getAffiliateLink(coupon) && coupon.activatedCoupon?.is_active && <div>
         <span className="text-sm text-muted-foreground block mb-1">Link de afiliado:</span>
-        <code className="text-sm bg-muted px-3 py-2 rounded block break-all">
-          {getAffiliateLink(coupon)}
-        </code>
+        <div 
+          className="flex items-center justify-between gap-2 bg-muted px-3 py-2 rounded cursor-pointer hover:bg-muted/80 transition-colors"
+          onClick={() => handleCopy(getAffiliateLink(coupon) || "")}
+        >
+          <code className="text-sm break-all">
+            {getAffiliateLink(coupon)}
+          </code>
+          <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        </div>
       </div>}
     </div>
 
