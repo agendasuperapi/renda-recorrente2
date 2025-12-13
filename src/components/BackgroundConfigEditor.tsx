@@ -6,9 +6,10 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings2, Loader2, Sun, Moon } from "lucide-react";
+import { Settings2, Loader2, Sun, Moon, Users, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
 interface BackgroundConfig {
   colorStartLight: string;
   colorEndLight: string;
@@ -55,35 +56,39 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [config, setConfig] = useState<BackgroundConfig>(defaultConfig);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
+  const getKeyPrefix = () => isAdminMode ? 'admin_bg_' : 'bg_';
 
   useEffect(() => {
     if (open) {
       loadConfig();
     }
-  }, [open]);
+  }, [open, isAdminMode]);
 
   const loadConfig = async () => {
     setLoading(true);
+    const prefix = getKeyPrefix();
     try {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
         .in('key', [
-          'bg_color_start_light',
-          'bg_color_end_light',
-          'bg_color_start_dark',
-          'bg_color_end_dark',
-          'bg_intensity_start_light',
-          'bg_intensity_end_light',
-          'bg_intensity_start_dark',
-          'bg_intensity_end_dark',
-          'bg_gradient_start_light',
-          'bg_gradient_end_light',
-          'bg_gradient_start_dark',
-          'bg_gradient_end_dark',
-          'bg_apply_mobile',
-          'bg_apply_tablet',
-          'bg_apply_desktop'
+          `${prefix}color_start_light`,
+          `${prefix}color_end_light`,
+          `${prefix}color_start_dark`,
+          `${prefix}color_end_dark`,
+          `${prefix}intensity_start_light`,
+          `${prefix}intensity_end_light`,
+          `${prefix}intensity_start_dark`,
+          `${prefix}intensity_end_dark`,
+          `${prefix}gradient_start_light`,
+          `${prefix}gradient_end_light`,
+          `${prefix}gradient_start_dark`,
+          `${prefix}gradient_end_dark`,
+          `${prefix}apply_mobile`,
+          `${prefix}apply_tablet`,
+          `${prefix}apply_desktop`
         ]);
 
       if (error) throw error;
@@ -95,21 +100,21 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
         });
 
         setConfig({
-          colorStartLight: settings.bg_color_start_light || defaultConfig.colorStartLight,
-          colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
-          colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
-          colorEndDark: settings.bg_color_end_dark || defaultConfig.colorEndDark,
-          intensityStartLight: parseInt(settings.bg_intensity_start_light || String(defaultConfig.intensityStartLight)),
-          intensityEndLight: parseInt(settings.bg_intensity_end_light || String(defaultConfig.intensityEndLight)),
-          intensityStartDark: parseInt(settings.bg_intensity_start_dark || String(defaultConfig.intensityStartDark)),
-          intensityEndDark: parseInt(settings.bg_intensity_end_dark || String(defaultConfig.intensityEndDark)),
-          gradientStartLight: parseInt(settings.bg_gradient_start_light || String(defaultConfig.gradientStartLight)),
-          gradientEndLight: parseInt(settings.bg_gradient_end_light || String(defaultConfig.gradientEndLight)),
-          gradientStartDark: parseInt(settings.bg_gradient_start_dark || String(defaultConfig.gradientStartDark)),
-          gradientEndDark: parseInt(settings.bg_gradient_end_dark || String(defaultConfig.gradientEndDark)),
-          applyMobile: settings.bg_apply_mobile !== 'false',
-          applyTablet: settings.bg_apply_tablet !== 'false',
-          applyDesktop: settings.bg_apply_desktop !== 'false',
+          colorStartLight: settings[`${prefix}color_start_light`] || defaultConfig.colorStartLight,
+          colorEndLight: settings[`${prefix}color_end_light`] || defaultConfig.colorEndLight,
+          colorStartDark: settings[`${prefix}color_start_dark`] || defaultConfig.colorStartDark,
+          colorEndDark: settings[`${prefix}color_end_dark`] || defaultConfig.colorEndDark,
+          intensityStartLight: parseInt(settings[`${prefix}intensity_start_light`] || String(defaultConfig.intensityStartLight)),
+          intensityEndLight: parseInt(settings[`${prefix}intensity_end_light`] || String(defaultConfig.intensityEndLight)),
+          intensityStartDark: parseInt(settings[`${prefix}intensity_start_dark`] || String(defaultConfig.intensityStartDark)),
+          intensityEndDark: parseInt(settings[`${prefix}intensity_end_dark`] || String(defaultConfig.intensityEndDark)),
+          gradientStartLight: parseInt(settings[`${prefix}gradient_start_light`] || String(defaultConfig.gradientStartLight)),
+          gradientEndLight: parseInt(settings[`${prefix}gradient_end_light`] || String(defaultConfig.gradientEndLight)),
+          gradientStartDark: parseInt(settings[`${prefix}gradient_start_dark`] || String(defaultConfig.gradientStartDark)),
+          gradientEndDark: parseInt(settings[`${prefix}gradient_end_dark`] || String(defaultConfig.gradientEndDark)),
+          applyMobile: settings[`${prefix}apply_mobile`] !== 'false',
+          applyTablet: settings[`${prefix}apply_tablet`] !== 'false',
+          applyDesktop: settings[`${prefix}apply_desktop`] !== 'false',
         });
       }
     } catch (error) {
@@ -121,23 +126,25 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
 
   const saveConfig = async () => {
     setSaving(true);
+    const prefix = getKeyPrefix();
+    const modeLabel = isAdminMode ? 'admin' : 'usuário';
     try {
       const settings = [
-        { key: 'bg_color_start_light', value: config.colorStartLight, description: 'Cor inicial do gradiente (modo claro)' },
-        { key: 'bg_color_end_light', value: config.colorEndLight, description: 'Cor final do gradiente (modo claro)' },
-        { key: 'bg_color_start_dark', value: config.colorStartDark, description: 'Cor inicial do gradiente (modo escuro)' },
-        { key: 'bg_color_end_dark', value: config.colorEndDark, description: 'Cor final do gradiente (modo escuro)' },
-        { key: 'bg_intensity_start_light', value: String(config.intensityStartLight), description: 'Intensidade inicial do gradiente (modo claro)' },
-        { key: 'bg_intensity_end_light', value: String(config.intensityEndLight), description: 'Intensidade final do gradiente (modo claro)' },
-        { key: 'bg_intensity_start_dark', value: String(config.intensityStartDark), description: 'Intensidade inicial do gradiente (modo escuro)' },
-        { key: 'bg_intensity_end_dark', value: String(config.intensityEndDark), description: 'Intensidade final do gradiente (modo escuro)' },
-        { key: 'bg_gradient_start_light', value: String(config.gradientStartLight), description: 'Posição de início do gradiente (modo claro)' },
-        { key: 'bg_gradient_end_light', value: String(config.gradientEndLight), description: 'Posição de fim do gradiente (modo claro)' },
-        { key: 'bg_gradient_start_dark', value: String(config.gradientStartDark), description: 'Posição de início do gradiente (modo escuro)' },
-        { key: 'bg_gradient_end_dark', value: String(config.gradientEndDark), description: 'Posição de fim do gradiente (modo escuro)' },
-        { key: 'bg_apply_mobile', value: String(config.applyMobile), description: 'Aplicar em dispositivos móveis' },
-        { key: 'bg_apply_tablet', value: String(config.applyTablet), description: 'Aplicar em tablets' },
-        { key: 'bg_apply_desktop', value: String(config.applyDesktop), description: 'Aplicar em computadores' },
+        { key: `${prefix}color_start_light`, value: config.colorStartLight, description: `Cor inicial do gradiente (modo claro) - ${modeLabel}` },
+        { key: `${prefix}color_end_light`, value: config.colorEndLight, description: `Cor final do gradiente (modo claro) - ${modeLabel}` },
+        { key: `${prefix}color_start_dark`, value: config.colorStartDark, description: `Cor inicial do gradiente (modo escuro) - ${modeLabel}` },
+        { key: `${prefix}color_end_dark`, value: config.colorEndDark, description: `Cor final do gradiente (modo escuro) - ${modeLabel}` },
+        { key: `${prefix}intensity_start_light`, value: String(config.intensityStartLight), description: `Intensidade inicial do gradiente (modo claro) - ${modeLabel}` },
+        { key: `${prefix}intensity_end_light`, value: String(config.intensityEndLight), description: `Intensidade final do gradiente (modo claro) - ${modeLabel}` },
+        { key: `${prefix}intensity_start_dark`, value: String(config.intensityStartDark), description: `Intensidade inicial do gradiente (modo escuro) - ${modeLabel}` },
+        { key: `${prefix}intensity_end_dark`, value: String(config.intensityEndDark), description: `Intensidade final do gradiente (modo escuro) - ${modeLabel}` },
+        { key: `${prefix}gradient_start_light`, value: String(config.gradientStartLight), description: `Posição de início do gradiente (modo claro) - ${modeLabel}` },
+        { key: `${prefix}gradient_end_light`, value: String(config.gradientEndLight), description: `Posição de fim do gradiente (modo claro) - ${modeLabel}` },
+        { key: `${prefix}gradient_start_dark`, value: String(config.gradientStartDark), description: `Posição de início do gradiente (modo escuro) - ${modeLabel}` },
+        { key: `${prefix}gradient_end_dark`, value: String(config.gradientEndDark), description: `Posição de fim do gradiente (modo escuro) - ${modeLabel}` },
+        { key: `${prefix}apply_mobile`, value: String(config.applyMobile), description: `Aplicar em dispositivos móveis - ${modeLabel}` },
+        { key: `${prefix}apply_tablet`, value: String(config.applyTablet), description: `Aplicar em tablets - ${modeLabel}` },
+        { key: `${prefix}apply_desktop`, value: String(config.applyDesktop), description: `Aplicar em computadores - ${modeLabel}` },
       ];
 
       for (const setting of settings) {
@@ -201,6 +208,28 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
         <DialogHeader>
           <DialogTitle>Personalizar Fundo das Páginas</DialogTitle>
         </DialogHeader>
+
+        {/* Mode Toggle - Admin/User */}
+        <div className="flex items-center justify-center gap-2 p-1 bg-muted rounded-lg">
+          <Button
+            variant={!isAdminMode ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setIsAdminMode(false)}
+            className="flex-1 gap-2"
+          >
+            <Users className="h-4 w-4" />
+            Usuário
+          </Button>
+          <Button
+            variant={isAdminMode ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setIsAdminMode(true)}
+            className="flex-1 gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            Admin
+          </Button>
+        </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
