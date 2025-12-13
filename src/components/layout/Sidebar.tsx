@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity, ShieldCheck } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -88,10 +88,6 @@ const adminMenuItems = [{
   label: "Afiliados",
   path: "/admin/affiliates"
 }, {
-  icon: CreditCard,
-  label: "Pagamentos",
-  path: "/admin/payments"
-}, {
   icon: Wallet,
   label: "Saques",
   path: "/admin/withdrawals"
@@ -100,9 +96,9 @@ const adminMenuItems = [{
   label: "Comissões",
   path: "/admin/commissions"
 }, {
-  icon: Calendar,
-  label: "Eventos Stripe",
-  path: "/admin/stripe-events"
+  icon: CreditCard,
+  label: "Stripe",
+  path: "/admin/stripe"
 }, {
   icon: Activity,
   label: "Atividades",
@@ -621,7 +617,7 @@ export const Sidebar = ({
       {/* Admin menu shows all adminMenuItems, affiliate menu shows first 4 */}
       {menuItems.slice(0, isAdmin && showAdminMenu ? menuItems.length : 4).map(item => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "?") || (item.path !== "/" && location.pathname.startsWith(item.path));
         const isSupport = item.path === "/user/support" || item.path === "/admin/support";
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : `${accentColor}15`,
@@ -653,7 +649,7 @@ export const Sidebar = ({
 
         {(!isAdmin || !showAdminMenu) && menuItems.slice(4).map(item => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "?") || (item.path !== "/" && location.pathname.startsWith(item.path));
         const isSupport = item.path === "/user/support" || item.path === "/admin/support";
         return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
           backgroundColor: isActive ? accentColor : `${accentColor}15`,
