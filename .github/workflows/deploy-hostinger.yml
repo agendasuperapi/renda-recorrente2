@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+env:
+  SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -80,3 +84,30 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 7. Notificar sucesso via webhook
+      - name: Notify deploy success
+        if: ${{ success() && github.event.inputs.version != '' }}
+        run: |
+          curl -X POST "${{ env.SUPABASE_URL }}/functions/v1/github-deploy-webhook" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.SUPABASE_ANON_KEY }}" \
+            -d '{
+              "version": "${{ github.event.inputs.version }}",
+              "status": "success",
+              "run_id": "${{ github.run_id }}"
+            }'
+
+      # 8. Notificar falha via webhook
+      - name: Notify deploy failure
+        if: ${{ failure() && github.event.inputs.version != '' }}
+        run: |
+          curl -X POST "${{ env.SUPABASE_URL }}/functions/v1/github-deploy-webhook" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.SUPABASE_ANON_KEY }}" \
+            -d '{
+              "version": "${{ github.event.inputs.version }}",
+              "status": "failed",
+              "run_id": "${{ github.run_id }}",
+              "error_message": "Deploy failed - check GitHub Actions logs"
+            }'
