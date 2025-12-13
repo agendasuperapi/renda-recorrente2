@@ -180,21 +180,30 @@ export const Sidebar = ({
     return () => observer.disconnect();
   }, []);
 
-  // Carregar configurações do sidebar com cache
+  // Determinar se está no modo admin baseado na rota
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Carregar configurações do sidebar com cache (diferenciando admin e user)
   const {
     data: sidebarConfig
   } = useQuery({
-    queryKey: ['sidebar-config'],
+    queryKey: ['sidebar-config', isAdminRoute],
     queryFn: async () => {
       try {
+        // Definir prefixo baseado no modo
+        const prefix = isAdminRoute ? 'admin_sidebar_' : 'sidebar_';
+        const keys = isAdminRoute 
+          ? ['admin_sidebar_color_start', 'admin_sidebar_color_end', 'admin_sidebar_intensity_start', 'admin_sidebar_intensity_end', 'admin_sidebar_gradient_start_position', 'admin_sidebar_text_color', 'admin_sidebar_text_color_light', 'admin_sidebar_text_color_dark', 'admin_sidebar_accent_color', 'admin_sidebar_logo_url_light', 'admin_sidebar_logo_url_dark']
+          : ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark'];
+        
         const {
           data,
           error
-        } = await supabase.from('app_settings').select('*').in('key', ['sidebar_color_start', 'sidebar_color_end', 'sidebar_intensity_start', 'sidebar_intensity_end', 'sidebar_gradient_start_position', 'sidebar_text_color', 'sidebar_text_color_light', 'sidebar_text_color_dark', 'sidebar_accent_color', 'sidebar_logo_url_light', 'sidebar_logo_url_dark']);
+        } = await supabase.from('app_settings').select('*').in('key', keys);
         if (error) {
           console.error('Error loading sidebar config:', error);
-          // Tentar usar cache
-          const cached = localStorage.getItem('offline_cache_app_sidebar_config');
+          const cacheKey = isAdminRoute ? 'offline_cache_app_admin_sidebar_config' : 'offline_cache_app_sidebar_config';
+          const cached = localStorage.getItem(cacheKey);
           if (cached) {
             try {
               return JSON.parse(cached).data;
@@ -206,19 +215,22 @@ export const Sidebar = ({
         }
         const config: Record<string, string> = {};
         data?.forEach(setting => {
-          config[setting.key] = setting.value;
+          // Normalizar as chaves removendo o prefixo admin_ se presente
+          const normalizedKey = setting.key.replace('admin_', '');
+          config[normalizedKey] = setting.value;
         });
         // Salvar no cache
         try {
-          localStorage.setItem('offline_cache_app_sidebar_config', JSON.stringify({ data: config, timestamp: Date.now() }));
+          const cacheKey = isAdminRoute ? 'offline_cache_app_admin_sidebar_config' : 'offline_cache_app_sidebar_config';
+          localStorage.setItem(cacheKey, JSON.stringify({ data: config, timestamp: Date.now() }));
         } catch (e) {
           console.warn('Erro ao salvar sidebar config no cache:', e);
         }
         return config;
       } catch (error) {
         console.error('Error loading sidebar config:', error);
-        // Tentar usar cache em caso de erro
-        const cached = localStorage.getItem('offline_cache_app_sidebar_config');
+        const cacheKey = isAdminRoute ? 'offline_cache_app_admin_sidebar_config' : 'offline_cache_app_sidebar_config';
+        const cached = localStorage.getItem(cacheKey);
         if (cached) {
           try {
             return JSON.parse(cached).data;
