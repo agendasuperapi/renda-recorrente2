@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const ReferralsSkeleton = () => {
   return (
-    <div className="space-y-6 p-4 sm:p-6">
+    <div className="space-y-6 animate-in fade-in-0 duration-200">
       {/* Título */}
       <div>
         <Skeleton className="h-9 w-48 mb-2" />
