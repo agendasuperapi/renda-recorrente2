@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save, X, Upload, Users, Shield } from "lucide-react";
+import { Save, X, Upload, Users, Shield, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
@@ -65,6 +66,21 @@ const defaultAdminConfig: SidebarConfig = {
   accentColor: '#60a5fa',
   logoUrlLight: '',
   logoUrlDark: '',
+};
+
+const ThemeToggleInline = () => {
+  const { theme, setTheme } = useTheme();
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="gap-2"
+    >
+      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+    </Button>
+  );
 };
 
 export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps) => {
@@ -668,15 +684,18 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
       </Tabs>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-2 pt-4 border-t">
-        <Button variant="outline" onClick={() => setOpen(false)}>
-          <X className="mr-2 h-4 w-4" />
-          Cancelar
-        </Button>
-        <Button onClick={handleSave} disabled={isSaving}>
-          <Save className="mr-2 h-4 w-4" />
-          {isSaving ? 'Salvando...' : 'Salvar Configurações'}
-        </Button>
+      <div className="flex justify-between items-center pt-4 border-t">
+        <ThemeToggleInline />
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            <X className="mr-2 h-4 w-4" />
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving ? 'Salvando...' : 'Salvar Configurações'}
+          </Button>
+        </div>
       </div>
     </div>
   );
