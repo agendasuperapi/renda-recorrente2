@@ -13,7 +13,7 @@ import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import { APP_VERSION } from "@/config/version";
+import { useDeployedVersion } from "@/hooks/useDeployedVersion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
 
@@ -56,6 +56,7 @@ const Auth = () => {
   const { toast } = useToast();
   const { theme } = useTheme();
   const isMobile = useIsMobile();
+  const { formattedVersion } = useDeployedVersion();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -486,9 +487,11 @@ const Auth = () => {
             .
           </div>
 
-          <div className="mt-4 text-center text-xs opacity-50" style={{ color: getTextColor('auth_form_card') }}>
-            v{APP_VERSION}
-          </div>
+          {formattedVersion && (
+            <div className="mt-4 text-center text-xs opacity-50" style={{ color: getTextColor('auth_form_card') }}>
+              {formattedVersion}
+            </div>
+          )}
         </div>
       </div>
         </div>

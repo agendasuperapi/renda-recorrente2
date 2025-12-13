@@ -15,7 +15,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useQueryClient } from "@tanstack/react-query";
-import { APP_VERSION } from "@/config/version";
+import { useDeployedVersion } from "@/hooks/useDeployedVersion";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
@@ -154,6 +154,7 @@ export const Sidebar = ({
   const [avatarImageSrc, setAvatarImageSrc] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { checkVersion, ...versionInfo } = useVersionCheck();
+  const { formattedVersion } = useDeployedVersion();
   const { unreadCount } = useUnreadMessages(isAdmin && showAdminMenu);
 
   // Salvar preferência de menu no localStorage e notificar BottomNav
@@ -549,7 +550,7 @@ export const Sidebar = ({
                   className="flex items-center justify-center gap-2 text-xs opacity-50 cursor-pointer hover:opacity-100 transition-opacity"
                   onClick={() => checkVersion()}
                 >
-                  <span>v{APP_VERSION}</span>
+                  {formattedVersion && <span>{formattedVersion}</span>}
                   {versionInfo.isChecking ? (
                     <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                   ) : versionInfo.hasUpdate ? (
