@@ -554,37 +554,16 @@ export default function AdminVersions() {
                 </Tooltip>
               </TooltipProvider>
             </Label>
-            <div className="flex gap-2">
-              <Input
-                id="version"
-                value={APP_VERSION}
-                readOnly
-                disabled
-                className="bg-muted font-mono flex-1"
-              />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={handleIncrementVersion}
-                      disabled={isIncrementingVersion || isDeploying}
-                    >
-                      {isIncrementingVersion ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ArrowUp className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Incrementar versão (patch)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            <Input
+              id="version"
+              value={APP_VERSION}
+              readOnly
+              disabled
+              className="bg-muted font-mono"
+            />
+            <p className="text-xs text-muted-foreground">
+              Edite manualmente o arquivo <code className="bg-muted px-1 py-0.5 rounded text-xs">src/config/version.ts</code> para alterar a versão
+            </p>
           </div>
 
           {/* Descrição */}
