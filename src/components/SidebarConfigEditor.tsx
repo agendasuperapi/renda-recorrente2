@@ -294,7 +294,26 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
     if (mode === 'user') {
       setUserConfig(prev => ({ ...prev, [key]: value }));
     } else {
-      setAdminConfig(prev => ({ ...prev, [key]: value }));
+      const newConfig = { ...adminConfig, [key]: value };
+      setAdminConfig(newConfig);
+      
+      // Atualizar cache local para preview em tempo real na sidebar
+      const cacheData: Record<string, string> = {
+        sidebar_color_start: newConfig.colorStart,
+        sidebar_color_end: newConfig.colorEnd,
+        sidebar_intensity_start: newConfig.intensityStart.toString(),
+        sidebar_intensity_end: newConfig.intensityEnd.toString(),
+        sidebar_gradient_start_position: newConfig.gradientStartPos.toString(),
+        sidebar_text_color: newConfig.textColor,
+        sidebar_text_color_light: newConfig.textColorLight,
+        sidebar_text_color_dark: newConfig.textColorDark,
+        sidebar_accent_color: newConfig.accentColor,
+        sidebar_logo_url_light: newConfig.logoUrlLight,
+        sidebar_logo_url_dark: newConfig.logoUrlDark,
+      };
+      
+      // Atualizar o cache do react-query com os novos valores
+      queryClient.setQueryData(['sidebar-config', true], cacheData);
     }
   };
 
