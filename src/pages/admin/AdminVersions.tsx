@@ -679,13 +679,13 @@ export default function AdminVersions() {
             ) : (
               <Button
                 onClick={() => setShowDeployConfirm(true)}
-                disabled={isDeploying}
+                disabled={isDeploying || latestVersion?.deploy_status === 'deploying'}
                 className="flex-1 md:flex-none gap-2"
               >
-                {isDeploying ? (
+                {isDeploying || latestVersion?.deploy_status === 'deploying' ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Disparando...
+                    {isDeploying ? 'Disparando...' : 'Deploy em andamento...'}
                   </>
                 ) : (
                   <>
