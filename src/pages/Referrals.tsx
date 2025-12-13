@@ -6,7 +6,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Users, TrendingUp, RefreshCw, SlidersHorizontal, X, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
+import ReferralsSkeleton from "@/components/skeletons/ReferralsSkeleton";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -284,7 +284,7 @@ const Referrals = () => {
     return <Badge variant={variants[status] || "secondary"}>{labels[status] || status}</Badge>;
   };
   if (initialLoading && !hasLoadedOnce) {
-    return <TableSkeleton columns={9} rows={10} showSearch />;
+    return <ReferralsSkeleton />;
   }
   return <div className="space-y-6 p-4 sm:p-6 animate-fade-in">
       <div>
