@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
 
@@ -59,38 +60,44 @@ const isDarkMode = (): boolean => {
 };
 
 export function useBgConfig() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
   const [config, setConfig] = useState<BackgroundConfig | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType);
   const [darkMode, setDarkMode] = useState<boolean>(isDarkMode);
   const [loading, setLoading] = useState(true);
 
+  const getKeyPrefix = useCallback(() => isAdminRoute ? 'admin_bg_' : 'bg_', [isAdminRoute]);
+  const getCacheKey = useCallback(() => isAdminRoute ? 'app_admin_bg_config' : CACHE_KEYS.APP_BG_CONFIG, [isAdminRoute]);
+
   const loadConfig = useCallback(async () => {
+    const prefix = getKeyPrefix();
     try {
       const { data, error } = await supabase
         .from('app_settings')
         .select('key, value')
         .in('key', [
-          'bg_color_start_light',
-          'bg_color_end_light',
-          'bg_color_start_dark',
-          'bg_color_end_dark',
-          'bg_intensity_start_light',
-          'bg_intensity_end_light',
-          'bg_intensity_start_dark',
-          'bg_intensity_end_dark',
-          'bg_gradient_start_light',
-          'bg_gradient_end_light',
-          'bg_gradient_start_dark',
-          'bg_gradient_end_dark',
-          'bg_apply_mobile',
-          'bg_apply_tablet',
-          'bg_apply_desktop'
+          `${prefix}color_start_light`,
+          `${prefix}color_end_light`,
+          `${prefix}color_start_dark`,
+          `${prefix}color_end_dark`,
+          `${prefix}intensity_start_light`,
+          `${prefix}intensity_end_light`,
+          `${prefix}intensity_start_dark`,
+          `${prefix}intensity_end_dark`,
+          `${prefix}gradient_start_light`,
+          `${prefix}gradient_end_light`,
+          `${prefix}gradient_start_dark`,
+          `${prefix}gradient_end_dark`,
+          `${prefix}apply_mobile`,
+          `${prefix}apply_tablet`,
+          `${prefix}apply_desktop`
         ]);
 
       if (error) {
         console.error('Error loading background config:', error);
-        // Tentar usar cache em caso de erro
-        const cachedConfig = getFromCache<BackgroundConfig>(CACHE_KEYS.APP_BG_CONFIG);
+        const cachedConfig = getFromCache<BackgroundConfig>(getCacheKey());
         if (cachedConfig) {
           setConfig(cachedConfig);
         } else {
@@ -105,34 +112,31 @@ export function useBgConfig() {
           settings[item.key] = item.value;
         });
 
-        // Only set config if we have at least the color settings
-        if (settings.bg_color_start_light || settings.bg_color_start_dark) {
+        if (settings[`${prefix}color_start_light`] || settings[`${prefix}color_start_dark`]) {
           const newConfig: BackgroundConfig = {
-            colorStartLight: settings.bg_color_start_light || defaultConfig.colorStartLight,
-            colorEndLight: settings.bg_color_end_light || defaultConfig.colorEndLight,
-            colorStartDark: settings.bg_color_start_dark || defaultConfig.colorStartDark,
-            colorEndDark: settings.bg_color_end_dark || defaultConfig.colorEndDark,
-            intensityStartLight: parseInt(settings.bg_intensity_start_light || String(defaultConfig.intensityStartLight)),
-            intensityEndLight: parseInt(settings.bg_intensity_end_light || String(defaultConfig.intensityEndLight)),
-            intensityStartDark: parseInt(settings.bg_intensity_start_dark || String(defaultConfig.intensityStartDark)),
-            intensityEndDark: parseInt(settings.bg_intensity_end_dark || String(defaultConfig.intensityEndDark)),
-            gradientStartLight: parseInt(settings.bg_gradient_start_light || String(defaultConfig.gradientStartLight)),
-            gradientEndLight: parseInt(settings.bg_gradient_end_light || String(defaultConfig.gradientEndLight)),
-            gradientStartDark: parseInt(settings.bg_gradient_start_dark || String(defaultConfig.gradientStartDark)),
-            gradientEndDark: parseInt(settings.bg_gradient_end_dark || String(defaultConfig.gradientEndDark)),
-            applyMobile: settings.bg_apply_mobile !== 'false',
-            applyTablet: settings.bg_apply_tablet !== 'false',
-            applyDesktop: settings.bg_apply_desktop !== 'false',
+            colorStartLight: settings[`${prefix}color_start_light`] || defaultConfig.colorStartLight,
+            colorEndLight: settings[`${prefix}color_end_light`] || defaultConfig.colorEndLight,
+            colorStartDark: settings[`${prefix}color_start_dark`] || defaultConfig.colorStartDark,
+            colorEndDark: settings[`${prefix}color_end_dark`] || defaultConfig.colorEndDark,
+            intensityStartLight: parseInt(settings[`${prefix}intensity_start_light`] || String(defaultConfig.intensityStartLight)),
+            intensityEndLight: parseInt(settings[`${prefix}intensity_end_light`] || String(defaultConfig.intensityEndLight)),
+            intensityStartDark: parseInt(settings[`${prefix}intensity_start_dark`] || String(defaultConfig.intensityStartDark)),
+            intensityEndDark: parseInt(settings[`${prefix}intensity_end_dark`] || String(defaultConfig.intensityEndDark)),
+            gradientStartLight: parseInt(settings[`${prefix}gradient_start_light`] || String(defaultConfig.gradientStartLight)),
+            gradientEndLight: parseInt(settings[`${prefix}gradient_end_light`] || String(defaultConfig.gradientEndLight)),
+            gradientStartDark: parseInt(settings[`${prefix}gradient_start_dark`] || String(defaultConfig.gradientStartDark)),
+            gradientEndDark: parseInt(settings[`${prefix}gradient_end_dark`] || String(defaultConfig.gradientEndDark)),
+            applyMobile: settings[`${prefix}apply_mobile`] !== 'false',
+            applyTablet: settings[`${prefix}apply_tablet`] !== 'false',
+            applyDesktop: settings[`${prefix}apply_desktop`] !== 'false',
           };
           setConfig(newConfig);
-          // Salvar no cache
-          saveToCache(CACHE_KEYS.APP_BG_CONFIG, newConfig);
+          saveToCache(getCacheKey(), newConfig);
         } else {
           setConfig(null);
         }
       } else {
-        // Tentar usar cache se não há dados
-        const cachedConfig = getFromCache<BackgroundConfig>(CACHE_KEYS.APP_BG_CONFIG);
+        const cachedConfig = getFromCache<BackgroundConfig>(getCacheKey());
         if (cachedConfig) {
           setConfig(cachedConfig);
         } else {
@@ -141,8 +145,7 @@ export function useBgConfig() {
       }
     } catch (error) {
       console.error('Error loading background config:', error);
-      // Tentar usar cache em caso de erro
-      const cachedConfig = getFromCache<BackgroundConfig>(CACHE_KEYS.APP_BG_CONFIG);
+      const cachedConfig = getFromCache<BackgroundConfig>(getCacheKey());
       if (cachedConfig) {
         setConfig(cachedConfig);
       } else {
@@ -151,25 +154,23 @@ export function useBgConfig() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getKeyPrefix, getCacheKey]);
+
   useEffect(() => {
     loadConfig();
 
-    // Listen for config changes
     const handleConfigChange = () => {
       loadConfig();
     };
 
     window.addEventListener('background-config-change', handleConfigChange);
 
-    // Handle resize for responsive device detection
     const handleResize = () => {
       setDeviceType(getDeviceType());
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Observe theme changes
     const observer = new MutationObserver(() => {
       setDarkMode(isDarkMode());
     });
@@ -186,7 +187,6 @@ export function useBgConfig() {
     };
   }, [loadConfig]);
 
-  // Determine if background should be applied based on device type
   const shouldApply = useCallback(() => {
     if (!config) return false;
 
@@ -202,7 +202,6 @@ export function useBgConfig() {
     }
   }, [config, deviceType]);
 
-  // Generate the CSS style object
   const getBackgroundStyle = useCallback((): React.CSSProperties | undefined => {
     if (!config || !shouldApply()) return undefined;
 
