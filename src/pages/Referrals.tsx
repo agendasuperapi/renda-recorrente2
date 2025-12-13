@@ -363,7 +363,7 @@ const Referrals = () => {
       </div>
 
       {/* Filtros - sempre visível no desktop, toggle no mobile/tablet */}
-      <div className={`bg-transparent lg:bg-card rounded-none lg:rounded-lg border-0 lg:border shadow-none lg:shadow-sm p-0 lg:p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-transparent lg:bg-card rounded-none lg:rounded-lg border-0 lg:border shadow-none lg:shadow-md hover:shadow-lg transition-shadow p-0 lg:p-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Filtros</h2>
           <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)} className="lg:hidden h-8 w-8">
