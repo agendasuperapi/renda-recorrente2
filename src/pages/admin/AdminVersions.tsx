@@ -568,7 +568,7 @@ export default function AdminVersions() {
 
           {/* Descrição */}
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description">Descrição <span className="text-destructive">*</span></Label>
             <Textarea
               id="description"
               placeholder="Breve descrição desta versão"
@@ -576,12 +576,16 @@ export default function AdminVersions() {
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               disabled={currentVersionDeployed || isDeploying}
+              className={!description.trim() ? "border-destructive" : ""}
             />
+            {!description.trim() && (
+              <p className="text-xs text-destructive">Descrição é obrigatória</p>
+            )}
           </div>
 
           {/* Lista de Mudanças */}
           <div className="space-y-2">
-            <Label htmlFor="change">Lista de Mudanças</Label>
+            <Label htmlFor="change">Lista de Mudanças <span className="text-destructive">*</span></Label>
             <div className="flex flex-col md:flex-row gap-2">
               <Input
                 id="change"
@@ -602,6 +606,9 @@ export default function AdminVersions() {
                 Adicionar
               </Button>
             </div>
+            {changes.length === 0 && (
+              <p className="text-xs text-destructive">Adicione pelo menos uma mudança</p>
+            )}
             {changes.length > 0 && (
               <ul className="mt-2 space-y-2">
                 {changes.map((change, index) => (
@@ -658,7 +665,7 @@ export default function AdminVersions() {
             ) : (
               <Button
                 onClick={() => setShowDeployConfirm(true)}
-                disabled={isDeploying || latestVersion?.deploy_status === 'deploying'}
+                disabled={isDeploying || latestVersion?.deploy_status === 'deploying' || !description.trim() || changes.length === 0}
                 className="flex-1 md:flex-none gap-2"
               >
                 {isDeploying || latestVersion?.deploy_status === 'deploying' ? (
