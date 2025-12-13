@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -250,7 +250,7 @@ export default function AdminVersions() {
   };
 
   // For sync status, we need to check the latest version without filters
-  const { data: latestVersion } = useQuery({
+  const { data: latestVersion, refetch: refetchLatestVersion } = useQuery({
     queryKey: ["app_versions_latest"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
@@ -264,6 +264,22 @@ export default function AdminVersions() {
       return data || null;
     },
   });
+
+  // Auto-refresh when deploy is in progress
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (latestVersion?.deploy_status === 'deploying') {
+      interval = setInterval(() => {
+        queryClient.invalidateQueries({ queryKey: ["app_versions"] });
+        refetchLatestVersion();
+      }, 5000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [latestVersion?.deploy_status, queryClient, refetchLatestVersion]);
 
   const latestDbVersion = latestVersion?.version;
   const isSynced = latestDbVersion === APP_VERSION && latestVersion?.deploy_status === 'success';
