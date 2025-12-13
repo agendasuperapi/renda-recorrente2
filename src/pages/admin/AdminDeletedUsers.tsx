@@ -141,9 +141,14 @@ export default function AdminDeletedUsers() {
     let successCount = 0;
     let errorCount = 0;
 
+    console.log('Iniciando anonimização de', nonAnonymizedUsers.length, 'usuários');
+
     for (const user of nonAnonymizedUsers) {
       try {
-        const { error: profileError } = await supabase
+        console.log('Anonimizando usuário:', user.user_id, user.name);
+        
+        // Anonimizar o profile
+        const { error: profileError, data: profileData } = await supabase
           .from('profiles')
           .update({
             name: '##EXCLUÍDO##',
@@ -170,20 +175,36 @@ export default function AdminDeletedUsers() {
             username: `deleted_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             deleted_at: new Date().toISOString(),
           })
-          .eq('id', user.user_id);
+          .eq('id', user.user_id)
+          .select();
 
-        if (profileError) throw profileError;
+        console.log('Profile update result:', { profileError, profileData });
 
-        await supabase
+        if (profileError) {
+          console.error('Profile error:', profileError);
+          throw profileError;
+        }
+
+        // Atualizar o registro em deleted_users
+        const { error: deletedError, data: deletedData } = await supabase
           .from('deleted_users')
           .update({
             name: '##EXCLUÍDO##',
             metadata: {
+              ...(user.metadata || {}),
               manually_anonymized: true,
               anonymized_at: new Date().toISOString(),
             }
           })
-          .eq('user_id', user.user_id);
+          .eq('user_id', user.user_id)
+          .select();
+
+        console.log('Deleted users update result:', { deletedError, deletedData });
+
+        if (deletedError) {
+          console.error('Deleted users error:', deletedError);
+          throw deletedError;
+        }
 
         successCount++;
       } catch (error) {
@@ -192,11 +213,16 @@ export default function AdminDeletedUsers() {
       }
     }
 
+    console.log('Resultado final:', { successCount, errorCount });
+
     if (successCount > 0) {
       toast.success(`${successCount} usuário(s) anonimizado(s) com sucesso`);
     }
     if (errorCount > 0) {
       toast.error(`Falha ao anonimizar ${errorCount} usuário(s)`);
+    }
+    if (successCount === 0 && errorCount === 0) {
+      toast.info("Nenhum usuário para anonimizar");
     }
 
     queryClient.invalidateQueries({ queryKey: ['deleted-users'] });
