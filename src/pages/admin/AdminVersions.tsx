@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, FileCode, Search, ChevronLeft, ChevronRight, Rocket, Loader2, ExternalLink } from "lucide-react";
+import { 
+  GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, 
+  Search, ChevronLeft, ChevronRight, Rocket, Loader2, ExternalLink, Lock,
+  Clock, AlertTriangle, CheckCircle, XCircle
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -26,6 +30,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { APP_VERSION } from "@/config/version";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -36,18 +47,23 @@ interface Version {
   changes: string[] | null;
   released_at: string;
   created_at: string;
+  deploy_status: string | null;
+  deploy_started_at: string | null;
+  deploy_completed_at: string | null;
+  github_run_id: string | null;
+  deploy_error: string | null;
 }
+
+const GITHUB_ACTIONS_URL = "https://github.com/agendasuperapi/renda-recorrente2/actions";
 
 export default function AdminVersions() {
   const queryClient = useQueryClient();
-  const [version, setVersion] = useState(APP_VERSION);
   const [description, setDescription] = useState("");
   const [changeInput, setChangeInput] = useState("");
   const [changes, setChanges] = useState<string[]>([]);
   
   // Edit mode states
   const [editingVersionId, setEditingVersionId] = useState<string | null>(null);
-  const [editVersion, setEditVersion] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editChanges, setEditChanges] = useState<string[]>([]);
   const [editChangeInput, setEditChangeInput] = useState("");
@@ -96,52 +112,21 @@ export default function AdminVersions() {
   const totalCount = versionsData?.total || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const createVersionMutation = useMutation({
-    mutationFn: async (newVersion: {
-      version: string;
-      description: string;
-      changes: string[];
-    }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Usuário não autenticado");
-
-      const { error } = await (supabase as any).from("app_versions").insert({
-        version: newVersion.version,
-        description: newVersion.description,
-        changes: newVersion.changes,
-        created_by: user.id,
-      });
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["app_versions"] });
-      toast.success("Versão cadastrada com sucesso! Recarregando...");
-      setVersion("");
-      setDescription("");
-      setChanges([]);
-      setChangeInput("");
-      // Refresh para reconhecer a nova versão
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Erro ao cadastrar versão");
-    },
-  });
+  // Verificar se a versão atual já foi deployada
+  const currentVersionExists = versions?.some(v => v.version === APP_VERSION);
+  const currentVersionDeployed = versions?.some(
+    v => v.version === APP_VERSION && v.deploy_status === 'success'
+  );
 
   const updateVersionMutation = useMutation({
     mutationFn: async (updatedVersion: {
       id: string;
-      version: string;
       description: string;
       changes: string[];
     }) => {
       const { error } = await (supabase as any)
         .from("app_versions")
         .update({
-          version: updatedVersion.version,
           description: updatedVersion.description,
           changes: updatedVersion.changes,
         })
@@ -153,7 +138,6 @@ export default function AdminVersions() {
       queryClient.invalidateQueries({ queryKey: ["app_versions"] });
       toast.success("Versão atualizada com sucesso!");
       setEditingVersionId(null);
-      setEditVersion("");
       setEditDescription("");
       setEditChanges([]);
       setEditChangeInput("");
@@ -194,18 +178,13 @@ export default function AdminVersions() {
     setChanges(changes.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!version.trim()) {
-      toast.error("Número da versão é obrigatório");
+  const handleStartEdit = (v: Version) => {
+    // Não permitir edição de versões já deployadas
+    if (v.deploy_status === 'success') {
+      toast.error("Versões já deployadas não podem ser editadas");
       return;
     }
-    createVersionMutation.mutate({ version, description, changes });
-  };
-
-  const handleStartEdit = (v: Version) => {
     setEditingVersionId(v.id);
-    setEditVersion(v.version);
     setEditDescription(v.description || "");
     setEditChanges(v.changes || []);
     setEditChangeInput("");
@@ -215,7 +194,6 @@ export default function AdminVersions() {
 
   const handleCancelEdit = () => {
     setEditingVersionId(null);
-    setEditVersion("");
     setEditDescription("");
     setEditChanges([]);
     setEditChangeInput("");
@@ -224,14 +202,9 @@ export default function AdminVersions() {
   };
 
   const handleSaveEdit = () => {
-    if (!editVersion.trim()) {
-      toast.error("Número da versão é obrigatório");
-      return;
-    }
     if (editingVersionId) {
       updateVersionMutation.mutate({
         id: editingVersionId,
-        version: editVersion,
         description: editDescription,
         changes: editChanges,
       });
@@ -269,15 +242,6 @@ export default function AdminVersions() {
     setEditingChangeText("");
   };
 
-  const handleDuplicate = (v: Version) => {
-    setVersion(v.version);
-    setDescription(v.description || "");
-    setChanges(v.changes || []);
-    toast.info("Versão duplicada! Altere os dados e salve.");
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const handleConfirmDelete = () => {
     if (deletingVersionId) {
       deleteVersionMutation.mutate(deletingVersionId);
@@ -291,18 +255,18 @@ export default function AdminVersions() {
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("app_versions")
-        .select("version")
+        .select("version, deploy_status")
         .order("released_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
       if (error) throw error;
-      return data?.version || null;
+      return data || null;
     },
   });
 
-  const latestDbVersion = latestVersion;
-  const isSynced = latestDbVersion === APP_VERSION;
+  const latestDbVersion = latestVersion?.version;
+  const isSynced = latestDbVersion === APP_VERSION && latestVersion?.deploy_status === 'success';
 
   // Reset to first page when search changes
   const handleSearchChange = (value: string) => {
@@ -315,21 +279,88 @@ export default function AdminVersions() {
     setCurrentPage(1);
   };
 
+  // Formatar changelog para o GitHub
+  const formatChangelogForGitHub = () => {
+    let changelog = "";
+    if (description.trim()) {
+      changelog += `## Descrição\n${description.trim()}\n\n`;
+    }
+    if (changes.length > 0) {
+      changelog += `## Mudanças\n`;
+      changes.forEach(change => {
+        changelog += `- ${change}\n`;
+      });
+    }
+    return changelog || `Deploy da versão ${APP_VERSION}`;
+  };
+
   const handleDeploy = async () => {
     setIsDeploying(true);
     setShowDeployConfirm(false);
     
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Usuário não autenticado");
+
+      // 1. Criar ou atualizar registro da versão com status 'deploying'
+      const { data: versionData, error: versionError } = await (supabase as any)
+        .from("app_versions")
+        .upsert({
+          version: APP_VERSION,
+          description: description.trim() || null,
+          changes: changes.length > 0 ? changes : null,
+          deploy_status: 'deploying',
+          deploy_started_at: new Date().toISOString(),
+          created_by: user.id,
+        }, {
+          onConflict: 'version'
+        })
+        .select()
+        .single();
+
+      if (versionError) throw versionError;
+
+      // 2. Disparar deploy com changelog
+      const changelog = formatChangelogForGitHub();
       const { data, error } = await supabase.functions.invoke('trigger-deploy', {
-        body: { version_description: `Versão ${APP_VERSION}` }
+        body: { 
+          version: APP_VERSION,
+          version_description: changelog,
+          version_id: versionData.id
+        }
       });
 
       if (error) {
+        // Atualizar status para failed
+        await (supabase as any)
+          .from("app_versions")
+          .update({ 
+            deploy_status: 'failed',
+            deploy_error: error.message
+          })
+          .eq("id", versionData.id);
         throw new Error(error.message);
       }
 
       if (data?.success) {
-        toast.success(data.message || 'Deploy iniciado com sucesso!');
+        // Atualizar com github_run_id se disponível
+        if (data.run_id) {
+          await (supabase as any)
+            .from("app_versions")
+            .update({ github_run_id: data.run_id })
+            .eq("id", versionData.id);
+        }
+        
+        toast.success("Deploy iniciado! Acompanhe o progresso no GitHub Actions.");
+        
+        // Limpar formulário
+        setDescription("");
+        setChanges([]);
+        setChangeInput("");
+        
+        // Atualizar lista
+        queryClient.invalidateQueries({ queryKey: ["app_versions"] });
+        queryClient.invalidateQueries({ queryKey: ["app_versions_latest"] });
       } else {
         throw new Error(data?.error || 'Erro ao disparar deploy');
       }
@@ -338,6 +369,70 @@ export default function AdminVersions() {
       toast.error(errorMessage);
     } finally {
       setIsDeploying(false);
+    }
+  };
+
+  // Função para renderizar o status badge
+  const renderStatusBadge = (status: string | null) => {
+    switch (status) {
+      case 'success':
+        return (
+          <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Concluído
+          </Badge>
+        );
+      case 'deploying':
+        return (
+          <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+            Em andamento
+          </Badge>
+        );
+      case 'failed':
+        return (
+          <Badge className="bg-destructive/10 text-destructive border-destructive/20">
+            <XCircle className="h-3 w-3 mr-1" />
+            Falhou
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+            <Clock className="h-3 w-3 mr-1" />
+            Pendente
+          </Badge>
+        );
+    }
+  };
+
+  // Verificar status de deploy
+  const handleCheckDeployStatus = async (versionId: string, runId: string | null) => {
+    if (!runId) {
+      toast.info("Nenhum ID de execução disponível. Verifique manualmente no GitHub Actions.");
+      return;
+    }
+    
+    // Por enquanto, apenas abre o GitHub Actions
+    window.open(`${GITHUB_ACTIONS_URL}`, '_blank');
+  };
+
+  // Marcar deploy como concluído manualmente
+  const handleMarkAsSuccess = async (versionId: string) => {
+    try {
+      await (supabase as any)
+        .from("app_versions")
+        .update({ 
+          deploy_status: 'success',
+          deploy_completed_at: new Date().toISOString()
+        })
+        .eq("id", versionId);
+      
+      toast.success("Deploy marcado como concluído!");
+      queryClient.invalidateQueries({ queryKey: ["app_versions"] });
+      queryClient.invalidateQueries({ queryKey: ["app_versions_latest"] });
+    } catch (error) {
+      toast.error("Erro ao atualizar status");
     }
   };
 
@@ -368,10 +463,14 @@ export default function AdminVersions() {
             <p>
               <strong>Status:</strong>{" "}
               {isSynced ? (
-                <span className="text-green-600">✓ Sincronizado</span>
+                <span className="text-green-600">✓ Sincronizado e deployado</span>
+              ) : currentVersionDeployed ? (
+                <span className="text-green-600">✓ Versão já deployada</span>
+              ) : currentVersionExists ? (
+                <span className="text-blue-600">⏳ Deploy pendente para v{APP_VERSION}</span>
               ) : (
                 <span className="text-destructive">
-                  ⚠ Desincronizado - Cadastre a versão {APP_VERSION}
+                  ⚠ Deploy a versão {APP_VERSION}
                 </span>
               )}
             </p>
@@ -379,47 +478,138 @@ export default function AdminVersions() {
         </AlertDescription>
       </Alert>
 
-      {/* Deploy Card */}
+      {/* Nova Versão e Deploy Card - Consolidado */}
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Rocket className="h-5 w-5 text-primary" />
-            Deploy para Produção
+            Nova Versão e Deploy
           </CardTitle>
           <CardDescription>
-            Dispare o deploy para a Hostinger diretamente pelo painel
+            Cadastre a versão e dispare o deploy para produção
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm">
-                <strong>Versão atual:</strong> {APP_VERSION}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                O deploy irá compilar e enviar a versão atual do código para produção.
-              </p>
-            </div>
+        <CardContent className="space-y-4">
+          {/* Versão - Somente leitura */}
+          <div className="space-y-2">
+            <Label htmlFor="version" className="flex items-center gap-2">
+              Número da Versão
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Lock className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">
+                      A versão é lida do arquivo src/config/version.ts e não pode ser editada aqui.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Label>
+            <Input
+              id="version"
+              value={APP_VERSION}
+              readOnly
+              disabled
+              className="bg-muted font-mono"
+            />
+          </div>
+
+          {/* Descrição */}
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrição</Label>
+            <Textarea
+              id="description"
+              placeholder="Breve descrição desta versão"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              disabled={currentVersionDeployed || isDeploying}
+            />
+          </div>
+
+          {/* Lista de Mudanças */}
+          <div className="space-y-2">
+            <Label htmlFor="change">Lista de Mudanças</Label>
             <div className="flex flex-col md:flex-row gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
+              <Input
+                id="change"
+                placeholder="Digite uma mudança e clique em Adicionar"
+                value={changeInput}
+                onChange={(e) => setChangeInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddChange())}
+                className="flex-1"
+                disabled={currentVersionDeployed || isDeploying}
+              />
+              <Button 
+                type="button" 
+                onClick={handleAddChange} 
+                variant="outline" 
+                className="w-full md:w-auto"
+                disabled={currentVersionDeployed || isDeploying}
               >
-                <a 
-                  href="https://github.com/agendasuperapi/renda-recorrente2/actions" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Ver Actions
-                </a>
+                Adicionar
               </Button>
+            </div>
+            {changes.length > 0 && (
+              <ul className="mt-2 space-y-2">
+                {changes.map((change, index) => (
+                  <li key={index} className="flex flex-col md:flex-row md:items-center gap-2">
+                    <span className="flex-1 text-sm">• {change}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveChange(index)}
+                      className="h-8 w-8 p-0 ml-4 md:ml-0 self-start md:self-center"
+                      disabled={currentVersionDeployed || isDeploying}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Aviso de recomendação */}
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Recomendado:</strong> Faça Publish/Update no Lovable antes de disparar o deploy para garantir que todas as alterações foram sincronizadas com o GitHub.
+            </AlertDescription>
+          </Alert>
+
+          {/* Botões de ação */}
+          <div className="flex flex-col md:flex-row gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="flex-1 md:flex-none"
+            >
+              <a 
+                href={GITHUB_ACTIONS_URL} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Ver Actions
+              </a>
+            </Button>
+            
+            {currentVersionDeployed ? (
+              <Button disabled className="flex-1 md:flex-none gap-2">
+                <CheckCircle className="h-4 w-4" />
+                Versão já deployada
+              </Button>
+            ) : (
               <Button
                 onClick={() => setShowDeployConfirm(true)}
                 disabled={isDeploying}
-                className="gap-2"
+                className="flex-1 md:flex-none gap-2"
               >
                 {isDeploying ? (
                   <>
@@ -433,28 +623,10 @@ export default function AdminVersions() {
                   </>
                 )}
               </Button>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
-
-      {/* Important Notice */}
-      <Alert variant="destructive">
-        <FileCode className="h-4 w-4" />
-        <AlertTitle>Importante: Atualize o arquivo de versão</AlertTitle>
-        <AlertDescription>
-          <div className="mt-2 space-y-2">
-            <p>
-              Após cadastrar uma nova versão no banco de dados, você também deve atualizar o arquivo{" "}
-              <code className="bg-muted px-1.5 py-0.5 rounded text-sm">src/config/version.ts</code>{" "}
-              com o número da nova versão.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Ative o Dev Mode no canto superior esquerdo para editar o arquivo.
-            </p>
-          </div>
-        </AlertDescription>
-      </Alert>
 
       {/* Deploy Confirmation Dialog */}
       <AlertDialog open={showDeployConfirm} onOpenChange={setShowDeployConfirm}>
@@ -467,9 +639,14 @@ export default function AdminVersions() {
               Certifique-se de que:
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>O código foi revisado e testado</li>
-                <li>A versão no banco está sincronizada</li>
+                <li>Publish/Update foi feito no Lovable</li>
                 <li>Não há erros no preview</li>
               </ul>
+              <br />
+              <strong>Changelog que será enviado:</strong>
+              <pre className="mt-2 p-2 bg-muted rounded text-xs max-h-32 overflow-auto">
+                {formatChangelogForGitHub()}
+              </pre>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -480,86 +657,6 @@ export default function AdminVersions() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Create Version Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
-            Nova Versão
-          </CardTitle>
-          <CardDescription>
-            Cadastre uma nova versão do aplicativo
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="version">Número da Versão *</Label>
-              <Input
-                id="version"
-                placeholder="Ex: 4.1.71"
-                value={version}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9.]/g, '');
-                  setVersion(value);
-                }}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
-              <Textarea
-                id="description"
-                placeholder="Breve descrição desta versão"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="change">Lista de Mudanças</Label>
-              <div className="flex flex-col md:flex-row gap-2">
-                <Input
-                  id="change"
-                  placeholder="Digite uma mudança e clique em Adicionar"
-                  value={changeInput}
-                  onChange={(e) => setChangeInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), handleAddChange())}
-                  className="flex-1"
-                />
-                <Button type="button" onClick={handleAddChange} variant="outline" className="w-full md:w-auto">
-                  Adicionar
-                </Button>
-              </div>
-              {changes.length > 0 && (
-                <ul className="mt-2 space-y-2">
-                  {changes.map((change, index) => (
-                    <li key={index} className="flex flex-col md:flex-row md:items-center gap-2">
-                      <span className="flex-1 text-sm">• {change}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveChange(index)}
-                        className="h-8 w-8 p-0 ml-4 md:ml-0 self-start md:self-center"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <Button type="submit" disabled={createVersionMutation.isPending} className="w-full md:w-auto">
-              {createVersionMutation.isPending ? "Salvando..." : "Salvar Versão"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
 
       {/* Versions List */}
       <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
@@ -611,16 +708,8 @@ export default function AdminVersions() {
                     // Edit Mode
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor={`edit-version-${v.id}`}>Número da Versão *</Label>
-                        <Input
-                          id={`edit-version-${v.id}`}
-                          value={editVersion}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^0-9.]/g, '');
-                            setEditVersion(value);
-                          }}
-                          placeholder="Ex: 4.1.71"
-                        />
+                        <Label>Número da Versão</Label>
+                        <Input value={v.version} disabled className="bg-muted font-mono" />
                       </div>
 
                       <div className="space-y-2">
@@ -736,29 +825,60 @@ export default function AdminVersions() {
                     // View Mode
                     <>
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">v{v.version}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(v.released_at).toLocaleDateString("pt-BR")}
-                          </p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-lg">v{v.version}</h3>
+                            {renderStatusBadge(v.deploy_status)}
+                          </div>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p>Criado: {new Date(v.created_at).toLocaleDateString("pt-BR", { 
+                              day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                            })}</p>
+                            {v.deploy_started_at && (
+                              <p>Deploy iniciado: {new Date(v.deploy_started_at).toLocaleDateString("pt-BR", { 
+                                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                              })}</p>
+                            )}
+                            {v.deploy_completed_at && (
+                              <p>Deploy concluído: {new Date(v.deploy_completed_at).toLocaleDateString("pt-BR", { 
+                                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                              })}</p>
+                            )}
+                            {v.deploy_error && (
+                              <p className="text-destructive">Erro: {v.deploy_error}</p>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDuplicate(v)}
-                            disabled={editingVersionId !== null}
-                            title="Duplicar versão"
-                            className="h-9 w-9 p-0"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
+                        <div className="flex gap-2 flex-wrap">
+                          {v.github_run_id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCheckDeployStatus(v.id, v.github_run_id)}
+                              title="Ver no GitHub"
+                              className="h-9 w-9 p-0"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {v.deploy_status === 'deploying' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleMarkAsSuccess(v.id)}
+                              title="Marcar como concluído"
+                              className="h-9 px-2 text-xs"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Concluir
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleStartEdit(v)}
-                            disabled={editingVersionId !== null}
-                            title="Editar versão"
+                            disabled={editingVersionId !== null || v.deploy_status === 'success'}
+                            title={v.deploy_status === 'success' ? "Versões deployadas não podem ser editadas" : "Editar versão"}
                             className="h-9 w-9 p-0"
                           >
                             <Pencil className="h-4 w-4" />
@@ -767,8 +887,8 @@ export default function AdminVersions() {
                             variant="ghost"
                             size="sm"
                             onClick={() => setDeletingVersionId(v.id)}
-                            disabled={deleteVersionMutation.isPending || editingVersionId !== null}
-                            title="Excluir versão"
+                            disabled={deleteVersionMutation.isPending || editingVersionId !== null || v.deploy_status === 'success'}
+                            title={v.deploy_status === 'success' ? "Versões deployadas não podem ser excluídas" : "Excluir versão"}
                             className="h-9 w-9 p-0"
                           >
                             <Trash2 className="h-4 w-4" />

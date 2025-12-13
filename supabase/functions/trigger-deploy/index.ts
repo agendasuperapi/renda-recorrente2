@@ -44,7 +44,7 @@ serve(async (req) => {
       })
     }
 
-    const { version_description } = await req.json()
+    const { version, version_description, version_id } = await req.json()
     
     const GITHUB_PAT = Deno.env.get('GITHUB_PAT')
     if (!GITHUB_PAT) {
@@ -60,6 +60,7 @@ serve(async (req) => {
     const WORKFLOW_FILE = 'deploy-hostinger.yml'
 
     console.log(`Triggering deploy for ${GITHUB_OWNER}/${GITHUB_REPO}`)
+    console.log(`Version: ${version}, Description length: ${version_description?.length || 0}`)
 
     // Disparar workflow via GitHub API
     const response = await fetch(
@@ -75,6 +76,7 @@ serve(async (req) => {
         body: JSON.stringify({
           ref: 'main',
           inputs: {
+            version: version || '',
             version_description: version_description || ''
           }
         })
@@ -85,9 +87,39 @@ serve(async (req) => {
 
     if (response.status === 204) {
       console.log('Deploy triggered successfully')
+      
+      // Tentar obter o run_id do workflow que acabou de ser disparado
+      // Aguardar um pouco para o workflow aparecer
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      let runId: string | null = null
+      try {
+        const runsResponse = await fetch(
+          `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/runs?per_page=1`,
+          {
+            headers: {
+              'Accept': 'application/vnd.github.v3+json',
+              'Authorization': `Bearer ${GITHUB_PAT}`,
+              'X-GitHub-Api-Version': '2022-11-28',
+            }
+          }
+        )
+        
+        if (runsResponse.ok) {
+          const runsData = await runsResponse.json()
+          if (runsData.workflow_runs && runsData.workflow_runs.length > 0) {
+            runId = String(runsData.workflow_runs[0].id)
+            console.log('Found run_id:', runId)
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching run_id:', e)
+      }
+      
       return new Response(JSON.stringify({ 
         success: true, 
-        message: 'Deploy iniciado com sucesso! Acompanhe o progresso no GitHub Actions.' 
+        message: 'Deploy iniciado com sucesso! Acompanhe o progresso no GitHub Actions.',
+        run_id: runId
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
