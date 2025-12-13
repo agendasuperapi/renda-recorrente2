@@ -127,15 +127,7 @@ const CouponDetailsContent = ({
     <div className="flex flex-wrap gap-2 pt-2">
       {coupon.activatedCoupon ? <>
         {coupon.activatedCoupon.is_active && <>
-          <Button variant="outline" className="flex-1" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-            <Copy className="h-4 w-4 mr-2" />
-            Copiar Cupom
-          </Button>
           {getAffiliateLink(coupon) && <>
-            <Button variant="outline" className="flex-1" onClick={() => handleCopy(getAffiliateLink(coupon) || "")}>
-              <Copy className="h-4 w-4 mr-2" />
-              Copiar Link
-            </Button>
             <Button variant="outline" className="flex-1" onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')}>
               <ExternalLink className="h-4 w-4 mr-2" />
               Abrir link
