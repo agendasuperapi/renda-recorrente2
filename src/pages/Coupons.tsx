@@ -212,7 +212,7 @@ const Coupons = () => {
       const {
         data,
         error
-      } = await supabase.from("products").select("id, nome").neq("id", RENDA_PRODUCT_ID).order("nome");
+      } = await supabase.from("products").select("id, nome, icone_light, icone_dark").neq("id", RENDA_PRODUCT_ID).order("nome");
       if (error) throw error;
       return data;
     },
@@ -691,13 +691,39 @@ const Coupons = () => {
         <div className="flex flex-wrap items-center gap-3">
           <Select value={productFilter} onValueChange={setProductFilter}>
             <SelectTrigger className="w-full sm:w-[250px]">
-              <SelectValue placeholder="Filtrar por produto" />
+              <SelectValue placeholder="Filtrar por produto">
+                {productFilter === "all" ? (
+                  "Todos os produtos"
+                ) : (
+                  (() => {
+                    const selectedProduct = products?.find(p => p.id === productFilter);
+                    if (selectedProduct) {
+                      const iconUrl = selectedProduct.icone_light || selectedProduct.icone_dark;
+                      return (
+                        <div className="flex items-center gap-2">
+                          {iconUrl && <img src={iconUrl} alt={selectedProduct.nome} className="w-5 h-5 rounded-full object-cover" />}
+                          <span>{selectedProduct.nome}</span>
+                        </div>
+                      );
+                    }
+                    return "Filtrar por produto";
+                  })()
+                )}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os produtos</SelectItem>
-              {products?.map(product => <SelectItem key={product.id} value={product.id}>
-                  {product.nome}
-                </SelectItem>)}
+              {products?.map(product => {
+                const iconUrl = product.icone_light || product.icone_dark;
+                return (
+                  <SelectItem key={product.id} value={product.id}>
+                    <div className="flex items-center gap-2">
+                      {iconUrl && <img src={iconUrl} alt={product.nome} className="w-5 h-5 rounded-full object-cover" />}
+                      <span>{product.nome}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <ToggleGroup type="single" value={layoutMode} onValueChange={v => v && setLayoutMode(v)} className="border rounded-lg">
