@@ -240,14 +240,19 @@ serve(async (req) => {
     const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteAuthError) {
-      console.error('Auth user deletion error:', deleteAuthError);
-      return new Response(
-        JSON.stringify({ error: 'Erro ao excluir conta de autenticação' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      // If user is already deleted from auth (404), consider it success
+      if (deleteAuthError.status === 404 || deleteAuthError.message?.includes('User not found')) {
+        console.log(`Auth user already deleted (not found): ${userId}`);
+      } else {
+        console.error('Auth user deletion error:', deleteAuthError);
+        return new Response(
+          JSON.stringify({ error: 'Erro ao excluir conta de autenticação' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      console.log(`Auth user deleted successfully: ${userId}`);
     }
-
-    console.log(`Auth user deleted successfully: ${userId}`);
 
     return new Response(
       JSON.stringify({ 
