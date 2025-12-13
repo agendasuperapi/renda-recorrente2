@@ -1077,15 +1077,7 @@ const Coupons = () => {
                             <div className="flex items-center gap-2">
                               {isActivated ? <>
                                 {isActive && <div className="flex flex-wrap gap-2">
-                                    <Button variant="outline" size="sm" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary))}>
-                                      <Copy className="h-4 w-4 mr-2" />
-                                      Copiar Cupom
-                                    </Button>
                                     {getAffiliateLink(coupon) && <>
-                                        <Button variant="outline" size="sm" onClick={() => handleCopy(getAffiliateLink(coupon) || "")} disabled={!coupon.activatedCoupon}>
-                                          <Copy className="h-4 w-4 mr-2" />
-                                          Copiar Link
-                                        </Button>
                                         <Button variant="outline" size="sm" onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')} disabled={!coupon.activatedCoupon}>
                                           <ExternalLink className="h-4 w-4 mr-2" />
                                           Abrir Link
