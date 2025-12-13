@@ -687,7 +687,7 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
         <DrawerTrigger asChild>
           <Button className="w-full md:w-auto">Editar Sidebar</Button>
         </DrawerTrigger>
-        <DrawerContent className="max-h-[95vh]">
+        <DrawerContent className="max-h-[95vh]" overlayClassName="bg-black/10">
           <DrawerHeader className="text-left">
             <DrawerTitle>Configurar Menu Lateral</DrawerTitle>
           </DrawerHeader>
@@ -704,7 +704,7 @@ export const SidebarConfigEditor = ({ onConfigSaved }: SidebarConfigEditorProps)
       <DialogTrigger asChild>
         <Button className="w-full md:w-auto">Editar Sidebar</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" overlayClassName="bg-black/10">
         <DialogHeader>
           <DialogTitle>Configurar Menu Lateral</DialogTitle>
         </DialogHeader>
