@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, FileCode, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, FileCode, Search, ChevronLeft, ChevronRight, Rocket, Loader2, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -56,6 +56,10 @@ export default function AdminVersions() {
   
   // Delete confirmation
   const [deletingVersionId, setDeletingVersionId] = useState<string | null>(null);
+
+  // Deploy states
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [showDeployConfirm, setShowDeployConfirm] = useState(false);
 
   // Filter and pagination states
   const [searchFilter, setSearchFilter] = useState("");
@@ -311,6 +315,32 @@ export default function AdminVersions() {
     setCurrentPage(1);
   };
 
+  const handleDeploy = async () => {
+    setIsDeploying(true);
+    setShowDeployConfirm(false);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('trigger-deploy', {
+        body: { version_description: `Versão ${APP_VERSION}` }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.success) {
+        toast.success(data.message || 'Deploy iniciado com sucesso!');
+      } else {
+        throw new Error(data?.error || 'Erro ao disparar deploy');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-3 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center gap-2 mb-4 md:mb-6">
@@ -349,6 +379,65 @@ export default function AdminVersions() {
         </AlertDescription>
       </Alert>
 
+      {/* Deploy Card */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Rocket className="h-5 w-5 text-primary" />
+            Deploy para Produção
+          </CardTitle>
+          <CardDescription>
+            Dispare o deploy para a Hostinger diretamente pelo painel
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-sm">
+                <strong>Versão atual:</strong> {APP_VERSION}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                O deploy irá compilar e enviar a versão atual do código para produção.
+              </p>
+            </div>
+            <div className="flex flex-col md:flex-row gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <a 
+                  href="https://github.com/[USUARIO]/[REPOSITORIO]/actions" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Ver Actions
+                </a>
+              </Button>
+              <Button
+                onClick={() => setShowDeployConfirm(true)}
+                disabled={isDeploying}
+                className="gap-2"
+              >
+                {isDeploying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Disparando...
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="h-4 w-4" />
+                    Deploy para Produção
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Important Notice */}
       <Alert variant="destructive">
         <FileCode className="h-4 w-4" />
@@ -366,6 +455,31 @@ export default function AdminVersions() {
           </div>
         </AlertDescription>
       </Alert>
+
+      {/* Deploy Confirmation Dialog */}
+      <AlertDialog open={showDeployConfirm} onOpenChange={setShowDeployConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Deploy</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você está prestes a disparar o deploy da versão <strong>{APP_VERSION}</strong> para produção na Hostinger.
+              <br /><br />
+              Certifique-se de que:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>O código foi revisado e testado</li>
+                <li>A versão no banco está sincronizada</li>
+                <li>Não há erros no preview</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeploy}>
+              Confirmar Deploy
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Create Version Form */}
       <Card>

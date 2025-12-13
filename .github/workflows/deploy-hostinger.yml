@@ -1,11 +1,12 @@
 name: Deploy to Hostinger
 
 on:
-  push:
-    branches:
-      - main  # ou master, dependendo da sua branch padrão
-    paths:
-      - 'src/config/version.ts'  # Só executa quando este arquivo é modificado
+  workflow_dispatch:
+    inputs:
+      version_description:
+        description: 'Descrição da versão (opcional)'
+        required: false
+        default: ''
 
 jobs:
   deploy:
@@ -44,5 +45,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: /public_html/  # Ajuste se necessário
+          server-dir: /public_html/
           dangerous-clean-slate: false
