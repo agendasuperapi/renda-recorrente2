@@ -887,32 +887,22 @@ const Coupons = () => {
                                   </div>}
                               </div>
                               
-                              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                              <div className="grid grid-cols-2 gap-2">
                                 {isActivated ? <>
                                     {isActive && <>
-                                        <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
-                                          <Copy className="h-3 w-3 mr-1" />
-                                          Cupom
-                                        </Button>
-                                        {getAffiliateLink(coupon) && <>
-                                            <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(getAffiliateLink(coupon) || "")}>
-                                              <Copy className="h-3 w-3 mr-1" />
-                                              Link
-                                            </Button>
-                                            <Button variant="outline" size="sm" className="w-full" onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')}>
+                                        {getAffiliateLink(coupon) && <Button variant="outline" size="sm" className="w-full" onClick={() => window.open(getAffiliateLink(coupon) || "", '_blank')}>
                                               <ExternalLink className="h-3 w-3 mr-1" />
                                               Compartilhar
-                                            </Button>
-                                          </>}
+                                            </Button>}
                                       </>}
                                     {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                         <XCircle className="h-3 w-3 mr-1" />
                                         Inativar
-                                      </Button> : <Button variant="outline" size="sm" className="w-full col-span-2 lg:col-span-4 bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                                      </Button> : <Button variant="outline" size="sm" className="w-full col-span-2 bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                                         <Check className="h-3 w-3 mr-1" />
                                         Ativar
                                       </Button>}
-                                  </> : <Button size="sm" className="w-full col-span-2 lg:col-span-4" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                                  </> : <Button size="sm" className="w-full col-span-2" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
                                     <Check className="h-3 w-3 mr-1" />
                                     Liberar Cupom
                                   </Button>}
