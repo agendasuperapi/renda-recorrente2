@@ -505,7 +505,7 @@ const Dashboard = () => {
       )}
 
       {/* Dashboard Content */}
-      {loading ? <DashboardSkeleton /> : <>
+      <>
           <ScrollAnimation animation="fade-up">
             <div className="flex items-center justify-between">
               <div>
@@ -878,7 +878,7 @@ const Dashboard = () => {
           <ScrollAnimation animation="scale" delay={700}>
             <ActiveGoalsWidget showValues={showValues} />
           </ScrollAnimation>
-        </>}
+        </>
     </div>;
 };
 export default Dashboard;
