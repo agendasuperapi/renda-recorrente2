@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
-import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText } from "lucide-react";
+import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText, UserX } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -22,6 +22,7 @@ const AdminUsersContent = lazy(() => import("./AdminUsers"));
 const AdminCommissionLevelsContent = lazy(() => import("./AdminCommissionLevels"));
 const AdminCpfApisContent = lazy(() => import("./AdminCpfApis"));
 const AdminLegalDocumentsContent = lazy(() => import("./AdminLegalDocuments"));
+const AdminDeletedUsersContent = lazy(() => import("./AdminDeletedUsers"));
 
 const TabLoadingFallback = () => (
   <div className="space-y-4 p-4">
@@ -239,7 +240,7 @@ export default function AdminSettings() {
       </div>
 
       <Tabs defaultValue="environment" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 bg-muted/50 p-1.5 rounded-xl">
+        <TabsList className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-10 gap-2 bg-muted/50 p-1.5 rounded-xl">
           <TabsTrigger value="environment" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>Ambiente</span>
@@ -267,6 +268,10 @@ export default function AdminSettings() {
           <TabsTrigger value="users" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>Usuários</span>
+          </TabsTrigger>
+          <TabsTrigger value="deleted-users" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
+            <UserX className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span>Excluídos</span>
           </TabsTrigger>
           <TabsTrigger value="cpf-apis" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <FileSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -574,6 +579,12 @@ export default function AdminSettings() {
         <TabsContent value="users" className="mt-4">
           <Suspense fallback={<TabLoadingFallback />}>
             <AdminUsersContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="deleted-users" className="mt-4">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminDeletedUsersContent />
           </Suspense>
         </TabsContent>
 
