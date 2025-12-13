@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Calendar, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity, ShieldCheck } from "lucide-react";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -538,7 +538,14 @@ export const Sidebar = ({
       borderColor: `${colorEnd}40`
     }}>
         <div className="flex items-center justify-center mb-2">
-          <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-12 w-auto" />
+          {showAdminMenu ? (
+            <div className="flex items-center gap-2 h-12">
+              <ShieldCheck className="h-7 w-7 text-primary" />
+              <span className="text-xl font-bold text-foreground">Admin</span>
+            </div>
+          ) : (
+            <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-12 w-auto" />
+          )}
         </div>
         
         {/* Version Info */}
