@@ -32,3 +32,6 @@ verify_jwt = true
 
 [functions.github-deploy-webhook]
 verify_jwt = false
+
+[functions.increment-version]
+verify_jwt = true
