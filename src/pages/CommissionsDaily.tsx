@@ -267,7 +267,7 @@ const CommissionsDaily = ({
       return "-";
     }
   };
-  const getStatusBadge = (status: string, availableDate?: string | null) => {
+  const getStatusBadge = (status: string, availableDate?: string | null, paymentDate?: string | null) => {
     const statusMap: Record<string, {
       label: string;
       className: string;
@@ -300,12 +300,31 @@ const CommissionsDaily = ({
 
     // Calcular dias restantes para status pendente
     let daysRemaining: number | null = null;
-    if (status === "pending" && availableDate) {
-      const now = new Date();
-      const available = new Date(availableDate);
-      const diffTime = available.getTime() - now.getTime();
-      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (daysRemaining < 0) daysRemaining = 0;
+    if (status === "pending") {
+      // Se available_date não estiver definido, calcular como payment_date + 30 dias
+      const availableDateToUse = availableDate || paymentDate;
+      if (availableDateToUse) {
+        const now = new Date();
+        let available: Date;
+        if (availableDate) {
+          available = new Date(availableDate);
+        } else if (paymentDate) {
+          // Adicionar 30 dias à data do pagamento
+          available = new Date(paymentDate);
+          available.setDate(available.getDate() + 30);
+        } else {
+          return (
+            <div className="flex flex-col items-start gap-0.5">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>
+                {config.label}
+              </span>
+            </div>
+          );
+        }
+        const diffTime = available.getTime() - now.getTime();
+        daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (daysRemaining < 0) daysRemaining = 0;
+      }
     }
 
     return (
@@ -657,7 +676,7 @@ const CommissionsDaily = ({
                                                 <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
                                                 <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
                                               </div>
-                                              {getStatusBadge(commission.status, commission.available_date)}
+                                              {getStatusBadge(commission.status, commission.available_date, commission.data)}
                                             </div>
                                             
                                             <div className="flex justify-between items-center">
@@ -813,7 +832,7 @@ const CommissionsDaily = ({
                                   <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                 </TableCell>
                                 <TableCell className="border-0 relative">
-                                  {getStatusBadge(commission.status, commission.available_date)}
+                                  {getStatusBadge(commission.status, commission.available_date, commission.data)}
                                   <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                 </TableCell>
                               </AnimatedTableRow>;
