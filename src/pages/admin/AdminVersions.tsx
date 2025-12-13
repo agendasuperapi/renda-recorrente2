@@ -407,7 +407,7 @@ export default function AdminVersions() {
                 asChild
               >
                 <a 
-                  href="https://github.com/[USUARIO]/[REPOSITORIO]/actions" 
+                  href="https://github.com/agendasuperapi/renda-recorrente2/actions" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
