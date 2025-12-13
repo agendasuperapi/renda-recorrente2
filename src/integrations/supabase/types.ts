@@ -400,7 +400,12 @@ export type Database = {
           changes: string[] | null
           created_at: string | null
           created_by: string | null
+          deploy_completed_at: string | null
+          deploy_error: string | null
+          deploy_started_at: string | null
+          deploy_status: string | null
           description: string | null
+          github_run_id: string | null
           id: string
           released_at: string | null
           version: string
@@ -409,7 +414,12 @@ export type Database = {
           changes?: string[] | null
           created_at?: string | null
           created_by?: string | null
+          deploy_completed_at?: string | null
+          deploy_error?: string | null
+          deploy_started_at?: string | null
+          deploy_status?: string | null
           description?: string | null
+          github_run_id?: string | null
           id?: string
           released_at?: string | null
           version: string
@@ -418,7 +428,12 @@ export type Database = {
           changes?: string[] | null
           created_at?: string | null
           created_by?: string | null
+          deploy_completed_at?: string | null
+          deploy_error?: string | null
+          deploy_started_at?: string | null
+          deploy_status?: string | null
           description?: string | null
+          github_run_id?: string | null
           id?: string
           released_at?: string | null
           version?: string
