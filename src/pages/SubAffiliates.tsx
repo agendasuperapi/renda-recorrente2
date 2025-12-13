@@ -385,35 +385,6 @@ const SubAffiliates = () => {
       setUniqueLevels(levels as number[]);
     }
   };
-  if (initialLoading && !hasLoadedOnce) {
-    return <div className="space-y-4 sm:space-y-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sub Afiliados</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Gerencie sua rede de sub-afiliados
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="h-4 w-32 bg-muted animate-pulse rounded" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 w-16 bg-muted animate-pulse rounded" />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="h-4 w-32 bg-muted animate-pulse rounded" />
-            </CardHeader>
-            <CardContent>
-              <div className="h-8 w-24 bg-muted animate-pulse rounded" />
-            </CardContent>
-          </Card>
-        </div>
-        <TableSkeleton columns={7} rows={5} />
-      </div>;
-  }
   return <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       <ScrollAnimation animation="fade-up">
         <div>
