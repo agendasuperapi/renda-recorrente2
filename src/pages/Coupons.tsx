@@ -856,9 +856,18 @@ const Coupons = () => {
                               </p>
                               
                               <div className="space-y-2">
-                                {isActivated ? <code className="text-sm font-mono font-bold bg-primary/10 px-2 py-1.5 rounded block">
-                                    {coupon.activatedCoupon?.custom_code}
-                                  </code> : <div className="text-xs">
+                                {isActivated ? <div className="flex items-center gap-1">
+                                    <code className="text-sm font-mono font-bold bg-primary/10 px-2 py-1.5 rounded flex-1">
+                                      {coupon.activatedCoupon?.custom_code}
+                                    </code>
+                                    <button
+                                      onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                                      className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                                      title="Copiar cupom"
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </button>
+                                  </div> : <div className="text-xs">
                                     <span className="text-muted-foreground">Seu cupom: </span>
                                     <code className="font-mono bg-muted px-2 py-1 rounded">{customCode}</code>
                                   </div>}
