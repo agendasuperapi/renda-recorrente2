@@ -17,12 +17,21 @@ serve(async (req) => {
       throw new Error('GITHUB_PAT não configurado');
     }
 
+    // Accept current version from request body
+    let currentVersionFromClient: string | null = null;
+    try {
+      const body = await req.json();
+      currentVersionFromClient = body.current_version || null;
+    } catch {
+      // No body or invalid JSON, will read from GitHub
+    }
+
     const owner = 'agendasuperapi';
     const repo = 'renda-recorrente2';
     const filePath = 'src/config/version.ts';
     const branch = 'main';
 
-    // 1. Get current file content
+    // 1. Get current file content from GitHub
     const getFileResponse = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
       {
@@ -30,6 +39,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${GITHUB_PAT}`,
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'Supabase-Edge-Function',
+          'Cache-Control': 'no-cache',
         },
       }
     );
@@ -43,25 +53,69 @@ serve(async (req) => {
     const currentContent = atob(fileData.content.replace(/\n/g, ''));
     const sha = fileData.sha;
 
-    // 2. Extract current version
+    // 2. Extract current version from GitHub file
     const versionMatch = currentContent.match(/APP_VERSION\s*=\s*"(\d+)\.(\d+)\.(\d+)"/);
     if (!versionMatch) {
       throw new Error('Não foi possível encontrar a versão no arquivo');
     }
 
-    const major = parseInt(versionMatch[1]);
-    const minor = parseInt(versionMatch[2]);
-    const patch = parseInt(versionMatch[3]);
+    const githubMajor = parseInt(versionMatch[1]);
+    const githubMinor = parseInt(versionMatch[2]);
+    const githubPatch = parseInt(versionMatch[3]);
+    const githubVersion = `${githubMajor}.${githubMinor}.${githubPatch}`;
+
+    // 3. Determine which version to use as base
+    let major: number, minor: number, patch: number;
+    let baseVersion: string;
+
+    if (currentVersionFromClient) {
+      const clientMatch = currentVersionFromClient.match(/(\d+)\.(\d+)\.(\d+)/);
+      if (clientMatch) {
+        const clientMajor = parseInt(clientMatch[1]);
+        const clientMinor = parseInt(clientMatch[2]);
+        const clientPatch = parseInt(clientMatch[3]);
+        const clientVersion = `${clientMajor}.${clientMinor}.${clientPatch}`;
+
+        // Use the higher version between client and GitHub
+        const clientTotal = clientMajor * 10000 + clientMinor * 100 + clientPatch;
+        const githubTotal = githubMajor * 10000 + githubMinor * 100 + githubPatch;
+
+        if (clientTotal > githubTotal) {
+          major = clientMajor;
+          minor = clientMinor;
+          patch = clientPatch;
+          baseVersion = clientVersion;
+          console.log(`Using client version ${clientVersion} (higher than GitHub ${githubVersion})`);
+        } else {
+          major = githubMajor;
+          minor = githubMinor;
+          patch = githubPatch;
+          baseVersion = githubVersion;
+          console.log(`Using GitHub version ${githubVersion} (higher or equal to client ${clientVersion})`);
+        }
+      } else {
+        major = githubMajor;
+        minor = githubMinor;
+        patch = githubPatch;
+        baseVersion = githubVersion;
+      }
+    } else {
+      major = githubMajor;
+      minor = githubMinor;
+      patch = githubPatch;
+      baseVersion = githubVersion;
+    }
+
     const newPatch = patch + 1;
     const newVersion = `${major}.${minor}.${newPatch}`;
 
-    // 3. Create new content
+    // 4. Create new content
     const newContent = currentContent.replace(
       /APP_VERSION\s*=\s*"\d+\.\d+\.\d+"/,
       `APP_VERSION = "${newVersion}"`
     );
 
-    // 4. Commit the change
+    // 5. Commit the change
     const updateResponse = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`,
       {
@@ -86,12 +140,12 @@ serve(async (req) => {
       throw new Error(`Erro ao atualizar arquivo: ${error}`);
     }
 
-    console.log(`Version incremented from ${major}.${minor}.${patch} to ${newVersion}`);
+    console.log(`Version incremented from ${baseVersion} to ${newVersion}`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        oldVersion: `${major}.${minor}.${patch}`,
+        oldVersion: baseVersion,
         newVersion: newVersion,
         message: `Versão atualizada para ${newVersion}` 
       }),

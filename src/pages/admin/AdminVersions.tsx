@@ -438,7 +438,10 @@ export default function AdminVersions() {
   const handleIncrementVersion = async () => {
     setIsIncrementingVersion(true);
     try {
-      const { data, error } = await supabase.functions.invoke('increment-version');
+      // Send current version from client to ensure correct base version
+      const { data, error } = await supabase.functions.invoke('increment-version', {
+        body: { current_version: APP_VERSION }
+      });
       
       if (error) throw new Error(error.message);
       
