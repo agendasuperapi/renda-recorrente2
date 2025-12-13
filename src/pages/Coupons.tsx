@@ -899,7 +899,7 @@ const Coupons = () => {
                                               Compartilhar
                                             </Button>}
                                       </>}
-                                    {isActive ? <Button variant="outline" size="sm" className="w-full" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
+                                    {isActive ? <Button variant="outline" size="sm" className="w-full bg-red-50 text-red-700 border-red-300 hover:bg-red-100 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/50 dark:hover:bg-red-500/30" onClick={() => handleDeactivateClick(coupon.activatedCoupon?.id || "")} disabled={deactivateCoupon.isPending}>
                                         <XCircle className="h-3 w-3 mr-1" />
                                         Inativar
                                       </Button> : <Button variant="outline" size="sm" className="w-full col-span-2 bg-green-50 text-green-700 border-green-300 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
