@@ -552,8 +552,8 @@ export const Sidebar = ({
         <div className="flex items-center justify-center mb-2">
           {showAdminMenu ? (
             <div className="flex items-center gap-2 h-12">
-              <ShieldCheck className="h-7 w-7 text-primary" />
-              <span className="text-xl font-bold text-foreground">Admin</span>
+              <ShieldCheck className="h-7 w-7" style={{ color: isDarkTheme ? textColorDark : textColorLight }} />
+              <span className="text-xl font-bold" style={{ color: isDarkTheme ? textColorDark : textColorLight }}>Admin</span>
             </div>
           ) : (
             <img src={currentLogoUrl} alt="APP Renda Recorrente" className="h-12 w-auto" />
