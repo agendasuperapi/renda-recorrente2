@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { 
   GitBranch, Plus, Trash2, AlertCircle, CheckCircle2, Pencil, X, Check, Copy, 
   Search, ChevronLeft, ChevronRight, Rocket, Loader2, ExternalLink, Lock,
-  Clock, AlertTriangle, CheckCircle, XCircle
+  Clock, AlertTriangle, CheckCircle, XCircle, ArrowUp
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -76,6 +76,7 @@ export default function AdminVersions() {
   // Deploy states
   const [isDeploying, setIsDeploying] = useState(false);
   const [showDeployConfirm, setShowDeployConfirm] = useState(false);
+  const [isIncrementingVersion, setIsIncrementingVersion] = useState(false);
 
   // Filter and pagination states
   const [searchFilter, setSearchFilter] = useState("");
@@ -433,6 +434,33 @@ export default function AdminVersions() {
     window.open(`${GITHUB_ACTIONS_URL}`, '_blank');
   };
 
+  // Incrementar versão via GitHub
+  const handleIncrementVersion = async () => {
+    setIsIncrementingVersion(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('increment-version');
+      
+      if (error) throw new Error(error.message);
+      
+      if (data?.success) {
+        toast.success(`Versão incrementada: ${data.oldVersion} → ${data.newVersion}`);
+        toast.info("A página será recarregada em alguns segundos para refletir a nova versão.");
+        
+        // Aguarda sincronização do Lovable com o GitHub e recarrega
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      } else {
+        throw new Error(data?.error || 'Erro ao incrementar versão');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
+    } finally {
+      setIsIncrementingVersion(false);
+    }
+  };
+
   // Marcar deploy como concluído manualmente
   const handleMarkAsSuccess = async (versionId: string) => {
     try {
@@ -523,13 +551,37 @@ export default function AdminVersions() {
                 </Tooltip>
               </TooltipProvider>
             </Label>
-            <Input
-              id="version"
-              value={APP_VERSION}
-              readOnly
-              disabled
-              className="bg-muted font-mono"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="version"
+                value={APP_VERSION}
+                readOnly
+                disabled
+                className="bg-muted font-mono flex-1"
+              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={handleIncrementVersion}
+                      disabled={isIncrementingVersion || isDeploying}
+                    >
+                      {isIncrementingVersion ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ArrowUp className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Incrementar versão (patch)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
 
           {/* Descrição */}
