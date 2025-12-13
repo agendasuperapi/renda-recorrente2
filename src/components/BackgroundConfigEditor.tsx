@@ -66,6 +66,15 @@ export function BackgroundConfigEditor({ onConfigSaved }: BackgroundConfigEditor
     }
   }, [open, isAdminMode]);
 
+  // Preview em tempo real para modo Admin
+  useEffect(() => {
+    if (isAdminMode && open) {
+      window.dispatchEvent(new CustomEvent('background-config-preview', { 
+        detail: { config, isAdmin: true } 
+      }));
+    }
+  }, [config, isAdminMode, open]);
+
   const loadConfig = async () => {
     setLoading(true);
     const prefix = getKeyPrefix();
