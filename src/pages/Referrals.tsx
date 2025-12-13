@@ -283,9 +283,6 @@ const Referrals = () => {
     };
     return <Badge variant={variants[status] || "secondary"}>{labels[status] || status}</Badge>;
   };
-  if (initialLoading && !hasLoadedOnce) {
-    return <ReferralsSkeleton />;
-  }
   return <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Indicações</h1>
