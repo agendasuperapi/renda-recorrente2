@@ -64,6 +64,7 @@ export function useBgConfig() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   
   const [config, setConfig] = useState<BackgroundConfig | null>(null);
+  const [previewConfig, setPreviewConfig] = useState<BackgroundConfig | null>(null);
   const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType);
   const [darkMode, setDarkMode] = useState<boolean>(isDarkMode);
   const [loading, setLoading] = useState(true);
@@ -160,10 +161,18 @@ export function useBgConfig() {
     loadConfig();
 
     const handleConfigChange = () => {
+      setPreviewConfig(null);
       loadConfig();
     };
 
+    const handlePreview = (event: CustomEvent<{ config: BackgroundConfig; isAdmin: boolean }>) => {
+      if (isAdminRoute && event.detail.isAdmin) {
+        setPreviewConfig(event.detail.config);
+      }
+    };
+
     window.addEventListener('background-config-change', handleConfigChange);
+    window.addEventListener('background-config-preview', handlePreview as EventListener);
 
     const handleResize = () => {
       setDeviceType(getDeviceType());
@@ -182,37 +191,41 @@ export function useBgConfig() {
 
     return () => {
       window.removeEventListener('background-config-change', handleConfigChange);
+      window.removeEventListener('background-config-preview', handlePreview as EventListener);
       window.removeEventListener('resize', handleResize);
       observer.disconnect();
     };
-  }, [loadConfig]);
+  }, [loadConfig, isAdminRoute]);
+
+  // Use previewConfig if available, otherwise use saved config
+  const activeConfig = previewConfig || config;
 
   const shouldApply = useCallback(() => {
-    if (!config) return false;
+    if (!activeConfig) return false;
 
     switch (deviceType) {
       case 'mobile':
-        return config.applyMobile;
+        return activeConfig.applyMobile;
       case 'tablet':
-        return config.applyTablet;
+        return activeConfig.applyTablet;
       case 'desktop':
-        return config.applyDesktop;
+        return activeConfig.applyDesktop;
       default:
         return false;
     }
-  }, [config, deviceType]);
+  }, [activeConfig, deviceType]);
 
   const getBackgroundStyle = useCallback((): React.CSSProperties | undefined => {
-    if (!config || !shouldApply()) return undefined;
+    if (!activeConfig || !shouldApply()) return undefined;
 
-    const startAlpha = darkMode ? config.intensityStartDark / 100 : config.intensityStartLight / 100;
-    const endAlpha = darkMode ? config.intensityEndDark / 100 : config.intensityEndLight / 100;
+    const startAlpha = darkMode ? activeConfig.intensityStartDark / 100 : activeConfig.intensityStartLight / 100;
+    const endAlpha = darkMode ? activeConfig.intensityEndDark / 100 : activeConfig.intensityEndLight / 100;
     
-    const colorStart = darkMode ? config.colorStartDark : config.colorStartLight;
-    const colorEnd = darkMode ? config.colorEndDark : config.colorEndLight;
+    const colorStart = darkMode ? activeConfig.colorStartDark : activeConfig.colorStartLight;
+    const colorEnd = darkMode ? activeConfig.colorEndDark : activeConfig.colorEndLight;
     
-    const gradientStart = darkMode ? config.gradientStartDark : config.gradientStartLight;
-    const gradientEnd = darkMode ? config.gradientEndDark : config.gradientEndLight;
+    const gradientStart = darkMode ? activeConfig.gradientStartDark : activeConfig.gradientStartLight;
+    const gradientEnd = darkMode ? activeConfig.gradientEndDark : activeConfig.gradientEndLight;
     
     const gradient = `linear-gradient(to bottom, ${hexToRgba(colorStart, startAlpha)} ${gradientStart}vh, ${hexToRgba(colorEnd, endAlpha)} ${gradientEnd}vh)`;
 
@@ -221,7 +234,7 @@ export function useBgConfig() {
       backgroundAttachment: 'fixed' as const,
       backgroundRepeat: 'no-repeat' as const,
     };
-  }, [config, shouldApply, darkMode]);
+  }, [activeConfig, shouldApply, darkMode]);
 
   return {
     config,
