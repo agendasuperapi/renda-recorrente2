@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useUser } from "@/contexts/UserContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -114,6 +115,20 @@ const CommissionsDaily = ({
 
   // Card expandido no modo compacto
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+
+  // Buscar configuração de dias para disponibilidade
+  const { data: daysToAvailable = 30 } = useQuery({
+    queryKey: ["commission-days-to-available"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "commission_days_to_available")
+        .maybeSingle();
+      return data?.value ? parseInt(data.value) : 30;
+    },
+    staleTime: 1000 * 60 * 5 // 5 minutos
+  });
 
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
@@ -301,7 +316,6 @@ const CommissionsDaily = ({
     // Calcular dias restantes para status pendente
     let daysRemaining: number | null = null;
     if (status === "pending") {
-      // Se available_date não estiver definido, calcular como payment_date + 30 dias
       const availableDateToUse = availableDate || paymentDate;
       if (availableDateToUse) {
         const now = new Date();
@@ -309,9 +323,9 @@ const CommissionsDaily = ({
         if (availableDate) {
           available = new Date(availableDate);
         } else if (paymentDate) {
-          // Adicionar 30 dias à data do pagamento
+          // Usar configuração do sistema para calcular data de disponibilidade
           available = new Date(paymentDate);
-          available.setDate(available.getDate() + 30);
+          available.setDate(available.getDate() + daysToAvailable);
         } else {
           return (
             <div className="flex flex-col items-start gap-0.5">
