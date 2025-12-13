@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
-import { format, subDays } from "date-fns";
+import { format, subDays, differenceInDays, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -47,6 +48,20 @@ export const AdminCommissionsTab = () => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
+
+  // Buscar dias para liberar comissão do app_settings
+  const { data: daysToAvailable = 30 } = useQuery({
+    queryKey: ['commission-days-to-available'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('value')
+        .eq('key', 'commission_days_to_available')
+        .maybeSingle();
+      return data?.value ? parseInt(data.value) : 30;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
 
   const [filters, setFilters] = useState<{
     product_id: string;
@@ -185,9 +200,21 @@ export const AdminCommissionsTab = () => {
     }).format(value);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, paymentDate?: string) => {
+    // Calcular dias restantes para comissões pendentes
+    let daysRemaining = 0;
+    if (status === 'pending' && paymentDate) {
+      const payment = new Date(paymentDate);
+      const availableDate = addDays(payment, daysToAvailable);
+      daysRemaining = differenceInDays(availableDate, new Date());
+      if (daysRemaining < 0) daysRemaining = 0;
+    }
+
     const statusMap: Record<string, { label: string; className: string }> = {
-      pending: { label: "Pendente", className: "bg-yellow-500/10 text-yellow-500" },
+      pending: { 
+        label: daysRemaining > 0 ? `Libera em ${daysRemaining}d` : "Pendente", 
+        className: "bg-yellow-500/10 text-yellow-500" 
+      },
       available: { label: "Disponível", className: "bg-green-500/10 text-green-500" },
       withdrawn: { label: "Sacado", className: "bg-blue-500/10 text-blue-500" },
       cancelled: { label: "Cancelado", className: "bg-red-500/10 text-red-500" },
@@ -441,7 +468,7 @@ export const AdminCommissionsTab = () => {
                                               <p className="font-medium text-sm truncate">{commission.affiliate_name}</p>
                                               <p className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</p>
                                             </div>
-                                            {getStatusBadge(commission.status)}
+                                            {getStatusBadge(commission.status, commission.data)}
                                           </div>
                                           
                                           <div className="flex justify-between items-center">
@@ -583,7 +610,7 @@ export const AdminCommissionsTab = () => {
                                 <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                               </TableCell>
                               <TableCell className="relative border-0">
-                                {getStatusBadge(commission.status)}
+                                {getStatusBadge(commission.status, commission.data)}
                                 <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                               </TableCell>
                             </AnimatedTableRow>
