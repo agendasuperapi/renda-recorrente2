@@ -1,5 +1,7 @@
 name: Deploy to Hostinger
 
+run-name: "v${{ inputs.version }} - ${{ inputs.version_description || 'Deploy manual' }}"
+
 on:
   workflow_dispatch:
     inputs:
