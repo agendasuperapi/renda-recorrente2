@@ -148,7 +148,7 @@ export default function AdminSupport() {
   const urgentCount = tickets?.filter(t => t.priority === "urgente" && !["resolved", "closed"].includes(t.status)).length || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Central de Suporte</h1>
