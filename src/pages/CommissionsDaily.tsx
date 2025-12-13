@@ -378,6 +378,18 @@ const CommissionsDaily = ({
           </p>
         </div>}
 
+      {/* Card de aviso sobre liberação de comissões */}
+      <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/30 mb-4">
+        <CardContent className="flex items-center gap-3 py-3">
+          <div className="flex-shrink-0 p-2 rounded-full bg-amber-100 dark:bg-amber-900/50">
+            <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          </div>
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            As comissões são liberadas após <span className="font-semibold">{daysToAvailable} {daysToAvailable === 1 ? 'dia' : 'dias'}</span> do pagamento.
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <ScrollAnimation animation="fade-up" delay={0}>
           <Card className="relative overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
