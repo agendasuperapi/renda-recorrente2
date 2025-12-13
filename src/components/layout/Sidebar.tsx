@@ -1089,9 +1089,24 @@ export const Sidebar = ({
           
           {isAdmin && <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => {
           const newAdminMenuState = !showAdminMenu;
-          setShowAdminMenu(newAdminMenuState);
-          // Navegar para o dashboard correspondente
-          navigate(newAdminMenuState ? '/admin/dashboard' : '/user/dashboard');
+          
+          // Salvar a página atual antes de trocar
+          const currentPath = location.pathname;
+          if (showAdminMenu) {
+            // Saindo do admin, salvar última página admin
+            sessionStorage.setItem('lastAdminPage', currentPath);
+            // Recuperar última página user ou ir para dashboard
+            const lastUserPage = sessionStorage.getItem('lastUserPage') || '/user/dashboard';
+            setShowAdminMenu(newAdminMenuState);
+            navigate(lastUserPage);
+          } else {
+            // Saindo do user, salvar última página user
+            sessionStorage.setItem('lastUserPage', currentPath);
+            // Recuperar última página admin ou ir para dashboard
+            const lastAdminPage = sessionStorage.getItem('lastAdminPage') || '/admin/dashboard';
+            setShowAdminMenu(newAdminMenuState);
+            navigate(lastAdminPage);
+          }
           closeSidebar?.();
         }} title={showAdminMenu ? "Ver menu de Afiliado" : "Ver menu de Admin"} style={{
           color: currentTextColor
