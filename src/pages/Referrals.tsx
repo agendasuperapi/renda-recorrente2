@@ -286,7 +286,7 @@ const Referrals = () => {
   if (initialLoading && !hasLoadedOnce) {
     return <ReferralsSkeleton />;
   }
-  return <div className="space-y-6 p-4 sm:p-6 animate-fade-in">
+  return <div className="space-y-6 animate-in fade-in-0 duration-300">
       <div>
         <h1 className="text-3xl font-bold mb-2">Indicações</h1>
         <p className="text-muted-foreground">
