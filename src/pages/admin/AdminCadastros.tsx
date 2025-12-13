@@ -19,7 +19,7 @@ const TabLoadingFallback = () => (
 
 export default function AdminCadastros() {
   return (
-    <div className="w-full p-3 md:p-6 space-y-4 md:space-y-6">
+    <div className="w-full p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold mb-2">Cadastros</h1>
         <p className="text-sm md:text-base text-muted-foreground">
