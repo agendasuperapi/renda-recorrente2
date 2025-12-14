@@ -17,7 +17,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
@@ -26,6 +25,7 @@ import { PixQRCode } from "@/components/PixQRCode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
+
 type Withdrawal = {
   id: string;
   affiliate_id: string;
@@ -48,12 +48,14 @@ type Withdrawal = {
     avatar_url: string | null;
   };
 };
+
 type PaymentProofFile = {
   file: File;
   previewUrl: string;
   id: string;
 };
-export default function AdminWithdrawals() {
+
+export function AdminWithdrawalsTab() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null);
@@ -67,23 +69,16 @@ export default function AdminWithdrawals() {
   const [pageSize, setPageSize] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
   const [layoutMode, setLayoutMode] = useState<"compact" | "complete">("compact");
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   // Buscar estatísticas de saques
-  const {
-    data: stats
-  } = useQuery({
+  const { data: stats } = useQuery({
     queryKey: ["withdrawals-stats"],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("view_withdrawals_stats" as any).select("*").single();
+      const { data, error } = await supabase.from("view_withdrawals_stats" as any).select("*").single();
       if (error) throw error;
       return data as unknown as {
         total_pending: number;
@@ -106,7 +101,7 @@ export default function AdminWithdrawals() {
 
       if (error) {
         console.error("Erro ao buscar commission_days_to_available:", error);
-        return 30; // fallback apenas em caso de erro real na query
+        return 30;
       }
 
       const parsed = parseInt(data?.value ?? "30", 10);
@@ -115,9 +110,7 @@ export default function AdminWithdrawals() {
   });
 
   // Buscar total de registros
-  const {
-    data: totalCount
-  } = useQuery({
+  const { data: totalCount } = useQuery({
     queryKey: ["admin-withdrawals-count", debouncedSearch, statusFilter],
     queryFn: async () => {
       let query = supabase.from("withdrawals").select("id", {
@@ -125,9 +118,7 @@ export default function AdminWithdrawals() {
         head: true
       });
       if (debouncedSearch) {
-        const {
-          data: profilesData
-        } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+        const { data: profilesData } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
         if (profilesData && profilesData.length > 0) {
           const profileIds = profilesData.map(p => p.id);
           query = query.in("affiliate_id", profileIds);
@@ -138,19 +129,13 @@ export default function AdminWithdrawals() {
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter as any);
       }
-      const {
-        count,
-        error
-      } = await query;
+      const { count, error } = await query;
       if (error) throw error;
       return count || 0;
     }
   });
-  const {
-    data: withdrawals,
-    isLoading,
-    refetch
-  } = useQuery({
+
+  const { data: withdrawals, isLoading, refetch } = useQuery({
     queryKey: ["admin-withdrawals", debouncedSearch, statusFilter, currentPage, pageSize],
     queryFn: async () => {
       const from = (currentPage - 1) * pageSize;
@@ -167,9 +152,7 @@ export default function AdminWithdrawals() {
         ascending: false
       }).range(from, to);
       if (debouncedSearch) {
-        const {
-          data: profilesData
-        } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+        const { data: profilesData } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
         if (profilesData && profilesData.length > 0) {
           const profileIds = profilesData.map(p => p.id);
           query = query.in("affiliate_id", profileIds);
@@ -180,25 +163,19 @@ export default function AdminWithdrawals() {
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter as any);
       }
-      const {
-        data,
-        error
-      } = await query;
+      const { data, error } = await query;
       if (error) throw error;
       return (data || []) as unknown as Withdrawal[];
     }
   });
+
   const totalPages = Math.ceil((totalCount || 0) / pageSize);
-  const {
-    data: commissions
-  } = useQuery({
+
+  const { data: commissions } = useQuery({
     queryKey: ["withdrawal-commissions", selectedWithdrawal?.id],
     queryFn: async () => {
       if (!selectedWithdrawal?.commission_ids?.length) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("commissions").select(`
+      const { data, error } = await supabase.from("commissions").select(`
           *,
           products:product_id (
             nome
@@ -220,6 +197,7 @@ export default function AdminWithdrawals() {
     },
     enabled: !!selectedWithdrawal?.commission_ids?.length
   });
+
   const updateWithdrawalMutation = useMutation({
     mutationFn: async ({
       id,
@@ -233,11 +211,8 @@ export default function AdminWithdrawals() {
       paymentProofUrl?: string[] | null;
     }) => {
       const withdrawal = withdrawals?.find(w => w.id === id);
-      const updateData: any = {
-        status
-      };
+      const updateData: any = { status };
       if (status === "approved") {
-        // Se estava "paid" e está voltando para "approved", limpar dados de pagamento
         if (withdrawal?.status === "paid") {
           updateData.paid_date = null;
           updateData.payment_proof_url = null;
@@ -253,25 +228,16 @@ export default function AdminWithdrawals() {
       } else if (status === "rejected") {
         updateData.rejected_reason = rejectedReason;
       } else if (status === "pending") {
-        // Estornando aprovação - limpar dados de aprovação
         updateData.approved_date = null;
         updateData.approved_by = null;
       }
-      const {
-        error
-      } = await supabase.from("withdrawals").update(updateData).eq("id", id);
+      const { error } = await supabase.from("withdrawals").update(updateData).eq("id", id);
       if (error) throw error;
 
-      // Atualizar as comissões baseado no status
       if (withdrawal?.commission_ids?.length) {
         if (status === "approved" || status === "paid") {
-          // Se está revertendo de "paid" para "approved", voltar comissões para "available"
           const commissionStatus = withdrawal.status === "paid" && status === "approved" ? "available" : "withdrawn";
-          const commissionUpdate: any = {
-            status: commissionStatus
-          };
-
-          // Se está revertendo, limpar o withdrawal_id
+          const commissionUpdate: any = { status: commissionStatus };
           if (commissionStatus === "available") {
             commissionUpdate.withdrawal_id = null;
           } else {
@@ -279,31 +245,24 @@ export default function AdminWithdrawals() {
           }
           await supabase.from("commissions").update(commissionUpdate).in("id", withdrawal.commission_ids);
         } else if (status === "pending") {
-          // Estornando aprovação - voltar comissões para "available"
           await supabase.from("commissions").update({
             status: "available",
             withdrawal_id: null
           }).in("id", withdrawal.commission_ids);
         }
       }
-      return {
-        status
-      };
+      return { status };
     },
     onSuccess: data => {
-      queryClient.invalidateQueries({
-        queryKey: ["admin-withdrawals"]
-      });
+      queryClient.invalidateQueries({ queryKey: ["admin-withdrawals"] });
       toast({
         title: "Saque atualizado",
         description: "O status do saque foi atualizado com sucesso."
       });
 
-      // Não fechar o dialog se foi aprovado (para permitir adicionar comprovantes)
       if (data.status !== "approved") {
         setDialogOpen(false);
       } else {
-        // Atualizar o selectedWithdrawal com o novo status
         if (selectedWithdrawal) {
           setSelectedWithdrawal({
             ...selectedWithdrawal,
@@ -314,7 +273,6 @@ export default function AdminWithdrawals() {
       }
       setRejectReason("");
 
-      // Cleanup preview URLs apenas se o dialog for fechar
       if (data.status !== "approved") {
         paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
         setPaymentProofs([]);
@@ -332,8 +290,8 @@ export default function AdminWithdrawals() {
       });
     }
   });
+
   const handleViewDetails = (withdrawal: Withdrawal) => {
-    // Cleanup previous preview URLs if exist
     paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
     setPaymentProofs([]);
     if (previewUrl) {
@@ -343,10 +301,10 @@ export default function AdminWithdrawals() {
     setSelectedWithdrawal(withdrawal);
     setDialogOpen(true);
   };
+
   const handleDialogChange = (open: boolean) => {
     setDialogOpen(open);
     if (!open) {
-      // Cleanup when dialog closes
       paymentProofs.forEach(proof => URL.revokeObjectURL(proof.previewUrl));
       setPaymentProofs([]);
       if (previewUrl) {
@@ -356,6 +314,7 @@ export default function AdminWithdrawals() {
       setRejectReason("");
     }
   };
+
   const handleAddProof = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
@@ -366,6 +325,7 @@ export default function AdminWithdrawals() {
     }));
     setPaymentProofs(prev => [...prev, ...newProofs]);
   };
+
   const handleRemoveProof = (id: string) => {
     setPaymentProofs(prev => {
       const proofToRemove = prev.find(p => p.id === id);
@@ -375,30 +335,22 @@ export default function AdminWithdrawals() {
       return prev.filter(p => p.id !== id);
     });
   };
+
   const handleApprove = (id: string) => {
-    updateWithdrawalMutation.mutate({
-      id,
-      status: "approved"
-    });
+    updateWithdrawalMutation.mutate({ id, status: "approved" });
   };
+
   const handlePaid = async (id: string) => {
     const proofUrls: string[] = [];
     if (paymentProofs.length > 0) {
       try {
-        // Upload all files
         for (const proof of paymentProofs) {
           const fileExt = proof.file.name.split('.').pop();
           const fileName = `${id}-${Date.now()}-${proof.id}.${fileExt}`;
           const filePath = `${fileName}`;
-          const {
-            error: uploadError
-          } = await supabase.storage.from('payment-proofs').upload(filePath, proof.file);
+          const { error: uploadError } = await supabase.storage.from('payment-proofs').upload(filePath, proof.file);
           if (uploadError) throw uploadError;
-          const {
-            data: {
-              publicUrl
-            }
-          } = supabase.storage.from('payment-proofs').getPublicUrl(filePath);
+          const { data: { publicUrl } } = supabase.storage.from('payment-proofs').getPublicUrl(filePath);
           proofUrls.push(publicUrl);
         }
       } catch (error: any) {
@@ -416,6 +368,7 @@ export default function AdminWithdrawals() {
       paymentProofUrl: proofUrls.length > 0 ? proofUrls : null
     });
   };
+
   const handleReject = (id: string) => {
     if (!rejectReason.trim()) {
       toast({
@@ -431,18 +384,15 @@ export default function AdminWithdrawals() {
       rejectedReason: rejectReason
     });
   };
+
   const handleRevert = (id: string) => {
-    updateWithdrawalMutation.mutate({
-      id,
-      status: "approved"
-    });
+    updateWithdrawalMutation.mutate({ id, status: "approved" });
   };
+
   const handleRevertApproval = (id: string) => {
-    updateWithdrawalMutation.mutate({
-      id,
-      status: "pending"
-    });
+    updateWithdrawalMutation.mutate({ id, status: "pending" });
   };
+
   const statsData = {
     totalPending: stats?.total_pending || 0,
     totalApproved: stats?.total_approved || 0,
@@ -450,6 +400,7 @@ export default function AdminWithdrawals() {
     totalRejected: stats?.total_rejected_count || 0,
     totalAwaitingRelease: stats?.total_awaiting_release || 0
   };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       pending: {
@@ -479,17 +430,16 @@ export default function AdminWithdrawals() {
     };
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
     const Icon = config.icon;
-    return <Badge variant={config.variant} className={`gap-1 ${config.className}`}>
+    return (
+      <Badge variant={config.variant} className={`gap-1 ${config.className}`}>
         <Icon className="h-3 w-3" />
         {config.label}
-      </Badge>;
+      </Badge>
+    );
   };
-  return <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">Saques</h1>
-        <p className="text-sm text-muted-foreground">Gerenciamento de solicitações de saque</p>
-      </div>
 
+  return (
+    <div className="space-y-4 sm:space-y-6">
       {/* Cards de Resumo */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
         <ScrollAnimation animation="fade-up" delay={0} threshold={0.05}>
@@ -500,14 +450,9 @@ export default function AdminWithdrawals() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsData.totalPending.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })}
+                {statsData.totalPending.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Aguardando aprovação
-              </p>
+              <p className="text-xs text-muted-foreground">Aguardando aprovação</p>
             </CardContent>
           </Card>
         </ScrollAnimation>
@@ -520,14 +465,9 @@ export default function AdminWithdrawals() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsData.totalApproved.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })}
+                {statsData.totalApproved.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
-              <p className="text-xs text-muted-foreground">
-                A serem pagos
-              </p>
+              <p className="text-xs text-muted-foreground">A serem pagos</p>
             </CardContent>
           </Card>
         </ScrollAnimation>
@@ -540,14 +480,9 @@ export default function AdminWithdrawals() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsData.totalPaid.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })}
+                {statsData.totalPaid.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Total pago aos afiliados
-              </p>
+              <p className="text-xs text-muted-foreground">Total pago aos afiliados</p>
             </CardContent>
           </Card>
         </ScrollAnimation>
@@ -560,10 +495,7 @@ export default function AdminWithdrawals() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {statsData.totalAwaitingRelease.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })}
+                {statsData.totalAwaitingRelease.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
               <p className="text-xs text-muted-foreground">
                 Comissões à liberar depois de {commissionDays ?? 30} dias do pagamento
@@ -579,12 +511,8 @@ export default function AdminWithdrawals() {
               <XCircle className="h-4 w-4 text-red-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {statsData.totalRejected}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Solicitações rejeitadas
-              </p>
+              <div className="text-2xl font-bold">{statsData.totalRejected}</div>
+              <p className="text-xs text-muted-foreground">Solicitações rejeitadas</p>
             </CardContent>
           </Card>
         </ScrollAnimation>
@@ -592,12 +520,7 @@ export default function AdminWithdrawals() {
 
       {/* Mobile Control Bar */}
       <div className="flex items-center justify-between lg:hidden">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowFilters(!showFilters)}
-          className="gap-2"
-        >
+        <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)} className="gap-2">
           <SlidersHorizontal className="h-4 w-4" />
           Filtros
         </Button>
@@ -621,13 +544,13 @@ export default function AdminWithdrawals() {
         <CardContent className="!p-0 lg:!p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:flex gap-2 sm:gap-4">
             <Input placeholder="Buscar por afiliado..." value={searchTerm} onChange={e => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }} className="w-full lg:max-w-sm" />
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }} className="w-full lg:max-w-sm" />
             <Select value={statusFilter} onValueChange={value => {
-            setStatusFilter(value);
-            setCurrentPage(1);
-          }}>
+              setStatusFilter(value);
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -640,9 +563,9 @@ export default function AdminWithdrawals() {
               </SelectContent>
             </Select>
             <Select value={pageSize.toString()} onValueChange={value => {
-            setPageSize(Number(value));
-            setCurrentPage(1);
-          }}>
+              setPageSize(Number(value));
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-full lg:w-[180px]">
                 <SelectValue placeholder="Por página" />
               </SelectTrigger>
@@ -664,9 +587,12 @@ export default function AdminWithdrawals() {
       {/* Tabela */}
       <Card className="bg-transparent border-0 shadow-none lg:bg-card lg:border lg:shadow-sm rounded-none lg:rounded-lg">
         <CardContent className="!p-0 lg:!p-6">
-          {isLoading ? <div className="px-4 lg:px-0">
+          {isLoading ? (
+            <div className="px-4 lg:px-0">
               <TableSkeleton columns={7} rows={10} />
-            </div> : <>
+            </div>
+          ) : (
+            <>
               {/* Desktop Table */}
               <div className="hidden lg:block rounded-md border overflow-x-auto">
                 <Table>
@@ -682,56 +608,51 @@ export default function AdminWithdrawals() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {withdrawals && withdrawals.length > 0 ? withdrawals.map((withdrawal, index) => <AnimatedTableRow key={withdrawal.id} delay={index * 50}>
-                          <TableCell className="text-xs whitespace-nowrap">
-                            {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", {
-                      locale: ptBR
-                    })}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2 min-w-[180px]">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={withdrawal.profiles?.avatar_url || ""} alt={withdrawal.profiles?.name} />
-                                <AvatarFallback className="text-xs">
-                                  {withdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col min-w-0">
-                                <span className="font-medium text-sm truncate">{withdrawal.profiles?.name || "N/A"}</span>
-                                <span className="text-xs text-muted-foreground truncate max-w-[180px]">{withdrawal.profiles?.email || "N/A"}</span>
-                              </div>
+                    {withdrawals && withdrawals.length > 0 ? withdrawals.map((withdrawal, index) => (
+                      <AnimatedTableRow key={withdrawal.id} delay={index * 50}>
+                        <TableCell className="text-xs whitespace-nowrap">
+                          {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 min-w-[180px]">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={withdrawal.profiles?.avatar_url || ""} alt={withdrawal.profiles?.name} />
+                              <AvatarFallback className="text-xs">
+                                {withdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-medium text-sm truncate">{withdrawal.profiles?.name || "N/A"}</span>
+                              <span className="text-xs text-muted-foreground truncate max-w-[180px]">{withdrawal.profiles?.email || "N/A"}</span>
                             </div>
-                          </TableCell>
-                          <TableCell className="hidden lg:table-cell">
-                            <div className="flex flex-col">
-                              <span className="text-xs font-mono">{withdrawal.pix_key}</span>
-                              <span className="text-xs text-muted-foreground uppercase">{withdrawal.pix_type}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-semibold whitespace-nowrap">
-                            {Number(withdrawal.amount).toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL"
-                    })}
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(withdrawal.status)}
-                          </TableCell>
-                          <TableCell className="hidden xl:table-cell text-xs whitespace-nowrap">
-                            {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", {
-                      locale: ptBR
-                    }) : "-"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="sm" onClick={() => handleViewDetails(withdrawal)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </AnimatedTableRow>) : <TableRow>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-mono">{withdrawal.pix_key}</span>
+                            <span className="text-xs text-muted-foreground uppercase">{withdrawal.pix_type}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-semibold whitespace-nowrap">
+                          {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(withdrawal.status)}</TableCell>
+                        <TableCell className="hidden xl:table-cell text-xs whitespace-nowrap">
+                          {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewDetails(withdrawal)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </AnimatedTableRow>
+                    )) : (
+                      <TableRow>
                         <TableCell colSpan={7} className="text-center text-muted-foreground">
                           Nenhum saque encontrado
                         </TableCell>
-                      </TableRow>}
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -741,88 +662,92 @@ export default function AdminWithdrawals() {
                 {withdrawals && withdrawals.length > 0 ? withdrawals.map((withdrawal, index) => (
                   layoutMode === "compact" ? (
                     <ScrollAnimation key={withdrawal.id} animation="fade-up" delay={index * 50} threshold={0.05}>
-                    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
-                      <CardContent className="p-3">
-                        <div className="space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <p className="font-medium text-sm truncate">{withdrawal.profiles?.name || "N/A"}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {format(new Date(withdrawal.requested_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
+                        <CardContent className="p-3">
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className="font-medium text-sm truncate">{withdrawal.profiles?.name || "N/A"}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(withdrawal.requested_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                                </p>
+                              </div>
+                              <p className="font-semibold text-primary whitespace-nowrap">
+                                {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                               </p>
                             </div>
-                            <p className="font-semibold text-primary whitespace-nowrap">
-                              {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                            </p>
+                            <div className="flex items-center justify-between">
+                              {getStatusBadge(withdrawal.status)}
+                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleViewDetails(withdrawal)}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                          <div className="flex items-center justify-between">
-                            {getStatusBadge(withdrawal.status)}
-                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleViewDetails(withdrawal)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                        </CardContent>
+                      </Card>
                     </ScrollAnimation>
                   ) : (
                     <ScrollAnimation key={withdrawal.id} animation="fade-up" delay={index * 50} threshold={0.05}>
-                    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
-                      <CardContent className="p-3">
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-medium text-sm">{withdrawal.profiles?.name || "N/A"}</p>
-                              <p className="text-xs text-muted-foreground">{withdrawal.profiles?.email || "N/A"}</p>
+                      <Card className={`overflow-hidden transition-all duration-300 hover:shadow-md ${withdrawal.status === 'pending' ? 'bg-warning/5 border-warning/20' : ''}`}>
+                        <CardContent className="p-3">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium text-sm">{withdrawal.profiles?.name || "N/A"}</p>
+                                <p className="text-xs text-muted-foreground">{withdrawal.profiles?.email || "N/A"}</p>
+                              </div>
+                              {getStatusBadge(withdrawal.status)}
                             </div>
-                            {getStatusBadge(withdrawal.status)}
-                          </div>
-                          
-                          <div className="flex justify-between items-center py-2 border-t border-b">
-                            <span className="text-xs text-muted-foreground">Valor</span>
-                            <span className="font-bold text-base">
-                              {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                            </span>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                              <p className="text-muted-foreground">Solicitação</p>
-                              <p className="font-medium">
-                                {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}
-                              </p>
+                            
+                            <div className="flex justify-between items-center py-2 border-t border-b">
+                              <span className="text-xs text-muted-foreground">Valor</span>
+                              <span className="font-bold text-base">
+                                {Number(withdrawal.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                              </span>
                             </div>
-                            <div>
-                              <p className="text-muted-foreground">Pagamento</p>
-                              <p className="font-medium">
-                                {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}
-                              </p>
+
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <p className="text-muted-foreground">Solicitação</p>
+                                <p className="font-medium">
+                                  {format(new Date(withdrawal.requested_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Pagamento</p>
+                                <p className="font-medium">
+                                  {withdrawal.paid_date ? format(new Date(withdrawal.paid_date), "dd/MM/yy HH:mm", { locale: ptBR }) : "-"}
+                                </p>
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="pt-2">
-                            <p className="text-xs text-muted-foreground">PIX</p>
-                            <p className="font-mono text-xs">{withdrawal.pix_key}</p>
-                            <p className="text-xs text-muted-foreground uppercase">{withdrawal.pix_type}</p>
-                          </div>
+                            <div className="pt-2">
+                              <p className="text-xs text-muted-foreground">PIX</p>
+                              <p className="font-mono text-xs">{withdrawal.pix_key}</p>
+                              <p className="text-xs text-muted-foreground uppercase">{withdrawal.pix_type}</p>
+                            </div>
 
-                          <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => handleViewDetails(withdrawal)}>
-                            <Eye className="h-3 w-3 mr-2" />
-                            Ver Detalhes
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                            <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => handleViewDetails(withdrawal)}>
+                              <Eye className="h-3 w-3 mr-2" />
+                              Ver Detalhes
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </ScrollAnimation>
                   )
-                )) : <div className="text-center py-8 text-muted-foreground text-sm">
+                )) : (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
                     Nenhum saque encontrado
-                  </div>}
+                  </div>
+                )}
               </div>
-            </>}
+            </>
+          )}
           
           {/* Paginação */}
-          {!isLoading && withdrawals && withdrawals.length > 0 && totalPages > 1 && <div className="flex flex-col lg:flex-row items-center justify-between gap-4 px-3 lg:px-6 py-4 border-t">
+          {!isLoading && withdrawals && withdrawals.length > 0 && totalPages > 1 && (
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 px-3 lg:px-6 py-4 border-t">
               <p className="text-sm text-muted-foreground">
                 Mostrando {(currentPage - 1) * pageSize + 1} a {Math.min(currentPage * pageSize, totalCount || 0)} de {totalCount || 0} registros
               </p>
@@ -833,80 +758,91 @@ export default function AdminWithdrawals() {
                   </PaginationItem>
                   
                   {[...Array(Math.min(5, totalPages))].map((_, idx) => {
-                let pageNumber;
-                if (totalPages <= 5) {
-                  pageNumber = idx + 1;
-                } else if (currentPage <= 3) {
-                  pageNumber = idx + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNumber = totalPages - 4 + idx;
-                } else {
-                  pageNumber = currentPage - 2 + idx;
-                }
-                return <PaginationItem key={pageNumber}>
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = idx + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = idx + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + idx;
+                    } else {
+                      pageNumber = currentPage - 2 + idx;
+                    }
+                    return (
+                      <PaginationItem key={pageNumber}>
                         <PaginationLink onClick={() => setCurrentPage(pageNumber)} isActive={currentPage === pageNumber} className="cursor-pointer">
                           {pageNumber}
                         </PaginationLink>
-                      </PaginationItem>;
-              })}
-                  
+                      </PaginationItem>
+                    );
+                  })}
+
                   <PaginationItem>
                     <PaginationNext onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"} />
                   </PaginationItem>
                 </PaginationContent>
               </Pagination>
-            </div>}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Dialog/Drawer de Detalhes - Conteúdo Compartilhado */}
+      {/* Image Viewer Dialog */}
+      <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full"
+              onClick={() => setImageViewerOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            {viewerImageUrl && (
+              <img src={viewerImageUrl} alt="Visualização" className="w-full h-auto max-h-[80vh] object-contain" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail Dialog/Drawer */}
       {isMobile ? (
         <Drawer open={dialogOpen} onOpenChange={handleDialogChange}>
-          <DrawerContent className="max-h-[92vh]">
-            <DrawerHeader className="pb-2">
+          <DrawerContent className="max-h-[85vh]">
+            <DrawerHeader className="border-b pb-3">
               <DrawerTitle>Detalhes do Saque</DrawerTitle>
             </DrawerHeader>
-            
             {selectedWithdrawal && (
-              <div className="px-4 pb-4 overflow-y-auto max-h-[calc(92vh-100px)]">
+              <div className="overflow-y-auto px-4 pb-4 flex-1">
                 <Tabs defaultValue="details" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="details" className="gap-2">
-                      <FileText className="h-4 w-4" />
+                  <TabsList className="grid w-full grid-cols-2 mt-3">
+                    <TabsTrigger value="details" className="gap-2 text-xs">
+                      <FileText className="h-3 w-3" />
                       Detalhes
                     </TabsTrigger>
-                    <TabsTrigger value="commissions" className="gap-2">
-                      <Percent className="h-4 w-4" />
+                    <TabsTrigger value="commissions" className="gap-2 text-xs">
+                      <Percent className="h-3 w-3" />
                       Comissões ({selectedWithdrawal.commission_ids?.length || 0})
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="details" className="space-y-3 mt-3">
-                    <div className="space-y-4">
-                      {/* Affiliate Header */}
+                  <TabsContent value="details" className="mt-3">
+                    <div className="space-y-3">
                       <div className="flex items-center gap-3 pb-3 border-b">
-                        <Avatar 
-                          className={`h-11 w-11 ${selectedWithdrawal.profiles?.avatar_url ? 'cursor-pointer hover:ring-2 hover:ring-primary transition-all' : ''}`}
-                          onClick={() => {
-                            if (selectedWithdrawal.profiles?.avatar_url) {
-                              setViewerImageUrl(selectedWithdrawal.profiles.avatar_url);
-                              setImageViewerOpen(true);
-                            }
-                          }}
-                        >
+                        <Avatar className="h-10 w-10">
                           <AvatarImage src={selectedWithdrawal.profiles?.avatar_url || ""} alt={selectedWithdrawal.profiles?.name} />
-                          <AvatarFallback>
+                          <AvatarFallback className="text-xs">
                             {selectedWithdrawal.profiles?.name?.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold truncate">{selectedWithdrawal.profiles?.name}</p>
-                          <p className="text-sm text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
+                          <p className="font-semibold text-sm truncate">{selectedWithdrawal.profiles?.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{selectedWithdrawal.profiles?.email}</p>
                         </div>
                         {getStatusBadge(selectedWithdrawal.status)}
                       </div>
 
-                      {/* Info Grid */}
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
                           <p className="text-xs text-muted-foreground mb-0.5">Valor</p>
@@ -942,7 +878,6 @@ export default function AdminWithdrawals() {
                         )}
                       </div>
 
-                      {/* PIX QR Code */}
                       {selectedWithdrawal.status === "approved" && (
                         <div className="pt-3 border-t">
                           <PixQRCode
@@ -961,12 +896,12 @@ export default function AdminWithdrawals() {
                         placeholder="Motivo da rejeição (se aplicável)" 
                         value={rejectReason} 
                         onChange={e => setRejectReason(e.target.value)} 
-                        className="min-h-[60px]" 
+                        className="min-h-[60px] mt-3" 
                       />
                     )}
 
                     {(selectedWithdrawal.status === "approved" || selectedWithdrawal.status === "paid") && (
-                      <div className="space-y-2 pt-2 border-t">
+                      <div className="space-y-2 pt-2 border-t mt-3">
                         <div className="flex items-center justify-between">
                           <Label className="text-xs">
                             {selectedWithdrawal.status === "paid" ? "Comprovantes" : "Anexar Comprovantes"}
@@ -1088,7 +1023,8 @@ export default function AdminWithdrawals() {
             <DialogHeader>
               <DialogTitle>Detalhes do Saque</DialogTitle>
             </DialogHeader>
-            {selectedWithdrawal && <Tabs defaultValue="details" className="w-full">
+            {selectedWithdrawal && (
+              <Tabs defaultValue="details" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="details" className="gap-2">
                     <FileText className="h-4 w-4" />
@@ -1102,7 +1038,6 @@ export default function AdminWithdrawals() {
 
                 <TabsContent value="details" className="space-y-3">
                   <div className="space-y-4">
-                    {/* Affiliate Header */}
                     <div className="flex items-center gap-3 pb-3 border-b">
                       <Avatar 
                         className={`h-11 w-11 ${selectedWithdrawal.profiles?.avatar_url ? 'cursor-pointer hover:ring-2 hover:ring-primary transition-all' : ''}`}
@@ -1125,7 +1060,6 @@ export default function AdminWithdrawals() {
                       {getStatusBadge(selectedWithdrawal.status)}
                     </div>
 
-                    {/* Info Grid */}
                     <div className="grid grid-cols-3 gap-3 text-sm">
                       <div>
                         <p className="text-xs text-muted-foreground mb-0.5">Valor</p>
@@ -1161,7 +1095,6 @@ export default function AdminWithdrawals() {
                       )}
                     </div>
 
-                    {/* PIX QR Code */}
                     {selectedWithdrawal.status === "approved" && (
                       <div className="pt-3 border-t">
                         <PixQRCode
@@ -1224,7 +1157,8 @@ export default function AdminWithdrawals() {
                   )}
 
                   <DialogFooter>
-                    {selectedWithdrawal.status === "pending" && <>
+                    {selectedWithdrawal.status === "pending" && (
+                      <>
                         <Button variant="destructive" onClick={() => handleReject(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
                           <XCircle className="h-4 w-4 mr-2" />
                           Rejeitar
@@ -1233,8 +1167,10 @@ export default function AdminWithdrawals() {
                           <CheckCircle className="h-4 w-4 mr-2" />
                           Aprovar
                         </Button>
-                      </>}
-                    {selectedWithdrawal.status === "approved" && <>
+                      </>
+                    )}
+                    {selectedWithdrawal.status === "approved" && (
+                      <>
                         <Button variant="outline" onClick={() => handleRevertApproval(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
                           <Undo2 className="h-4 w-4 mr-2" />
                           Estornar Aprovação
@@ -1243,16 +1179,20 @@ export default function AdminWithdrawals() {
                           <DollarSign className="h-4 w-4 mr-2" />
                           Marcar como Pago
                         </Button>
-                      </>}
-                    {selectedWithdrawal.status === "paid" && <Button variant="outline" onClick={() => handleRevert(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
+                      </>
+                    )}
+                    {selectedWithdrawal.status === "paid" && (
+                      <Button variant="outline" onClick={() => handleRevert(selectedWithdrawal.id)} disabled={updateWithdrawalMutation.isPending}>
                         <Undo2 className="h-4 w-4 mr-2" />
                         Estornar Pagamento
-                      </Button>}
+                      </Button>
+                    )}
                   </DialogFooter>
                 </TabsContent>
 
                 <TabsContent value="commissions" className="space-y-4">
-                  {commissions && commissions.length > 0 ? <div className="rounded-md border">
+                  {commissions && commissions.length > 0 ? (
+                    <div className="rounded-md border">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -1264,7 +1204,8 @@ export default function AdminWithdrawals() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {commissions.map((commission: any) => <TableRow key={commission.id}>
+                          {commissions.map((commission: any) => (
+                            <TableRow key={commission.id}>
                               <TableCell className="text-xs whitespace-nowrap py-2">
                                 {format(new Date(commission.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                               </TableCell>
@@ -1289,25 +1230,20 @@ export default function AdminWithdrawals() {
                               <TableCell className="font-semibold text-xs text-right py-2">
                                 {Number(commission.amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                               </TableCell>
-                            </TableRow>)}
+                            </TableRow>
+                          ))}
                         </TableBody>
                       </Table>
-                    </div> : <p className="text-center text-muted-foreground py-8">
-                      Nenhuma comissão vinculada a este saque
-                    </p>}
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">Nenhuma comissão vinculada</p>
+                  )}
                 </TabsContent>
-              </Tabs>}
+              </Tabs>
+            )}
           </DialogContent>
         </Dialog>
       )}
-
-      {/* Dialog de Visualização de Imagem */}
-      <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
-        <DialogContent className="max-w-[500px] p-2 overflow-hidden">
-          <div className="relative flex items-center justify-center bg-black/95 rounded-lg overflow-hidden">
-            <img src={viewerImageUrl || ""} alt="Imagem ampliada" className="max-w-full max-h-[500px] object-contain" />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>;
+    </div>
+  );
 }
