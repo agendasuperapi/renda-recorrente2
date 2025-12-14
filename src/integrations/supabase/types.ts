@@ -4460,6 +4460,29 @@ export type Database = {
         Returns: boolean
       }
       reconfigure_commission_cron: { Args: never; Returns: Json }
+      send_admin_notification: {
+        Args: {
+          p_action_url?: string
+          p_body: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
+      send_push_notification: {
+        Args: {
+          p_action_url?: string
+          p_body: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_title: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       validate_coupon: {
         Args: { p_coupon_code: string; p_product_id: string }
         Returns: {
