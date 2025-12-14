@@ -482,7 +482,7 @@ export const AdminCommissionProcessingTab = () => {
             </Select>
 
             <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger className="w-full lg:w-[200px]">
+              <SelectTrigger className="w-full lg:w-[240px]">
                 <SelectValue placeholder="Produto">
                   {productId === "all" ? (
                     "Todos os Produtos"
