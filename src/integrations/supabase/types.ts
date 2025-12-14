@@ -1176,6 +1176,160 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          admin_new_support_message: boolean
+          created_at: string
+          goal_achieved: boolean
+          id: string
+          new_affiliate: boolean
+          new_commission: boolean
+          new_payment: boolean
+          new_sub_affiliate: boolean
+          new_support_message: boolean
+          new_version: boolean
+          new_withdrawal_request: boolean
+          updated_at: string
+          user_id: string
+          withdrawal_day: boolean
+          withdrawal_paid: boolean
+        }
+        Insert: {
+          admin_new_support_message?: boolean
+          created_at?: string
+          goal_achieved?: boolean
+          id?: string
+          new_affiliate?: boolean
+          new_commission?: boolean
+          new_payment?: boolean
+          new_sub_affiliate?: boolean
+          new_support_message?: boolean
+          new_version?: boolean
+          new_withdrawal_request?: boolean
+          updated_at?: string
+          user_id: string
+          withdrawal_day?: boolean
+          withdrawal_paid?: boolean
+        }
+        Update: {
+          admin_new_support_message?: boolean
+          created_at?: string
+          goal_achieved?: boolean
+          id?: string
+          new_affiliate?: boolean
+          new_commission?: boolean
+          new_payment?: boolean
+          new_sub_affiliate?: boolean
+          new_support_message?: boolean
+          new_version?: boolean
+          new_withdrawal_request?: boolean
+          updated_at?: string
+          user_id?: string
+          withdrawal_day?: boolean
+          withdrawal_paid?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          body: string
+          created_at: string
+          icon: string | null
+          id: string
+          is_read: boolean
+          reference_id: string | null
+          reference_type: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          body: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_read?: boolean
+          reference_id?: string | null
+          reference_type?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          body?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_read?: boolean
+          reference_id?: string | null
+          reference_type?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           affiliate_coupon_id: string | null
@@ -2006,6 +2160,74 @@ export type Database = {
           {
             foreignKeyName: "profiles_blocked_by_fkey"
             columns: ["blocked_by"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+        ]
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          browser: string | null
+          created_at: string
+          device_type: string
+          endpoint: string
+          id: string
+          p256dh_key: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          browser?: string | null
+          created_at?: string
+          device_type?: string
+          endpoint: string
+          id?: string
+          p256dh_key: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          browser?: string | null
+          created_at?: string
+          device_type?: string
+          endpoint?: string
+          id?: string
+          p256dh_key?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "view_affiliate_dashboard_stats"
             referencedColumns: ["affiliate_id"]
