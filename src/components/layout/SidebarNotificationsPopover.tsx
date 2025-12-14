@@ -257,7 +257,7 @@ export function SidebarNotificationsPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
-          className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full text-left"
           style={{
             backgroundColor: `${accentColor}15`,
             color: currentTextColor
