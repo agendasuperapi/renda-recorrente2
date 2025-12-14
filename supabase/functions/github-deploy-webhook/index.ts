@@ -81,6 +81,34 @@ serve(async (req) => {
 
     console.log(`Deploy status updated for version ${version}: ${status}`);
 
+    // Send notification to admins when deploy is successful
+    if (status === 'success') {
+      try {
+        console.log(`Sending new version notification to admins for version ${version}`);
+        
+        // Call send-push-notification with admin_only flag
+        const { error: notifError } = await supabase.functions.invoke('send-push-notification', {
+          body: {
+            admin_only: true,
+            title: 'Nova Versão Disponível! 🚀',
+            body: `A versão ${version} foi publicada com sucesso.`,
+            type: 'new_version',
+            action_url: '/admin/versions',
+            icon: '/app-icon.png',
+          },
+        });
+
+        if (notifError) {
+          console.error('Error sending new version notification:', notifError);
+        } else {
+          console.log('New version notification sent to admins successfully');
+        }
+      } catch (notifErr) {
+        console.error('Error invoking notification function:', notifErr);
+        // Don't fail the webhook if notification fails
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
