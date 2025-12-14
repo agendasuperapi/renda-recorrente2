@@ -88,9 +88,6 @@ const adminMenuItems = [{
   label: "Afiliados",
   path: "/admin/affiliates"
 }, {
-  icon: Wallet,
-  label: "Saques",
-  path: "/admin/withdrawals"
 }, {
   icon: Coins,
   label: "Comissões",
