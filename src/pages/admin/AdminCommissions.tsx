@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Coins, Zap } from "lucide-react";
+import { Coins, Zap, Wallet } from "lucide-react";
 import { AdminCommissionsTab } from "@/components/admin/AdminCommissionsTab";
 import { AdminCommissionProcessingTab } from "@/components/admin/AdminCommissionProcessingTab";
+import { AdminWithdrawalsTab } from "@/components/admin/AdminWithdrawalsTab";
 
 const AdminCommissions = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +25,7 @@ const AdminCommissions = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid grid-cols-2 gap-2 bg-muted/50 p-1.5 rounded-xl h-auto">
+        <TabsList className="grid grid-cols-3 gap-2 bg-muted/50 p-1.5 rounded-xl h-auto">
           <TabsTrigger
             value="commissions"
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border gap-2 py-2.5"
@@ -33,16 +34,27 @@ const AdminCommissions = () => {
             <span>Comissões</span>
           </TabsTrigger>
           <TabsTrigger
+            value="withdrawals"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border gap-2 py-2.5"
+          >
+            <Wallet className="h-4 w-4" />
+            <span>Saques</span>
+          </TabsTrigger>
+          <TabsTrigger
             value="processing"
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border gap-2 py-2.5"
           >
             <Zap className="h-4 w-4" />
-            <span>Proc. Comissões</span>
+            <span>Processamento</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="commissions" forceMount className="data-[state=inactive]:hidden mt-6">
           <AdminCommissionsTab />
+        </TabsContent>
+
+        <TabsContent value="withdrawals" forceMount className="data-[state=inactive]:hidden mt-6">
+          <AdminWithdrawalsTab />
         </TabsContent>
 
         <TabsContent value="processing" forceMount className="data-[state=inactive]:hidden mt-6">

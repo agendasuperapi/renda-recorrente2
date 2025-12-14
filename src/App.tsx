@@ -40,7 +40,7 @@ import AdminVersions from "./pages/admin/AdminVersions";
 import AdminAffiliates from "./pages/admin/AdminAffiliates";
 import AdminCadastros from "./pages/admin/AdminCadastros";
 import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
-import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
+
 import AdminSupport from "./pages/admin/AdminSupport";
 import AdminUserActivities from "./pages/admin/AdminUserActivities";
 import AdminCommissions from "./pages/admin/AdminCommissions";
@@ -119,7 +119,7 @@ const App = () => {
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/bank-accounts" element={<AdminBankAccounts />} />
               <Route path="/admin/cpf-apis" element={<AdminCpfApis />} />
-              <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
+              <Route path="/admin/withdrawals" element={<Navigate to="/admin/commissions?tab=withdrawals" replace />} />
               <Route path="/admin/commission-levels" element={<AdminCommissionLevels />} />
               <Route path="/admin/legal-documents" element={<AdminLegalDocuments />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
