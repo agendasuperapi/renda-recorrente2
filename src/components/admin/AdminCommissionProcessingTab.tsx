@@ -13,7 +13,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X, Play, Loader2 } from "lucide-react";
+import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X, Play, Loader2, Info } from "lucide-react";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
 
@@ -342,6 +342,31 @@ export const AdminCommissionProcessingTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Card Explicativo */}
+      <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/20">
+        <CardContent className="p-4">
+          <div className="flex gap-3">
+            <div className="p-2 bg-blue-500/10 rounded-lg h-fit">
+              <Info className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold text-sm text-blue-900 dark:text-blue-100">Processamento de Comissões</h3>
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                Esta tela exibe o status de processamento das comissões geradas a partir de pagamentos recebidos via webhook do Stripe ou sincronizados de servidores externos.
+              </p>
+              <ul className="text-xs text-blue-600 dark:text-blue-400 mt-2 space-y-1">
+                <li>• <strong>Processados:</strong> Comissões geradas com sucesso</li>
+                <li>• <strong>Pendentes:</strong> Aguardando processamento automático</li>
+                <li>• <strong>Com Erro:</strong> Falha na geração (use "Reprocessar" para tentar novamente)</li>
+              </ul>
+              <p className="text-[10px] text-blue-500 dark:text-blue-500 mt-2 font-mono">
+                Rota: /admin/commissions?tab=processing
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
