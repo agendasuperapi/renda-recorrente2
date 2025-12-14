@@ -47,6 +47,7 @@ import AdminCommissions from "./pages/admin/AdminCommissions";
 import AdminCommissionProcessing from "./pages/admin/AdminCommissionProcessing";
 import Payments from "./pages/Payments";
 import Support from "./pages/Support";
+import Notifications from "./pages/Notifications";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
@@ -99,6 +100,7 @@ const App = () => {
               <Route path="/user/coupons" element={<Coupons />} />
               <Route path="/user/payments" element={<Payments />} />
               <Route path="/user/support" element={<Support />} />
+              <Route path="/user/notifications" element={<Notifications />} />
               <Route path="/user/plan" element={<Plan />} />
               <Route path="/user/google-business" element={<GoogleBusiness />} />
               <Route path="/user/settings" element={<Settings />} />
