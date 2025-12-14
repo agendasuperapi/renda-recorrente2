@@ -440,7 +440,14 @@ export default function AdminStripeEventsContent() {
 
       const query = supabase
         .from("stripe_events")
-        .select("*", { count: "exact" });
+        .select(`
+          *,
+          profiles:user_id (
+            name,
+            username,
+            avatar_url
+          )
+        `, { count: "exact" });
       
       // Build query with filters
       let filteredQuery = query;
@@ -569,6 +576,23 @@ export default function AdminStripeEventsContent() {
     return eventType.replace(/\./g, " → ").replace(/_/g, " ");
   };
 
+  const getEmailFromEventData = (eventData: any): string | null => {
+    if (!eventData) return null;
+    const dataObject = eventData?.data?.object;
+    return dataObject?.customer_email || 
+           dataObject?.billing_details?.email || 
+           dataObject?.email ||
+           dataObject?.customer?.email ||
+           null;
+  };
+
+  const getCustomerIdFromEventData = (eventData: any): string | null => {
+    if (!eventData) return null;
+    const dataObject = eventData?.data?.object;
+    return dataObject?.customer || 
+           dataObject?.id?.startsWith?.('cus_') ? dataObject?.id : null;
+  };
+
   const renderEventDetailsContent = () => {
     if (!selectedEvent) return null;
     
@@ -611,15 +635,37 @@ export default function AdminStripeEventsContent() {
                   <p className="text-sm">{format(new Date(selectedEvent.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Email</p>
-                  <p className="text-sm">{selectedEvent.customer_email || "-"}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Nome</p>
+                  <p className="text-sm">{selectedEvent.profiles?.name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Customer ID</p>
+                  <p className="text-sm font-medium text-muted-foreground">Email</p>
                   <div className="flex items-center gap-1">
-                    <p className="text-sm font-mono truncate max-w-[150px]">{selectedEvent.stripe_customer_id || "-"}</p>
-                    {selectedEvent.stripe_customer_id && (
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(selectedEvent.stripe_customer_id)}>
+                    <p className="text-sm truncate max-w-[200px]">{selectedEvent.email || getEmailFromEventData(selectedEvent.event_data) || "-"}</p>
+                    {(selectedEvent.email || getEmailFromEventData(selectedEvent.event_data)) && (
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(selectedEvent.email || getEmailFromEventData(selectedEvent.event_data))}>
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">User ID</p>
+                  <div className="flex items-center gap-1">
+                    <p className="text-sm font-mono truncate max-w-[150px]">{selectedEvent.user_id || "-"}</p>
+                    {selectedEvent.user_id && (
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(selectedEvent.user_id)}>
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Event ID</p>
+                  <div className="flex items-center gap-1">
+                    <p className="text-sm font-mono truncate max-w-[150px]">{selectedEvent.event_id || "-"}</p>
+                    {selectedEvent.event_id && (
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(selectedEvent.event_id)}>
                         <Copy className="w-3 h-3" />
                       </Button>
                     )}
@@ -636,6 +682,23 @@ export default function AdminStripeEventsContent() {
                     )}
                   </div>
                 </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Customer ID</p>
+                  <div className="flex items-center gap-1">
+                    <p className="text-sm font-mono truncate max-w-[150px]">{getCustomerIdFromEventData(selectedEvent.event_data) || "-"}</p>
+                    {getCustomerIdFromEventData(selectedEvent.event_data) && (
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(getCustomerIdFromEventData(selectedEvent.event_data))}>
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Processado</p>
+                  <Badge variant={selectedEvent.processed ? 'default' : 'secondary'}>
+                    {selectedEvent.processed ? 'Sim' : 'Não'}
+                  </Badge>
+                </div>
               </div>
 
               {selectedEvent.cancel_at_period_end && (
@@ -650,7 +713,7 @@ export default function AdminStripeEventsContent() {
                 <p className="text-sm font-medium text-muted-foreground mb-2">Payload</p>
                 <ScrollArea className="h-[200px]">
                   <pre className="text-xs bg-muted p-3 rounded-lg overflow-x-auto">
-                    {JSON.stringify(selectedEvent.payload, null, 2)}
+                    {JSON.stringify(selectedEvent.event_data, null, 2)}
                   </pre>
                 </ScrollArea>
               </div>
@@ -1093,7 +1156,7 @@ export default function AdminStripeEventsContent() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">{event.customer_email || "N/A"}</p>
+                        <p className="font-medium text-sm truncate">{event.profiles?.name || event.email || getEmailFromEventData(event.event_data) || "N/A"}</p>
                         <p className="text-xs text-muted-foreground truncate">{event.event_type}</p>
                       </div>
                     </div>
@@ -1122,8 +1185,9 @@ export default function AdminStripeEventsContent() {
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <p className="text-xs text-muted-foreground">Email</p>
-                      <p className="truncate">{event.customer_email || "N/A"}</p>
+                      <p className="text-xs text-muted-foreground">Cliente</p>
+                      <p className="truncate font-medium">{event.profiles?.name || "N/A"}</p>
+                      <p className="truncate text-xs text-muted-foreground">{event.email || getEmailFromEventData(event.event_data) || "N/A"}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Data</p>
@@ -1153,8 +1217,8 @@ export default function AdminStripeEventsContent() {
                   <TableHead className="cursor-pointer" onClick={() => handleSort("event_type")}>
                     <div className="flex items-center">Tipo <SortIcon column="event_type" /></div>
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("customer_email")}>
-                    <div className="flex items-center">Email <SortIcon column="customer_email" /></div>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort("email")}>
+                    <div className="flex items-center">Cliente <SortIcon column="email" /></div>
                   </TableHead>
                   <TableHead>Ambiente</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort("created_at")}>
@@ -1172,7 +1236,12 @@ export default function AdminStripeEventsContent() {
                         <span className="truncate max-w-[200px]">{event.event_type}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{event.customer_email || "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium truncate max-w-[200px]">{event.profiles?.name || "-"}</span>
+                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">{event.email || getEmailFromEventData(event.event_data) || "-"}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={event.environment === 'production' ? 'default' : 'secondary'}>
                         {event.environment || 'test'}
@@ -1199,8 +1268,8 @@ export default function AdminStripeEventsContent() {
                   <TableHead className="cursor-pointer" onClick={() => handleSort("event_type")}>
                     <div className="flex items-center">Tipo <SortIcon column="event_type" /></div>
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("customer_email")}>
-                    <div className="flex items-center">Email <SortIcon column="customer_email" /></div>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort("email")}>
+                    <div className="flex items-center">Cliente <SortIcon column="email" /></div>
                   </TableHead>
                   <TableHead>Customer ID</TableHead>
                   <TableHead>Subscription ID</TableHead>
@@ -1220,12 +1289,17 @@ export default function AdminStripeEventsContent() {
                         <span className="truncate max-w-[200px]">{formatEventType(event.event_type)}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{event.customer_email || "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium truncate max-w-[200px]">{event.profiles?.name || "-"}</span>
+                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">{event.email || getEmailFromEventData(event.event_data) || "-"}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <span className="font-mono text-xs truncate max-w-[120px]">{event.stripe_customer_id || "-"}</span>
-                        {event.stripe_customer_id && (
-                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(event.stripe_customer_id)}>
+                        <span className="font-mono text-xs truncate max-w-[120px]">{getCustomerIdFromEventData(event.event_data) || "-"}</span>
+                        {getCustomerIdFromEventData(event.event_data) && (
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(getCustomerIdFromEventData(event.event_data))}>
                             <Copy className="w-3 h-3" />
                           </Button>
                         )}
