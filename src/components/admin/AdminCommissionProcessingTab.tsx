@@ -16,6 +16,7 @@ import { ptBR } from "date-fns/locale";
 import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X, Play, Loader2, Info } from "lucide-react";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 type ProcessingStatus = "all" | "processed" | "pending" | "error";
 
@@ -24,6 +25,8 @@ interface PaymentProcessing {
   external_payment_id: string;
   product_id: string;
   product_name: string;
+  product_icon_light: string | null;
+  product_icon_dark: string | null;
   plan_id: string;
   plan_name: string;
   affiliate_id: string;
@@ -51,6 +54,7 @@ interface ReprocessResult {
 
 export const AdminCommissionProcessingTab = () => {
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProcessingStatus>("all");
@@ -613,7 +617,22 @@ export const AdminCommissionProcessingTab = () => {
                     <TableCell className="font-mono text-xs">
                       {truncateId(payment.external_payment_id)}
                     </TableCell>
-                    <TableCell>{payment.product_name || "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {(theme === 'dark' ? payment.product_icon_dark : payment.product_icon_light) ? (
+                          <img 
+                            src={theme === 'dark' ? payment.product_icon_dark! : payment.product_icon_light!}
+                            alt={payment.product_name || "Produto"}
+                            className="h-6 w-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
+                            <Package className="h-3 w-3 text-muted-foreground" />
+                          </div>
+                        )}
+                        <span>{payment.product_name || "-"}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{payment.affiliate_name || "-"}</TableCell>
                     <TableCell>{formatCurrency(payment.amount)}</TableCell>
                     <TableCell>{getStatusBadge(payment)}</TableCell>

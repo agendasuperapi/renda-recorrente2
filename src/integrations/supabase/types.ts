@@ -3299,6 +3299,8 @@ export type Database = {
           payment_status: string | null
           plan_id: string | null
           plan_name: string | null
+          product_icon_dark: string | null
+          product_icon_light: string | null
           product_id: string | null
           product_name: string | null
           unified_user_id: string | null
