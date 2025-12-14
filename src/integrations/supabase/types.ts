@@ -3650,6 +3650,9 @@ export type Database = {
           status: string | null
           stripe_invoice_id: string | null
           stripe_subscription_id: string | null
+          sync_response: string | null
+          sync_status: string | null
+          synced_at: string | null
           user_email: string | null
           user_name: string | null
         }

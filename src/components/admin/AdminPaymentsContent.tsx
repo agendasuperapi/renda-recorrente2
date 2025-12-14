@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User, SlidersHorizontal, LayoutList, LayoutGrid } from "lucide-react";
+import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User, SlidersHorizontal, LayoutList, LayoutGrid, CloudUpload, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -32,6 +32,9 @@ type Payment = {
   environment: string;
   currency: string | null;
   created_at: string;
+  sync_status: string | null;
+  sync_response: string | null;
+  synced_at: string | null;
   plan_name: string | null;
   plan_price: number | null;
   user_name: string | null;
@@ -50,6 +53,7 @@ export default function AdminPaymentsContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
+  const [syncStatusFilter, setSyncStatusFilter] = useState<string>("all");
   const [affiliateFilter, setAffiliateFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
@@ -65,7 +69,7 @@ export default function AdminPaymentsContent() {
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: payments, isLoading, refetch } = useQuery({
-    queryKey: ["admin-payments", currentPage, itemsPerPage, debouncedSearch, statusFilter, environmentFilter, affiliateFilter, startDate, endDate, sortColumn, sortDirection],
+    queryKey: ["admin-payments", currentPage, itemsPerPage, debouncedSearch, statusFilter, environmentFilter, syncStatusFilter, affiliateFilter, startDate, endDate, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
@@ -80,6 +84,9 @@ export default function AdminPaymentsContent() {
       }
       if (environmentFilter !== "all") {
         query = query.eq("environment", environmentFilter);
+      }
+      if (syncStatusFilter !== "all") {
+        query = query.eq("sync_status", syncStatusFilter);
       }
       if (affiliateFilter) {
         query = query.or(`affiliate_name.ilike.%${affiliateFilter}%,coupon_custom_code.ilike.%${affiliateFilter}%,coupon_code.ilike.%${affiliateFilter}%`);
@@ -133,6 +140,7 @@ export default function AdminPaymentsContent() {
     setSearchTerm("");
     setStatusFilter("all");
     setEnvironmentFilter("all");
+    setSyncStatusFilter("all");
     setAffiliateFilter("");
     setStartDate("");
     setEndDate("");
@@ -179,6 +187,22 @@ export default function AdminPaymentsContent() {
               <div><p className="text-sm font-medium text-muted-foreground">Motivo</p><p className="text-sm">{selectedPayment.billing_reason || "-"}</p></div>
               <div><p className="text-sm font-medium text-muted-foreground">Data Pagamento</p><p className="text-sm">{format(new Date(selectedPayment.payment_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p></div>
               <div><p className="text-sm font-medium text-muted-foreground">Criado em</p><p className="text-sm">{format(new Date(selectedPayment.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p></div>
+              <div className="col-span-2">
+                <p className="text-sm font-medium text-muted-foreground">Sincronização</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {selectedPayment.sync_status === 'synced' ? (
+                    <Badge variant="default" className="bg-green-500"><CheckCircle2 className="w-3 h-3 mr-1" />Sincronizado</Badge>
+                  ) : selectedPayment.sync_status === 'error' ? (
+                    <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />Erro</Badge>
+                  ) : (
+                    <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pendente</Badge>
+                  )}
+                  {selectedPayment.synced_at && <span className="text-xs text-muted-foreground">{format(new Date(selectedPayment.synced_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>}
+                </div>
+                {selectedPayment.sync_response && selectedPayment.sync_status === 'error' && (
+                  <p className="text-xs text-destructive mt-1">{selectedPayment.sync_response}</p>
+                )}
+              </div>
               {selectedPayment.affiliate_name && <div className="col-span-2"><p className="text-sm font-medium text-muted-foreground">Afiliado</p><p className="text-sm">{selectedPayment.affiliate_name}</p></div>}
               {(selectedPayment.coupon_custom_code || selectedPayment.coupon_code) && <div className="col-span-2"><p className="text-sm font-medium text-muted-foreground">Cupom</p><p className="text-sm font-mono">{selectedPayment.coupon_custom_code || selectedPayment.coupon_code}</p></div>}
             </div>
@@ -294,6 +318,15 @@ export default function AdminPaymentsContent() {
                 <SelectItem value="test">Teste</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={syncStatusFilter} onValueChange={setSyncStatusFilter}>
+              <SelectTrigger className="w-full lg:w-[180px]"><SelectValue placeholder="Sincronização" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos sync status</SelectItem>
+                <SelectItem value="synced">Sincronizado</SelectItem>
+                <SelectItem value="pending">Pendente</SelectItem>
+                <SelectItem value="error">Erro</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={itemsPerPage.toString()} onValueChange={value => { setItemsPerPage(Number(value)); setCurrentPage(1); }}>
               <SelectTrigger className="w-full lg:w-[140px]"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -380,6 +413,7 @@ export default function AdminPaymentsContent() {
                   <TableHead className="cursor-pointer" onClick={() => handleSort("amount")}><div className="flex items-center">Valor <SortIcon column="amount" /></div></TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Ambiente</TableHead>
+                  <TableHead>Sincronização</TableHead>
                   <TableHead>Afiliado/Cupom</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort("payment_date")}><div className="flex items-center">Data <SortIcon column="payment_date" /></div></TableHead>
                   <TableHead className="w-[80px]">Ações</TableHead>
@@ -399,6 +433,15 @@ export default function AdminPaymentsContent() {
                     <TableCell><Badge variant={payment.status === "paid" ? "default" : "secondary"}>{payment.status}</Badge></TableCell>
                     <TableCell><Badge variant={payment.environment === "production" ? "default" : "secondary"}>{payment.environment}</Badge></TableCell>
                     <TableCell>
+                      {payment.sync_status === 'synced' ? (
+                        <Badge variant="default" className="bg-green-500"><CheckCircle2 className="w-3 h-3 mr-1" />Synced</Badge>
+                      ) : payment.sync_status === 'error' ? (
+                        <Badge variant="destructive" title={payment.sync_response || ''}><AlertTriangle className="w-3 h-3 mr-1" />Erro</Badge>
+                      ) : (
+                        <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
                       <div className="text-xs">
                         {payment.affiliate_name && <p>{payment.affiliate_name}</p>}
                         {(payment.coupon_custom_code || payment.coupon_code) && <p className="font-mono text-muted-foreground">{payment.coupon_custom_code || payment.coupon_code}</p>}
@@ -409,7 +452,7 @@ export default function AdminPaymentsContent() {
                     <TableCell><Button variant="ghost" size="icon" onClick={() => handleViewDetails(payment)}><Eye className="w-4 h-4" /></Button></TableCell>
                   </AnimatedTableRow>
                 )) : (
-                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Nenhum pagamento encontrado</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">Nenhum pagamento encontrado</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
