@@ -36,14 +36,14 @@ export default function AdminStripe() {
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border rounded-lg"
           >
             <Zap className="w-4 h-4 mr-2" />
-            <span>Eventos</span>
+            <span>Eventos de Afiliados</span>
           </TabsTrigger>
           <TabsTrigger 
             value="payments" 
             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border rounded-lg"
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            <span>Pagamentos</span>
+            <span>Pagamentos de Afiliados</span>
           </TabsTrigger>
         </TabsList>
 
