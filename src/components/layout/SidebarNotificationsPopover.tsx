@@ -269,14 +269,7 @@ export function SidebarNotificationsPopover({
             e.currentTarget.style.backgroundColor = `${accentColor}15`;
           }}
         >
-          <div className="relative">
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 flex items-center justify-center text-[10px] font-bold bg-destructive text-destructive-foreground rounded-full">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </div>
+          <Bell size={18} />
           <span className="flex-1">Notificações</span>
           {unreadCount > 0 && (
             <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
