@@ -734,6 +734,11 @@ export const Sidebar = ({
           </>}
 
         {isAdmin && showAdminMenu && <>
+            <SidebarNotificationsPopover 
+              currentTextColor={currentTextColor}
+              accentColor={accentColor}
+              closeSidebar={closeSidebar}
+            />
             <Link 
               to="/admin/cadastros" 
               onClick={() => closeSidebar?.()} 
