@@ -1350,6 +1350,7 @@ export type Database = {
           sync_response: string | null
           sync_status: string | null
           synced_at: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -1371,6 +1372,7 @@ export type Database = {
           sync_response?: string | null
           sync_status?: string | null
           synced_at?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -1392,6 +1394,7 @@ export type Database = {
           sync_response?: string | null
           sync_status?: string | null
           synced_at?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
