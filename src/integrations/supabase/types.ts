@@ -1347,6 +1347,9 @@ export type Database = {
           stripe_invoice_id: string
           stripe_subscription_id: string | null
           subscription_id: string | null
+          sync_response: string | null
+          sync_status: string | null
+          synced_at: string | null
           user_id: string
         }
         Insert: {
@@ -1365,6 +1368,9 @@ export type Database = {
           stripe_invoice_id: string
           stripe_subscription_id?: string | null
           subscription_id?: string | null
+          sync_response?: string | null
+          sync_status?: string | null
+          synced_at?: string | null
           user_id: string
         }
         Update: {
@@ -1383,6 +1389,9 @@ export type Database = {
           stripe_invoice_id?: string
           stripe_subscription_id?: string | null
           subscription_id?: string | null
+          sync_response?: string | null
+          sync_status?: string | null
+          synced_at?: string | null
           user_id?: string
         }
         Relationships: [
