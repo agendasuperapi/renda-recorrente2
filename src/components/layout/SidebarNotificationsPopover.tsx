@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { 
   Bell, 
   Check, 
@@ -59,7 +59,6 @@ export function SidebarNotificationsPopover({
   const queryClient = useQueryClient();
   const { unreadCount } = useUnreadNotifications();
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(isAdmin ? 'admin' : 'user');
 
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['sidebar-notifications'],
@@ -298,34 +297,10 @@ export function SidebarNotificationsPopover({
           </Button>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 gap-1 bg-muted/50 p-1 mx-2 mt-2 rounded-lg">
-            <TabsTrigger value="user" className="text-xs px-2 py-1.5">
-              <span>Usuário</span>
-              {userUnreadCount > 0 && (
-                <Badge variant="destructive" className="h-4 min-w-4 px-1 text-[9px] ml-1 rounded-full">
-                  {userUnreadCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="admin" className="text-xs px-2 py-1.5">
-              <span>Admin</span>
-              {adminUnreadCount > 0 && (
-                <Badge variant="destructive" className="h-4 min-w-4 px-1 text-[9px] ml-1 rounded-full">
-                  {adminUnreadCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="user" className="mt-0">
-            {renderNotificationList(userNotifications, 'user')}
-          </TabsContent>
-          
-          <TabsContent value="admin" className="mt-0">
-            {renderNotificationList(adminNotifications, 'admin')}
-          </TabsContent>
-        </Tabs>
+        {isAdmin 
+          ? renderNotificationList(adminNotifications, 'admin')
+          : renderNotificationList(userNotifications, 'user')
+        }
       </PopoverContent>
     </Popover>
   );
