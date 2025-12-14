@@ -61,6 +61,58 @@ export function usePushNotifications() {
     return 'unknown';
   };
 
+  // Get current browser subscription
+  const getBrowserSubscription = useCallback(async (): Promise<PushSubscription | null> => {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) return null;
+      return await registration.pushManager.getSubscription();
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Check actual subscription state
+  const checkSubscriptionState = useCallback(async (userId: string) => {
+    // Check browser permission
+    const browserPermission = Notification.permission;
+    setPermission(browserPermission);
+
+    if (browserPermission !== 'granted') {
+      // No permission - clean up orphan records in DB
+      await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', userId);
+      setSubscriptions([]);
+      setIsSubscribed(false);
+      return;
+    }
+
+    // Check if there's an active browser subscription
+    const browserSub = await getBrowserSubscription();
+    
+    // Load subscriptions from DB
+    const { data: dbSubs } = await supabase
+      .from('push_subscriptions')
+      .select('id, endpoint, device_type, browser, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    setSubscriptions(dbSubs || []);
+
+    // Check if current browser subscription matches one in DB
+    if (browserSub && dbSubs && dbSubs.length > 0) {
+      const hasMatchingSub = dbSubs.some(sub => sub.endpoint === browserSub.endpoint);
+      setIsSubscribed(hasMatchingSub);
+    } else if (browserSub && (!dbSubs || dbSubs.length === 0)) {
+      // Browser has subscription but DB doesn't - not truly subscribed
+      setIsSubscribed(false);
+    } else {
+      setIsSubscribed(false);
+    }
+  }, [getBrowserSubscription]);
+
   // Check if push is supported
   useEffect(() => {
     const checkSupport = async () => {
@@ -79,26 +131,17 @@ export function usePushNotifications() {
     checkSupport();
   }, []);
 
-  // Load user's subscriptions
+  // Load user's subscriptions and validate state
   const loadSubscriptions = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data, error } = await supabase
-        .from('push_subscriptions')
-        .select('id, endpoint, device_type, browser, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      setSubscriptions(data || []);
-      setIsSubscribed((data?.length || 0) > 0);
+      await checkSubscriptionState(user.id);
     } catch (error) {
       console.error('Error loading subscriptions:', error);
     }
-  }, []);
+  }, [checkSubscriptionState]);
 
   useEffect(() => {
     loadSubscriptions();
@@ -139,7 +182,7 @@ export function usePushNotifications() {
       // Subscribe to push
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: VAPID_PUBLIC_KEY,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
       });
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -197,22 +240,33 @@ export function usePushNotifications() {
   // Unsubscribe from push
   const unsubscribe = useCallback(async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Erro',
+          description: 'Você precisa estar logado.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      // Try to unsubscribe from browser
       const registration = await navigator.serviceWorker.getRegistration();
       if (registration) {
         const subscription = await registration.pushManager.getSubscription();
         if (subscription) {
           await subscription.unsubscribe();
-          
-          // Remove from database
-          await supabase
-            .from('push_subscriptions')
-            .delete()
-            .eq('endpoint', subscription.endpoint);
         }
       }
 
+      // Always delete all DB records for this user (regardless of browser state)
+      await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', user.id);
+
       setIsSubscribed(false);
-      await loadSubscriptions();
+      setSubscriptions([]);
 
       toast({
         title: 'Notificações desativadas',
@@ -229,7 +283,7 @@ export function usePushNotifications() {
       });
       return false;
     }
-  }, [toast, loadSubscriptions]);
+  }, [toast]);
 
   // Remove a specific subscription
   const removeSubscription = useCallback(async (subscriptionId: string) => {
