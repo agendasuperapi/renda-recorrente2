@@ -78,7 +78,7 @@ export const AdminCommissionProcessingTab = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id, nome")
+        .select("id, nome, icone_light, icone_dark")
         .order("nome");
       if (error) throw error;
       return data;
@@ -483,12 +483,42 @@ export const AdminCommissionProcessingTab = () => {
 
             <Select value={productId} onValueChange={setProductId}>
               <SelectTrigger className="w-full lg:w-[200px]">
-                <SelectValue placeholder="Produto" />
+                <SelectValue placeholder="Produto">
+                  {productId === "all" ? (
+                    "Todos os Produtos"
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const selectedProduct = products?.find(p => p.id === productId);
+                        const iconUrl = theme === 'dark' ? selectedProduct?.icone_dark : selectedProduct?.icone_light;
+                        return iconUrl ? (
+                          <img src={iconUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
+                        ) : (
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                        );
+                      })()}
+                      <span>{products?.find(p => p.id === productId)?.nome}</span>
+                    </div>
+                  )}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os Produtos</SelectItem>
                 {products?.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                  <SelectItem key={p.id} value={p.id}>
+                    <div className="flex items-center gap-2">
+                      {(theme === 'dark' ? p.icone_dark : p.icone_light) ? (
+                        <img 
+                          src={theme === 'dark' ? p.icone_dark! : p.icone_light!} 
+                          alt="" 
+                          className="h-4 w-4 rounded-full object-cover" 
+                        />
+                      ) : (
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span>{p.nome}</span>
+                    </div>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
