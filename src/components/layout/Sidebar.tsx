@@ -28,6 +28,7 @@ import { ptBR } from "date-fns/locale";
 import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
 import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
+import { SidebarNotificationsPopover } from "./SidebarNotificationsPopover";
 interface SidebarProps {
   user: SupabaseUser | null;
   isAdmin: boolean;
@@ -676,6 +677,11 @@ export const Sidebar = ({
       })}
 
         {(!isAdmin || !showAdminMenu) && <>
+            <SidebarNotificationsPopover 
+              currentTextColor={currentTextColor}
+              accentColor={accentColor}
+              closeSidebar={closeSidebar}
+            />
             <Link 
               to="/user/settings" 
               onClick={() => closeSidebar?.()} 
