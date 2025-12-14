@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @ts-ignore - web-push types
-import webpush from "https://esm.sh/web-push@3.6.7";
+import { encode as base64UrlEncode } from "https://deno.land/std@0.168.0/encoding/base64url.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,7 +21,56 @@ interface PushPayload {
   admin_only?: boolean;
 }
 
-// Send push notification using web-push library
+// Convert base64url to Uint8Array
+function base64UrlToUint8Array(base64Url: string): Uint8Array {
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const padding = '='.repeat((4 - base64.length % 4) % 4);
+  const binaryString = atob(base64 + padding);
+  return new Uint8Array([...binaryString].map(char => char.charCodeAt(0)));
+}
+
+// Create JWT for VAPID authentication
+async function createVapidJWT(
+  audience: string,
+  subject: string,
+  vapidPrivateKey: string
+): Promise<string> {
+  const header = { typ: 'JWT', alg: 'ES256' };
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    aud: audience,
+    exp: now + 12 * 60 * 60, // 12 hours
+    sub: subject,
+  };
+
+  const headerB64 = base64UrlEncode(JSON.stringify(header));
+  const payloadB64 = base64UrlEncode(JSON.stringify(payload));
+  const unsignedToken = `${headerB64}.${payloadB64}`;
+
+  // Import the private key
+  const privateKeyBytes = base64UrlToUint8Array(vapidPrivateKey);
+  
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    privateKeyBytes.buffer as ArrayBuffer,
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    cryptoKey,
+    new TextEncoder().encode(unsignedToken)
+  );
+
+  // Convert signature from DER to raw format if needed and encode
+  const signatureB64 = base64UrlEncode(signature);
+  
+  return `${unsignedToken}.${signatureB64}`;
+}
+
+// Send push notification using Web Push Protocol
 async function sendWebPush(
   subscription: {
     endpoint: string;
@@ -48,27 +96,42 @@ async function sendWebPush(
 
     console.log(`Sending push to: ${subscription.endpoint}`);
 
-    // Configure VAPID details
-    webpush.setVapidDetails(
-      vapidSubject,
-      vapidPublicKey,
-      vapidPrivateKey
-    );
+    // Get the audience (origin) from the endpoint
+    const endpointUrl = new URL(subscription.endpoint);
+    const audience = endpointUrl.origin;
 
-    // Create subscription object in web-push format
-    const pushSubscription = {
-      endpoint: subscription.endpoint,
-      keys: {
-        p256dh: subscription.p256dh_key,
-        auth: subscription.auth_key,
-      },
-    };
-
-    // Send notification
-    const result = await webpush.sendNotification(pushSubscription, notificationPayload);
+    // Create VAPID JWT
+    const jwt = await createVapidJWT(audience, vapidSubject, vapidPrivateKey);
     
-    console.log(`Push sent successfully with status ${result.statusCode}`);
-    return { success: true, statusCode: result.statusCode };
+    // Authorization header format: vapid t=<jwt>,k=<public_key>
+    const authHeader = `vapid t=${jwt},k=${vapidPublicKey}`;
+
+    // Send the notification using fetch
+    const response = await fetch(subscription.endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/octet-stream',
+        'Content-Encoding': 'aes128gcm',
+        'TTL': '86400', // 24 hours
+      },
+      body: notificationPayload,
+    });
+
+    console.log(`Push response status: ${response.status}`);
+
+    if (response.ok || response.status === 201) {
+      console.log(`Push sent successfully with status ${response.status}`);
+      return { success: true, statusCode: response.status };
+    }
+
+    const errorText = await response.text();
+    console.error(`Push failed with status ${response.status}: ${errorText}`);
+    return { 
+      success: false, 
+      error: errorText, 
+      statusCode: response.status 
+    };
   } catch (err: unknown) {
     const error = err as { statusCode?: number; message?: string };
     console.error('Error sending push:', error);
