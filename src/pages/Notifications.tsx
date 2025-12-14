@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Bell, 
   CheckCheck, 
@@ -48,7 +47,6 @@ export default function Notifications() {
   
   // Detect if user is in admin mode based on route
   const isAdminMode = location.pathname.startsWith('/admin');
-  const [activeTab, setActiveTab] = useState(isAdminMode ? 'admin' : 'user');
 
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['notifications'],
@@ -85,7 +83,7 @@ export default function Notifications() {
   });
 
   const markAllAsRead = useMutation({
-    mutationFn: async (type: 'user' | 'admin') => {
+    mutationFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -95,7 +93,7 @@ export default function Notifications() {
         .eq('user_id', user.id)
         .eq('is_read', false);
 
-      if (type === 'admin') {
+      if (isAdminMode) {
         query = query.in('type', adminTypes);
       } else {
         query = query.not('type', 'in', `(${adminTypes.join(',')})`);
@@ -139,15 +137,12 @@ export default function Notifications() {
     }
   };
 
-  // Separate notifications by type
-  const userNotifications = notifications?.filter(n => !adminTypes.includes(n.type)) || [];
-  const adminNotifications = notifications?.filter(n => adminTypes.includes(n.type)) || [];
+  // Filter notifications based on current mode
+  const currentNotifications = isAdminMode 
+    ? notifications?.filter(n => adminTypes.includes(n.type)) || []
+    : notifications?.filter(n => !adminTypes.includes(n.type)) || [];
 
-  const userUnreadCount = userNotifications.filter(n => !n.is_read).length;
-  const adminUnreadCount = adminNotifications.filter(n => !n.is_read).length;
-
-  const currentNotifications = activeTab === 'admin' ? adminNotifications : userNotifications;
-  const currentUnreadCount = activeTab === 'admin' ? adminUnreadCount : userUnreadCount;
+  const unreadCount = currentNotifications.filter(n => !n.is_read).length;
 
   if (isLoading) {
     return (
@@ -163,19 +158,19 @@ export default function Notifications() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Bell className="h-6 w-6" />
-            Notificações
+            Notificações {isAdminMode ? '(Admin)' : ''}
           </h1>
           <p className="text-muted-foreground">
-            {currentUnreadCount > 0 
-              ? `Você tem ${currentUnreadCount} notificação${currentUnreadCount > 1 ? 'ões' : ''} não lida${currentUnreadCount > 1 ? 's' : ''}`
+            {unreadCount > 0 
+              ? `Você tem ${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}`
               : 'Nenhuma notificação não lida'}
           </p>
         </div>
         
-        {currentUnreadCount > 0 && (
+        {unreadCount > 0 && (
           <Button
             variant="outline"
-            onClick={() => markAllAsRead.mutate(activeTab as 'user' | 'admin')}
+            onClick={() => markAllAsRead.mutate()}
             disabled={isMarkingAll}
           >
             {isMarkingAll ? (
@@ -188,48 +183,12 @@ export default function Notifications() {
         )}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 gap-2 bg-muted/50 p-1.5 rounded-xl mb-4">
-          <TabsTrigger value="user" className="text-sm px-3 py-2">
-            <span>Usuário</span>
-            {userUnreadCount > 0 && (
-              <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] ml-2 rounded-full">
-                {userUnreadCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="admin" className="text-sm px-3 py-2">
-            <span>Admin</span>
-            {adminUnreadCount > 0 && (
-              <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] ml-2 rounded-full">
-                {adminUnreadCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="user" className="mt-0" forceMount>
-          <div data-state={activeTab === 'user' ? 'active' : 'inactive'} className="data-[state=inactive]:hidden">
-            <NotificationsList 
-              notifications={userNotifications}
-              onNotificationClick={handleNotificationClick}
-              onDelete={(id) => deleteNotification.mutate(id)}
-              typeIcons={typeIcons}
-            />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="admin" className="mt-0" forceMount>
-          <div data-state={activeTab === 'admin' ? 'active' : 'inactive'} className="data-[state=inactive]:hidden">
-            <NotificationsList 
-              notifications={adminNotifications}
-              onNotificationClick={handleNotificationClick}
-              onDelete={(id) => deleteNotification.mutate(id)}
-              typeIcons={typeIcons}
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
+      <NotificationsList 
+        notifications={currentNotifications}
+        onNotificationClick={handleNotificationClick}
+        onDelete={(id) => deleteNotification.mutate(id)}
+        typeIcons={typeIcons}
+      />
     </div>
   );
 }
