@@ -46,18 +46,20 @@ interface SidebarNotificationsPopoverProps {
   currentTextColor: string;
   accentColor: string;
   closeSidebar?: () => void;
+  isAdmin?: boolean;
 }
 
 export function SidebarNotificationsPopover({ 
   currentTextColor, 
   accentColor,
-  closeSidebar 
+  closeSidebar,
+  isAdmin = false
 }: SidebarNotificationsPopoverProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { unreadCount } = useUnreadNotifications();
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('user');
+  const [activeTab, setActiveTab] = useState(isAdmin ? 'admin' : 'user');
 
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['sidebar-notifications'],

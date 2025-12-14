@@ -681,6 +681,7 @@ export const Sidebar = ({
               currentTextColor={currentTextColor}
               accentColor={accentColor}
               closeSidebar={closeSidebar}
+              isAdmin={false}
             />
             <Link 
               to="/user/settings" 
@@ -738,6 +739,7 @@ export const Sidebar = ({
               currentTextColor={currentTextColor}
               accentColor={accentColor}
               closeSidebar={closeSidebar}
+              isAdmin={true}
             />
             <Link 
               to="/admin/cadastros" 
