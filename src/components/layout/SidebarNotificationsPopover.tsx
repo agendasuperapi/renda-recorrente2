@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 import { 
   Bell, 
@@ -59,6 +61,7 @@ export function SidebarNotificationsPopover({
   const queryClient = useQueryClient();
   const { unreadCount } = useUnreadNotifications(isAdmin);
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['sidebar-notifications', isAdmin],
@@ -154,7 +157,7 @@ export function SidebarNotificationsPopover({
     }
   };
 
-  const renderNotificationList = () => {
+  const renderNotificationList = (scrollHeight: string = "h-[280px]") => {
     if (isLoading) {
       return (
         <div className="flex items-center justify-center py-8">
@@ -196,7 +199,7 @@ export function SidebarNotificationsPopover({
             </Button>
           </div>
         )}
-        <ScrollArea className="h-[280px]">
+        <ScrollArea className={scrollHeight}>
           <div className="divide-y">
             {items.map((notification) => (
               <div
@@ -216,7 +219,7 @@ export function SidebarNotificationsPopover({
                         <p className={`text-xs font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
                           {notification.title}
                         </p>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
+                        <p className="text-xs text-muted-foreground line-clamp-2">
                           {notification.body}
                         </p>
                       </div>
@@ -253,49 +256,87 @@ export function SidebarNotificationsPopover({
     );
   };
 
+  const triggerButton = (
+    <button
+      className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full text-left"
+      style={{
+        backgroundColor: `${accentColor}15`,
+        color: currentTextColor
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.backgroundColor = `${accentColor}30`;
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.backgroundColor = `${accentColor}15`;
+      }}
+    >
+      <Bell size={18} />
+      <span className="flex-1">Notificações</span>
+      {unreadCount > 0 && (
+        <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </Badge>
+      )}
+    </button>
+  );
+
+  const headerContent = (
+    <div className="flex items-center justify-between p-3 border-b">
+      <h4 className="font-semibold text-sm">Notificações</h4>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 text-xs"
+        onClick={() => {
+          setOpen(false);
+          closeSidebar?.();
+          navigate(isAdmin ? '/admin/notifications' : '/user/notifications', { state: { isAdmin } });
+        }}
+      >
+        Ver todas
+        <ExternalLink className="h-3 w-3 ml-1" />
+      </Button>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>
+          {triggerButton}
+        </DrawerTrigger>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="border-b pb-3">
+            <div className="flex items-center justify-between">
+              <DrawerTitle>Notificações</DrawerTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => {
+                  setOpen(false);
+                  closeSidebar?.();
+                  navigate(isAdmin ? '/admin/notifications' : '/user/notifications', { state: { isAdmin } });
+                }}
+              >
+                Ver todas
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </Button>
+            </div>
+          </DrawerHeader>
+          {renderNotificationList("h-[calc(85vh-120px)]")}
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
-          className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full text-left"
-          style={{
-            backgroundColor: `${accentColor}15`,
-            color: currentTextColor
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = `${accentColor}30`;
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.backgroundColor = `${accentColor}15`;
-          }}
-        >
-          <Bell size={18} />
-          <span className="flex-1">Notificações</span>
-          {unreadCount > 0 && (
-            <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </Badge>
-          )}
-        </button>
+        {triggerButton}
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="start" side="right">
-        <div className="flex items-center justify-between p-3 border-b">
-          <h4 className="font-semibold text-sm">Notificações</h4>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 text-xs"
-            onClick={() => {
-              setOpen(false);
-              closeSidebar?.();
-              navigate(isAdmin ? '/admin/notifications' : '/user/notifications', { state: { isAdmin } });
-            }}
-          >
-            Ver todas
-            <ExternalLink className="h-3 w-3 ml-1" />
-          </Button>
-        </div>
-        
+        {headerContent}
         {renderNotificationList()}
       </PopoverContent>
     </Popover>
