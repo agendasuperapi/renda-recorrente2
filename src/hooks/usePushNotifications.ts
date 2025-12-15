@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 // VAPID public key - must match the one in Supabase secrets
-const VAPID_PUBLIC_KEY = 'BCopmAJ3b2wHc0y47nGaBHW4lFyHVWAK1GAK3CgjlEt9VYCu_pDCmbXQd6mlIzQXxzuAZwRXmEX-buQ6mW2Hh5g';
+const VAPID_PUBLIC_KEY = 'BEhHthbVv4EuWIbkAMWNTsIn-uQ8R0ejJoUynv9WDI-axKhi3fEy1scpP9sPh_3TnXOxniOybz8xuPbPJPQBZjA';
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
