@@ -678,6 +678,28 @@ export const Sidebar = ({
 
         {(!isAdmin || !showAdminMenu) && <>
             <Link 
+              to="/user/settings" 
+              onClick={() => closeSidebar?.()} 
+              className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
+              style={{
+                backgroundColor: location.pathname.startsWith("/user/settings") ? accentColor : `${accentColor}15`,
+                color: currentTextColor
+              }} 
+              onMouseEnter={e => {
+                if (!location.pathname.startsWith("/user/settings")) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }} 
+              onMouseLeave={e => {
+                if (!location.pathname.startsWith("/user/settings")) {
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
+                }
+              }}
+            >
+              <Settings size={18} />
+              <span>Configurações</span>
+            </Link>
+            <Link 
               to="/user/support" 
               onClick={() => closeSidebar?.()} 
               className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
@@ -710,28 +732,6 @@ export const Sidebar = ({
               closeSidebar={closeSidebar}
               isAdmin={false}
             />
-            <Link 
-              to="/user/settings" 
-              onClick={() => closeSidebar?.()} 
-              className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
-              style={{
-                backgroundColor: location.pathname.startsWith("/user/settings") ? accentColor : `${accentColor}15`,
-                color: currentTextColor
-              }} 
-              onMouseEnter={e => {
-                if (!location.pathname.startsWith("/user/settings")) {
-                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
-                }
-              }} 
-              onMouseLeave={e => {
-                if (!location.pathname.startsWith("/user/settings")) {
-                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
-                }
-              }}
-            >
-              <Settings size={18} />
-              <span>Configurações</span>
-            </Link>
           </>}
 
         {isAdmin && showAdminMenu && <>
