@@ -120,7 +120,7 @@ export default function Notifications() {
     },
   });
 
-  const { data: notifications, isLoading } = useQuery({
+  const { data: notifications, isLoading, isFetching } = useQuery({
     queryKey: ['notifications', isAdminMode, page, itemsPerPage, statusFilter, typeFilter],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -159,6 +159,7 @@ export default function Notifications() {
       if (error) throw error;
       return data || [];
     },
+    placeholderData: (previousData) => previousData,
   });
 
   const markAsRead = useMutation({
@@ -254,13 +255,7 @@ export default function Notifications() {
   const totalPages = Math.ceil((totalCount || 0) / itemsPerPage);
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  const isInitialLoading = isLoading && !notifications;
 
   const SettingsButton = (
     <Button variant="outline" size="icon">
@@ -380,12 +375,18 @@ export default function Notifications() {
         </div>
       </div>
 
-      <NotificationsList 
-        notifications={notifications || []}
-        onNotificationClick={handleNotificationClick}
-        onDelete={(id) => deleteNotification.mutate(id)}
-        typeIcons={typeIcons}
-      />
+      {isInitialLoading || isFetching ? (
+        <div className="flex items-center justify-center py-12 rounded-lg border bg-card">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <NotificationsList 
+          notifications={notifications || []}
+          onNotificationClick={handleNotificationClick}
+          onDelete={(id) => deleteNotification.mutate(id)}
+          typeIcons={typeIcons}
+        />
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
