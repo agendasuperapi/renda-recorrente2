@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { 
   Bell, 
   CheckCheck, 
@@ -15,11 +17,14 @@ import {
   MessageSquare,
   Target,
   CreditCard,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { NotificationsContent } from '@/components/settings/NotificationsContent';
 
 const typeIcons: Record<string, React.ReactNode> = {
   new_commission: <DollarSign className="h-5 w-5 text-primary" />,
@@ -43,7 +48,9 @@ export default function Notifications() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   
   // Detect if user is in admin mode based on route OR location state
   const isAdminMode = location.pathname.startsWith('/admin') || location.state?.isAdmin === true;
@@ -152,6 +159,18 @@ export default function Notifications() {
     );
   }
 
+  const SettingsButton = (
+    <Button variant="outline" size="icon">
+      <Settings className="h-4 w-4" />
+    </Button>
+  );
+
+  const SettingsContentWrapper = (
+    <ScrollArea className="h-[calc(100vh-120px)] pr-4">
+      <NotificationsContent />
+    </ScrollArea>
+  );
+
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -167,20 +186,52 @@ export default function Notifications() {
           </p>
         </div>
         
-        {unreadCount > 0 && (
-          <Button
-            variant="outline"
-            onClick={() => markAllAsRead.mutate()}
-            disabled={isMarkingAll}
-          >
-            {isMarkingAll ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <CheckCheck className="h-4 w-4 mr-2" />
-            )}
-            Marcar todas como lidas
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {unreadCount > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => markAllAsRead.mutate()}
+              disabled={isMarkingAll}
+            >
+              {isMarkingAll ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <CheckCheck className="h-4 w-4 mr-2" />
+              )}
+              Marcar todas como lidas
+            </Button>
+          )}
+          
+          {isMobile ? (
+            <Drawer open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <DrawerTrigger asChild>
+                {SettingsButton}
+              </DrawerTrigger>
+              <DrawerContent className="max-h-[90vh]">
+                <DrawerHeader>
+                  <DrawerTitle>Configurações de Notificações</DrawerTitle>
+                </DrawerHeader>
+                <div className="px-4 pb-6">
+                  {SettingsContentWrapper}
+                </div>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <SheetTrigger asChild>
+                {SettingsButton}
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Configurações de Notificações</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  {SettingsContentWrapper}
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
+        </div>
       </div>
 
       <NotificationsList 
