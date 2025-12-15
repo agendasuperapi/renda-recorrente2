@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Bell, 
   CheckCheck, 
@@ -18,7 +18,10 @@ import {
   Target,
   CreditCard,
   AlertCircle,
-  Settings
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Filter
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -41,8 +44,24 @@ const typeIcons: Record<string, React.ReactNode> = {
   test: <Bell className="h-5 w-5 text-muted-foreground" />,
 };
 
+const typeLabels: Record<string, string> = {
+  new_commission: 'Comissão',
+  withdrawal_paid: 'Saque Pago',
+  withdrawal_day: 'Dia de Saque',
+  new_sub_affiliate: 'Sub-Afiliado',
+  new_support_message: 'Suporte',
+  goal_achieved: 'Meta Atingida',
+  new_affiliate: 'Novo Afiliado',
+  new_payment: 'Pagamento',
+  new_withdrawal_request: 'Solicitação Saque',
+  new_version: 'Nova Versão',
+  admin_new_support_message: 'Suporte (Admin)',
+  test: 'Teste',
+};
+
 // Admin notification types
 const adminTypes = ['new_affiliate', 'new_payment', 'new_withdrawal_request', 'new_version', 'admin_new_support_message'];
+const userTypes = ['new_commission', 'withdrawal_paid', 'withdrawal_day', 'new_sub_affiliate', 'new_support_message', 'goal_achieved', 'test'];
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -52,28 +71,93 @@ export default function Notifications() {
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  
+  // Filter state
+  const [statusFilter, setStatusFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  
   // Detect if user is in admin mode based on route OR location state
   const isAdminMode = location.pathname.startsWith('/admin') || location.state?.isAdmin === true;
+  const availableTypes = isAdminMode ? adminTypes : userTypes;
+
+  // Fetch total count for pagination
+  const { data: totalCount } = useQuery({
+    queryKey: ['notifications-count', isAdminMode, statusFilter, typeFilter],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
+      let query = supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      // Filter by admin/user types
+      if (isAdminMode) {
+        query = query.in('type', adminTypes);
+      } else {
+        query = query.not('type', 'in', `(${adminTypes.join(',')})`);
+      }
+
+      // Apply status filter
+      if (statusFilter === 'unread') {
+        query = query.eq('is_read', false);
+      } else if (statusFilter === 'read') {
+        query = query.eq('is_read', true);
+      }
+
+      // Apply type filter
+      if (typeFilter !== 'all') {
+        query = query.eq('type', typeFilter);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      return count || 0;
+    },
+  });
 
   const { data: notifications, isLoading } = useQuery({
-    queryKey: ['notifications', isAdminMode],
+    queryKey: ['notifications', isAdminMode, page, itemsPerPage, statusFilter, typeFilter],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { data, error } = await supabase
+      const from = (page - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      let query = supabase
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .range(from, to);
 
+      // Filter by admin/user types
+      if (isAdminMode) {
+        query = query.in('type', adminTypes);
+      } else {
+        query = query.not('type', 'in', `(${adminTypes.join(',')})`);
+      }
+
+      // Apply status filter
+      if (statusFilter === 'unread') {
+        query = query.eq('is_read', false);
+      } else if (statusFilter === 'read') {
+        query = query.eq('is_read', true);
+      }
+
+      // Apply type filter
+      if (typeFilter !== 'all') {
+        query = query.eq('type', typeFilter);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
-      
-      // Filter by type based on mode
-      return isAdminMode
-        ? data?.filter(n => adminTypes.includes(n.type)) || []
-        : data?.filter(n => !adminTypes.includes(n.type)) || [];
+      return data || [];
     },
   });
 
@@ -87,9 +171,10 @@ export default function Notifications() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', isAdminMode] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdminMode] });
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
     },
   });
 
@@ -116,9 +201,10 @@ export default function Notifications() {
     onMutate: () => setIsMarkingAll(true),
     onSettled: () => setIsMarkingAll(false),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', isAdminMode] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdminMode] });
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
     },
   });
 
@@ -132,9 +218,10 @@ export default function Notifications() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', isAdminMode] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdminMode] });
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications-count'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
     },
   });
 
@@ -148,7 +235,23 @@ export default function Notifications() {
     }
   };
 
-  // Notifications already filtered by queryFn
+  // Reset page when filters change
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value as 'all' | 'unread' | 'read');
+    setPage(1);
+  };
+
+  const handleTypeFilterChange = (value: string) => {
+    setTypeFilter(value);
+    setPage(1);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setPage(1);
+  };
+
+  const totalPages = Math.ceil((totalCount || 0) / itemsPerPage);
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   if (isLoading) {
@@ -180,9 +283,7 @@ export default function Notifications() {
             Notificações {isAdminMode ? '(Admin)' : ''}
           </h1>
           <p className="text-muted-foreground">
-            {unreadCount > 0 
-              ? `Você tem ${unreadCount} notificação${unreadCount > 1 ? 'ões' : ''} não lida${unreadCount > 1 ? 's' : ''}`
-              : 'Nenhuma notificação não lida'}
+            {totalCount} notificação{totalCount !== 1 ? 'ões' : ''}
           </p>
         </div>
         
@@ -234,12 +335,86 @@ export default function Notifications() {
         </div>
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-lg border bg-card">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        
+        <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas</SelectItem>
+            <SelectItem value="unread">Não lidas</SelectItem>
+            <SelectItem value="read">Lidas</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={typeFilter} onValueChange={handleTypeFilterChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os tipos</SelectItem>
+            {availableTypes.map(type => (
+              <SelectItem key={type} value={type}>
+                {typeLabels[type] || type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="flex items-center gap-2 ml-auto">
+          <span className="text-sm text-muted-foreground">Por página:</span>
+          <Select value={String(itemsPerPage)} onValueChange={handleItemsPerPageChange}>
+            <SelectTrigger className="w-[80px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <NotificationsList 
         notifications={notifications || []}
         onNotificationClick={handleNotificationClick}
         onDelete={(id) => deleteNotification.mutate(id)}
         typeIcons={typeIcons}
       />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+          <div className="text-sm text-muted-foreground">
+            Página {page} de {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Próxima
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
