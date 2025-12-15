@@ -57,11 +57,11 @@ export function SidebarNotificationsPopover({
 }: SidebarNotificationsPopoverProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { unreadCount } = useUnreadNotifications();
+  const { unreadCount } = useUnreadNotifications(isAdmin);
   const [open, setOpen] = useState(false);
 
   const { data: notifications, isLoading } = useQuery({
-    queryKey: ['sidebar-notifications'],
+    queryKey: ['sidebar-notifications', isAdmin],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -74,7 +74,11 @@ export function SidebarNotificationsPopover({
         .limit(50);
 
       if (error) throw error;
-      return data;
+      
+      // Filter by type based on mode
+      return isAdmin
+        ? data?.filter(n => adminTypes.includes(n.type)) || []
+        : data?.filter(n => !adminTypes.includes(n.type)) || [];
     },
     enabled: open,
   });
@@ -89,14 +93,14 @@ export function SidebarNotificationsPopover({
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdmin] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdmin] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', isAdmin] });
     },
   });
 
   const markAllAsRead = useMutation({
-    mutationFn: async (type: 'user' | 'admin') => {
+    mutationFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
@@ -106,7 +110,7 @@ export function SidebarNotificationsPopover({
         .eq('user_id', user.id)
         .eq('is_read', false);
 
-      if (type === 'admin') {
+      if (isAdmin) {
         query = query.in('type', adminTypes);
       } else {
         query = query.not('type', 'in', `(${adminTypes.join(',')})`);
@@ -116,9 +120,9 @@ export function SidebarNotificationsPopover({
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdmin] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdmin] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', isAdmin] });
     },
   });
 
@@ -132,9 +136,9 @@ export function SidebarNotificationsPopover({
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdmin] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdmin] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', isAdmin] });
     },
   });
 
@@ -150,14 +154,7 @@ export function SidebarNotificationsPopover({
     }
   };
 
-  // Separate notifications by type
-  const userNotifications = notifications?.filter(n => !adminTypes.includes(n.type)) || [];
-  const adminNotifications = notifications?.filter(n => adminTypes.includes(n.type)) || [];
-
-  const userUnreadCount = userNotifications.filter(n => !n.is_read).length;
-  const adminUnreadCount = adminNotifications.filter(n => !n.is_read).length;
-
-  const renderNotificationList = (items: any[], type: 'user' | 'admin') => {
+  const renderNotificationList = () => {
     if (isLoading) {
       return (
         <div className="flex items-center justify-center py-8">
@@ -165,6 +162,8 @@ export function SidebarNotificationsPopover({
         </div>
       );
     }
+
+    const items = notifications || [];
 
     if (!items || items.length === 0) {
       return (
@@ -185,7 +184,7 @@ export function SidebarNotificationsPopover({
               variant="ghost"
               size="sm"
               className="w-full text-xs"
-              onClick={() => markAllAsRead.mutate(type)}
+              onClick={() => markAllAsRead.mutate()}
               disabled={markAllAsRead.isPending}
             >
               {markAllAsRead.isPending ? (
@@ -289,7 +288,7 @@ export function SidebarNotificationsPopover({
             onClick={() => {
               setOpen(false);
               closeSidebar?.();
-              navigate('/user/notifications');
+              navigate(isAdmin ? '/admin/notifications' : '/user/notifications', { state: { isAdmin } });
             }}
           >
             Ver todas
@@ -297,10 +296,7 @@ export function SidebarNotificationsPopover({
           </Button>
         </div>
         
-        {isAdmin 
-          ? renderNotificationList(adminNotifications, 'admin')
-          : renderNotificationList(userNotifications, 'user')
-        }
+        {renderNotificationList()}
       </PopoverContent>
     </Popover>
   );
