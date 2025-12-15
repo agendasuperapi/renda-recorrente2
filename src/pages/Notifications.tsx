@@ -350,10 +350,18 @@ export default function Notifications() {
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
+            <SelectItem value="all">
+              <span className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                Todos os tipos
+              </span>
+            </SelectItem>
             {availableTypes.map(type => (
               <SelectItem key={type} value={type}>
-                {typeLabels[type] || type}
+                <span className="flex items-center gap-2">
+                  {typeIcons[type] || <Bell className="h-4 w-4 text-muted-foreground" />}
+                  {typeLabels[type] || type}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
