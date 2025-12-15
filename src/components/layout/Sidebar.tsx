@@ -677,12 +677,6 @@ export const Sidebar = ({
       })}
 
         {(!isAdmin || !showAdminMenu) && <>
-            <SidebarNotificationsPopover 
-              currentTextColor={currentTextColor}
-              accentColor={accentColor}
-              closeSidebar={closeSidebar}
-              isAdmin={false}
-            />
             <Link 
               to="/user/settings" 
               onClick={() => closeSidebar?.()} 
@@ -732,15 +726,15 @@ export const Sidebar = ({
                 </Badge>
               )}
             </Link>
-          </>}
-
-        {isAdmin && showAdminMenu && <>
             <SidebarNotificationsPopover 
               currentTextColor={currentTextColor}
               accentColor={accentColor}
               closeSidebar={closeSidebar}
-              isAdmin={true}
+              isAdmin={false}
             />
+          </>}
+
+        {isAdmin && showAdminMenu && <>
             <Link 
               to="/admin/cadastros" 
               onClick={() => closeSidebar?.()} 
@@ -786,6 +780,12 @@ export const Sidebar = ({
               <Settings size={18} />
               <span>Configurações</span>
             </Link>
+            <SidebarNotificationsPopover 
+              currentTextColor={currentTextColor}
+              accentColor={accentColor}
+              closeSidebar={closeSidebar}
+              isAdmin={true}
+            />
           </>}
       </nav>
 
