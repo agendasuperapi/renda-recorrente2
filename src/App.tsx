@@ -128,6 +128,7 @@ const App = () => {
               <Route path="/admin/versions" element={<AdminVersions />} />
               <Route path="/admin/cadastros" element={<AdminCadastros />} />
               <Route path="/admin/support" element={<AdminSupport />} />
+              <Route path="/admin/notifications" element={<Notifications />} />
               <Route path="/admin/activities" element={<AdminUserActivities />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />
               <Route path="/admin/commission-processing" element={<Navigate to="/admin/commissions?tab=processing" replace />} />
