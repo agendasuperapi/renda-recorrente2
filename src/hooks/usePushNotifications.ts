@@ -2,8 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-// VAPID public key - must match the one in Supabase secrets
-const VAPID_PUBLIC_KEY = 'BEhHthbVv4EuWIbkAMWNTsIn-uQ8R0ejJoUynv9WDI-axKhi3fEy1scpP9sPh_3TnXOxniOybz8xuPbPJPQBZjA';
+// VAPID public key comes from Supabase (to avoid mismatch between frontend and backend secrets)
+let cachedVapidPublicKey: string | null = null;
+
+async function getVapidPublicKey(): Promise<string> {
+  if (cachedVapidPublicKey) return cachedVapidPublicKey;
+
+  const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
+  if (error) throw error;
+
+  const publicKey = (data as { publicKey?: string } | null)?.publicKey;
+  if (!publicKey) throw new Error('VAPID public key não configurada');
+
+  cachedVapidPublicKey = publicKey;
+  return publicKey;
+}
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -180,9 +193,11 @@ export function usePushNotifications() {
       }
 
       // Subscribe to push
+      const vapidPublicKey = await getVapidPublicKey();
+
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer,
       });
 
       const { data: { user } } = await supabase.auth.getUser();
