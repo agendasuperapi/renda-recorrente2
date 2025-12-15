@@ -45,11 +45,11 @@ export default function Notifications() {
   const queryClient = useQueryClient();
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   
-  // Detect if user is in admin mode based on route
-  const isAdminMode = location.pathname.startsWith('/admin');
+  // Detect if user is in admin mode based on route OR location state
+  const isAdminMode = location.pathname.startsWith('/admin') || location.state?.isAdmin === true;
 
   const { data: notifications, isLoading } = useQuery({
-    queryKey: ['notifications'],
+    queryKey: ['notifications', isAdminMode],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -62,7 +62,11 @@ export default function Notifications() {
         .limit(100);
 
       if (error) throw error;
-      return data;
+      
+      // Filter by type based on mode
+      return isAdminMode
+        ? data?.filter(n => adminTypes.includes(n.type)) || []
+        : data?.filter(n => !adminTypes.includes(n.type)) || [];
     },
   });
 
@@ -76,9 +80,9 @@ export default function Notifications() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdminMode] });
     },
   });
 
@@ -105,9 +109,9 @@ export default function Notifications() {
     onMutate: () => setIsMarkingAll(true),
     onSettled: () => setIsMarkingAll(false),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdminMode] });
     },
   });
 
@@ -121,9 +125,9 @@ export default function Notifications() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count'] });
-      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notifications-count', isAdminMode] });
+      queryClient.invalidateQueries({ queryKey: ['sidebar-notifications', isAdminMode] });
     },
   });
 
@@ -137,12 +141,8 @@ export default function Notifications() {
     }
   };
 
-  // Filter notifications based on current mode
-  const currentNotifications = isAdminMode 
-    ? notifications?.filter(n => adminTypes.includes(n.type)) || []
-    : notifications?.filter(n => !adminTypes.includes(n.type)) || [];
-
-  const unreadCount = currentNotifications.filter(n => !n.is_read).length;
+  // Notifications already filtered by queryFn
+  const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   if (isLoading) {
     return (
@@ -184,7 +184,7 @@ export default function Notifications() {
       </div>
 
       <NotificationsList 
-        notifications={currentNotifications}
+        notifications={notifications || []}
         onNotificationClick={handleNotificationClick}
         onDelete={(id) => deleteNotification.mutate(id)}
         typeIcons={typeIcons}
