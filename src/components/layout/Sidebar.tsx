@@ -100,10 +100,6 @@ const adminMenuItems = [{
   icon: Activity,
   label: "Atividades",
   path: "/admin/activities"
-}, {
-  icon: Headphones,
-  label: "Suporte",
-  path: "/admin/support"
 }];
 export const Sidebar = ({
   user,
@@ -780,7 +776,34 @@ export const Sidebar = ({
               <Settings size={18} />
               <span>Configurações</span>
             </Link>
-            <SidebarNotificationsPopover 
+            <Link 
+              to="/admin/support" 
+              onClick={() => closeSidebar?.()} 
+              className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")} 
+              style={{
+                backgroundColor: location.pathname === "/admin/support" ? accentColor : `${accentColor}15`,
+                color: currentTextColor
+              }} 
+              onMouseEnter={e => {
+                if (location.pathname !== "/admin/support") {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }
+              }} 
+              onMouseLeave={e => {
+                if (location.pathname !== "/admin/support") {
+                  e.currentTarget.style.backgroundColor = `${accentColor}15`;
+                }
+              }}
+            >
+              <Headphones size={18} />
+              <span className="flex-1">Suporte</span>
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Badge>
+              )}
+            </Link>
+            <SidebarNotificationsPopover
               currentTextColor={currentTextColor}
               accentColor={accentColor}
               closeSidebar={closeSidebar}
