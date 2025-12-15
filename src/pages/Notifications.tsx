@@ -254,74 +254,64 @@ interface NotificationsListProps {
 function NotificationsList({ notifications, onNotificationClick, onDelete, typeIcons }: NotificationsListProps) {
   if (!notifications || notifications.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-0">
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Bell className="h-12 w-12 mb-4 opacity-20" />
-            <p>Nenhuma notificação</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border bg-card">
+        <Bell className="h-12 w-12 mb-4 opacity-20" />
+        <p>Nenhuma notificação</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-320px)]">
-          <div className="divide-y">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
-                  !notification.is_read ? 'bg-primary/5' : ''
-                }`}
-                onClick={() => onNotificationClick(notification)}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-1">
-                    {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className={`font-medium ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {notification.title}
-                        </p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {notification.body}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {!notification.is_read && (
-                          <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(notification.id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(notification.created_at), { 
-                        addSuffix: true,
-                        locale: ptBR 
-                      })}
-                    </p>
-                  </div>
+    <div className="divide-y rounded-lg border bg-card">
+      {notifications.map((notification) => (
+        <div
+          key={notification.id}
+          className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
+            !notification.is_read ? 'bg-primary/5' : ''
+          }`}
+          onClick={() => onNotificationClick(notification)}
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-1">
+              {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className={`font-medium ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {notification.title}
+                  </p>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {notification.body}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {!notification.is_read && (
+                    <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(notification.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
                 </div>
               </div>
-            ))}
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatDistanceToNow(new Date(notification.created_at), { 
+                  addSuffix: true,
+                  locale: ptBR 
+                })}
+              </p>
+            </div>
           </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+        </div>
+      ))}
+    </div>
   );
 }
