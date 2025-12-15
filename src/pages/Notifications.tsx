@@ -335,8 +335,7 @@ export default function Notifications() {
         <Filter className="h-4 w-4 text-muted-foreground" />
         
         <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-          <SelectTrigger className="w-[160px]">
-            <CheckCheck className="h-4 w-4 mr-2 text-muted-foreground" />
+          <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -347,8 +346,7 @@ export default function Notifications() {
         </Select>
 
         <Select value={typeFilter} onValueChange={handleTypeFilterChange}>
-          <SelectTrigger className="w-[200px]">
-            <Bell className="h-4 w-4 mr-2 text-muted-foreground" />
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
