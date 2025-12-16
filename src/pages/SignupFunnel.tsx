@@ -12,6 +12,7 @@ import { z } from "zod";
 import { GradientEditor } from "@/components/GradientEditor";
 import logoVerde from "@/assets/logo-renda-verde.png";
 import logoBranco from "@/assets/logo-renda-branco.png";
+import { processExternalAvatar, uploadAvatarToStorage } from "@/lib/avatarUtils";
 interface GradientConfig {
   block_name: string;
   color_start: string;
@@ -431,12 +432,20 @@ export default function SignupFunnel() {
         throw new Error("Erro ao criar usuário");
       }
 
-      // Atualizar avatar do profile em modo de teste
+      // Processar e fazer upload do avatar de teste nas duas resoluções
       if (testAvatarUrl) {
-        await supabase
-          .from('profiles')
-          .update({ avatar_url: testAvatarUrl })
-          .eq('id', authData.user.id);
+        try {
+          const avatarImages = await processExternalAvatar(testAvatarUrl);
+          const uploadedAvatarUrl = await uploadAvatarToStorage(authData.user.id, avatarImages);
+          
+          await supabase
+            .from('profiles')
+            .update({ avatar_url: uploadedAvatarUrl })
+            .eq('id', authData.user.id);
+        } catch (avatarError) {
+          console.error('Erro ao processar avatar de teste:', avatarError);
+          // Não bloqueia o fluxo, apenas loga o erro
+        }
       }
 
       // Capturar dados do cupom da URL
