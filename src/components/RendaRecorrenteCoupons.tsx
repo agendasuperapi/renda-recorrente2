@@ -748,9 +748,15 @@ export const RendaRecorrenteCoupons = () => {
                         </p>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            {isActivated ? <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
-                                {coupon.activatedCoupon?.custom_code}
-                              </code> : <>
+                            {isActivated ? <>
+                                <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
+                                  {coupon.activatedCoupon?.custom_code}
+                                </code>
+                                <Copy 
+                                  className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary" 
+                                  onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                                />
+                              </> : <>
                                 <span className="text-xs text-muted-foreground">
                                   Seu cupom será:
                                 </span>
