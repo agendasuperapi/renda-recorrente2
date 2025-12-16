@@ -3585,6 +3585,8 @@ export type Database = {
           plan_period: string | null
           plan_status: string | null
           referrals_count: number | null
+          referrer_code: string | null
+          referrer_name: string | null
           username: string | null
           withdrawal_day: number | null
         }

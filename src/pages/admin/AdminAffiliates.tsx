@@ -31,6 +31,8 @@ interface AdminAffiliate {
   plan_status: string;
   referrals_count: number;
   withdrawal_day: number | null;
+  referrer_code: string | null;
+  referrer_name: string | null;
 }
 import {
   Pagination,
@@ -427,8 +429,8 @@ const AdminAffiliates = () => {
                   </button>
                 </TableHead>
                 <TableHead>Username</TableHead>
+                <TableHead>Indicador</TableHead>
                 <TableHead>Plano</TableHead>
-                <TableHead>Período</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>
                   <button 
@@ -490,10 +492,19 @@ const AdminAffiliates = () => {
                     </TableCell>
                     <TableCell>{affiliate.email || "-"}</TableCell>
                     <TableCell>{affiliate.username || "-"}</TableCell>
-                    <TableCell>{affiliate.plan_name}</TableCell>
-                    <TableCell className="capitalize">
-                      {affiliate.plan_period === "daily" ? "Diário" : affiliate.plan_period === "monthly" ? "Mensal" : affiliate.plan_period === "annual" ? "Anual" : affiliate.plan_period}
+                    <TableCell>
+                      {affiliate.referrer_code || affiliate.referrer_name ? (
+                        <div className="flex flex-col gap-0.5">
+                          {affiliate.referrer_code && (
+                            <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{affiliate.referrer_code}</span>
+                          )}
+                          {affiliate.referrer_name && (
+                            <span className="text-xs text-muted-foreground truncate max-w-[120px]">{affiliate.referrer_name}</span>
+                          )}
+                        </div>
+                      ) : "-"}
                     </TableCell>
+                    <TableCell>{affiliate.plan_name}</TableCell>
                     <TableCell>
                         <Badge variant={getStatusBadge(affiliate.plan_status)}>
                           {affiliate.plan_status === "active" 
