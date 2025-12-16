@@ -62,7 +62,7 @@ export const DashboardLayout = () => {
         return false;
       } else {
         const role = data?.role || 'afiliado';
-        const adminStatus = role === "super_admin";
+        const adminStatus = role === "super_admin" || (role as string).includes("admin");
         setIsAdmin(adminStatus);
         localStorage.setItem(`user_role_${userId}`, role);
         return adminStatus;
