@@ -7,7 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
 
 export const SystemErrorsAlert = () => {
   const navigate = useNavigate();
@@ -32,15 +31,12 @@ export const SystemErrorsAlert = () => {
         <TooltipTrigger asChild>
           <button
             onClick={handleClick}
-            className="relative flex items-center justify-center p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 transition-colors border border-destructive/30"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/20 hover:bg-destructive/30 transition-all border border-destructive/50 shadow-md shadow-destructive/20 animate-pulse hover:animate-none"
           >
             <AlertTriangle className="h-5 w-5 text-destructive" />
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1.5 -right-1.5 h-5 min-w-5 flex items-center justify-center p-0 text-xs"
-            >
-              {errors.totalErrors}
-            </Badge>
+            <span className="text-sm font-medium text-destructive">
+              {errors.totalErrors} {errors.totalErrors === 1 ? 'erro' : 'erros'}
+            </span>
           </button>
         </TooltipTrigger>
         <TooltipContent side="right" className="max-w-xs">
