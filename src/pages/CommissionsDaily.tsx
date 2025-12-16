@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
-import { format, subDays } from "date-fns";
+import { format, subDays, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -626,7 +626,7 @@ const CommissionsDaily = ({
                             <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
                           </div>
                           <span className="text-sm font-semibold text-foreground/80">
-                            {format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+                            {format(parseISO(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
                       locale: ptBR
                     })}
                           </span>
@@ -786,7 +786,7 @@ const CommissionsDaily = ({
                                 <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10">
                                   <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
                                 </div>
-                                <span>{format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+                                <span>{format(parseISO(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
                             locale: ptBR
                           })}</span>
                               </div>
