@@ -519,9 +519,10 @@ export default function SignupFunnel() {
         }
 
         // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
-        // No editor da Lovable, abrir em nova aba. Quando publicado, redirecionar na mesma aba
+        // No editor da Lovable, abrir em nova aba e navegar para dashboard. Quando publicado, redirecionar na mesma aba
         if (import.meta.env.DEV) {
           window.open(checkoutData.checkout_url, '_blank');
+          navigate('/user/dashboard');
         } else {
           window.location.href = checkoutData.checkout_url;
         }
