@@ -654,8 +654,6 @@ export const RendaRecorrenteCoupons = () => {
                       
                       {/* Botões 2x2 */}
                       {isActivated ? isActive ? <div className="grid grid-cols-2 gap-2">
-                            
-                            {affiliateLink}
                             <Button variant="outline" size="sm" className="w-full" onClick={() => {
                     const link = affiliateLink || "";
                     const code = coupon.activatedCoupon?.custom_code || customCode;
