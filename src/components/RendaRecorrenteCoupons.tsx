@@ -568,6 +568,7 @@ export const RendaRecorrenteCoupons = () => {
             const isActivated = !!coupon.activatedCoupon;
             const isActive = coupon.activatedCoupon?.is_active;
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
+            const affiliateLink = getAffiliateLink(coupon);
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
                     <div className={`p-3 border rounded-lg bg-card transition-all duration-300 hover:shadow-md flex items-center gap-3 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                       <div className="flex-1 space-y-2 min-w-0 cursor-pointer" onClick={() => {
@@ -585,6 +586,17 @@ export const RendaRecorrenteCoupons = () => {
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
                           {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
                         </div>
+                        
+                        {/* Linha 3: Link de afiliado */}
+                        {isActivated && affiliateLink && (
+                          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            <Copy 
+                              className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" 
+                              onClick={() => handleCopy(affiliateLink)}
+                            />
+                            <span className="text-xs text-muted-foreground truncate">{affiliateLink}</span>
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {!isActivated ? (
