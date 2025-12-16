@@ -585,11 +585,6 @@ export const RendaRecorrenteCoupons = () => {
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
                           {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
                         </div>
-                        
-                        {/* Linha 3: Código */}
-                        <code className="text-xs font-mono text-muted-foreground truncate block bg-muted/50 rounded px-2 py-1">
-                          {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                        </code>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {!isActivated ? (
