@@ -47,36 +47,54 @@ async function createVapidJwt(
 ): Promise<string> {
   const header = { typ: 'JWT', alg: 'ES256' };
   const now = Math.floor(Date.now() / 1000);
+  // Apple is strict - use shorter expiration (1 hour)
   const payload = {
     aud: audience,
-    exp: now + 12 * 60 * 60,
+    exp: now + 60 * 60, // 1 hour
     sub: subject,
   };
+
+  console.log(`Creating JWT for audience: ${audience}, subject: ${subject}`);
 
   const headerB64 = uint8ArrayToBase64Url(new TextEncoder().encode(JSON.stringify(header)));
   const payloadB64 = uint8ArrayToBase64Url(new TextEncoder().encode(JSON.stringify(payload)));
   const unsignedToken = `${headerB64}.${payloadB64}`;
 
-  // For VAPID, we need the full EC key pair as JWK
-  // The private key is 32 bytes, public key is 65 bytes (uncompressed P-256)
+  // The private key should be the raw 32-byte 'd' value
+  // The public key should be 65 bytes (uncompressed P-256: 0x04 + 32 bytes x + 32 bytes y)
   const privateKeyBytes = base64UrlToUint8Array(vapidPrivateKey);
   const publicKeyBytes = base64UrlToUint8Array(vapidPublicKey);
 
-  // Extract x and y from uncompressed public key (starts with 0x04, then 32 bytes x, 32 bytes y)
+  console.log(`Private key length: ${privateKeyBytes.length}, Public key length: ${publicKeyBytes.length}`);
+
+  if (privateKeyBytes.length !== 32) {
+    throw new Error(`Invalid private key length: ${privateKeyBytes.length}, expected 32`);
+  }
+  if (publicKeyBytes.length !== 65) {
+    throw new Error(`Invalid public key length: ${publicKeyBytes.length}, expected 65`);
+  }
+  if (publicKeyBytes[0] !== 0x04) {
+    throw new Error(`Invalid public key format: first byte is ${publicKeyBytes[0]}, expected 0x04`);
+  }
+
+  // Extract x and y from uncompressed public key
   const x = uint8ArrayToBase64Url(publicKeyBytes.slice(1, 33));
   const y = uint8ArrayToBase64Url(publicKeyBytes.slice(33, 65));
-  const d = uint8ArrayToBase64Url(privateKeyBytes);
+  // The private key IS the d value directly
+  const d = vapidPrivateKey;
 
   try {
+    const jwk = {
+      kty: 'EC',
+      crv: 'P-256',
+      x: x,
+      y: y,
+      d: d,
+    };
+
     const cryptoKey = await crypto.subtle.importKey(
       'jwk',
-      {
-        kty: 'EC',
-        crv: 'P-256',
-        x: x,
-        y: y,
-        d: d,
-      },
+      jwk,
       { name: 'ECDSA', namedCurve: 'P-256' },
       false,
       ['sign']
@@ -88,8 +106,19 @@ async function createVapidJwt(
       new TextEncoder().encode(unsignedToken)
     );
 
-    const signatureB64 = uint8ArrayToBase64Url(signatureBuffer);
-    return `${unsignedToken}.${signatureB64}`;
+    // Ensure signature is exactly 64 bytes (R: 32 bytes, S: 32 bytes)
+    const signature = new Uint8Array(signatureBuffer);
+    console.log(`Signature length: ${signature.length}`);
+    
+    if (signature.length !== 64) {
+      console.error(`Unexpected signature length: ${signature.length}`);
+    }
+
+    const signatureB64 = uint8ArrayToBase64Url(signature);
+    const jwt = `${unsignedToken}.${signatureB64}`;
+    
+    console.log(`JWT created successfully, length: ${jwt.length}`);
+    return jwt;
   } catch (error) {
     console.error('Error creating VAPID JWT:', error);
     throw error;
