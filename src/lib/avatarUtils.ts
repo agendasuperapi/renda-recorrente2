@@ -13,16 +13,30 @@ export interface AvatarSizes {
 }
 
 /**
- * Create an HTMLImageElement from a URL
+ * Create an HTMLImageElement from a URL (handles CORS via blob conversion)
  */
-const createImage = (url: string): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
+const createImage = async (url: string): Promise<HTMLImageElement> => {
+  // Fetch the image as blob to avoid CORS issues
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.status}`);
+  }
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  
+  return new Promise((resolve, reject) => {
     const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.addEventListener("load", () => resolve(image));
-    image.addEventListener("error", (error) => reject(error));
-    image.src = url;
+    image.addEventListener("load", () => {
+      URL.revokeObjectURL(objectUrl); // Clean up
+      resolve(image);
+    });
+    image.addEventListener("error", (error) => {
+      URL.revokeObjectURL(objectUrl); // Clean up
+      reject(error);
+    });
+    image.src = objectUrl;
   });
+};
 
 /**
  * Generate an image at a specific size and quality
