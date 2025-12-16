@@ -62,8 +62,16 @@ async function createVapidJwt(
 
   // The private key should be the raw 32-byte 'd' value
   // The public key should be 65 bytes (uncompressed P-256: 0x04 + 32 bytes x + 32 bytes y)
-  const privateKeyBytes = base64UrlToUint8Array(vapidPrivateKey);
-  const publicKeyBytes = base64UrlToUint8Array(vapidPublicKey);
+  // Normalize to strict base64url (no padding) to satisfy stricter push services (e.g., Apple)
+  const normalizedPrivateKey = uint8ArrayToBase64Url(
+    base64UrlToUint8Array(vapidPrivateKey.trim())
+  );
+  const normalizedPublicKey = uint8ArrayToBase64Url(
+    base64UrlToUint8Array(vapidPublicKey.trim())
+  );
+
+  const privateKeyBytes = base64UrlToUint8Array(normalizedPrivateKey);
+  const publicKeyBytes = base64UrlToUint8Array(normalizedPublicKey);
 
   console.log(`Private key length: ${privateKeyBytes.length}, Public key length: ${publicKeyBytes.length}`);
 
@@ -80,8 +88,7 @@ async function createVapidJwt(
   // Extract x and y from uncompressed public key
   const x = uint8ArrayToBase64Url(publicKeyBytes.slice(1, 33));
   const y = uint8ArrayToBase64Url(publicKeyBytes.slice(33, 65));
-  // The private key IS the d value directly
-  const d = vapidPrivateKey;
+  const d = normalizedPrivateKey;
 
   try {
     const jwk = {
@@ -303,9 +310,15 @@ async function sendWebPush(
     const endpointUrl = new URL(subscription.endpoint);
     const audience = endpointUrl.origin;
 
+    // Normalize the public key for HTTP header usage (strict base64url, no padding)
+    const normalizedVapidPublicKey = uint8ArrayToBase64Url(
+      base64UrlToUint8Array(vapidPublicKey.trim())
+    );
+
     // Create VAPID JWT
-    const jwt = await createVapidJwt(audience, vapidSubject, vapidPrivateKey, vapidPublicKey);
-    const authHeader = `vapid t=${jwt},k=${vapidPublicKey}`;
+    const jwt = await createVapidJwt(audience, vapidSubject.trim(), vapidPrivateKey, normalizedVapidPublicKey);
+    // Space after comma is more interoperable (some services are strict)
+    const authHeader = `vapid t=${jwt}, k=${normalizedVapidPublicKey}`;
 
     // Encrypt the payload
     const encrypted = await encryptPayload(
