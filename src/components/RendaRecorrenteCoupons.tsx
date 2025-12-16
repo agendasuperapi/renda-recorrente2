@@ -572,9 +572,9 @@ export const RendaRecorrenteCoupons = () => {
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
                     <div className={`p-3 border rounded-lg bg-card transition-all duration-300 hover:shadow-md flex items-center gap-3 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
                       <div className="flex-1 space-y-2 min-w-0 cursor-pointer" onClick={() => {
-                        setSelectedCoupon(coupon);
-                        setDetailsOpen(true);
-                      }}>
+                  setSelectedCoupon(coupon);
+                  setDetailsOpen(true);
+                }}>
                         {/* Linha 1: Nome */}
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-semibold text-sm">{coupon.name}</span>
@@ -588,31 +588,22 @@ export const RendaRecorrenteCoupons = () => {
                         </div>
                         
                         {/* Linha 3: Link de afiliado */}
-                        {isActivated && affiliateLink && (
-                          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            <Copy 
-                              className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" 
-                              onClick={() => handleCopy(affiliateLink)}
-                            />
+                        {isActivated && affiliateLink && <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                            <Copy className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" onClick={() => handleCopy(affiliateLink)} />
                             <span className="text-xs text-muted-foreground truncate">{affiliateLink}</span>
-                          </div>
-                        )}
+                          </div>}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {!isActivated ? (
-                          <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                        {!isActivated ? <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
                             <Check className="h-4 w-4 mr-1" />
                             Liberar
-                          </Button>
-                        ) : (
-                          <div className="flex items-center gap-1 text-muted-foreground cursor-pointer" onClick={() => {
-                            setSelectedCoupon(coupon);
-                            setDetailsOpen(true);
-                          }}>
+                          </Button> : <div className="flex items-center gap-1 text-muted-foreground cursor-pointer" onClick={() => {
+                    setSelectedCoupon(coupon);
+                    setDetailsOpen(true);
+                  }}>
                             <Eye className="h-5 w-5" />
                             <span className="hidden md:inline text-sm">Ver detalhes</span>
-                          </div>
-                        )}
+                          </div>}
                       </div>
                     </div>
                   </ScrollAnimation>;
@@ -635,11 +626,7 @@ export const RendaRecorrenteCoupons = () => {
                             {coupon.type === "days" && `${coupon.value}d`}
                             {coupon.type === "free_trial" && `${coupon.value}d`}
                           </Badge>
-                          {isActivated ? (
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge>
-                          ) : (
-                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>
-                          )}
+                          {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>}
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
                           {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                         </div>
@@ -655,50 +642,37 @@ export const RendaRecorrenteCoupons = () => {
                         <code className="text-base font-mono font-bold bg-muted px-3 py-2 rounded">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
-                        {isActivated && (
-                          <Copy 
-                            className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary" 
-                            onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
-                          />
-                        )}
+                        {isActivated && <Copy className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")} />}
                       </div>
                       
                       {/* Link */}
-                      {affiliateLink && isActive && (
-                        <div className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
+                      {affiliateLink && isActive && <div className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
                           <span className="font-medium">Link: </span>
                           <code className="bg-muted px-2 py-1 rounded text-xs break-all flex-1">{affiliateLink}</code>
-                          <Copy 
-                            className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary flex-shrink-0" 
-                            onClick={() => handleCopy(affiliateLink)}
-                          />
-                        </div>
-                      )}
+                          <Copy className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary flex-shrink-0" onClick={() => handleCopy(affiliateLink)} />
+                        </div>}
                       
                       {/* Botões 2x2 */}
-                      {isActivated ? (
-                        isActive ? (
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || customCode)}>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Cupom
-                            </Button>
-                            {affiliateLink && (
-                              <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(affiliateLink)}>
+                      {isActivated ? isActive ? <div className="grid grid-cols-2 gap-2">
+                            
+                            {affiliateLink && <Button variant="outline" size="sm" className="w-full" onClick={() => handleCopy(affiliateLink)}>
                                 <Copy className="h-4 w-4 mr-2" />
                                 Link
-                              </Button>
-                            )}
+                              </Button>}
                             <Button variant="outline" size="sm" className="w-full" onClick={() => {
-                              const link = affiliateLink || "";
-                              const code = coupon.activatedCoupon?.custom_code || customCode;
-                              const text = `Use meu cupom ${code} e aproveite o desconto! ${link}`;
-                              if (navigator.share) {
-                                navigator.share({ title: coupon.name, text, url: link });
-                              } else {
-                                handleCopy(text);
-                              }
-                            }}>
+                    const link = affiliateLink || "";
+                    const code = coupon.activatedCoupon?.custom_code || customCode;
+                    const text = `Use meu cupom ${code} e aproveite o desconto! ${link}`;
+                    if (navigator.share) {
+                      navigator.share({
+                        title: coupon.name,
+                        text,
+                        url: link
+                      });
+                    } else {
+                      handleCopy(text);
+                    }
+                  }}>
                               <Share2 className="h-4 w-4 mr-2" />
                               Compartilhar
                             </Button>
@@ -706,19 +680,13 @@ export const RendaRecorrenteCoupons = () => {
                               <XCircle className="h-4 w-4 mr-2" />
                               Inativar
                             </Button>
-                          </div>
-                        ) : (
-                          <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
+                          </div> : <Button variant="outline" size="sm" className="w-full bg-green-50 text-green-700 border-green-300 hover:bg-green-100 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50 dark:hover:bg-green-500/30" onClick={() => reactivateCoupon.mutate(coupon.activatedCoupon?.id || "")} disabled={reactivateCoupon.isPending}>
                             <Check className="h-4 w-4 mr-2" />
                             Ativar
-                          </Button>
-                        )
-                      ) : (
-                        <Button className="w-full" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                          </Button> : <Button className="w-full" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
                           <Check className="h-4 w-4 mr-2" />
                           Liberar Cupom
-                        </Button>
-                      )}
+                        </Button>}
                     </div>
                   </ScrollAnimation>;
           })}
@@ -741,11 +709,7 @@ export const RendaRecorrenteCoupons = () => {
                             {coupon.type === "days" && `${coupon.value} dias`}
                             {coupon.type === "free_trial" && `${coupon.value} dias grátis`}
                           </Badge>
-                          {isActivated ? (
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Liberado</Badge>
-                          ) : (
-                            <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50">Não Liberado</Badge>
-                          )}
+                          {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50">Não Liberado</Badge>}
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">
                               Ativo
                             </Badge>}
@@ -762,10 +726,7 @@ export const RendaRecorrenteCoupons = () => {
                                 <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-1.5 rounded">
                                   {coupon.activatedCoupon?.custom_code}
                                 </code>
-                                <Copy 
-                                  className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary" 
-                                  onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
-                                />
+                                <Copy className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")} />
                               </> : <>
                                 <span className="text-xs text-muted-foreground">
                                   Seu cupom será:
@@ -780,10 +741,7 @@ export const RendaRecorrenteCoupons = () => {
                               <code className="bg-muted px-2 py-1 rounded">
                                 {affiliateLink}
                               </code>
-                              <Copy 
-                                className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" 
-                                onClick={() => handleCopy(affiliateLink)}
-                              />
+                              <Copy className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" onClick={() => handleCopy(affiliateLink)} />
                             </div>}
                         </div>
                       </div>
@@ -796,15 +754,19 @@ export const RendaRecorrenteCoupons = () => {
                                     Abrir Link
                                   </Button>
                                   <Button variant="outline" size="sm" onClick={() => {
-                                    const link = affiliateLink;
-                                    const code = coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary);
-                                    const text = `Use meu cupom ${code} e aproveite o desconto! ${link}`;
-                                    if (navigator.share) {
-                                      navigator.share({ title: coupon.name, text, url: link });
-                                    } else {
-                                      handleCopy(text);
-                                    }
-                                  }} disabled={!coupon.activatedCoupon}>
+                          const link = affiliateLink;
+                          const code = coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary);
+                          const text = `Use meu cupom ${code} e aproveite o desconto! ${link}`;
+                          if (navigator.share) {
+                            navigator.share({
+                              title: coupon.name,
+                              text,
+                              url: link
+                            });
+                          } else {
+                            handleCopy(text);
+                          }
+                        }} disabled={!coupon.activatedCoupon}>
                                     <Share2 className="h-4 w-4 mr-2" />
                                     Compartilhar
                                   </Button>
