@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -112,6 +113,34 @@ export default function AdminPaymentsContent() {
   const paginatedPayments = payments?.data;
   const totalCount = payments?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+
+  const handleRetrySync = async (paymentId: string) => {
+    setRetryingId(paymentId);
+    try {
+      const { error } = await supabase
+        .from("payments")
+        .update({ sync_status: "pending", sync_response: null })
+        .eq("id", paymentId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sincronização reagendada",
+        description: "O pagamento será sincronizado novamente.",
+      });
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Erro ao reagendar",
+        description: "Não foi possível reagendar a sincronização.",
+        variant: "destructive",
+      });
+    } finally {
+      setRetryingId(null);
+    }
+  };
 
   const { data: statsData } = useQuery({
     queryKey: ["admin-payments-stats"],
@@ -433,13 +462,30 @@ export default function AdminPaymentsContent() {
                     <TableCell><Badge variant={payment.status === "paid" ? "default" : "secondary"}>{payment.status}</Badge></TableCell>
                     <TableCell><Badge variant={payment.environment === "production" ? "default" : "secondary"}>{payment.environment}</Badge></TableCell>
                     <TableCell>
-                      {payment.sync_status === 'synced' ? (
-                        <Badge variant="default" className="bg-green-500"><CheckCircle2 className="w-3 h-3 mr-1" />Synced</Badge>
-                      ) : payment.sync_status === 'error' ? (
-                        <Badge variant="destructive" title={payment.sync_response || ''}><AlertTriangle className="w-3 h-3 mr-1" />Erro</Badge>
-                      ) : (
-                        <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {payment.sync_status === 'synced' ? (
+                          <Badge variant="default" className="bg-green-500"><CheckCircle2 className="w-3 h-3 mr-1" />Synced</Badge>
+                        ) : payment.sync_status === 'error' ? (
+                          <>
+                            <Badge variant="destructive" title={payment.sync_response || ''}><AlertTriangle className="w-3 h-3 mr-1" />Erro</Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRetrySync(payment.id);
+                              }}
+                              disabled={retryingId === payment.id}
+                              title="Tentar novamente"
+                            >
+                              <RefreshCw className={`w-3 h-3 ${retryingId === payment.id ? 'animate-spin' : ''}`} />
+                            </Button>
+                          </>
+                        ) : (
+                          <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="text-xs">
