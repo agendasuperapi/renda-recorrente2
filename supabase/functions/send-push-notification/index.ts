@@ -107,23 +107,46 @@ async function createVapidJwt(
       ['sign']
     );
 
+    const dataToSign = new TextEncoder().encode(unsignedToken);
+
     const signatureBuffer = await crypto.subtle.sign(
       { name: 'ECDSA', hash: 'SHA-256' },
       cryptoKey,
-      new TextEncoder().encode(unsignedToken)
+      dataToSign
     );
 
     // Ensure signature is exactly 64 bytes (R: 32 bytes, S: 32 bytes)
     const signature = new Uint8Array(signatureBuffer);
     console.log(`Signature length: ${signature.length}`);
-    
+
     if (signature.length !== 64) {
       console.error(`Unexpected signature length: ${signature.length}`);
     }
 
+    // Sanity-check: verify signature with the provided public key.
+    // This catches mismatched VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY early (Apple is strict).
+    const verifyKey = await crypto.subtle.importKey(
+      'raw',
+      publicKeyBytes.buffer as ArrayBuffer,
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['verify']
+    );
+
+    const isValid = await crypto.subtle.verify(
+      { name: 'ECDSA', hash: 'SHA-256' },
+      verifyKey,
+      signatureBuffer,
+      dataToSign
+    );
+
+    if (!isValid) {
+      throw new Error('VAPID key pair mismatch: signature verification failed');
+    }
+
     const signatureB64 = uint8ArrayToBase64Url(signature);
     const jwt = `${unsignedToken}.${signatureB64}`;
-    
+
     console.log(`JWT created successfully, length: ${jwt.length}`);
     return jwt;
   } catch (error) {
@@ -515,8 +538,9 @@ serve(async (req) => {
           sent++;
         } else {
           failed++;
-          // Remove invalid subscriptions (expired, not found, or bad JWT/keys)
-          if (result.statusCode === 410 || result.statusCode === 404 || result.statusCode === 403) {
+          // Remove invalid subscriptions only when the endpoint is gone.
+          // Do NOT delete on 403: it can be caused by temporary VAPID/JWT issues (not a bad subscription).
+          if (result.statusCode === 410 || result.statusCode === 404) {
             console.log(`Removing invalid subscription (${result.statusCode}): ${sub.endpoint.substring(0, 50)}...`);
             await supabase
               .from('push_subscriptions')
