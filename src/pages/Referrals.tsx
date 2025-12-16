@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
@@ -473,7 +473,7 @@ const Referrals = () => {
               </CardContent>
             </Card> : sortedDates.map((dateKey, dateIndex) => {
           const dateReferrals = groupedByDate[dateKey];
-          const formattedDate = dateKey !== "sem-data" ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+          const formattedDate = dateKey !== "sem-data" ? format(parseISO(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
             locale: ptBR
           }) : "Sem data";
           return <div key={dateKey} className="space-y-0">
@@ -661,7 +661,7 @@ const Referrals = () => {
                         </TableCell>
                       </TableRow> : sortedDates.map(dateKey => {
                 const dateReferrals = groupedByDate[dateKey];
-                const formattedDate = dateKey !== "sem-data" ? format(new Date(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+                const formattedDate = dateKey !== "sem-data" ? format(parseISO(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
                   locale: ptBR
                 }) : "Sem data";
                 return <>
