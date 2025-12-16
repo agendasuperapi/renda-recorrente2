@@ -330,7 +330,12 @@ async function sendWebPush(
     const response = await fetch(subscription.endpoint, {
       method: 'POST',
       headers: {
+        // VAPID headers
         'Authorization': authHeader,
+        // Apple Web Push is stricter; including p256ecdsa in Crypto-Key improves compatibility.
+        'Crypto-Key': `p256ecdsa=${normalizedVapidPublicKey}`,
+
+        // Web Push payload
         'Content-Type': 'application/octet-stream',
         'Content-Encoding': 'aes128gcm',
         'TTL': '86400',
