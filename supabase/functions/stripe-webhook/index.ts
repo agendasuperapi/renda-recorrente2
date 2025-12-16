@@ -423,6 +423,12 @@ serve(async (req) => {
       case "invoice.paid": {
         const invoice = event.data.object as Stripe.Invoice;
         
+        // Ignorar pagamentos de trial (amount = 0) - não gera comissão nem notificação
+        if (invoice.amount_paid === 0) {
+          console.log(`[Stripe Webhook] Skipping trial payment (amount = 0) for invoice: ${invoice.id}`);
+          break;
+        }
+        
         // Metadata vem direto no evento!
         const invoiceMetadata = (invoice as any).subscription_details?.metadata || 
                                 (invoice as any).parent?.subscription_details?.metadata ||
