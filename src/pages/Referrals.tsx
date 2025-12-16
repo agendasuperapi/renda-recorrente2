@@ -194,6 +194,9 @@ const Referrals = () => {
         }
       }
 
+      // Order by most recent first
+      query = query.order('created_at', { ascending: false });
+
       // Pagination
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
