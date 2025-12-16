@@ -332,6 +332,7 @@ async function sendWebPush(
     // Get the audience (origin) from the endpoint
     const endpointUrl = new URL(subscription.endpoint);
     const audience = endpointUrl.origin;
+    const isApplePush = endpointUrl.hostname === 'web.push.apple.com';
 
     // Normalize the public key for HTTP header usage (strict base64url, no padding)
     const normalizedVapidPublicKey = uint8ArrayToBase64Url(
@@ -340,8 +341,24 @@ async function sendWebPush(
 
     // Create VAPID JWT
     const jwt = await createVapidJwt(audience, vapidSubject.trim(), vapidPrivateKey, normalizedVapidPublicKey);
-    // Space after comma is more interoperable (some services are strict)
-    const authHeader = `vapid t=${jwt}, k=${normalizedVapidPublicKey}`;
+
+    // Build headers - Apple requires different Authorization format
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/octet-stream',
+      'Content-Encoding': 'aes128gcm',
+      'TTL': '86400',
+      'Urgency': 'normal',
+    };
+
+    // Apple Web Push requires "WebPush <jwt>" format
+    // Other services (Chrome/Firefox) use "vapid t=<jwt>, k=<publicKey>" format
+    if (isApplePush) {
+      headers['Authorization'] = `WebPush ${jwt}`;
+      console.log('Using Apple Web Push Authorization format (WebPush <jwt>)');
+    } else {
+      headers['Authorization'] = `vapid t=${jwt}, k=${normalizedVapidPublicKey}`;
+      headers['Crypto-Key'] = `p256ecdsa=${normalizedVapidPublicKey}`;
+    }
 
     // Encrypt the payload
     const encrypted = await encryptPayload(
@@ -352,18 +369,7 @@ async function sendWebPush(
 
     const response = await fetch(subscription.endpoint, {
       method: 'POST',
-      headers: {
-        // VAPID headers
-        'Authorization': authHeader,
-        // Apple Web Push is stricter; including p256ecdsa in Crypto-Key improves compatibility.
-        'Crypto-Key': `p256ecdsa=${normalizedVapidPublicKey}`,
-
-        // Web Push payload
-        'Content-Type': 'application/octet-stream',
-        'Content-Encoding': 'aes128gcm',
-        'TTL': '86400',
-        'Urgency': 'normal',
-      },
+      headers,
       body: encrypted.buffer as ArrayBuffer,
     });
 
