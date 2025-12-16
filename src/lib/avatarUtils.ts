@@ -15,19 +15,12 @@ export interface AvatarSizes {
 /**
  * Create an HTMLImageElement from a URL.
  *
- * IMPORTANT:
- * - To generate thumbnails via canvas we must avoid a "tainted" canvas.
- * - Some providers (ex: randomuser.me) don't allow browser fetch due to CORS.
- *   For those, we fetch through a small Supabase Edge Function proxy.
+ * NOTE:
+ * - We fetch as Blob + objectURL so canvas won't be tainted.
+ * - The remote must allow CORS for fetch (we use DiceBear for test users).
  */
-const SUPABASE_FUNCTIONS_BASE_URL = "https://adpnzkvzvjbervzrqhhx.supabase.co/functions/v1";
-
 const createImage = async (url: string): Promise<HTMLImageElement> => {
-  const fetchUrl = url.includes("randomuser.me/")
-    ? `${SUPABASE_FUNCTIONS_BASE_URL}/image-proxy?url=${encodeURIComponent(url)}`
-    : url;
-
-  const response = await fetch(fetchUrl);
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch image: ${response.status}`);
   }
