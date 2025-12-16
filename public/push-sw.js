@@ -1,74 +1,60 @@
-// Push event handlers for the PWA service worker (imported by Workbox generateSW)
+// Push event handlers for the PWA service worker - iOS PWA Compatible
 
 self.addEventListener('push', (event) => {
-  console.log('Push notification received:', event);
+  console.log('[Push-SW] Push notification received');
 
   event.waitUntil((async () => {
-    const fallback = {
+    const defaultPayload = {
       title: 'Renda Recorrente',
       body: 'Você tem uma nova notificação',
       icon: '/app-icon.png',
-      badge: '/app-icon.png',
       data: { url: '/' },
       type: 'default',
     };
 
-    let payload = fallback;
+    let payload = defaultPayload;
 
     if (event.data) {
       try {
-        if (typeof event.data.json === 'function') {
-          payload = { ...fallback, ...event.data.json() };
-        } else {
-          const text = await event.data.text();
-          payload = { ...fallback, ...JSON.parse(text) };
-        }
+        const jsonData = event.data.json();
+        console.log('[Push-SW] Push data:', JSON.stringify(jsonData));
+        payload = { ...defaultPayload, ...jsonData };
       } catch (e) {
-        console.log('Error parsing push data:', e);
+        console.log('[Push-SW] Error parsing push data:', e);
+        try {
+          const textData = event.data.text();
+          payload = { ...defaultPayload, ...JSON.parse(textData) };
+        } catch (e2) {
+          console.log('[Push-SW] Error parsing push text:', e2);
+        }
       }
     }
 
-    const title = payload.title || fallback.title;
+    const title = payload.title || defaultPayload.title;
 
-    const baseOptions = {
-      body: payload.body || fallback.body,
-      icon: payload.icon || fallback.icon,
-      badge: payload.badge || fallback.badge,
-      data: payload.data || fallback.data,
+    // iOS PWA compatible options - minimal and safe
+    const options = {
+      body: payload.body || defaultPayload.body,
+      icon: payload.icon || defaultPayload.icon,
+      data: payload.data || defaultPayload.data,
       tag: payload.type === 'test' ? `test-${Date.now()}` : (payload.type || 'default'),
     };
 
-    const maxActions = (typeof Notification !== 'undefined' && 'maxActions' in Notification)
-      ? Notification.maxActions
-      : 0;
-
-    const options = {
-      ...baseOptions,
-      ...(maxActions > 0
-        ? {
-            actions: [
-              { action: 'open', title: 'Abrir' },
-              { action: 'close', title: 'Fechar' },
-            ],
-          }
-        : {}),
-    };
+    console.log('[Push-SW] Showing notification:', title, JSON.stringify(options));
 
     try {
       await self.registration.showNotification(title, options);
+      console.log('[Push-SW] Notification shown successfully');
     } catch (err) {
-      console.log('showNotification failed, retrying with minimal options:', err);
-      await self.registration.showNotification(title, baseOptions);
+      console.error('[Push-SW] showNotification error:', err);
     }
   })());
 });
 
 self.addEventListener('notificationclick', (event) => {
-  console.log('Notification clicked:', event);
+  console.log('[Push-SW] Notification clicked');
 
   event.notification.close();
-
-  if (event.action === 'close') return;
 
   const urlToOpen = event.notification.data?.url || '/';
 
@@ -88,5 +74,5 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 self.addEventListener('notificationclose', (event) => {
-  console.log('Notification closed:', event);
+  console.log('[Push-SW] Notification closed');
 });

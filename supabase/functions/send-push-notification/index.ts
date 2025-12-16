@@ -515,8 +515,9 @@ serve(async (req) => {
           sent++;
         } else {
           failed++;
-          if (result.statusCode === 410 || result.statusCode === 404) {
-            console.log(`Removing expired subscription: ${sub.endpoint}`);
+          // Remove invalid subscriptions (expired, not found, or bad JWT/keys)
+          if (result.statusCode === 410 || result.statusCode === 404 || result.statusCode === 403) {
+            console.log(`Removing invalid subscription (${result.statusCode}): ${sub.endpoint.substring(0, 50)}...`);
             await supabase
               .from('push_subscriptions')
               .delete()
