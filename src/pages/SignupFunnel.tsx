@@ -162,6 +162,40 @@ export default function SignupFunnel() {
     return isDarkMode() ? config.heading_color_dark || '#ffffff' : config.heading_color_light || '#000000';
   };
   const activeConfig = previewConfig || gradientConfig;
+  // Gerar nome brasileiro aleatório
+  const generateRandomBrazilianName = () => {
+    const maleFirstNames = ['João', 'José', 'Carlos', 'Pedro', 'Lucas', 'Mateus', 'Rafael', 'Bruno', 'Felipe', 'Gabriel', 'Fernando', 'Ricardo', 'Marcos', 'André', 'Paulo', 'Thiago', 'Diego', 'Leonardo', 'Gustavo', 'Eduardo'];
+    const femaleFirstNames = ['Maria', 'Ana', 'Carla', 'Sara', 'Julia', 'Beatriz', 'Camila', 'Fernanda', 'Larissa', 'Amanda', 'Patrícia', 'Cristina', 'Vanessa', 'Letícia', 'Bruna', 'Gabriela', 'Isabela', 'Mariana', 'Aline', 'Juliana'];
+    const middleNames = ['dos', 'das', 'de', 'da', 'do'];
+    const surnames = ['Santos', 'Silva', 'Oliveira', 'Souza', 'Lima', 'Pereira', 'Costa', 'Ferreira', 'Almeida', 'Rodrigues', 'Martins', 'Barbosa', 'Gomes', 'Ribeiro', 'Carvalho', 'Dias', 'Nascimento', 'Araújo', 'Moreira', 'Nunes'];
+    
+    const isFemale = Math.random() > 0.5;
+    const firstName = isFemale 
+      ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)]
+      : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
+    
+    const numWords = Math.floor(Math.random() * 3) + 1; // 1, 2 ou 3 palavras
+    
+    if (numWords === 1) {
+      return firstName;
+    } else if (numWords === 2) {
+      const surname = surnames[Math.floor(Math.random() * surnames.length)];
+      return `${firstName} ${surname}`;
+    } else {
+      // 3 palavras: pode ser "Nome de Sobrenome" ou "Nome Sobrenome Sobrenome"
+      const useMiddleName = Math.random() > 0.5;
+      if (useMiddleName) {
+        const middleName = middleNames[Math.floor(Math.random() * middleNames.length)];
+        const surname = surnames[Math.floor(Math.random() * surnames.length)];
+        return `${firstName} ${middleName} ${surname}`;
+      } else {
+        const surname1 = surnames[Math.floor(Math.random() * surnames.length)];
+        const surname2 = surnames[Math.floor(Math.random() * surnames.length)];
+        return `${firstName} ${surname1} ${surname2}`;
+      }
+    }
+  };
+
   const fetchTestNumber = async () => {
     try {
       const {
@@ -173,10 +207,15 @@ export default function SignupFunnel() {
       setTestNumber(nextNumber);
 
       // Preencher campos automaticamente em modo debug
+      const randomName = generateRandomBrazilianName();
+      const normalizedEmail = randomName.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
+        .replace(/\s+/g, ''); // Remove espaços
+      
       setFormData({
-        name: `Heron teste ${nextNumber}`,
+        name: randomName,
         phone: '(38) 99826-9069',
-        email: `heronteste${nextNumber}@testex.com`,
+        email: `${normalizedEmail}${nextNumber}@testex.com`,
         password: '123456',
         confirmPassword: '123456',
         acceptTerms: true
