@@ -438,10 +438,37 @@ export default function SignupFunnel() {
           const avatarImages = await processExternalAvatar(testAvatarUrl);
           const uploadedAvatarUrl = await uploadAvatarToStorage(authData.user.id, avatarImages);
           
-          await supabase
-            .from('profiles')
-            .update({ avatar_url: uploadedAvatarUrl })
-            .eq('id', authData.user.id);
+          // profiles não tem policy de INSERT para o próprio usuário,
+          // então aqui esperamos a trigger criar a linha e só então fazemos UPDATE.
+          let updated = false;
+          const maxAttempts = 20;
+
+          for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const { data: profile, error: profileFetchError } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('id', authData.user.id)
+              .maybeSingle();
+
+            if (profileFetchError) throw profileFetchError;
+
+            if (profile?.id) {
+              const { error: profileUpdateError } = await supabase
+                .from('profiles')
+                .update({ avatar_url: uploadedAvatarUrl })
+                .eq('id', authData.user.id);
+
+              if (profileUpdateError) throw profileUpdateError;
+              updated = true;
+              break;
+            }
+
+            await new Promise((r) => setTimeout(r, 250));
+          }
+
+          if (!updated) {
+            throw new Error('Profile ainda não foi criado para atualizar o avatar');
+          }
         } catch (avatarError) {
           console.error('Erro ao processar avatar de teste:', avatarError);
           // Não bloqueia o fluxo, apenas loga o erro
