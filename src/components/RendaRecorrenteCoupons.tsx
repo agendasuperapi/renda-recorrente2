@@ -589,8 +589,8 @@ export const RendaRecorrenteCoupons = () => {
                         
                         {/* Linha 3: Link de afiliado */}
                         {isActivated && affiliateLink && <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                            <Copy className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" onClick={() => handleCopy(affiliateLink)} />
                             <span className="text-xs text-muted-foreground truncate">{affiliateLink}</span>
+                            <Copy className="h-3.5 w-3.5 text-muted-foreground cursor-pointer hover:text-primary shrink-0" onClick={() => handleCopy(affiliateLink)} />
                           </div>}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
