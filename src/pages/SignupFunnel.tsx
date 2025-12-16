@@ -12,7 +12,6 @@ import { z } from "zod";
 import { GradientEditor } from "@/components/GradientEditor";
 import logoVerde from "@/assets/logo-renda-verde.png";
 import logoBranco from "@/assets/logo-renda-branco.png";
-import { processExternalAvatar, uploadAvatarToStorage } from "@/lib/avatarUtils";
 interface GradientConfig {
   block_name: string;
   color_start: string;
@@ -163,8 +162,8 @@ export default function SignupFunnel() {
     return isDarkMode() ? config.heading_color_dark || '#ffffff' : config.heading_color_light || '#000000';
   };
   const activeConfig = previewConfig || gradientConfig;
-  // Gerar nome brasileiro aleatório (sempre com 3+ palavras) e retorna gênero
-  const generateRandomBrazilianName = (): { name: string; isFemale: boolean } => {
+  // Gerar nome brasileiro aleatório (sempre com 3+ palavras)
+  const generateRandomBrazilianName = (): string => {
     const maleFirstNames = ['João', 'José', 'Carlos', 'Pedro', 'Lucas', 'Mateus', 'Rafael', 'Bruno', 'Felipe', 'Gabriel', 'Fernando', 'Ricardo', 'Marcos', 'André', 'Paulo', 'Thiago', 'Diego', 'Leonardo', 'Gustavo', 'Eduardo'];
     const femaleFirstNames = ['Maria', 'Ana', 'Carla', 'Sara', 'Julia', 'Beatriz', 'Camila', 'Fernanda', 'Larissa', 'Amanda', 'Patrícia', 'Cristina', 'Vanessa', 'Letícia', 'Bruna', 'Gabriela', 'Isabela', 'Mariana', 'Aline', 'Juliana'];
     const middleNames = ['dos', 'das', 'de', 'da', 'do'];
@@ -197,18 +196,8 @@ export default function SignupFunnel() {
       name = `${firstName} ${surname1} ${surname2}`;
     }
     
-    return { name, isFemale };
+    return name;
   };
-
-  // Gerar URL de avatar baseado no gênero (fotos reais do randomuser.me)
-  const generateAvatarUrl = (isFemale: boolean): string => {
-    const randomNumber = Math.floor(Math.random() * 99) + 1;
-    const gender = isFemale ? 'women' : 'men';
-    return `https://randomuser.me/api/portraits/${gender}/${randomNumber}.jpg`;
-  };
-
-  // Estado para armazenar avatar do teste
-  const [testAvatarUrl, setTestAvatarUrl] = useState<string | null>(null);
 
   const fetchTestNumber = async () => {
     try {
@@ -221,9 +210,7 @@ export default function SignupFunnel() {
       setTestNumber(nextNumber);
 
       // Preencher campos automaticamente em modo debug
-      const { name: randomName, isFemale } = generateRandomBrazilianName();
-      const avatarUrl = generateAvatarUrl(isFemale);
-      setTestAvatarUrl(avatarUrl);
+      const randomName = generateRandomBrazilianName();
       
       const normalizedEmail = randomName.toLowerCase()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
@@ -421,8 +408,7 @@ export default function SignupFunnel() {
         options: {
           data: {
             name: formData.name,
-            phone: formData.phone,
-            ...(testAvatarUrl && { avatar_url: testAvatarUrl })
+            phone: formData.phone
           },
           emailRedirectTo: `${window.location.origin}/`
         }
@@ -430,49 +416,6 @@ export default function SignupFunnel() {
       if (authError) throw authError;
       if (!authData.user) {
         throw new Error("Erro ao criar usuário");
-      }
-
-      // Processar e fazer upload do avatar de teste nas duas resoluções
-      if (testAvatarUrl) {
-        try {
-          const avatarImages = await processExternalAvatar(testAvatarUrl);
-          const uploadedAvatarUrl = await uploadAvatarToStorage(authData.user.id, avatarImages);
-          
-          // profiles não tem policy de INSERT para o próprio usuário,
-          // então aqui esperamos a trigger criar a linha e só então fazemos UPDATE.
-          let updated = false;
-          const maxAttempts = 20;
-
-          for (let attempt = 0; attempt < maxAttempts; attempt++) {
-            const { data: profile, error: profileFetchError } = await supabase
-              .from('profiles')
-              .select('id')
-              .eq('id', authData.user.id)
-              .maybeSingle();
-
-            if (profileFetchError) throw profileFetchError;
-
-            if (profile?.id) {
-              const { error: profileUpdateError } = await supabase
-                .from('profiles')
-                .update({ avatar_url: uploadedAvatarUrl })
-                .eq('id', authData.user.id);
-
-              if (profileUpdateError) throw profileUpdateError;
-              updated = true;
-              break;
-            }
-
-            await new Promise((r) => setTimeout(r, 250));
-          }
-
-          if (!updated) {
-            throw new Error('Profile ainda não foi criado para atualizar o avatar');
-          }
-        } catch (avatarError) {
-          console.error('Erro ao processar avatar de teste:', avatarError);
-          // Não bloqueia o fluxo, apenas loga o erro
-        }
       }
 
       // Capturar dados do cupom da URL
