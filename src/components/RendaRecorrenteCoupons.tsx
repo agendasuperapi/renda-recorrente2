@@ -569,11 +569,11 @@ export const RendaRecorrenteCoupons = () => {
             const isActive = coupon.activatedCoupon?.is_active;
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-3 border rounded-lg bg-card transition-all duration-300 hover:shadow-md cursor-pointer flex items-center gap-3 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`} onClick={() => {
-                setSelectedCoupon(coupon);
-                setDetailsOpen(true);
-              }}>
-                      <div className="flex-1 space-y-2 min-w-0">
+                    <div className={`p-3 border rounded-lg bg-card transition-all duration-300 hover:shadow-md flex items-center gap-3 ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
+                      <div className="flex-1 space-y-2 min-w-0 cursor-pointer" onClick={() => {
+                        setSelectedCoupon(coupon);
+                        setDetailsOpen(true);
+                      }}>
                         {/* Linha 1: Nome */}
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-semibold text-sm">{coupon.name}</span>
@@ -591,9 +591,21 @@ export const RendaRecorrenteCoupons = () => {
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
                       </div>
-                      <div className="flex items-center gap-1 text-muted-foreground shrink-0">
-                        <Eye className="h-5 w-5" />
-                        <span className="hidden md:inline text-sm">Ver detalhes</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {!isActivated ? (
+                          <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                            <Check className="h-4 w-4 mr-1" />
+                            Liberar
+                          </Button>
+                        ) : (
+                          <div className="flex items-center gap-1 text-muted-foreground cursor-pointer" onClick={() => {
+                            setSelectedCoupon(coupon);
+                            setDetailsOpen(true);
+                          }}>
+                            <Eye className="h-5 w-5" />
+                            <span className="hidden md:inline text-sm">Ver detalhes</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </ScrollAnimation>;
