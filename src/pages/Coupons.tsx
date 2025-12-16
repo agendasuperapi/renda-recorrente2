@@ -797,15 +797,23 @@ const Coupons = () => {
                 if (layoutMode === "compact") {
                   return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
                     <div className={`p-3 border rounded-lg bg-card space-y-2 transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "border-red-300 bg-red-50 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "border-orange-400 bg-orange-50 dark:border-orange-500 dark:bg-transparent" : ""}`}>
-                    {/* Linha 1: Nome e botão de detalhes */}
+                    {/* Linha 1: Nome e botões */}
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold text-sm">{coupon.name}</span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
-                        setSelectedCoupon(coupon);
-                        setDetailsOpen(true);
-                      }}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {!isActivated && (
+                          <Button size="sm" className="h-7 text-xs" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                            <Check className="h-3 w-3 mr-1" />
+                            Liberar
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => {
+                          setSelectedCoupon(coupon);
+                          setDetailsOpen(true);
+                        }}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     
                     {/* Linha 2: Badges de status */}
@@ -1001,6 +1009,12 @@ const Coupons = () => {
                       </div>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      {!isActivated && (
+                        <Button size="sm" onClick={() => handleActivateCoupon(coupon.id, coupon.code, coupon.is_primary || false, coupon.product_id)} disabled={activateCoupon.isPending || !profile?.username}>
+                          <Check className="h-4 w-4 mr-2" />
+                          Liberar Cupom
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm" onClick={() => {
                         setSelectedCoupon(coupon);
                         setDetailsOpen(true);
