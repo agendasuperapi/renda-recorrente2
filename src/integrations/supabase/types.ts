@@ -3126,6 +3126,7 @@ export type Database = {
         Row: {
           affiliate_code: string | null
           affiliate_id: string | null
+          avatar_url: string | null
           cancel_at_period_end: boolean | null
           cpf: string | null
           created_at: string | null
@@ -3147,6 +3148,7 @@ export type Database = {
         Insert: {
           affiliate_code?: string | null
           affiliate_id?: string | null
+          avatar_url?: string | null
           cancel_at_period_end?: boolean | null
           cpf?: string | null
           created_at?: string | null
@@ -3168,6 +3170,7 @@ export type Database = {
         Update: {
           affiliate_code?: string | null
           affiliate_id?: string | null
+          avatar_url?: string | null
           cancel_at_period_end?: boolean | null
           cpf?: string | null
           created_at?: string | null
@@ -4066,6 +4069,7 @@ export type Database = {
         Row: {
           affiliate_code: string | null
           affiliate_id: string | null
+          avatar_url: string | null
           cancel_at_period_end: boolean | null
           coupon_code: string | null
           cpf: string | null
