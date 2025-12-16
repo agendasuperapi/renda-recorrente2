@@ -647,7 +647,7 @@ export const RendaRecorrenteCoupons = () => {
                       
                       {/* Link */}
                       {affiliateLink && isActive && <div className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
-                          <span className="font-medium">Link: </span>
+                          <span className="font-medium hidden sm:inline">Link: </span>
                           <code className="bg-muted px-2 py-1 rounded text-xs break-all flex-1">{affiliateLink}</code>
                           <Copy className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary flex-shrink-0" onClick={() => handleCopy(affiliateLink)} />
                         </div>}
