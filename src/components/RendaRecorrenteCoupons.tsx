@@ -651,17 +651,27 @@ export const RendaRecorrenteCoupons = () => {
                       </p>
                       
                       {/* Código */}
-                      <div className="mb-2">
-                        <code className="text-base font-mono font-bold bg-muted px-3 py-2 rounded block">
+                      <div className="mb-2 flex items-center gap-2">
+                        <code className="text-base font-mono font-bold bg-muted px-3 py-2 rounded">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
+                        {isActivated && (
+                          <Copy 
+                            className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary" 
+                            onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}
+                          />
+                        )}
                       </div>
                       
                       {/* Link */}
                       {affiliateLink && isActive && (
-                        <div className="text-sm text-muted-foreground mb-4">
+                        <div className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
                           <span className="font-medium">Link: </span>
-                          <code className="bg-muted px-2 py-1 rounded text-xs break-all">{affiliateLink}</code>
+                          <code className="bg-muted px-2 py-1 rounded text-xs break-all flex-1">{affiliateLink}</code>
+                          <Copy 
+                            className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary flex-shrink-0" 
+                            onClick={() => handleCopy(affiliateLink)}
+                          />
                         </div>
                       )}
                       
