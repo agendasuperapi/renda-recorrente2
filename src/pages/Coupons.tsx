@@ -100,13 +100,13 @@ const CouponDetailsContent = ({
       <div>
         <span className="text-sm text-muted-foreground block mb-1">Seu cupom:</span>
         <div 
-          className="flex items-center justify-between gap-2 bg-primary/10 px-3 py-2 rounded cursor-pointer hover:bg-primary/15 transition-colors"
-          onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false))}
+          className={`flex items-center justify-between gap-2 bg-primary/10 px-3 py-2 rounded transition-colors ${coupon.activatedCoupon ? 'cursor-pointer hover:bg-primary/15' : ''}`}
+          onClick={coupon.activatedCoupon ? () => handleCopy(coupon.activatedCoupon?.custom_code || "") : undefined}
         >
           <code className="text-lg font-mono font-bold">
             {coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false)}
           </code>
-          <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          {coupon.activatedCoupon && <Copy className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
         </div>
       </div>
 
