@@ -91,16 +91,22 @@ const CouponDetailsContent = ({
     <div className="space-y-3">
       <div>
         <span className="text-sm text-muted-foreground block mb-1">Seu cupom:</span>
-        <code className="text-lg font-mono font-bold bg-primary/10 px-3 py-2 rounded block">
-          {coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false)}
-        </code>
+        <div className="flex items-center gap-2 bg-primary/10 px-3 py-2 rounded">
+          <code className="text-lg font-mono font-bold flex-1">
+            {coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false)}
+          </code>
+          <Copy className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary shrink-0" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || generateCustomCode(profile?.username || "", coupon.code, coupon.is_primary || false))} />
+        </div>
       </div>
 
       {getAffiliateLink(coupon) && coupon.activatedCoupon?.is_active && <div>
         <span className="text-sm text-muted-foreground block mb-1">Link de afiliado:</span>
-        <code className="text-sm bg-muted px-3 py-2 rounded block break-all">
-          {getAffiliateLink(coupon)}
-        </code>
+        <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded">
+          <code className="text-sm break-all flex-1">
+            {getAffiliateLink(coupon)}
+          </code>
+          <Copy className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-primary shrink-0" onClick={() => handleCopy(getAffiliateLink(coupon) || "")} />
+        </div>
       </div>}
     </div>
 
