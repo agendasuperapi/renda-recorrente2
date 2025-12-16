@@ -531,7 +531,7 @@ const Referrals = () => {
                                         {(referral.coupon_code || referral.coupon_code_history) && (
                                           <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
                                             {referral.coupon_was_edited ? referral.coupon_code_history : referral.coupon_code}
-                                            {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
+                                            {referral.coupon_was_edited && <span className="ml-1 text-destructive font-normal">(editado)</span>}
                                           </Badge>
                                         )}
                                       </div>
@@ -563,7 +563,7 @@ const Referrals = () => {
                                       {(referral.coupon_code || referral.coupon_code_history) && (
                                         <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
                                           {referral.coupon_was_edited ? referral.coupon_code_history : referral.coupon_code}
-                                          {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
+                                        {referral.coupon_was_edited && <span className="ml-1 text-destructive font-normal">(editado)</span>}
                                         </Badge>
                                       )}
                                       {referral.cancel_at_period_end && <Badge variant="destructive" className="text-xs">Cancelando</Badge>}
@@ -720,7 +720,7 @@ const Referrals = () => {
                                     {(referral.coupon_code || referral.coupon_code_history) ? (
                                       <Badge variant="outline" className="font-mono text-xs">
                                         {referral.coupon_was_edited ? referral.coupon_code_history : referral.coupon_code}
-                                        {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
+                                        {referral.coupon_was_edited && <span className="ml-1 text-destructive font-normal">(editado)</span>}
                                       </Badge>
                                     ) : (
                                       <span className="text-muted-foreground">-</span>
