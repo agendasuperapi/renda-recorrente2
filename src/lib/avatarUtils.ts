@@ -17,10 +17,17 @@ export interface AvatarSizes {
  *
  * NOTE:
  * - We fetch as Blob + objectURL so canvas won't be tainted.
- * - The remote must allow CORS for fetch (we use DiceBear for test users).
+ * - randomuser.me blocks browser CORS, so we use our image-proxy edge function.
  */
+const SUPABASE_FUNCTIONS_BASE_URL = "https://adpnzkvzvjbervzrqhhx.supabase.co/functions/v1";
+
 const createImage = async (url: string): Promise<HTMLImageElement> => {
-  const response = await fetch(url);
+  // Use proxy for randomuser.me to bypass CORS
+  const fetchUrl = url.includes("randomuser.me/")
+    ? `${SUPABASE_FUNCTIONS_BASE_URL}/image-proxy?url=${encodeURIComponent(url)}`
+    : url;
+
+  const response = await fetch(fetchUrl);
   if (!response.ok) {
     throw new Error(`Failed to fetch image: ${response.status}`);
   }
