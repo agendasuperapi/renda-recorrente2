@@ -615,7 +615,7 @@ export const RendaRecorrenteCoupons = () => {
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             const affiliateLink = getAffiliateLink(coupon);
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-4 border rounded-lg transition-all duration-300 ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : ""}`}>
+                    <div className={`p-4 border rounded-lg transition-all duration-300 ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : ""} ${isActivated && isActive ? "bg-background" : ""}`}>
                       {/* Header: Nome + Badges */}
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <h3 className="font-semibold text-base">{coupon.name}</h3>
