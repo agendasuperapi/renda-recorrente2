@@ -354,6 +354,8 @@ async function sendWebPush(
     // Other services (Chrome/Firefox) use "vapid t=<jwt>, k=<publicKey>" format
     if (isApplePush) {
       headers['Authorization'] = `WebPush ${jwt}`;
+      // Apple also expects the VAPID public key via Crypto-Key
+      headers['Crypto-Key'] = `p256ecdsa=${normalizedVapidPublicKey}`;
       console.log('Using Apple Web Push Authorization format (WebPush <jwt>)');
     } else {
       headers['Authorization'] = `vapid t=${jwt}, k=${normalizedVapidPublicKey}`;
