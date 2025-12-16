@@ -36,6 +36,7 @@ interface Referral {
   current_period_end: string | null;
   environment: string | null;
   coupon_code: string | null;
+  coupon_was_edited: boolean | null;
 }
 interface Stats {
   total: number;
@@ -529,6 +530,7 @@ const Referrals = () => {
                                         {referral.coupon_code && (
                                           <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
                                             {referral.coupon_code}
+                                            {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
                                           </Badge>
                                         )}
                                       </div>
@@ -560,6 +562,7 @@ const Referrals = () => {
                                       {referral.coupon_code && (
                                         <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
                                           {referral.coupon_code}
+                                          {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
                                         </Badge>
                                       )}
                                       {referral.cancel_at_period_end && <Badge variant="destructive" className="text-xs">Cancelando</Badge>}
@@ -716,6 +719,7 @@ const Referrals = () => {
                                     {referral.coupon_code ? (
                                       <Badge variant="outline" className="font-mono text-xs">
                                         {referral.coupon_code}
+                                        {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
                                       </Badge>
                                     ) : (
                                       <span className="text-muted-foreground">-</span>
