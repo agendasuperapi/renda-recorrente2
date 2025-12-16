@@ -29,6 +29,7 @@ import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
 import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { toast as sonnerToast } from "sonner";
 import { SidebarNotificationsPopover } from "./SidebarNotificationsPopover";
+import { SystemErrorsAlert } from "./SystemErrorsAlert";
 interface SidebarProps {
   user: SupabaseUser | null;
   isAdmin: boolean;
@@ -604,6 +605,13 @@ export const Sidebar = ({
             </Tooltip>
           </TooltipProvider>
         </div>
+        
+        {/* System Errors Alert - Only for admins in admin mode */}
+        {isAdmin && showAdminMenu && (
+          <div className="mt-3 flex justify-center">
+            <SystemErrorsAlert />
+          </div>
+        )}
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
