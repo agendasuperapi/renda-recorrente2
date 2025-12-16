@@ -162,8 +162,8 @@ export default function SignupFunnel() {
     return isDarkMode() ? config.heading_color_dark || '#ffffff' : config.heading_color_light || '#000000';
   };
   const activeConfig = previewConfig || gradientConfig;
-  // Gerar nome brasileiro aleatório
-  const generateRandomBrazilianName = () => {
+  // Gerar nome brasileiro aleatório (sempre com 3+ palavras) e retorna gênero
+  const generateRandomBrazilianName = (): { name: string; isFemale: boolean } => {
     const maleFirstNames = ['João', 'José', 'Carlos', 'Pedro', 'Lucas', 'Mateus', 'Rafael', 'Bruno', 'Felipe', 'Gabriel', 'Fernando', 'Ricardo', 'Marcos', 'André', 'Paulo', 'Thiago', 'Diego', 'Leonardo', 'Gustavo', 'Eduardo'];
     const femaleFirstNames = ['Maria', 'Ana', 'Carla', 'Sara', 'Julia', 'Beatriz', 'Camila', 'Fernanda', 'Larissa', 'Amanda', 'Patrícia', 'Cristina', 'Vanessa', 'Letícia', 'Bruna', 'Gabriela', 'Isabela', 'Mariana', 'Aline', 'Juliana'];
     const middleNames = ['dos', 'das', 'de', 'da', 'do'];
@@ -174,27 +174,40 @@ export default function SignupFunnel() {
       ? femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)]
       : maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
     
-    const numWords = Math.floor(Math.random() * 3) + 1; // 1, 2 ou 3 palavras
+    // Sempre gerar com 3+ palavras
+    const useMiddleName = Math.random() > 0.5;
+    let name: string;
     
-    if (numWords === 1) {
-      return firstName;
-    } else if (numWords === 2) {
-      const surname = surnames[Math.floor(Math.random() * surnames.length)];
-      return `${firstName} ${surname}`;
-    } else {
-      // 3 palavras: pode ser "Nome de Sobrenome" ou "Nome Sobrenome Sobrenome"
-      const useMiddleName = Math.random() > 0.5;
-      if (useMiddleName) {
-        const middleName = middleNames[Math.floor(Math.random() * middleNames.length)];
-        const surname = surnames[Math.floor(Math.random() * surnames.length)];
-        return `${firstName} ${middleName} ${surname}`;
-      } else {
-        const surname1 = surnames[Math.floor(Math.random() * surnames.length)];
+    if (useMiddleName) {
+      // "Nome de Sobrenome" ou "Nome de Sobrenome Sobrenome"
+      const middleName = middleNames[Math.floor(Math.random() * middleNames.length)];
+      const surname1 = surnames[Math.floor(Math.random() * surnames.length)];
+      const addSecondSurname = Math.random() > 0.5;
+      if (addSecondSurname) {
         const surname2 = surnames[Math.floor(Math.random() * surnames.length)];
-        return `${firstName} ${surname1} ${surname2}`;
+        name = `${firstName} ${middleName} ${surname1} ${surname2}`;
+      } else {
+        name = `${firstName} ${middleName} ${surname1}`;
       }
+    } else {
+      // "Nome Sobrenome Sobrenome"
+      const surname1 = surnames[Math.floor(Math.random() * surnames.length)];
+      const surname2 = surnames[Math.floor(Math.random() * surnames.length)];
+      name = `${firstName} ${surname1} ${surname2}`;
     }
+    
+    return { name, isFemale };
   };
+
+  // Gerar URL de avatar baseado no gênero
+  const generateAvatarUrl = (isFemale: boolean): string => {
+    const randomNumber = Math.floor(Math.random() * 99) + 1; // 1-99
+    const gender = isFemale ? 'women' : 'men';
+    return `https://randomuser.me/api/portraits/${gender}/${randomNumber}.jpg`;
+  };
+
+  // Estado para armazenar avatar do teste
+  const [testAvatarUrl, setTestAvatarUrl] = useState<string | null>(null);
 
   const fetchTestNumber = async () => {
     try {
@@ -207,7 +220,10 @@ export default function SignupFunnel() {
       setTestNumber(nextNumber);
 
       // Preencher campos automaticamente em modo debug
-      const randomName = generateRandomBrazilianName();
+      const { name: randomName, isFemale } = generateRandomBrazilianName();
+      const avatarUrl = generateAvatarUrl(isFemale);
+      setTestAvatarUrl(avatarUrl);
+      
       const normalizedEmail = randomName.toLowerCase()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove acentos
         .replace(/\s+/g, ''); // Remove espaços
@@ -404,7 +420,8 @@ export default function SignupFunnel() {
         options: {
           data: {
             name: formData.name,
-            phone: formData.phone
+            phone: formData.phone,
+            ...(testAvatarUrl && { avatar_url: testAvatarUrl })
           },
           emailRedirectTo: `${window.location.origin}/`
         }
@@ -412,6 +429,14 @@ export default function SignupFunnel() {
       if (authError) throw authError;
       if (!authData.user) {
         throw new Error("Erro ao criar usuário");
+      }
+
+      // Atualizar avatar do profile em modo de teste
+      if (testAvatarUrl) {
+        await supabase
+          .from('profiles')
+          .update({ avatar_url: testAvatarUrl })
+          .eq('id', authData.user.id);
       }
 
       // Capturar dados do cupom da URL
