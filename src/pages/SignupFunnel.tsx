@@ -200,11 +200,11 @@ export default function SignupFunnel() {
     return { name, isFemale };
   };
 
-  // Gerar URL de avatar baseado no gênero
+  // Gerar URL de avatar baseado no gênero (imagem com CORS liberado para podermos baixar e gerar as 2 resoluções)
   const generateAvatarUrl = (isFemale: boolean): string => {
-    const randomNumber = Math.floor(Math.random() * 99) + 1; // 1-99
-    const gender = isFemale ? 'women' : 'men';
-    return `https://randomuser.me/api/portraits/${gender}/${randomNumber}.jpg`;
+    // DiceBear (CORS OK) - gera PNG grande o suficiente para virar 1000x1000 sem serrilhar.
+    const seed = `${isFemale ? 'f' : 'm'}-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    return `https://api.dicebear.com/9.x/lorelei/png?seed=${encodeURIComponent(seed)}&size=1024`;
   };
 
   // Estado para armazenar avatar do teste

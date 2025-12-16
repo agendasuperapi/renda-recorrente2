@@ -50,8 +50,13 @@ serve(async (req) => {
 
     const upstream = await fetch(parsed.toString(), {
       headers: {
-        "User-Agent": "supabase-image-proxy",
-        Accept: "image/*",
+        // Some CDNs block "bot" user agents from server-side environments.
+        // Pretend to be a regular browser.
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+        "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+        Referer: "https://randomuser.me/",
       },
     });
 
