@@ -36,7 +36,6 @@ interface Referral {
   current_period_end: string | null;
   environment: string | null;
   coupon_code: string | null;
-  referrer_name: string | null;
 }
 interface Stats {
   total: number;
@@ -563,11 +562,6 @@ const Referrals = () => {
                                       {referral.cancel_at_period_end && <Badge variant="destructive" className="text-xs">Cancelando</Badge>}
                                     </div>
 
-                                    {referral.referrer_name && <div className="text-xs mt-2">
-                                        <span className="text-muted-foreground">Indicador: </span>
-                                        <span className="font-medium">{referral.referrer_name}</span>
-                                      </div>}
-
                                     {referral.trial_end && <div className="text-xs mt-2">
                                         <span className="text-muted-foreground">Trial até: </span>
                                         <span className="font-medium">{formatDate(referral.trial_end)}</span>
@@ -648,7 +642,6 @@ const Referrals = () => {
                       <TableHead>Hora</TableHead>
                       <TableHead>Nome</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Indicador</TableHead>
                       <TableHead>Cupom</TableHead>
                       <TableHead>Produto</TableHead>
                       <TableHead>Plano</TableHead>
@@ -660,7 +653,7 @@ const Referrals = () => {
                   </TableHeader>
                   <TableBody>
                     {referrals.length === 0 ? <TableRow>
-                        <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                           Nenhuma indicação encontrada
                         </TableCell>
                       </TableRow> : sortedDates.map(dateKey => {
@@ -671,7 +664,7 @@ const Referrals = () => {
                 return <>
                             {/* Date Header Row */}
                             <TableRow key={`date-${dateKey}`} className="bg-muted/30 hover:bg-muted/40 border-t border-border">
-                              <TableCell colSpan={11} className="py-2.5">
+                              <TableCell colSpan={10} className="py-2.5">
                                 <div className="flex items-center gap-2 font-semibold text-foreground/80">
                                   <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
                                     <Calendar className="h-4 w-4 text-primary" />
@@ -714,10 +707,6 @@ const Referrals = () => {
                                   </TableCell>
                                   <TableCell className="border-0 relative">
                                     {referral.email}
-                                    <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
-                                  </TableCell>
-                                  <TableCell className="border-0 relative">
-                                    <span className="text-sm">{referral.referrer_name || "-"}</span>
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
