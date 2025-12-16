@@ -423,10 +423,10 @@ serve(async (req) => {
       case "invoice.paid": {
         const invoice = event.data.object as Stripe.Invoice;
         
-        // Ignorar pagamentos de trial (amount = 0) - não gera comissão nem notificação
+        // Trial payments (amount = 0) são processados para criar unified_users
+        // mas os triggers de banco evitam comissão e notificação automaticamente
         if (invoice.amount_paid === 0) {
-          console.log(`[Stripe Webhook] Skipping trial payment (amount = 0) for invoice: ${invoice.id}`);
-          break;
+          console.log(`[Stripe Webhook] Trial payment (amount = 0) for invoice: ${invoice.id} - creating user record without commission`);
         }
         
         // Metadata vem direto no evento!
