@@ -4179,6 +4179,7 @@ export type Database = {
           avatar_url: string | null
           cancel_at_period_end: boolean | null
           coupon_code: string | null
+          coupon_code_history: string | null
           coupon_was_edited: boolean | null
           cpf: string | null
           created_at: string | null

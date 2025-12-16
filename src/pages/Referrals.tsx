@@ -36,6 +36,7 @@ interface Referral {
   current_period_end: string | null;
   environment: string | null;
   coupon_code: string | null;
+  coupon_code_history: string | null;
   coupon_was_edited: boolean | null;
 }
 interface Stats {
@@ -527,9 +528,9 @@ const Referrals = () => {
                                       <div className="flex items-center gap-1.5 flex-wrap">
                                         <Badge variant="outline" className="text-xs font-normal">{referral.product_name || "-"}</Badge>
                                         <Badge variant="secondary" className="text-xs font-normal">{referral.plan_name || "-"}</Badge>
-                                        {referral.coupon_code && (
+                                        {(referral.coupon_code || referral.coupon_code_history) && (
                                           <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
-                                            {referral.coupon_code}
+                                            {referral.coupon_was_edited ? referral.coupon_code_history : referral.coupon_code}
                                             {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
                                           </Badge>
                                         )}
@@ -559,9 +560,9 @@ const Referrals = () => {
                                     <div className="flex items-center gap-1.5 flex-wrap mt-2">
                                       <Badge variant="outline" className="text-xs font-normal">{referral.product_name || "-"}</Badge>
                                       <Badge variant="secondary" className="text-xs font-normal">{referral.plan_name || "-"}</Badge>
-                                      {referral.coupon_code && (
+                                      {(referral.coupon_code || referral.coupon_code_history) && (
                                         <Badge variant="outline" className="text-xs font-mono bg-primary/5 border-primary/30">
-                                          {referral.coupon_code}
+                                          {referral.coupon_was_edited ? referral.coupon_code_history : referral.coupon_code}
                                           {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
                                         </Badge>
                                       )}
@@ -716,9 +717,9 @@ const Referrals = () => {
                                     <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                                   </TableCell>
                                   <TableCell className="border-0 relative">
-                                    {referral.coupon_code ? (
+                                    {(referral.coupon_code || referral.coupon_code_history) ? (
                                       <Badge variant="outline" className="font-mono text-xs">
-                                        {referral.coupon_code}
+                                        {referral.coupon_was_edited ? referral.coupon_code_history : referral.coupon_code}
                                         {referral.coupon_was_edited && <span className="ml-1 text-muted-foreground font-normal">(editado)</span>}
                                       </Badge>
                                     ) : (
