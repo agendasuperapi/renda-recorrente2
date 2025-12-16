@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
   Bell, 
   BellOff, 
@@ -17,9 +18,11 @@ import {
   CheckCircle2,
   Loader2,
   Apple,
-  Chrome
+  Chrome,
+  Info,
+  AlertTriangle
 } from 'lucide-react';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { usePushNotifications, IOSDiagnostics } from '@/hooks/usePushNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -43,6 +46,50 @@ const browserIcons: Record<string, React.ReactNode> = {
   edge: <Monitor className="h-4 w-4" />,
 };
 
+function DiagnosticsCard({ diagnostics }: { diagnostics: IOSDiagnostics }) {
+  return (
+    <div className="mt-4 p-4 bg-muted/50 rounded-lg space-y-2 text-sm">
+      <div className="font-medium flex items-center gap-2">
+        <Info className="h-4 w-4" />
+        Diagnóstico do Dispositivo
+      </div>
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div>iOS:</div>
+        <div>{diagnostics.isIOS ? `Sim (${diagnostics.iosVersion || 'versão desconhecida'})` : 'Não'}</div>
+        
+        <div>PWA (Tela de Início):</div>
+        <div className={diagnostics.isIOS && !diagnostics.isPWA ? 'text-destructive font-medium' : ''}>
+          {diagnostics.isPWA ? 'Sim' : 'Não'}
+        </div>
+        
+        <div>Service Worker:</div>
+        <div>{diagnostics.serviceWorkerStatus === 'registered' ? 'Registrado' : 
+              diagnostics.serviceWorkerStatus === 'not-registered' ? 'Não registrado' : 'Não suportado'}</div>
+        
+        <div>Push Manager:</div>
+        <div>{diagnostics.pushManagerStatus === 'supported' ? 'Suportado' : 'Não suportado'}</div>
+        
+        <div>Permissão:</div>
+        <div>{diagnostics.notificationPermission === 'granted' ? 'Concedida' :
+              diagnostics.notificationPermission === 'denied' ? 'Negada' :
+              diagnostics.notificationPermission === 'default' ? 'Não solicitada' : 'Não suportada'}</div>
+        
+        <div>Compatível:</div>
+        <div className={diagnostics.isCompatible ? 'text-primary font-medium' : 'text-destructive font-medium'}>
+          {diagnostics.isCompatible ? 'Sim' : 'Não'}
+        </div>
+      </div>
+      
+      {diagnostics.incompatibilityReason && (
+        <Alert variant="destructive" className="mt-2">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{diagnostics.incompatibilityReason}</AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
+}
+
 export function NotificationsContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -52,14 +99,17 @@ export function NotificationsContent() {
     isSubscribed,
     subscriptions,
     isLoading: pushLoading,
+    diagnostics,
     subscribe,
     unsubscribe,
     removeSubscription,
     sendTestNotification,
+    runDiagnostics,
   } = usePushNotifications();
 
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isSendingTest, setIsSendingTest] = useState(false);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   // Load notification preferences
   const { data: preferences, isLoading: prefsLoading } = useQuery({
@@ -106,8 +156,14 @@ export function NotificationsContent() {
 
   const handleSubscribe = async () => {
     setIsSubscribing(true);
-    await subscribe();
+    const success = await subscribe();
     setIsSubscribing(false);
+    
+    // Show diagnostics if subscription failed
+    if (!success) {
+      setShowDiagnostics(true);
+      await runDiagnostics();
+    }
   };
 
   const handleUnsubscribe = async () => {
@@ -124,6 +180,11 @@ export function NotificationsContent() {
 
   const handlePreferenceChange = (field: string, value: boolean) => {
     updatePreference.mutate({ field, value });
+  };
+
+  const handleShowDiagnostics = async () => {
+    setShowDiagnostics(true);
+    await runDiagnostics();
   };
 
   const userNotificationTypes = [
@@ -151,8 +212,36 @@ export function NotificationsContent() {
     );
   }
 
+  // Show iOS PWA warning if on iOS but not in PWA mode
+  const showIOSWarning = diagnostics?.isIOS && !diagnostics?.isPWA;
+  const showIOSVersionWarning = diagnostics?.isIOS && diagnostics?.iosVersion && diagnostics.iosVersion < 16.4;
+
   return (
     <div className="space-y-6">
+      {/* iOS Warnings */}
+      {showIOSVersionWarning && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>iOS Incompatível</AlertTitle>
+          <AlertDescription>
+            Seu iOS ({diagnostics?.iosVersion}) não suporta notificações push. 
+            Atualize para iOS 16.4 ou superior para receber notificações.
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      {showIOSWarning && !showIOSVersionWarning && (
+        <Alert>
+          <Apple className="h-4 w-4" />
+          <AlertTitle>Instale o App na Tela de Início</AlertTitle>
+          <AlertDescription>
+            No iOS, as notificações push só funcionam quando o app está instalado na Tela de Início.
+            <br />
+            <strong>Como instalar:</strong> Toque em Compartilhar (ícone de seta) &gt; "Adicionar à Tela de Início"
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Push Notifications Status */}
       <Card>
         <CardHeader>
@@ -171,9 +260,20 @@ export function NotificationsContent() {
               <span>Seu navegador não suporta notificações push</span>
             </div>
           ) : permission === 'denied' ? (
-            <div className="flex items-center gap-2 text-destructive">
-              <BellOff className="h-5 w-5" />
-              <span>Notificações bloqueadas. Habilite nas configurações do navegador.</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-destructive">
+                <BellOff className="h-5 w-5" />
+                <span>Notificações bloqueadas.</span>
+              </div>
+              {diagnostics?.isIOS ? (
+                <p className="text-sm text-muted-foreground">
+                  Vá em <strong>Ajustes &gt; Notificações &gt; Renda Recorrente</strong> e habilite as notificações.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Habilite nas configurações do navegador.
+                </p>
+              )}
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -190,7 +290,7 @@ export function NotificationsContent() {
                   </>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {isSubscribed ? (
                   <>
                     <Button
@@ -221,20 +321,35 @@ export function NotificationsContent() {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    onClick={handleSubscribe}
-                    disabled={isSubscribing}
-                  >
-                    {isSubscribing ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Bell className="h-4 w-4 mr-2" />
-                    )}
-                    Ativar Notificações
-                  </Button>
+                  <>
+                    <Button
+                      onClick={handleSubscribe}
+                      disabled={isSubscribing || (diagnostics?.isIOS && !diagnostics?.isCompatible)}
+                    >
+                      {isSubscribing ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Bell className="h-4 w-4 mr-2" />
+                      )}
+                      Ativar Notificações
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleShowDiagnostics}
+                    >
+                      <Info className="h-4 w-4 mr-2" />
+                      Diagnóstico
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
+          )}
+
+          {/* Diagnostics Panel */}
+          {showDiagnostics && diagnostics && (
+            <DiagnosticsCard diagnostics={diagnostics} />
           )}
 
           {/* Registered Devices */}

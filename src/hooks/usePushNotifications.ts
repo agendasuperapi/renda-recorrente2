@@ -41,12 +41,54 @@ interface PushSubscriptionData {
   created_at: string;
 }
 
+export interface IOSDiagnostics {
+  isIOS: boolean;
+  iosVersion: number | null;
+  isPWA: boolean;
+  isCompatible: boolean;
+  incompatibilityReason: string | null;
+  serviceWorkerStatus: 'supported' | 'not-supported' | 'registered' | 'not-registered';
+  pushManagerStatus: 'supported' | 'not-supported';
+  notificationPermission: NotificationPermission | 'not-supported';
+}
+
+// Detect iOS and version
+function getIOSVersion(): number | null {
+  const ua = navigator.userAgent;
+  const match = ua.match(/OS (\d+)_(\d+)/);
+  if (match) {
+    return parseFloat(`${match[1]}.${match[2]}`);
+  }
+  return null;
+}
+
+// Check if running as PWA (standalone mode)
+function isPWAMode(): boolean {
+  // Check display-mode media query
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    return true;
+  }
+  // Check iOS specific standalone property
+  if ((navigator as Navigator & { standalone?: boolean }).standalone === true) {
+    return true;
+  }
+  return false;
+}
+
+// Check if device is iOS
+function isIOSDevice(): boolean {
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
 export function usePushNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptions, setSubscriptions] = useState<PushSubscriptionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [diagnostics, setDiagnostics] = useState<IOSDiagnostics | null>(null);
   const { toast } = useToast();
 
   // Detect device type
@@ -83,6 +125,58 @@ export function usePushNotifications() {
     } catch {
       return null;
     }
+  }, []);
+
+  // Run iOS diagnostics
+  const runDiagnostics = useCallback(async (): Promise<IOSDiagnostics> => {
+    const isIOS = isIOSDevice();
+    const iosVersion = isIOS ? getIOSVersion() : null;
+    const isPWA = isPWAMode();
+    
+    let serviceWorkerStatus: IOSDiagnostics['serviceWorkerStatus'] = 'not-supported';
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      serviceWorkerStatus = reg ? 'registered' : 'not-registered';
+    }
+    
+    const pushManagerStatus: IOSDiagnostics['pushManagerStatus'] = 
+      'PushManager' in window ? 'supported' : 'not-supported';
+    
+    const notificationPermission: IOSDiagnostics['notificationPermission'] = 
+      'Notification' in window ? Notification.permission : 'not-supported';
+    
+    let isCompatible = true;
+    let incompatibilityReason: string | null = null;
+    
+    if (isIOS) {
+      if (iosVersion && iosVersion < 16.4) {
+        isCompatible = false;
+        incompatibilityReason = `iOS ${iosVersion} não suporta notificações push. Atualize para iOS 16.4 ou superior.`;
+      } else if (!isPWA) {
+        isCompatible = false;
+        incompatibilityReason = 'No iOS, as notificações push só funcionam quando o app está instalado na Tela de Início (PWA).';
+      }
+    }
+    
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      isCompatible = false;
+      incompatibilityReason = 'Seu navegador não suporta notificações push.';
+    }
+    
+    const diag: IOSDiagnostics = {
+      isIOS,
+      iosVersion,
+      isPWA,
+      isCompatible,
+      incompatibilityReason,
+      serviceWorkerStatus,
+      pushManagerStatus,
+      notificationPermission,
+    };
+    
+    console.log('[Push Diagnostics]', diag);
+    setDiagnostics(diag);
+    return diag;
   }, []);
 
   // Check actual subscription state
@@ -138,11 +232,14 @@ export function usePushNotifications() {
         setPermission(Notification.permission);
       }
       
+      // Run diagnostics
+      await runDiagnostics();
+      
       setIsLoading(false);
     };
     
     checkSupport();
-  }, []);
+  }, [runDiagnostics]);
 
   // Load user's subscriptions and validate state
   const loadSubscriptions = useCallback(async () => {
@@ -162,6 +259,21 @@ export function usePushNotifications() {
 
   // Request permission and subscribe
   const subscribe = useCallback(async () => {
+    console.log('[Push Subscribe] Starting subscription process...');
+    
+    // Run diagnostics first
+    const diag = await runDiagnostics();
+    console.log('[Push Subscribe] Diagnostics:', diag);
+    
+    if (!diag.isCompatible) {
+      toast({
+        title: 'Não compatível',
+        description: diag.incompatibilityReason || 'Seu dispositivo não suporta notificações push.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+
     if (!isSupported) {
       toast({
         title: 'Não suportado',
@@ -172,34 +284,96 @@ export function usePushNotifications() {
     }
 
     try {
-      // Request notification permission
+      // Step 1: Request notification permission
+      console.log('[Push Subscribe] Step 1: Requesting permission...');
       const result = await Notification.requestPermission();
+      console.log('[Push Subscribe] Permission result:', result);
       setPermission(result);
 
       if (result !== 'granted') {
+        const isIOS = isIOSDevice();
         toast({
           title: 'Permissão negada',
-          description: 'Você precisa permitir notificações nas configurações do navegador.',
+          description: isIOS 
+            ? 'Vá em Ajustes > Notificações > Renda Recorrente e habilite as notificações.'
+            : 'Você precisa permitir notificações nas configurações do navegador.',
           variant: 'destructive',
         });
         return false;
       }
 
-      // Register service worker if not already registered
+      // Step 2: Register service worker if not already registered
+      console.log('[Push Subscribe] Step 2: Checking service worker...');
       let registration = await navigator.serviceWorker.getRegistration();
+      console.log('[Push Subscribe] Existing registration:', !!registration);
+      
       if (!registration) {
-        registration = await navigator.serviceWorker.register('/sw.js');
-        await navigator.serviceWorker.ready;
+        console.log('[Push Subscribe] Registering new service worker...');
+        try {
+          registration = await navigator.serviceWorker.register('/sw.js');
+          console.log('[Push Subscribe] Service worker registered:', registration.scope);
+        } catch (swError) {
+          console.error('[Push Subscribe] Service worker registration failed:', swError);
+          toast({
+            title: 'Erro no Service Worker',
+            description: `Falha ao registrar: ${swError instanceof Error ? swError.message : 'Erro desconhecido'}`,
+            variant: 'destructive',
+          });
+          return false;
+        }
+      }
+      
+      console.log('[Push Subscribe] Waiting for service worker to be ready...');
+      await navigator.serviceWorker.ready;
+      console.log('[Push Subscribe] Service worker ready');
+
+      // Step 3: Get VAPID public key
+      console.log('[Push Subscribe] Step 3: Fetching VAPID key...');
+      let vapidPublicKey: string;
+      try {
+        vapidPublicKey = await getVapidPublicKey();
+        console.log('[Push Subscribe] VAPID key obtained (length):', vapidPublicKey.length);
+      } catch (vapidError) {
+        console.error('[Push Subscribe] VAPID key fetch failed:', vapidError);
+        toast({
+          title: 'Erro ao obter chave',
+          description: `Falha ao obter chave VAPID: ${vapidError instanceof Error ? vapidError.message : 'Erro desconhecido'}`,
+          variant: 'destructive',
+        });
+        return false;
       }
 
-      // Subscribe to push
-      const vapidPublicKey = await getVapidPublicKey();
+      // Step 4: Subscribe to push
+      console.log('[Push Subscribe] Step 4: Creating push subscription...');
+      let subscription: PushSubscription;
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer,
+        });
+        console.log('[Push Subscribe] Push subscription created:', subscription.endpoint.substring(0, 50) + '...');
+      } catch (pushError) {
+        console.error('[Push Subscribe] Push subscription failed:', pushError);
+        const errorMessage = pushError instanceof Error ? pushError.message : 'Erro desconhecido';
+        
+        // Specific error messages for common issues
+        let description = errorMessage;
+        if (errorMessage.includes('denied')) {
+          description = 'Permissão de notificação negada. Verifique as configurações do dispositivo.';
+        } else if (errorMessage.includes('network')) {
+          description = 'Erro de rede. Verifique sua conexão com a internet.';
+        }
+        
+        toast({
+          title: 'Erro na inscrição',
+          description,
+          variant: 'destructive',
+        });
+        return false;
+      }
 
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer,
-      });
-
+      // Step 5: Get user
+      console.log('[Push Subscribe] Step 5: Getting user...');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
@@ -209,13 +383,16 @@ export function usePushNotifications() {
         });
         return false;
       }
+      console.log('[Push Subscribe] User ID:', user.id);
 
-      // Extract keys from subscription
+      // Step 6: Save subscription to database
+      console.log('[Push Subscribe] Step 6: Saving subscription to database...');
       const subscriptionJson = subscription.toJSON();
       const p256dhKey = subscriptionJson.keys?.p256dh || '';
       const authKey = subscriptionJson.keys?.auth || '';
+      
+      console.log('[Push Subscribe] Subscription keys present:', { p256dh: !!p256dhKey, auth: !!authKey });
 
-      // Save subscription to database
       const { error } = await supabase
         .from('push_subscriptions')
         .upsert({
@@ -230,8 +407,12 @@ export function usePushNotifications() {
           onConflict: 'endpoint',
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[Push Subscribe] Database save failed:', error);
+        throw error;
+      }
 
+      console.log('[Push Subscribe] SUCCESS - Subscription saved to database');
       setIsSubscribed(true);
       await loadSubscriptions();
 
@@ -242,7 +423,7 @@ export function usePushNotifications() {
 
       return true;
     } catch (error) {
-      console.error('Error subscribing to push:', error);
+      console.error('[Push Subscribe] Unexpected error:', error);
       toast({
         title: 'Erro ao ativar notificações',
         description: error instanceof Error ? error.message : 'Erro desconhecido',
@@ -250,7 +431,7 @@ export function usePushNotifications() {
       });
       return false;
     }
-  }, [isSupported, toast, loadSubscriptions]);
+  }, [isSupported, toast, loadSubscriptions, runDiagnostics]);
 
   // Unsubscribe from push
   const unsubscribe = useCallback(async () => {
@@ -370,10 +551,12 @@ export function usePushNotifications() {
     isSubscribed,
     subscriptions,
     isLoading,
+    diagnostics,
     subscribe,
     unsubscribe,
     removeSubscription,
     sendTestNotification,
     refreshSubscriptions: loadSubscriptions,
+    runDiagnostics,
   };
 }
