@@ -3978,6 +3978,7 @@ export type Database = {
           affiliate_id: string | null
           affiliate_name: string | null
           available_date: string | null
+          billing_reason: string | null
           cliente: string | null
           cliente_email: string | null
           commission_type: string | null
@@ -3995,6 +3996,7 @@ export type Database = {
           product_icon_light: string | null
           product_id: string | null
           produto: string | null
+          purchase_number: number | null
           status: Database["public"]["Enums"]["commission_status"] | null
           unified_payment_id: string | null
           unified_user_id: string | null
