@@ -154,7 +154,7 @@ export const ActiveGoalsWidget = ({ showValues, affiliateId }: ActiveGoalsWidget
           Minhas Metas
         </CardTitle>
         <Button variant="outline" size="sm" asChild className="gap-1.5 text-xs">
-          <Link to="/commissions?tab=goals">
+          <Link to="/user/commissions?tab=goals">
             Ver todas
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -170,7 +170,7 @@ export const ActiveGoalsWidget = ({ showValues, affiliateId }: ActiveGoalsWidget
               Você ainda não tem metas ativas
             </p>
             <Button size="sm" variant="outline" asChild className="gap-2">
-              <Link to="/commissions?tab=goals">
+              <Link to="/user/commissions?tab=goals">
                 <Plus className="h-4 w-4" />
                 Criar primeira meta
               </Link>
@@ -248,7 +248,7 @@ export const ActiveGoalsWidget = ({ showValues, affiliateId }: ActiveGoalsWidget
 
             {goals.length > 0 && goals.length < 3 && (
               <Button variant="ghost" size="sm" asChild className="w-full gap-2 text-xs text-muted-foreground">
-                <Link to="/commissions?tab=goals">
+                <Link to="/user/commissions?tab=goals">
                   <Plus className="h-3.5 w-3.5" />
                   Adicionar meta
                 </Link>

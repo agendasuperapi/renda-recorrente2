@@ -408,7 +408,7 @@ const Dashboard = () => {
                   
                   <Button onClick={() => {
                     handleCloseWelcome();
-                    navigate("/settings/personal");
+                    navigate("/user/settings");
                   }} variant="outline" className="w-full h-10 text-sm" size="lg">
                     Completar Perfil
                   </Button>
@@ -724,7 +724,7 @@ const Dashboard = () => {
                     Veja aqui seus cupons principais para compartilhar
                   </p>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => navigate('/coupons')} className="gap-2 w-fit">
+                <Button variant="outline" size="sm" onClick={() => navigate('/user/coupons')} className="gap-2 w-fit">
                   Ver todos
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -771,7 +771,7 @@ const Dashboard = () => {
                               </div>
                             ) : (
                               <div className="hidden lg:block flex-shrink-0">
-                                <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="gap-2 text-xs sm:text-sm">
+                                <Button size="sm" variant="outline" onClick={() => navigate('/user/coupons')} className="gap-2 text-xs sm:text-sm">
                                   <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                   Liberar cupom
                                 </Button>
@@ -805,7 +805,7 @@ const Dashboard = () => {
                             </div>
                           ) : (
                             <div className="lg:hidden">
-                              <Button size="sm" variant="outline" onClick={() => navigate('/coupons')} className="w-full gap-2 text-xs sm:text-sm">
+                              <Button size="sm" variant="outline" onClick={() => navigate('/user/coupons')} className="w-full gap-2 text-xs sm:text-sm">
                                 <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 Liberar cupom
                               </Button>
@@ -829,7 +829,7 @@ const Dashboard = () => {
                     Veja aqui suas últimas comissões
                   </p>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => navigate('/commissions-daily')} className="gap-2 w-fit">
+                <Button variant="outline" size="sm" onClick={() => navigate('/user/commissions')} className="gap-2 w-fit">
                   Ver todas
                   <ArrowRight className="w-4 h-4" />
                 </Button>
