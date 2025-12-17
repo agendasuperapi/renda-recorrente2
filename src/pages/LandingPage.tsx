@@ -475,21 +475,36 @@ const LandingPage = () => {
     }
   }, []);
   useEffect(() => {
+    const isRecoveryUrl = () =>
+      window.location.search.includes("type=recovery") ||
+      window.location.hash.includes("type=recovery");
+
+    // Se o usuário abriu um link de recuperação e caiu na landing por configuração do Supabase,
+    // redireciona para a rota dedicada preservando query/hash (tokens) para o Supabase processar.
+    if (isRecoveryUrl()) {
+      supabase.auth.getSession().finally(() => {
+        navigate(
+          {
+            pathname: "/auth/recovery",
+            search: window.location.search,
+            hash: window.location.hash,
+          },
+          { replace: true }
+        );
+      });
+      return;
+    }
+
     // Check auth state
-    supabase.auth.getSession().then(({
-      data: {
-        session
-      }
-    }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         checkAdminRole(session.user.id);
       }
     });
+
     const {
-      data: {
-        subscription
-      }
+      data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {

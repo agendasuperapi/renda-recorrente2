@@ -148,9 +148,35 @@ const Auth = () => {
   };
 
   useEffect(() => {
+    const isRecoveryUrl = () =>
+      window.location.search.includes("type=recovery") ||
+      window.location.hash.includes("type=recovery");
+
+    const goToRecovery = () => {
+      navigate(
+        {
+          pathname: "/auth/recovery",
+          search: window.location.search,
+          hash: window.location.hash,
+        },
+        { replace: true }
+      );
+    };
+
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const recovery = isRecoveryUrl();
+
+      // getSession também faz o Supabase processar tokens/codes da URL (detectSessionInUrl)
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      // Se caiu aqui via link de recuperação, não redireciona pro dashboard.
+      if (recovery) {
+        goToRecovery();
+        return;
+      }
+
       if (session?.user) {
         // Check if user is admin first
         const { data: roleData } = await supabase
@@ -171,11 +197,14 @@ const Auth = () => {
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Detect password recovery flow
-      if (event === 'PASSWORD_RECOVERY') {
-        setIsResetPassword(true);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // PASSWORD_RECOVERY pode acontecer com a rota /auth (por configuração do Supabase)
+      // então garantimos que sempre vai pra /auth/recovery.
+      if (event === "PASSWORD_RECOVERY" || isRecoveryUrl()) {
         setIsForgotPassword(false);
+        goToRecovery();
         return;
       }
 
@@ -192,7 +221,7 @@ const Auth = () => {
               setIsAdmin(isUserAdmin);
 
               // Only redirect on auth changes if NOT admin and not resetting password
-              if (event === 'SIGNED_IN' && !isUserAdmin && !isResetPassword) {
+              if (event === "SIGNED_IN" && !isUserAdmin && !isResetPassword) {
                 navigate("/user/dashboard");
               }
             });
