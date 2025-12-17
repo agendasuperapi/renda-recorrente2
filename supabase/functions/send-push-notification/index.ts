@@ -488,7 +488,7 @@ serve(async (req) => {
           .from('notification_preferences')
           .select('*')
           .eq('user_id', uid)
-          .single();
+          .maybeSingle();
 
         if (prefs) {
           const prefValue = (prefs as Record<string, unknown>)[preferenceField];
