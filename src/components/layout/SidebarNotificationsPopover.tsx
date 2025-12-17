@@ -22,9 +22,10 @@ import {
   AlertCircle,
   ExternalLink
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
+import { Calendar } from 'lucide-react';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -179,6 +180,18 @@ export function SidebarNotificationsPopover({
 
     const unreadInList = items.filter(n => !n.is_read).length;
 
+    // Agrupar notificações por data
+    const groupedByDate: Record<string, any[]> = {};
+    items.forEach(notification => {
+      const dateKey = format(parseISO(notification.created_at), 'yyyy-MM-dd');
+      if (!groupedByDate[dateKey]) {
+        groupedByDate[dateKey] = [];
+      }
+      groupedByDate[dateKey].push(notification);
+    });
+
+    const dateEntries = Object.entries(groupedByDate);
+
     return (
       <>
         {unreadInList > 0 && (
@@ -200,52 +213,80 @@ export function SidebarNotificationsPopover({
           </div>
         )}
         <ScrollArea className={scrollHeight}>
-          <div className="divide-y">
-            {items.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-3 hover:bg-muted/50 cursor-pointer transition-colors ${
-                  !notification.is_read ? 'bg-primary/5' : ''
-                }`}
-                onClick={() => handleNotificationClick(notification)}
-              >
-                <div className="flex items-start gap-2">
-                  <div className="flex-shrink-0 mt-0.5">
-                    {typeIcons[notification.type] || <Bell className="h-4 w-4 text-muted-foreground" />}
+          <div className="p-2 space-y-3">
+            {dateEntries.map(([dateKey, dayNotifications]) => (
+              <div key={dateKey}>
+                {/* Header da data */}
+                <div className="flex items-center gap-2 py-1.5 px-1">
+                  <div className="flex items-center justify-center w-5 h-5 rounded bg-primary/10">
+                    <Calendar className="h-3 w-3 text-primary flex-shrink-0" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-1">
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {notification.body}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        {!notification.is_read && (
-                          <div className="h-2 w-2 rounded-full bg-primary" />
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteNotification.mutate(notification.id);
-                          }}
+                  <span className="text-[10px] font-semibold text-foreground/70">
+                    {format(parseISO(dateKey), "EEEE, d 'de' MMMM", { locale: ptBR })}
+                  </span>
+                </div>
+
+                {/* Notificações do dia com timeline */}
+                <div className="relative pl-5">
+                  {/* Linha vertical contínua */}
+                  <div className="absolute left-[9px] top-0 bottom-0 w-0.5 bg-primary/40" />
+
+                  <div className="space-y-2">
+                    {dayNotifications.map((notification) => (
+                      <div key={notification.id} className="relative">
+                        {/* Ponto verde */}
+                        <div className="absolute left-[-16px] top-1/2 -translate-y-1/2 z-20 w-2 h-2 rounded-full bg-primary border-2 border-background" />
+
+                        <div
+                          className={`p-2 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors ${
+                            !notification.is_read ? 'bg-primary/5 ring-1 ring-primary/20' : ''
+                          }`}
+                          onClick={() => handleNotificationClick(notification)}
                         >
-                          <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
-                        </Button>
+                          <div className="flex items-start gap-2">
+                            {/* Hora */}
+                            <div className="flex-shrink-0 text-[10px] text-muted-foreground w-8 pt-0.5">
+                              {format(parseISO(notification.created_at), 'HH:mm')}
+                            </div>
+
+                            {/* Ícone */}
+                            <div className="flex-shrink-0 mt-0.5">
+                              {typeIcons[notification.type] || <Bell className="h-4 w-4 text-muted-foreground" />}
+                            </div>
+
+                            {/* Conteúdo */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-1">
+                                <div className="flex-1 min-w-0">
+                                  <p className={`text-xs font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                    {notification.title}
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground line-clamp-2">
+                                    {notification.body}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  {!notification.is_read && (
+                                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      deleteNotification.mutate(notification.id);
+                                    }}
+                                  >
+                                    <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {formatDistanceToNow(new Date(notification.created_at), { 
-                        addSuffix: true,
-                        locale: ptBR 
-                      })}
-                    </p>
+                    ))}
                   </div>
                 </div>
               </div>
