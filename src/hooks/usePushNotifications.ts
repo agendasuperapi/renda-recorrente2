@@ -185,17 +185,6 @@ export function usePushNotifications() {
     const browserPermission = Notification.permission;
     setPermission(browserPermission);
 
-    if (browserPermission !== 'granted') {
-      // No permission - clean up orphan records in DB
-      await supabase
-        .from('push_subscriptions')
-        .delete()
-        .eq('user_id', userId);
-      setSubscriptions([]);
-      setIsSubscribed(false);
-      return;
-    }
-
     // Check if there's an active browser subscription
     const browserSub = await getBrowserSubscription();
     
@@ -207,6 +196,28 @@ export function usePushNotifications() {
       .order('created_at', { ascending: false });
 
     setSubscriptions(dbSubs || []);
+
+    // If permission is denied and we have a browser subscription in DB, remove only that one
+    if (browserPermission === 'denied' && browserSub && dbSubs) {
+      const matchingSub = dbSubs.find(sub => sub.endpoint === browserSub.endpoint);
+      if (matchingSub) {
+        await supabase
+          .from('push_subscriptions')
+          .delete()
+          .eq('id', matchingSub.id);
+        // Update local state
+        setSubscriptions(prev => prev.filter(s => s.id !== matchingSub.id));
+      }
+      setIsSubscribed(false);
+      return;
+    }
+
+    // If permission not granted (default or denied), just mark as not subscribed for this browser
+    // but DON'T delete other device subscriptions
+    if (browserPermission !== 'granted') {
+      setIsSubscribed(false);
+      return;
+    }
 
     // Check if current browser subscription matches one in DB
     if (browserSub && dbSubs && dbSubs.length > 0) {
