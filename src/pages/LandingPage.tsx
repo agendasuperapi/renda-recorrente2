@@ -1637,22 +1637,22 @@ const LandingPage = () => {
           </div>
 
           {validatedCoupon ? (
-            <div className="bg-background rounded-full shadow-lg px-4 py-3 flex items-center gap-3 animate-fade-in">
-              {validatedCoupon.affiliate && (
-                <Avatar className="h-12 w-12 ring-2 ring-primary ring-offset-2 ring-offset-background">
-                  <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
-                  <AvatarFallback>
-                    {validatedCoupon.affiliate.name?.charAt(0) || "A"}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <div className="flex-1 flex items-center gap-3">
-                <Badge className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1">
-                  {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% OFF`}
-                  {validatedCoupon.type === "days" && `${validatedCoupon.value} DIAS`}
-                  {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} MESES`}
-                </Badge>
-                <div className="flex flex-col">
+            <div className="flex flex-col items-center gap-3 animate-fade-in">
+              <Badge className="bg-primary text-primary-foreground text-sm font-semibold px-3 py-1.5">
+                {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% OFF`}
+                {validatedCoupon.type === "days" && `${validatedCoupon.value} DIAS`}
+                {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} MESES`}
+              </Badge>
+              <div className="bg-background rounded-full shadow-lg px-4 py-3 flex items-center gap-3 w-full">
+                {validatedCoupon.affiliate && (
+                  <Avatar className="h-12 w-12 ring-2 ring-primary ring-offset-2 ring-offset-background">
+                    <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
+                    <AvatarFallback>
+                      {validatedCoupon.affiliate.name?.charAt(0) || "A"}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex-1 flex flex-col">
                   <span className="font-bold text-foreground">{couponCode}</span>
                   {validatedCoupon.affiliate && (
                     <span className="text-sm text-muted-foreground">
@@ -1660,20 +1660,20 @@ const LandingPage = () => {
                     </span>
                   )}
                 </div>
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground" 
+                  onClick={() => {
+                    setCouponCode("");
+                    setValidatedCoupon(null);
+                    localStorage.removeItem('lastUsedCoupon');
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 text-muted-foreground hover:text-foreground" 
-                onClick={() => {
-                  setCouponCode("");
-                  setValidatedCoupon(null);
-                  localStorage.removeItem('lastUsedCoupon');
-                }}
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
           ) : (
             <div className="bg-card border border-border rounded-full shadow-lg px-4 py-3 flex items-center gap-2">
