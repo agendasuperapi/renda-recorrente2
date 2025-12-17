@@ -717,7 +717,7 @@ const SubAffiliates = () => {
                       </TableCell>
                       <TableCell>{getStatusBadge(sub.status)}</TableCell>
                       <TableCell>
-                        {format(new Date(sub.created_at), "dd/MM/yyyy", {
+                        {format(new Date(sub.created_at), "dd/MM/yyyy HH:mm", {
                       locale: ptBR
                     })}
                       </TableCell>
