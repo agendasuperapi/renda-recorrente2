@@ -665,7 +665,23 @@ export const AdminCommissionProcessingTab = () => {
                     </TableCell>
                     <TableCell>{payment.affiliate_name || "-"}</TableCell>
                     <TableCell>{formatCurrency(payment.amount)}</TableCell>
-                    <TableCell>{getStatusBadge(payment)}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(payment)}
+                        {payment.commission_error && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleReprocessSingle(payment.id)}
+                            disabled={isReprocessing}
+                            title="Reprocessar"
+                          >
+                            <RefreshCw className={`h-3.5 w-3.5 ${isReprocessing ? 'animate-spin' : ''}`} />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{payment.commissions_generated || 0}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {format(new Date(payment.created_at), "dd/MM/yyyy HH:mm")}
