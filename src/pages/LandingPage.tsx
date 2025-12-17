@@ -561,7 +561,7 @@ const LandingPage = () => {
 
     // Observar todas as seções - usa setTimeout para garantir que elementos condicionais sejam renderizados
     const observeSections = () => {
-      const sections = ['hero', 'seja-afiliado', 'comissao-recorrente', 'como-funciona', 'painel-afiliado', 'vantagens', 'funcionalidades', 'layout-responsivo', 'produtos', 'depoimentos', 'planos', 'faq'];
+      const sections = ['hero', 'seja-afiliado', 'comissao-recorrente', 'como-funciona', 'painel-afiliado', 'vantagens', 'funcionalidades', 'layout-responsivo', 'produtos', 'depoimentos', 'cupons', 'planos', 'faq'];
       sections.forEach(sectionId => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -1619,16 +1619,19 @@ const LandingPage = () => {
       </section>
 
       {/* Seção de Cupom */}
-      <section id="cupons" className="py-12 md:py-16 px-3 md:px-6 relative" style={getGradientStyle('planos')}>
+      <section id="cupons" className="py-12 md:py-16 px-3 md:px-6 relative" style={getGradientStyle('cupons')}>
+        {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'cupons' ? null : 'cupons')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
+            <Edit className="w-4 h-4" />
+          </Button>}
         <div className="container mx-auto max-w-2xl px-0">
           <div className="flex flex-col items-center text-center mb-6">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Ticket className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: getHeadingColor('planos') }}>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: getHeadingColor('cupons') }}>
               Tem cupom de desconto?
             </h2>
-            <p className="text-muted-foreground">
+            <p style={{ color: getTextColor('cupons') }}>
               Aplique seu código e economize ainda mais!
             </p>
           </div>
