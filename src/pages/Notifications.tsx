@@ -21,7 +21,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Filter
+  Filter,
+  RefreshCw
 } from 'lucide-react';
 import { formatDistanceToNow, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -123,7 +124,7 @@ export default function Notifications() {
     },
   });
 
-  const { data: notifications, isLoading, isFetching } = useQuery({
+  const { data: notifications, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['notifications', isAdminMode, page, itemsPerPage, statusFilter, typeFilter],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -383,6 +384,16 @@ export default function Notifications() {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
+          
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="h-9 w-9"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
       </div>
 
