@@ -58,6 +58,7 @@ const Auth = () => {
   const isMobile = useIsMobile();
   const { formattedVersion } = useDeployedVersion();
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState(() => {
@@ -235,6 +236,44 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const trimmedEmail = email.trim();
+      if (!trimmedEmail) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Digite seu e-mail",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+        redirectTo: `${window.location.origin}/auth`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "E-mail enviado!",
+        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+      });
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -384,113 +423,175 @@ const Auth = () => {
             </h1>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-3 sm:space-y-4">
-            {!isLogin && (
+          {isForgotPassword ? (
+            <form onSubmit={handleForgotPassword} className="space-y-3 sm:space-y-4">
+              <div className="text-center mb-4">
+                <h2 className="text-lg font-semibold" style={{ color: getHeadingColor('auth_form_card') }}>
+                  Esqueci minha senha
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Digite seu e-mail para receber o link de redefinição
+                </p>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="name" style={{ color: getTextColor('auth_form_card') }}>
-                  Nome completo
+                <Label htmlFor="email" style={{ color: getTextColor('auth_form_card') }}>
+                  E-mail
                 </Label>
                 <Input
-                  id="name"
-                  type="text"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required={!isLogin}
+                  id="email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+                  required
                   className="bg-background text-foreground border-input"
-                  maxLength={100}
+                  placeholder="seu@email.com"
+                  maxLength={255}
                 />
               </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email" style={{ color: getTextColor('auth_form_card') }}>
-                E-mail
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
-                required
-                className="bg-background text-foreground border-input"
-                placeholder="seu@email.com"
-                maxLength={255}
-              />
-            </div>
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? "Enviando..." : "Enviar link de redefinição"}
+              </Button>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" style={{ color: getTextColor('auth_form_card') }}>
-                Senha
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
-                  required
-                  className="bg-background text-foreground border-input pr-10"
-                  maxLength={128}
-                  minLength={6}
-                />
+              <div className="text-center">
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm hover:opacity-80 transition-opacity"
+                  style={{ color: getTextColor('auth_form_card') }}
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  ← Voltar para o login
                 </button>
               </div>
-            </div>
+            </form>
+          ) : (
+            <>
+              <form onSubmit={handleAuth} className="space-y-3 sm:space-y-4">
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="name" style={{ color: getTextColor('auth_form_card') }}>
+                      Nome completo
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      autoComplete="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required={!isLogin}
+                      className="bg-background text-foreground border-input"
+                      maxLength={100}
+                    />
+                  </div>
+                )}
 
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90"
-              disabled={loading}
-            >
-              {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}
-            </Button>
-          </form>
+                <div className="space-y-2">
+                  <Label htmlFor="email" style={{ color: getTextColor('auth_form_card') }}>
+                    E-mail
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+                    required
+                    className="bg-background text-foreground border-input"
+                    placeholder="seu@email.com"
+                    maxLength={255}
+                  />
+                </div>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => isLogin ? navigate("/") : setIsLogin(!isLogin)}
-              className="hover:opacity-80 transition-opacity"
-              style={{ color: getTextColor('auth_form_card') }}
-            >
-              {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
-            </button>
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" style={{ color: getTextColor('auth_form_card') }}>
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
+                      required
+                      className="bg-background text-foreground border-input pr-10"
+                      maxLength={128}
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  {isLogin && (
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotPassword(true)}
+                      className="text-sm hover:opacity-80 transition-opacity mt-1"
+                      style={{ color: getTextColor('auth_form_card') }}
+                    >
+                      Esqueci minha senha
+                    </button>
+                  )}
+                </div>
 
-          <div className="mt-4 text-center text-xs" style={{ color: getTextColor('auth_form_card') }}>
-            Ao continuar, estou de acordo com os{" "}
-            <span
-              onClick={() => navigate("/terms")}
-              className="hover:opacity-80 underline cursor-pointer"
-              style={{ color: getTextColor('auth_form_card') }}
-            >
-              Termos de Uso
-            </span>{" "}
-            e{" "}
-            <span
-              onClick={() => navigate("/privacy")}
-              className="hover:opacity-80 underline cursor-pointer"
-              style={{ color: getTextColor('auth_form_card') }}
-            >
-              Aviso de Privacidade
-            </span>
-            .
-          </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90"
+                  disabled={loading}
+                >
+                  {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}
+                </Button>
+              </form>
 
-          {formattedVersion && (
-            <div className="mt-4 text-center text-xs opacity-50" style={{ color: getTextColor('auth_form_card') }}>
-              {formattedVersion}
-            </div>
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => isLogin ? navigate("/") : setIsLogin(!isLogin)}
+                  className="hover:opacity-80 transition-opacity"
+                  style={{ color: getTextColor('auth_form_card') }}
+                >
+                  {isLogin ? "Criar um novo cadastro +" : "Já tem uma conta? Entrar"}
+                </button>
+              </div>
+
+              <div className="mt-4 text-center text-xs" style={{ color: getTextColor('auth_form_card') }}>
+                Ao continuar, estou de acordo com os{" "}
+                <span
+                  onClick={() => navigate("/terms")}
+                  className="hover:opacity-80 underline cursor-pointer"
+                  style={{ color: getTextColor('auth_form_card') }}
+                >
+                  Termos de Uso
+                </span>{" "}
+                e{" "}
+                <span
+                  onClick={() => navigate("/privacy")}
+                  className="hover:opacity-80 underline cursor-pointer"
+                  style={{ color: getTextColor('auth_form_card') }}
+                >
+                  Aviso de Privacidade
+                </span>
+                .
+              </div>
+
+              {formattedVersion && (
+                <div className="mt-4 text-center text-xs opacity-50" style={{ color: getTextColor('auth_form_card') }}>
+                  {formattedVersion}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
