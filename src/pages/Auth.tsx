@@ -59,12 +59,14 @@ const Auth = () => {
   const { formattedVersion } = useDeployedVersion();
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState(() => {
     return localStorage.getItem("lastLoggedEmail") || "";
   });
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
@@ -169,7 +171,14 @@ const Auth = () => {
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Detect password recovery flow
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsResetPassword(true);
+        setIsForgotPassword(false);
+        return;
+      }
+
       if (session?.user) {
         // Defer Supabase calls to prevent auth deadlock
         setTimeout(() => {
@@ -182,8 +191,8 @@ const Auth = () => {
               const isUserAdmin = roleData?.role === "super_admin";
               setIsAdmin(isUserAdmin);
 
-              // Only redirect on auth changes if NOT admin
-              if (_event === 'SIGNED_IN' && !isUserAdmin) {
+              // Only redirect on auth changes if NOT admin and not resetting password
+              if (event === 'SIGNED_IN' && !isUserAdmin && !isResetPassword) {
                 navigate("/user/dashboard");
               }
             });
@@ -194,7 +203,7 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isResetPassword]);
 
   const getGradientStyle = (blockName: string) => {
     const config = gradientConfigs[blockName];
@@ -233,6 +242,60 @@ const Auth = () => {
       return config.heading_color_dark || config.heading_color || undefined;
     } else {
       return config.heading_color_light || config.heading_color || undefined;
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (password !== confirmPassword) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "As senhas não coincidem",
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "A senha deve ter no mínimo 6 caracteres",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Senha alterada com sucesso!",
+        description: "Você já pode fazer login com sua nova senha.",
+      });
+      
+      // Reset states and go back to login
+      setIsResetPassword(false);
+      setPassword("");
+      setConfirmPassword("");
+      
+      // Sign out to force re-login with new password
+      await supabase.auth.signOut();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -423,7 +486,71 @@ const Auth = () => {
             </h1>
           </div>
 
-          {isForgotPassword ? (
+          {isResetPassword ? (
+            <form onSubmit={handleResetPassword} className="space-y-3 sm:space-y-4">
+              <div className="text-center mb-4">
+                <h2 className="text-lg font-semibold" style={{ color: getHeadingColor('auth_form_card') }}>
+                  Redefinir senha
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Digite sua nova senha
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" style={{ color: getTextColor('auth_form_card') }}>
+                  Nova senha
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value.replace(/\s/g, ''))}
+                    required
+                    className="bg-background text-foreground border-input pr-10"
+                    maxLength={128}
+                    minLength={6}
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" style={{ color: getTextColor('auth_form_card') }}>
+                  Confirmar nova senha
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value.replace(/\s/g, ''))}
+                  required
+                  className="bg-background text-foreground border-input"
+                  maxLength={128}
+                  minLength={6}
+                  placeholder="Repita a senha"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading ? "Salvando..." : "Salvar nova senha"}
+              </Button>
+            </form>
+          ) : isForgotPassword ? (
             <form onSubmit={handleForgotPassword} className="space-y-3 sm:space-y-4">
               <div className="text-center mb-4">
                 <h2 className="text-lg font-semibold" style={{ color: getHeadingColor('auth_form_card') }}>
