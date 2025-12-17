@@ -10,6 +10,7 @@ import LandingPage from "./pages/LandingPage";
 import LandingTestimonials from "./pages/LandingTestimonials";
 import SignupFunnel from "./pages/SignupFunnel";
 import Auth from "./pages/Auth";
+import PasswordRecovery from "./pages/PasswordRecovery";
 import Checkout from "./pages/Checkout";
 import CheckoutReturn from "./pages/CheckoutReturn";
 import Dashboard from "./pages/Dashboard";
@@ -82,6 +83,7 @@ const App = () => {
             <Route path="/landing" element={<LandingTestimonials />} />
             <Route path="/signup/:planId" element={<SignupFunnel />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/recovery" element={<PasswordRecovery />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/return" element={<CheckoutReturn />} />
             <Route path="/terms" element={<TermsOfService />} />
