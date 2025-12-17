@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { AlertDialog, AlertDialogContent, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -70,6 +71,18 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
   const isMobile = useIsMobile();
   const [withdrawalDay, setWithdrawalDay] = useState<number | null>(null);
   const [isEditingWithdrawal, setIsEditingWithdrawal] = useState(false);
+  const [showAvatarZoom, setShowAvatarZoom] = useState(false);
+
+  // Função para obter URL do avatar em alta resolução
+  const getHighResAvatarUrl = (url: string | null) => {
+    if (!url) return null;
+    // Se for URL do Supabase Storage, adiciona parâmetros de transformação
+    if (url.includes('supabase.co/storage')) {
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}width=1000&height=1000`;
+    }
+    return url;
+  };
 
   // Query para buscar perfil completo
   const { data: profile, isLoading: loadingProfile } = useQuery({
@@ -200,7 +213,10 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
           <div className={`space-y-6 pb-6 ${isMobile ? "px-4" : ""}`}>
             {/* Header com Avatar e Info Básica */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4 pb-4 border-b">
-              <Avatar className="h-20 w-20">
+              <Avatar 
+                className="h-20 w-20 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                onClick={() => profile.avatar_url && setShowAvatarZoom(true)}
+              >
                 {profile.avatar_url && (
                   <AvatarImage src={profile.avatar_url} alt={profile.name} />
                 )}
@@ -585,39 +601,61 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
 
   if (!affiliateId) return null;
 
-  return isMobile ? (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[95vh]">
-        <DrawerHeader className="relative pb-3">
-          {/* Drag Handle */}
-          <div className="mx-auto w-12 h-1.5 rounded-full bg-muted-foreground/40 mb-3" />
-          
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2 h-8 w-8"
-            onClick={() => onOpenChange(false)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          
-          <DrawerTitle>Detalhes do Afiliado</DrawerTitle>
-        </DrawerHeader>
-        
-        <ContentComponent />
-      </DrawerContent>
-    </Drawer>
-  ) : (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-4xl p-0 lg:p-6 gap-0">
-        <div className="px-6 pt-6 pb-4">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Afiliado</DialogTitle>
-          </DialogHeader>
-        </div>
-        <ContentComponent />
-      </DialogContent>
-    </Dialog>
+  return (
+    <>
+      {/* Avatar Zoom Dialog */}
+      <AlertDialog open={showAvatarZoom} onOpenChange={setShowAvatarZoom}>
+        <AlertDialogContent className="max-w-lg p-2 bg-transparent border-none shadow-none">
+          <div className="relative">
+            <AlertDialogCancel className="absolute -top-2 -right-2 h-8 w-8 rounded-full p-0 bg-background border shadow-lg z-10">
+              <X className="h-4 w-4" />
+            </AlertDialogCancel>
+            {profile?.avatar_url && (
+              <img
+                src={getHighResAvatarUrl(profile.avatar_url) || profile.avatar_url}
+                alt={profile?.name || "Avatar"}
+                className="w-full h-auto max-h-[80vh] object-contain rounded-lg shadow-2xl"
+              />
+            )}
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {isMobile ? (
+        <Drawer open={open} onOpenChange={onOpenChange}>
+          <DrawerContent className="max-h-[95vh]">
+            <DrawerHeader className="relative pb-3">
+              {/* Drag Handle */}
+              <div className="mx-auto w-12 h-1.5 rounded-full bg-muted-foreground/40 mb-3" />
+              
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 h-8 w-8"
+                onClick={() => onOpenChange(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              
+              <DrawerTitle>Detalhes do Afiliado</DrawerTitle>
+            </DrawerHeader>
+            
+            <ContentComponent />
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent className="max-h-[90vh] max-w-4xl p-0 lg:p-6 gap-0">
+            <div className="px-6 pt-6 pb-4">
+              <DialogHeader>
+                <DialogTitle>Detalhes do Afiliado</DialogTitle>
+              </DialogHeader>
+            </div>
+            <ContentComponent />
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
