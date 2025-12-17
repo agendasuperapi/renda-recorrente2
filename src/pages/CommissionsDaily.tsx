@@ -39,6 +39,8 @@ interface Commission {
   coupon_code: string | null;
   coupon_name: string | null;
   available_date: string | null;
+  billing_reason: string | null;
+  purchase_number: number | null;
 }
 interface Stats {
   hoje: number;
@@ -367,6 +369,41 @@ const CommissionsDaily = ({
         N{level}
       </span>;
   };
+
+  const getClientTypeBadge = (billingReason: string | null, purchaseNumber: number | null) => {
+    if (billingReason === 'subscription_create' || billingReason === 'primeira_venda') {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+          ✨ Novo
+        </span>
+      );
+    }
+    
+    if (billingReason === 'subscription_cycle' || billingReason === 'renovacao') {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/30">
+          🔄 Renovação
+        </span>
+      );
+    }
+    
+    if ((billingReason === 'one_time_purchase' || billingReason === 'venda_avulsa') && purchaseNumber) {
+      if (purchaseNumber === 1) {
+        return (
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+            ✨ 1ª compra
+          </span>
+        );
+      }
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+          {purchaseNumber}ª compra
+        </span>
+      );
+    }
+    
+    return null;
+  };
   if (initialLoading && !hasLoadedOnce) {
     return <TableSkeleton title={embedded ? undefined : "Comissões Diárias"} columns={7} rows={5} showSearch />;
   }
@@ -668,7 +705,10 @@ const CommissionsDaily = ({
                                               />
                                             )}
                                             <div className="flex-1 min-w-0">
-                                              <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
+                                              <div className="flex items-center gap-2 flex-wrap">
+                                                <div className="font-semibold text-sm truncate">{commission.cliente || "Sem nome"}</div>
+                                                {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                              </div>
                                               <div className="text-xs text-muted-foreground truncate">{commission.produto || "-"}</div>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -699,7 +739,10 @@ const CommissionsDaily = ({
                                                 />
                                               )}
                                               <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                  <p className="font-medium text-sm truncate">{commission.cliente || "Sem nome"}</p>
+                                                  {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                                </div>
                                                 <p className="text-xs text-muted-foreground truncate">{commission.cliente_email || "-"}</p>
                                               </div>
                                               {getStatusBadge(commission.status, commission.available_date, commission.data)}
@@ -823,7 +866,10 @@ const CommissionsDaily = ({
                                 </TableCell>
                                 <TableCell className="border-0 relative">
                                   <div>
-                                    <div className="font-medium">{commission.cliente || "-"}</div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{commission.cliente || "-"}</span>
+                                      {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                    </div>
                                     <div className="text-xs text-muted-foreground">{commission.cliente_email || "-"}</div>
                                   </div>
                                   <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />

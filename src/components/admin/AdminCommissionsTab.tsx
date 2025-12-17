@@ -38,6 +38,8 @@ interface Commission {
   coupon_name: string | null;
   affiliate_id: string;
   affiliate_name: string;
+  billing_reason: string | null;
+  purchase_number: number | null;
 }
 
 export const AdminCommissionsTab = () => {
@@ -244,6 +246,41 @@ export const AdminCommissionsTab = () => {
     );
   };
 
+  const getClientTypeBadge = (billingReason: string | null, purchaseNumber: number | null) => {
+    if (billingReason === 'subscription_create' || billingReason === 'primeira_venda') {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+          ✨ Novo
+        </span>
+      );
+    }
+    
+    if (billingReason === 'subscription_cycle' || billingReason === 'renovacao') {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/30">
+          🔄 Renovação
+        </span>
+      );
+    }
+    
+    if ((billingReason === 'one_time_purchase' || billingReason === 'venda_avulsa') && purchaseNumber) {
+      if (purchaseNumber === 1) {
+        return (
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+            ✨ 1ª compra
+          </span>
+        );
+      }
+      return (
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+          {purchaseNumber}ª compra
+        </span>
+      );
+    }
+    
+    return null;
+  };
+
   if (initialLoading && !hasLoadedOnce) {
     return <TableSkeleton columns={10} rows={5} showSearch />;
   }
@@ -435,7 +472,10 @@ export const AdminCommissionsTab = () => {
                                           )}
                                           <div className="flex-1 min-w-0">
                                             <div className="font-semibold text-sm truncate">{commission.affiliate_name}</div>
-                                            <div className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</div>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              <span className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</span>
+                                              {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                            </div>
                                           </div>
                                           <div className="flex items-center gap-3">
                                             <div className="text-right">
@@ -466,7 +506,10 @@ export const AdminCommissionsTab = () => {
                                             )}
                                             <div className="flex-1 min-w-0">
                                               <p className="font-medium text-sm truncate">{commission.affiliate_name}</p>
-                                              <p className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</p>
+                                              <div className="flex items-center gap-2 flex-wrap">
+                                                <p className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</p>
+                                                {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                              </div>
                                             </div>
                                             {getStatusBadge(commission.status, commission.data)}
                                           </div>
@@ -590,7 +633,10 @@ export const AdminCommissionsTab = () => {
                                 <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                               </TableCell>
                               <TableCell className="relative border-0">
-                                {commission.cliente || "-"}
+                                <div className="flex items-center gap-2">
+                                  <span>{commission.cliente || "-"}</span>
+                                  {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                </div>
                                 <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                               </TableCell>
                               <TableCell className="relative border-0">
