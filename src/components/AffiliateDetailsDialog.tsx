@@ -218,7 +218,7 @@ export function AffiliateDetailsDialog({ affiliateId, open, onOpenChange }: Affi
                     </Badge>
                   )}
                   <Badge variant="outline">
-                    Cadastrado em {profile.created_at ? format(new Date(profile.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}
+                    Cadastrado em {profile.created_at ? format(new Date(profile.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
                   </Badge>
                 </div>
               </div>
