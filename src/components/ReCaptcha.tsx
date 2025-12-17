@@ -1,8 +1,7 @@
 import { useEffect, useCallback, forwardRef, useImperativeHandle, useState } from 'react';
 
 // reCAPTCHA v3 site key - this is public and safe to expose
-// You need to get your own key from https://www.google.com/recaptcha/admin
-const RECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key - replace with real key
+const RECAPTCHA_SITE_KEY = '6LcM3C4sAAAAADmL8qkNhuaxHTUNitsyA3yVYe4O';
 
 export interface ReCaptchaRef {
   executeAsync: () => Promise<string | null>;
