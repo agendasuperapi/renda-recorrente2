@@ -197,7 +197,7 @@ export function SubAffiliateCommissionsDialog({
               </div>
               <div>
                 <span className="text-muted-foreground text-xs">Cadastro</span>
-                <p className="font-medium">{format(new Date(subAffiliate.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
+                <p className="font-medium">{format(new Date(subAffiliate.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
               </div>
               <div>
                 <span className="text-muted-foreground text-xs">Indicações</span>
