@@ -1618,6 +1618,92 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Seção de Cupom */}
+      <section id="cupons" className="py-12 md:py-16 px-3 md:px-6 relative" style={getGradientStyle('planos')}>
+        <div className="container mx-auto max-w-2xl px-0">
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Ticket className="h-6 w-6 text-primary" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: getHeadingColor('planos') }}>
+              Tem cupom de desconto?
+            </h2>
+            <p className="text-muted-foreground">
+              Aplique seu código e economize ainda mais!
+            </p>
+          </div>
+
+          {validatedCoupon ? (
+            <div className="bg-background rounded-full shadow-lg px-4 py-3 flex items-center gap-3 animate-fade-in">
+              {validatedCoupon.affiliate && (
+                <Avatar className="h-12 w-12 ring-2 ring-primary ring-offset-2 ring-offset-background">
+                  <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
+                  <AvatarFallback>
+                    {validatedCoupon.affiliate.name?.charAt(0) || "A"}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <div className="flex-1 flex items-center gap-3">
+                <Badge className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1">
+                  {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% OFF`}
+                  {validatedCoupon.type === "days" && `${validatedCoupon.value} DIAS`}
+                  {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} MESES`}
+                </Badge>
+                <div className="flex flex-col">
+                  <span className="font-bold text-foreground">{couponCode}</span>
+                  {validatedCoupon.affiliate && (
+                    <span className="text-sm text-muted-foreground">
+                      por @{validatedCoupon.affiliate.username}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-muted-foreground hover:text-foreground" 
+                onClick={() => {
+                  setCouponCode("");
+                  setValidatedCoupon(null);
+                  localStorage.removeItem('lastUsedCoupon');
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="bg-background rounded-full shadow-lg px-4 py-2 flex items-center gap-2">
+              <Ticket className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <Input 
+                placeholder="Digite o código do cupom" 
+                value={couponCode} 
+                onChange={e => {
+                  setCouponCode(e.target.value.toUpperCase());
+                  setValidatedCoupon(null);
+                  if (!e.target.value.trim()) {
+                    localStorage.removeItem('lastUsedCoupon');
+                  }
+                }} 
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    handleApplyCoupon();
+                  }
+                }} 
+                className="border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 px-0"
+              />
+              <Button 
+                onClick={handleApplyCoupon} 
+                disabled={loadingCoupon || !couponCode.trim()} 
+                className="rounded-full px-6"
+              >
+                {loadingCoupon ? "..." : "Aplicar"}
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Planos */}
       <section id="planos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('planos')}>
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
@@ -1656,90 +1742,6 @@ const LandingPage = () => {
         }}>
             Comece gratuitamente ou escolha um plano que se adapte às suas necessidades
           </p>
-          
-          {/* Card de Cupom */}
-          <div className="max-w-2xl mx-auto mb-8 px-3 md:px-0">
-            <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Ticket className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2" style={{ color: getTextColor('planos') }}>
-                Tem cupom de desconto?
-              </h3>
-              <p className="text-muted-foreground">
-                Aplique seu código e economize ainda mais!
-              </p>
-            </div>
-
-            {validatedCoupon ? (
-              <div className="bg-background rounded-full shadow-lg px-4 py-3 flex items-center gap-3 animate-fade-in">
-                {validatedCoupon.affiliate && (
-                  <Avatar className="h-12 w-12 ring-2 ring-primary ring-offset-2 ring-offset-background">
-                    <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
-                    <AvatarFallback>
-                      {validatedCoupon.affiliate.name?.charAt(0) || "A"}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div className="flex-1 flex items-center gap-3">
-                  <Badge className="bg-primary text-primary-foreground text-xs font-semibold px-2 py-1">
-                    {validatedCoupon.type === "percentage" && `${validatedCoupon.value}% OFF`}
-                    {validatedCoupon.type === "days" && `${validatedCoupon.value} DIAS`}
-                    {validatedCoupon.type === "free_trial" && `${validatedCoupon.value} MESES`}
-                  </Badge>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-foreground">{couponCode}</span>
-                    {validatedCoupon.affiliate && (
-                      <span className="text-sm text-muted-foreground">
-                        por @{validatedCoupon.affiliate.username}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground" 
-                  onClick={() => {
-                    setCouponCode("");
-                    setValidatedCoupon(null);
-                    localStorage.removeItem('lastUsedCoupon');
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <div className="bg-background rounded-full shadow-lg px-4 py-2 flex items-center gap-2">
-                <Ticket className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                <Input 
-                  placeholder="Digite o código do cupom" 
-                  value={couponCode} 
-                  onChange={e => {
-                    setCouponCode(e.target.value.toUpperCase());
-                    setValidatedCoupon(null);
-                    if (!e.target.value.trim()) {
-                      localStorage.removeItem('lastUsedCoupon');
-                    }
-                  }} 
-                  onKeyDown={e => {
-                    if (e.key === "Enter") {
-                      handleApplyCoupon();
-                    }
-                  }} 
-                  className="border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 px-0"
-                />
-                <Button 
-                  onClick={handleApplyCoupon} 
-                  disabled={loadingCoupon || !couponCode.trim()} 
-                  className="rounded-full px-6"
-                >
-                  {loadingCoupon ? "..." : "Aplicar"}
-                </Button>
-              </div>
-            )}
-          </div>
 
           {/* Alerta de offline */}
           {!isOnline && (
