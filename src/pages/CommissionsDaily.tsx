@@ -82,12 +82,14 @@ const CommissionsDaily = ({
     product_id: string;
     plan_id: string;
     status: string;
+    tipo: string;
     data_inicio: Date | undefined;
     data_fim: Date | undefined;
   }>({
     product_id: "",
     plan_id: "",
     status: "",
+    tipo: "",
     data_inicio: subDays(new Date(), 7),
     data_fim: new Date()
   });
@@ -135,7 +137,7 @@ const CommissionsDaily = ({
   // Carregar dados apenas quando filtros relevantes mudarem
   useEffect(() => {
     loadCommissions();
-  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.data_inicio, filters.data_fim, debouncedCliente]);
+  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.tipo, filters.data_inicio, filters.data_fim, debouncedCliente]);
 
   // Carregar estatísticas apenas uma vez
   useEffect(() => {
@@ -204,6 +206,15 @@ const CommissionsDaily = ({
       if (filters.status && filters.status.trim() && filters.status !== " ") {
         query = query.eq("status", filters.status);
       }
+      if (filters.tipo && filters.tipo.trim() && filters.tipo !== " ") {
+        if (filters.tipo === "novo") {
+          query = query.in("billing_reason", ["subscription_create", "primeira_venda"]);
+        } else if (filters.tipo === "renovacao") {
+          query = query.in("billing_reason", ["subscription_cycle", "renovacao"]);
+        } else if (filters.tipo === "recompra") {
+          query = query.in("billing_reason", ["one_time_purchase", "venda_avulsa"]);
+        }
+      }
       if (filters.data_inicio) {
         query = query.gte("data_filtro", format(filters.data_inicio, "yyyy-MM-dd"));
       }
@@ -255,6 +266,7 @@ const CommissionsDaily = ({
       product_id: "",
       plan_id: "",
       status: "",
+      tipo: "",
       data_inicio: subDays(new Date(), 7),
       data_fim: new Date()
     });
@@ -498,7 +510,7 @@ const CommissionsDaily = ({
         <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
           <SlidersHorizontal className="h-4 w-4" />
           Filtros
-          {(filters.product_id || filters.plan_id || filters.status || clienteSearch) && <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+          {(filters.product_id || filters.plan_id || filters.status || filters.tipo || clienteSearch) && <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
               !
             </Badge>}
         </Button>
@@ -522,7 +534,7 @@ const CommissionsDaily = ({
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-9 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-10 gap-4">
           <Select value={filters.product_id} onValueChange={value => {
           setFilters(f => ({
             ...f,
@@ -598,6 +610,21 @@ const CommissionsDaily = ({
               <SelectItem value="available">Disponível</SelectItem>
               <SelectItem value="withdrawn">Sacado</SelectItem>
               <SelectItem value="cancelled">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filters.tipo} onValueChange={value => setFilters(f => ({
+          ...f,
+          tipo: value
+        }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value=" ">Todos os tipos</SelectItem>
+              <SelectItem value="novo">✨ Novo</SelectItem>
+              <SelectItem value="renovacao">🔄 Renovação</SelectItem>
+              <SelectItem value="recompra">Recompra</SelectItem>
             </SelectContent>
           </Select>
 
