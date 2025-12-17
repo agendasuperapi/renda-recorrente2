@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
-import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText, UserX } from "lucide-react";
+import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText, UserX, Shield } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -23,6 +23,7 @@ const AdminCommissionLevelsContent = lazy(() => import("./AdminCommissionLevels"
 const AdminCpfApisContent = lazy(() => import("./AdminCpfApis"));
 const AdminLegalDocumentsContent = lazy(() => import("./AdminLegalDocuments"));
 const AdminDeletedUsersContent = lazy(() => import("./AdminDeletedUsers"));
+import { AdminBlockedAccountsTab } from "@/components/admin/AdminBlockedAccountsTab";
 
 const TabLoadingFallback = () => (
   <div className="space-y-4 p-4">
@@ -272,6 +273,10 @@ export default function AdminSettings() {
           <TabsTrigger value="deleted-users" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <UserX className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             <span>Excluídos</span>
+          </TabsTrigger>
+          <TabsTrigger value="blocked-accounts" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
+            <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span>Bloqueados</span>
           </TabsTrigger>
           <TabsTrigger value="cpf-apis" className="flex items-center justify-center gap-1.5 px-2 py-2.5 text-xs sm:text-sm font-medium">
             <FileSearch className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -586,6 +591,10 @@ export default function AdminSettings() {
           <Suspense fallback={<TabLoadingFallback />}>
             <AdminDeletedUsersContent />
           </Suspense>
+        </TabsContent>
+
+        <TabsContent value="blocked-accounts" className="mt-4">
+          <AdminBlockedAccountsTab />
         </TabsContent>
 
         <TabsContent value="commission-levels" className="mt-4">
