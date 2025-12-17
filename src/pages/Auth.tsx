@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,15 +7,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AuthGradientEditor } from "@/components/AuthGradientEditor";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, AlertTriangle, Clock, Shield } from "lucide-react";
 import logoAuth from "@/assets/logo-auth.png";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useQuery } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useDeployedVersion } from "@/hooks/useDeployedVersion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { saveToCache, getFromCache, CACHE_KEYS } from "@/lib/offlineCache";
+import { ReCaptcha, ReCaptchaRef } from "@/components/ReCaptcha";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const authSchema = z.object({
   email: z
@@ -51,12 +55,24 @@ interface GradientConfig {
   heading_color_dark?: string;
 }
 
+interface LoginStatus {
+  allowed: boolean;
+  failed_count: number;
+  remaining_attempts: number;
+  requires_captcha: boolean;
+  is_blocked: boolean;
+  locked_until: string | null;
+  block_reason?: string;
+}
+
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme } = useTheme();
   const isMobile = useIsMobile();
   const { formattedVersion } = useDeployedVersion();
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
+  
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
@@ -70,6 +86,10 @@ const Auth = () => {
   const [name, setName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [gradientConfigs, setGradientConfigs] = useState<Record<string, GradientConfig>>({});
+  
+  // Rate limiting states
+  const [loginStatus, setLoginStatus] = useState<LoginStatus | null>(null);
+  const [showCaptcha, setShowCaptcha] = useState(false);
 
   // Busca configurações de gradiente com cache
   const { data: gradientConfigsData = [] } = useQuery({
@@ -83,13 +103,11 @@ const Auth = () => {
         
         if (error) throw error;
         
-        // Salvar no cache
         if (data) {
           saveToCache(CACHE_KEYS.AUTH_GRADIENT_CONFIGS, data);
         }
         return data as unknown as GradientConfig[];
       } catch (error) {
-        // Tentar usar cache em caso de erro
         const cached = getFromCache<GradientConfig[]>(CACHE_KEYS.AUTH_GRADIENT_CONFIGS);
         if (cached) return cached;
         throw error;
@@ -111,13 +129,11 @@ const Auth = () => {
         
         if (error) throw error;
         
-        // Salvar no cache
         if (data) {
           saveToCache(CACHE_KEYS.AUTH_PRODUCT_DESCRIPTION, data);
         }
         return data;
       } catch (error) {
-        // Tentar usar cache em caso de erro
         const cached = getFromCache<{ descricao: string }>(CACHE_KEYS.AUTH_PRODUCT_DESCRIPTION);
         if (cached) return cached;
         throw error;
@@ -135,6 +151,38 @@ const Auth = () => {
       setGradientConfigs(configs);
     }
   }, [gradientConfigsData]);
+
+  // Check login status when email changes
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      if (!email.trim() || !isLogin) {
+        setLoginStatus(null);
+        setShowCaptcha(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.rpc('check_login_allowed', {
+          p_email: email.trim()
+        });
+
+        if (error) {
+          console.error('Error checking login status:', error);
+          return;
+        }
+
+        const status = data as unknown as LoginStatus;
+        setLoginStatus(status);
+        setShowCaptcha(status.requires_captcha);
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+
+    const debounceTimer = setTimeout(checkLoginStatus, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [email, isLogin]);
+
   const checkAdminRole = async (userId: string) => {
     const { data, error } = await supabase
       .from("user_roles")
@@ -166,19 +214,16 @@ const Auth = () => {
     const initAuth = async () => {
       const recovery = isRecoveryUrl();
 
-      // getSession também faz o Supabase processar tokens/codes da URL (detectSessionInUrl)
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      // Se caiu aqui via link de recuperação, não redireciona pro dashboard.
       if (recovery) {
         goToRecovery();
         return;
       }
 
       if (session?.user) {
-        // Check if user is admin first
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
@@ -188,7 +233,6 @@ const Auth = () => {
         const isUserAdmin = roleData?.role === "super_admin";
         setIsAdmin(isUserAdmin);
 
-        // Only redirect if NOT admin (admins can access to configure)
         if (!isUserAdmin) {
           navigate("/user/dashboard");
         }
@@ -200,8 +244,6 @@ const Auth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // PASSWORD_RECOVERY pode acontecer com a rota /auth (por configuração do Supabase)
-      // então garantimos que sempre vai pra /auth/recovery.
       if (event === "PASSWORD_RECOVERY" || isRecoveryUrl()) {
         setIsForgotPassword(false);
         goToRecovery();
@@ -209,7 +251,6 @@ const Auth = () => {
       }
 
       if (session?.user) {
-        // Defer Supabase calls to prevent auth deadlock
         setTimeout(() => {
           supabase
             .from("user_roles")
@@ -220,7 +261,6 @@ const Auth = () => {
               const isUserAdmin = roleData?.role === "super_admin";
               setIsAdmin(isUserAdmin);
 
-              // Only redirect on auth changes if NOT admin and not resetting password
               if (event === "SIGNED_IN" && !isUserAdmin && !isResetPassword) {
                 navigate("/user/dashboard");
               }
@@ -237,14 +277,12 @@ const Auth = () => {
   const getGradientStyle = (blockName: string) => {
     const config = gradientConfigs[blockName];
     if (!config) {
-      // Fallback to #10b981 when custom colors can't be loaded
       return { background: '#10b981' };
     }
     
     const startAlpha = config.intensity_start / 100;
     const endAlpha = config.intensity_end / 100;
     
-    // Use vertical gradient for auth panels and card, horizontal for left panel
     const direction = blockName === 'auth_left_panel' ? 'to right' : 'to bottom';
     
     return {
@@ -310,12 +348,10 @@ const Auth = () => {
         description: "Você já pode fazer login com sua nova senha.",
       });
       
-      // Reset states and go back to login
       setIsResetPassword(false);
       setPassword("");
       setConfirmPassword("");
       
-      // Sign out to force re-login with new password
       await supabase.auth.signOut();
     } catch (error: any) {
       toast({
@@ -366,12 +402,73 @@ const Auth = () => {
     }
   };
 
+  const recordFailedLogin = async (userEmail: string) => {
+    try {
+      const { data, error } = await supabase.rpc('record_failed_login', {
+        p_email: userEmail,
+        p_ip_address: null // IP is handled server-side in production
+      });
+
+      if (error) {
+        console.error('Error recording failed login:', error);
+        return null;
+      }
+
+      const result = data as {
+        failed_count: number;
+        is_blocked: boolean;
+        locked_until: string | null;
+        should_notify: boolean;
+        requires_captcha: boolean;
+      };
+
+      // Send notification if needed
+      if (result.should_notify) {
+        try {
+          await supabase.functions.invoke('notify-suspicious-login', {
+            body: {
+              email: userEmail,
+              failed_count: result.failed_count,
+              is_blocked: result.is_blocked
+            }
+          });
+        } catch (notifyError) {
+          console.error('Error sending notification:', notifyError);
+        }
+      }
+
+      // Update local state
+      setShowCaptcha(result.requires_captcha);
+      
+      // Refresh login status
+      const { data: newStatus } = await supabase.rpc('check_login_allowed', {
+        p_email: userEmail
+      });
+      if (newStatus) {
+        setLoginStatus(newStatus as unknown as LoginStatus);
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error recording failed login:', error);
+      return null;
+    }
+  };
+
+  const resetLoginAttempts = async (userEmail: string) => {
+    try {
+      await supabase.rpc('reset_login_attempts', { p_email: userEmail });
+    } catch (error) {
+      console.error('Error resetting login attempts:', error);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Validar inputs
+      // Validate inputs
       const validationData = {
         email: email.trim(),
         password,
@@ -392,14 +489,84 @@ const Auth = () => {
       }
 
       if (isLogin) {
+        // Check if login is allowed
+        if (loginStatus && !loginStatus.allowed) {
+          if (loginStatus.is_blocked) {
+            toast({
+              variant: "destructive",
+              title: "Conta bloqueada",
+              description: "Sua conta foi bloqueada por segurança. Entre em contato com o suporte.",
+            });
+          } else if (loginStatus.locked_until) {
+            const lockTime = formatDistanceToNow(new Date(loginStatus.locked_until), { 
+              addSuffix: true, 
+              locale: ptBR 
+            });
+            toast({
+              variant: "destructive",
+              title: "Muitas tentativas",
+              description: `Tente novamente ${lockTime}.`,
+            });
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Execute CAPTCHA if required
+        if (showCaptcha && recaptchaRef.current) {
+          const captchaToken = await recaptchaRef.current.executeAsync();
+          if (!captchaToken) {
+            toast({
+              variant: "destructive",
+              title: "Erro de verificação",
+              description: "Não foi possível verificar o CAPTCHA. Tente novamente.",
+            });
+            setLoading(false);
+            return;
+          }
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
           email: validation.data.email,
           password: validation.data.password,
         });
 
-        if (error) throw error;
+        if (error) {
+          // Record failed login attempt
+          const result = await recordFailedLogin(validation.data.email);
+          
+          if (result?.is_blocked) {
+            toast({
+              variant: "destructive",
+              title: "Conta bloqueada",
+              description: "Sua conta foi bloqueada após muitas tentativas incorretas. Entre em contato com o suporte.",
+            });
+          } else if (result?.locked_until) {
+            const lockTime = formatDistanceToNow(new Date(result.locked_until), { 
+              addSuffix: true, 
+              locale: ptBR 
+            });
+            toast({
+              variant: "destructive",
+              title: "Bloqueio temporário",
+              description: `Muitas tentativas incorretas. Tente novamente ${lockTime}.`,
+            });
+          } else if (loginStatus && loginStatus.remaining_attempts <= 2) {
+            toast({
+              variant: "destructive",
+              title: "Senha incorreta",
+              description: `Você tem mais ${loginStatus.remaining_attempts - 1} tentativa(s) antes do bloqueio.`,
+            });
+          } else {
+            throw error;
+          }
+          setLoading(false);
+          return;
+        }
 
-        // Salva o email para preencher automaticamente no próximo login
+        // Login successful - reset attempts
+        await resetLoginAttempts(validation.data.email);
+
         localStorage.setItem("lastLoggedEmail", validation.data.email);
 
         toast({
@@ -446,8 +613,55 @@ const Auth = () => {
     }
   };
 
+  const renderLoginWarning = () => {
+    if (!loginStatus || !isLogin) return null;
+
+    if (loginStatus.is_blocked) {
+      return (
+        <Alert variant="destructive" className="mb-4">
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            Sua conta foi bloqueada por segurança após muitas tentativas incorretas. 
+            Entre em contato com o suporte para desbloquear.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    if (loginStatus.locked_until && new Date(loginStatus.locked_until) > new Date()) {
+      const lockTime = formatDistanceToNow(new Date(loginStatus.locked_until), { 
+        addSuffix: true, 
+        locale: ptBR 
+      });
+      return (
+        <Alert variant="destructive" className="mb-4">
+          <Clock className="h-4 w-4" />
+          <AlertDescription>
+            Acesso bloqueado temporariamente. Tente novamente {lockTime}.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    if (loginStatus.failed_count >= 3 && loginStatus.remaining_attempts <= 3) {
+      return (
+        <Alert className="mb-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+            Atenção: você tem {loginStatus.remaining_attempts} tentativa(s) restante(s) antes do bloqueio.
+          </AlertDescription>
+        </Alert>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-[#10b981] pt-[env(safe-area-inset-top)]">
+      {/* reCAPTCHA Component */}
+      {showCaptcha && <ReCaptcha ref={recaptchaRef} />}
+      
       <div className="min-h-screen overflow-y-auto overscroll-none ios-scroll-wrapper">
         <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-muted/20 to-background relative">
         <div className="absolute top-4 left-4 z-10">
@@ -629,6 +843,8 @@ const Auth = () => {
             </form>
           ) : (
             <>
+              {renderLoginWarning()}
+              
               <form onSubmit={handleAuth} className="space-y-3 sm:space-y-4">
                 {!isLogin && (
                   <div className="space-y-2">
@@ -705,7 +921,7 @@ const Auth = () => {
                 <Button
                   type="submit"
                   className="w-full bg-primary hover:bg-primary/90"
-                  disabled={loading}
+                  disabled={loading || (loginStatus?.is_blocked) || (loginStatus?.locked_until && new Date(loginStatus.locked_until) > new Date())}
                 >
                   {loading ? "Carregando..." : isLogin ? "Entrar" : "Criar conta"}
                 </Button>

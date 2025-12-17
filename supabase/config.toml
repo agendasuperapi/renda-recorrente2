@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.setup-commission-cron]
 verify_jwt = true
+
+[functions.notify-suspicious-login]
+verify_jwt = false

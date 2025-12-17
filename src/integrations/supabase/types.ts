@@ -1190,6 +1190,45 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          block_reason: string | null
+          created_at: string | null
+          email: string
+          failed_count: number | null
+          id: string
+          ip_address: string | null
+          is_permanently_blocked: boolean | null
+          last_failed_at: string | null
+          locked_until: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          block_reason?: string | null
+          created_at?: string | null
+          email: string
+          failed_count?: number | null
+          id?: string
+          ip_address?: string | null
+          is_permanently_blocked?: boolean | null
+          last_failed_at?: string | null
+          locked_until?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          block_reason?: string | null
+          created_at?: string | null
+          email?: string
+          failed_count?: number | null
+          id?: string
+          ip_address?: string | null
+          is_permanently_blocked?: boolean | null
+          last_failed_at?: string | null
+          locked_until?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           admin_new_support_message: boolean
@@ -4596,7 +4635,16 @@ export type Database = {
       }
     }
     Functions: {
+      admin_unblock_login_account: {
+        Args: { p_email: string }
+        Returns: boolean
+      }
+      calculate_lockout_duration: {
+        Args: { p_failed_count: number }
+        Returns: unknown
+      }
       check_email_exists: { Args: { email_to_check: string }; Returns: boolean }
+      check_login_allowed: { Args: { p_email: string }; Returns: Json }
       check_username_availability: {
         Args: { p_user_id: string; p_username: string }
         Returns: boolean
@@ -4673,6 +4721,11 @@ export type Database = {
         Returns: boolean
       }
       reconfigure_commission_cron: { Args: never; Returns: Json }
+      record_failed_login: {
+        Args: { p_email: string; p_ip_address?: string }
+        Returns: Json
+      }
+      reset_login_attempts: { Args: { p_email: string }; Returns: boolean }
       send_admin_notification: {
         Args: {
           p_action_url?: string
