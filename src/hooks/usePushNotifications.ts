@@ -444,7 +444,8 @@ export function usePushNotifications() {
     }
   }, [isSupported, toast, loadSubscriptions, runDiagnostics]);
 
-  // Unsubscribe from push
+  // Unsubscribe from push (only unsubscribes from browser, does NOT delete from DB)
+  // To delete from DB, user must click "Excluir" button which calls removeSubscription
   const unsubscribe = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -457,7 +458,7 @@ export function usePushNotifications() {
         return false;
       }
 
-      // Try to unsubscribe from browser
+      // Only unsubscribe from browser - do NOT delete from DB
       const registration = await navigator.serviceWorker.getRegistration();
       if (registration) {
         const subscription = await registration.pushManager.getSubscription();
@@ -466,14 +467,8 @@ export function usePushNotifications() {
         }
       }
 
-      // Always delete all DB records for this user (regardless of browser state)
-      await supabase
-        .from('push_subscriptions')
-        .delete()
-        .eq('user_id', user.id);
-
+      // Just mark as not subscribed for this browser, but keep DB records
       setIsSubscribed(false);
-      setSubscriptions([]);
 
       toast({
         title: 'Notificações desativadas',
