@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import confetti from "canvas-confetti";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
@@ -729,6 +730,13 @@ const LandingPage = () => {
       toast({
         title: "Cupom válido!",
         description: "Cupom aplicado com sucesso"
+      });
+      
+      // Dispara confetes!
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
       });
     } catch (error) {
       console.error("Error validating coupon:", error);
