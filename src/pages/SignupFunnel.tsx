@@ -429,7 +429,7 @@ export default function SignupFunnel() {
       } : null;
       console.log('[SignupFunnel] Coupon data from URL:', couponData);
 
-      // Criar sessão de checkout Stripe
+      // Criar sessão de checkout Stripe embedded
       const {
         data: checkoutData,
         error: checkoutError
@@ -439,12 +439,13 @@ export default function SignupFunnel() {
           user_email: formData.email,
           user_name: formData.name,
           user_id: authData.user.id,
-          coupon: couponData
+          coupon: couponData,
+          return_url: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`
         }
       });
       if (checkoutError) throw checkoutError;
-      if (checkoutData?.checkout_url) {
-        console.log('[SignupFunnel] Redirecting to Stripe:', checkoutData.checkout_url);
+      if (checkoutData?.client_secret) {
+        console.log('[SignupFunnel] Client secret received:', checkoutData.session_id);
         console.log('[SignupFunnel] User authenticated:', authData.user.id);
 
         // Salvar checkout pendente na tabela
@@ -453,7 +454,7 @@ export default function SignupFunnel() {
         } = await supabase.from("pending_checkouts").insert({
           user_id: authData.user.id,
           plan_id: planId,
-          checkout_url: checkoutData.checkout_url,
+          checkout_url: '', // Não usamos mais URL externa
           stripe_session_id: checkoutData.session_id,
           status: "pending"
         });
@@ -461,16 +462,17 @@ export default function SignupFunnel() {
           console.error("Erro ao salvar checkout pendente:", insertError);
         }
 
-        // Manter usuário autenticado para que ao retornar do Stripe já tenha acesso ao aplicativo
-        // No editor da Lovable, abrir em nova aba e navegar para dashboard. Quando publicado, redirecionar na mesma aba
-        if (import.meta.env.DEV) {
-          window.open(checkoutData.checkout_url, '_blank');
-          navigate('/user/dashboard');
-        } else {
-          window.location.href = checkoutData.checkout_url;
-        }
+        // Navegar para página de checkout embedded
+        navigate('/checkout', {
+          state: {
+            clientSecret: checkoutData.client_secret,
+            sessionId: checkoutData.session_id,
+            planId,
+            planName: plan?.name
+          }
+        });
       } else {
-        throw new Error("URL de checkout não retornada");
+        throw new Error("Client secret não retornado");
       }
     } catch (error: any) {
       console.error('Error during signup:', error);

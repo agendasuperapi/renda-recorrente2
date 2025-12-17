@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { plan_id, user_email, user_name, user_id, coupon } = await req.json();
+    const { plan_id, user_email, user_name, user_id, coupon, return_url } = await req.json();
 
     // Verify that the authenticated user matches the user_id in the request
     if (authUser.id !== user_id) {
@@ -157,20 +157,6 @@ Deno.serve(async (req) => {
 
     console.log('[create-stripe-checkout] Integração encontrada:', integration.id);
 
-    // Buscar URLs da conta (only non-sensitive fields)
-    const { data: account } = await supabase
-      .from('accounts')
-      .select('success_url, cancel_url')
-      .eq('id', integration.account_id)
-      .single();
-    
-    // Sempre adicionar o parâmetro success=true para disparar o modal de boas-vindas
-    const baseSuccessUrl = account?.success_url || `${req.headers.get('origin')}/dashboard`;
-    const successUrl = baseSuccessUrl.includes('?') 
-      ? `${baseSuccessUrl}&success=true` 
-      : `${baseSuccessUrl}?success=true`;
-    const cancelUrl = account?.cancel_url || `${req.headers.get('origin')}/`;
-
     // 4. Inicializar Stripe com a chave correta
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
@@ -199,7 +185,10 @@ Deno.serve(async (req) => {
       console.log('[create-stripe-checkout] Novo customer criado:', customerId);
     }
 
-    // 6. Criar sessão de checkout
+    // 6. Criar sessão de checkout EMBEDDED
+    const origin = req.headers.get('origin') || 'https://renda-recorrente2.lovable.app';
+    const checkoutReturnUrl = return_url || `${origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`;
+
     const sessionConfig: any = {
       customer: customerId,
       line_items: [
@@ -209,8 +198,8 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'subscription',
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      ui_mode: 'embedded',
+      return_url: checkoutReturnUrl,
       metadata: {
         user_id: user_id,
         plan_id: plan_id,
@@ -243,11 +232,11 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    console.log('[create-stripe-checkout] Sessão de checkout criada:', session.id);
+    console.log('[create-stripe-checkout] Sessão de checkout embedded criada:', session.id);
 
     return new Response(
       JSON.stringify({ 
-        checkout_url: session.url,
+        client_secret: session.client_secret,
         session_id: session.id 
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
