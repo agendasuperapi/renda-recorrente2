@@ -1660,40 +1660,28 @@ const LandingPage = () => {
           {/* Card de Cupom */}
           <div className="max-w-7xl mx-auto mb-8 px-3 md:px-0">
             <Card className="border-2 border-primary/20">
-              <CardHeader>
-                <div className="flex items-center justify-center gap-3">
-                  <Ticket className="h-6 w-6 text-primary" />
-                  <CardTitle className="text-center">Possui um cupom?</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <Input placeholder="Digite o código do cupom" value={couponCode} onChange={e => {
-                    setCouponCode(e.target.value.toUpperCase());
-                    setValidatedCoupon(null);
-                    if (!e.target.value.trim()) {
-                      localStorage.removeItem('lastUsedCoupon');
-                    }
-                  }} onKeyDown={e => {
-                    if (e.key === "Enter") {
-                      handleApplyCoupon();
-                    }
-                  }} className="pr-10" />
-                    {couponCode && <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" onClick={() => {
-                    setCouponCode("");
-                    setValidatedCoupon(null);
-                    localStorage.removeItem('lastUsedCoupon');
-                  }}>
-                        <X className="h-4 w-4" />
-                      </Button>}
-                  </div>
-                  <Button onClick={handleApplyCoupon} disabled={loadingCoupon || !couponCode.trim()} className="w-full sm:w-auto">
-                    {loadingCoupon ? "Validando..." : "Aplicar cupom"}
-                  </Button>
-                </div>
-
-                {validatedCoupon && <div className="border rounded-lg p-4 bg-muted/50 animate-fade-in">
+              {validatedCoupon ? (
+                <>
+                  <CardHeader className="relative pb-2">
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      className="absolute right-2 top-2 h-8 w-8" 
+                      onClick={() => {
+                        setCouponCode("");
+                        setValidatedCoupon(null);
+                        localStorage.removeItem('lastUsedCoupon');
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center justify-center gap-3">
+                      <Ticket className="h-6 w-6 text-primary" />
+                      <CardTitle className="text-center">Cupom aplicado!</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="animate-fade-in">
                     {/* Layout Mobile */}
                     <div className="flex flex-col md:hidden items-center gap-4">
                       {validatedCoupon.affiliate && <div className="flex flex-col items-center gap-3">
@@ -1745,8 +1733,45 @@ const LandingPage = () => {
                           </div>
                         </div>
                       </div>}
-                  </div>}
-              </CardContent>
+                  </CardContent>
+                </>
+              ) : (
+                <>
+                  <CardHeader>
+                    <div className="flex items-center justify-center gap-3">
+                      <Ticket className="h-6 w-6 text-primary" />
+                      <CardTitle className="text-center">Possui um cupom?</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="relative flex-1">
+                        <Input placeholder="Digite o código do cupom" value={couponCode} onChange={e => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        setValidatedCoupon(null);
+                        if (!e.target.value.trim()) {
+                          localStorage.removeItem('lastUsedCoupon');
+                        }
+                      }} onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          handleApplyCoupon();
+                        }
+                      }} className="pr-10" />
+                        {couponCode && <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" onClick={() => {
+                        setCouponCode("");
+                        setValidatedCoupon(null);
+                        localStorage.removeItem('lastUsedCoupon');
+                      }}>
+                            <X className="h-4 w-4" />
+                          </Button>}
+                      </div>
+                      <Button onClick={handleApplyCoupon} disabled={loadingCoupon || !couponCode.trim()} className="w-full sm:w-auto">
+                        {loadingCoupon ? "Validando..." : "Aplicar cupom"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </>
+              )}
             </Card>
           </div>
 
