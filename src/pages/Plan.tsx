@@ -203,12 +203,14 @@ const Plan = () => {
         return;
       }
       
-      // Está logado - criar checkout direto
+      // Está logado - criar checkout embedded
       const { data: profile } = await supabase
         .from("profiles")
         .select("name")
         .eq("id", session.user.id)
         .single();
+
+      const selectedPlan = plans.find(p => p.id === planId);
 
       const response = await supabase.functions.invoke("create-stripe-checkout", {
         body: {
@@ -216,20 +218,21 @@ const Plan = () => {
           user_email: session.user.email,
           user_name: profile?.name || session.user.email,
           user_id: session.user.id,
-          coupon: null
+          coupon: null,
+          return_url: `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`
         }
       });
       
       if (response.error) throw response.error;
       
-      if (response.data?.checkout_url) {
+      if (response.data?.client_secret) {
         // Save checkout data to database
         const { error: insertError } = await (supabase as any)
           .from("pending_checkouts")
           .insert({
             user_id: session.user.id,
             plan_id: planId,
-            checkout_url: response.data.checkout_url,
+            checkout_url: '', // Não temos mais URL, usamos embedded
             stripe_session_id: response.data.session_id,
             status: "pending",
           });
@@ -241,12 +244,15 @@ const Plan = () => {
         // Clear pending checkout state
         setPendingCheckout(null);
 
-        // No editor da Lovable, abre em nova aba. Quando publicado, na mesma aba
-        if (import.meta.env.DEV) {
-          window.open(response.data.checkout_url, '_blank');
-        } else {
-          window.location.href = response.data.checkout_url;
-        }
+        // Navegar para página de checkout com client_secret
+        navigate('/checkout', {
+          state: {
+            clientSecret: response.data.client_secret,
+            sessionId: response.data.session_id,
+            planId,
+            planName: selectedPlan?.name
+          }
+        });
       }
     } catch (error) {
       console.error("Erro ao criar checkout:", error);
@@ -256,13 +262,10 @@ const Plan = () => {
     }
   };
 
-  const handleContinuePendingCheckout = () => {
-    if (pendingCheckout?.checkout_url) {
-      if (import.meta.env.DEV) {
-        window.open(pendingCheckout.checkout_url, '_blank');
-      } else {
-        window.location.href = pendingCheckout.checkout_url;
-      }
+  const handleContinuePendingCheckout = async () => {
+    // Recria o checkout embedded para continuar
+    if (pendingCheckout?.plan_id) {
+      await handleSelectPlan(pendingCheckout.plan_id);
     }
   };
 
