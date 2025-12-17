@@ -1676,7 +1676,7 @@ const LandingPage = () => {
               </Button>
             </div>
           ) : (
-            <div className="bg-muted/50 border border-border rounded-full shadow-lg px-4 py-3 flex items-center gap-2">
+            <div className="bg-card border border-border rounded-full shadow-lg px-4 py-3 flex items-center gap-2">
               <Ticket className="h-5 w-5 text-muted-foreground flex-shrink-0" />
               <Input 
                 placeholder="Digite o código do cupom" 
