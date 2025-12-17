@@ -1639,7 +1639,7 @@ const LandingPage = () => {
           {validatedCoupon ? (
             <div className="bg-background rounded-2xl shadow-lg px-4 py-4 flex items-center gap-3 w-full animate-fade-in">
               {validatedCoupon.affiliate && (
-                <Avatar className="h-16 w-16 ring-2 ring-primary ring-offset-2 ring-offset-background">
+                <Avatar className="h-20 w-20 ring-2 ring-primary ring-offset-2 ring-offset-background">
                   <AvatarImage src={validatedCoupon.affiliate.avatar_url} />
                   <AvatarFallback>
                     {validatedCoupon.affiliate.name?.charAt(0) || "A"}
