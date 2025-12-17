@@ -52,6 +52,7 @@ export const PersonalProfileContent = () => {
   const [formData, setFormData] = useState({
     name: "",
     username: "",
+    email: "",
     cpf: "",
     phone: "",
     birth_date: "",
@@ -155,7 +156,7 @@ export const PersonalProfileContent = () => {
       const {
         data,
         error
-      } = await supabase.from("profiles").select("name, username, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin, avatar_url").eq("id", userId).single();
+      } = await supabase.from("profiles").select("name, username, email, cpf, phone, birth_date, gender, cep, street, number, complement, neighborhood, city, state, instagram, facebook, tiktok, youtube, twitter, linkedin, avatar_url").eq("id", userId).single();
       if (error) throw error;
       if (data) {
         const profileData = data as any;
@@ -163,6 +164,7 @@ export const PersonalProfileContent = () => {
         setFormData({
           name: profileData.name || "",
           username: profileData.username || "",
+          email: profileData.email || "",
           cpf: formatCPF(profileData.cpf || ""),
           phone: formatPhone(profileData.phone || ""),
           birth_date: profileData.birth_date || "",
@@ -643,6 +645,18 @@ export const PersonalProfileContent = () => {
                   {usernameStatus.checking && <p className="text-sm text-muted-foreground">Verificando...</p>}
                   {usernameStatus.available === true && <p className="text-sm text-green-600">Username disponível</p>}
                   {usernameStatus.available === false && <p className="text-sm text-destructive">Username já está em uso</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input 
+                    id="email" 
+                    type="email"
+                    value={formData.email} 
+                    disabled 
+                    className="bg-muted text-muted-foreground cursor-not-allowed" 
+                  />
+                  <p className="text-xs text-muted-foreground">O e-mail não pode ser alterado</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
