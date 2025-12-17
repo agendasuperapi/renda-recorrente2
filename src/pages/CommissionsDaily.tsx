@@ -201,7 +201,7 @@ const CommissionsDaily = ({
         query = query.eq("plan_id", filters.plan_id);
       }
       if (debouncedCliente && debouncedCliente.trim()) {
-        query = query.ilike("cliente", `%${debouncedCliente}%`);
+        query = query.or(`cliente.ilike.%${debouncedCliente}%,cliente_email.ilike.%${debouncedCliente}%`);
       }
       if (filters.status && filters.status.trim() && filters.status !== " ") {
         query = query.eq("status", filters.status);
@@ -595,7 +595,7 @@ const CommissionsDaily = ({
           data_fim: date
         }))} placeholder="Data fim" />
 
-          <Input placeholder="Cliente" value={clienteSearch} onChange={e => setClienteSearch(e.target.value)} />
+          <Input placeholder="Cliente ou e-mail" value={clienteSearch} onChange={e => setClienteSearch(e.target.value)} />
 
           <Select value={filters.status} onValueChange={value => setFilters(f => ({
           ...f,
