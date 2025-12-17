@@ -23,9 +23,12 @@ import {
   ChevronRight,
   Filter
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Calendar } from 'lucide-react';
+import { ScrollAnimation } from '@/components/ScrollAnimation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { NotificationsContent } from '@/components/settings/NotificationsContent';
 
@@ -445,53 +448,99 @@ function NotificationsList({ notifications, onNotificationClick, onDelete, typeI
     );
   }
 
+  // Agrupar notificações por data
+  const groupedByDate: Record<string, any[]> = {};
+  notifications.forEach(notification => {
+    const dateKey = format(parseISO(notification.created_at), 'yyyy-MM-dd');
+    if (!groupedByDate[dateKey]) {
+      groupedByDate[dateKey] = [];
+    }
+    groupedByDate[dateKey].push(notification);
+  });
+
+  const dateEntries = Object.entries(groupedByDate);
+
   return (
-    <div className="divide-y rounded-lg border bg-card">
-      {notifications.map((notification) => (
-        <div
-          key={notification.id}
-          className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
-            !notification.is_read ? 'bg-primary/5' : ''
-          }`}
-          onClick={() => onNotificationClick(notification)}
-        >
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 mt-1">
-              {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
+    <div className="space-y-4">
+      {dateEntries.map(([dateKey, dayNotifications]) => (
+        <div key={dateKey}>
+          {/* Header da data */}
+          <div className="flex items-center gap-2.5 py-3 px-1">
+            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary/10">
+              <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className={`font-medium ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {notification.title}
-                  </p>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {notification.body}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {!notification.is_read && (
-                    <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(notification.id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                  </Button>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {formatDistanceToNow(new Date(notification.created_at), { 
-                  addSuffix: true,
-                  locale: ptBR 
-                })}
-              </p>
+            <span className="text-sm font-semibold text-foreground/80">
+              {format(parseISO(dateKey), "EEEE, d 'de' MMMM 'de' yyyy", {
+                locale: ptBR
+              })}
+            </span>
+          </div>
+
+          {/* Notificações do dia com timeline */}
+          <div className="relative pl-7">
+            {/* Linha vertical contínua */}
+            <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-primary/40" />
+
+            <div className="space-y-3">
+              {dayNotifications.map((notification, idx) => (
+                <ScrollAnimation key={notification.id} animation="fade-up" delay={Math.min(idx * 50, 200)} threshold={0.05}>
+                  <div className="relative">
+                    {/* Ponto verde - centralizado verticalmente com o card */}
+                    <div className="absolute left-[-22px] top-1/2 -translate-y-1/2 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
+
+                    <Card 
+                      className={`transition-all duration-300 hover:scale-[1.01] hover:shadow-md cursor-pointer ${
+                        !notification.is_read ? 'ring-2 ring-primary/20 bg-primary/5' : ''
+                      }`}
+                      onClick={() => onNotificationClick(notification)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          {/* Hora */}
+                          <div className="flex-shrink-0 text-xs text-muted-foreground w-12 pt-0.5">
+                            {format(parseISO(notification.created_at), 'HH:mm')}
+                          </div>
+
+                          {/* Ícone do tipo */}
+                          <div className="flex-shrink-0 mt-0.5">
+                            {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
+                          </div>
+
+                          {/* Conteúdo */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className={`font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                  {notification.title}
+                                </p>
+                                <p className="text-sm text-muted-foreground line-clamp-2">
+                                  {notification.body}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {!notification.is_read && (
+                                  <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(notification.id);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </ScrollAnimation>
+              ))}
             </div>
           </div>
         </div>
