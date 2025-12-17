@@ -149,7 +149,7 @@ const SubAffiliates = () => {
       } = await supabase.from("commissions").select("id", {
         count: "exact",
         head: true
-      }).eq("affiliate_id", currentUserId).neq("product_id", RENDA_PRODUCT_ID).in("status", ["available", "paid"]);
+      }).eq("affiliate_id", currentUserId).neq("product_id", RENDA_PRODUCT_ID);
       if (error) {
         console.error("Error counting sales:", error);
         return 0;
@@ -158,10 +158,35 @@ const SubAffiliates = () => {
     },
     enabled: !!currentUserId
   });
+
+  const {
+    data: withdrawalsCount,
+    isLoading: isLoadingWithdrawals
+  } = useQuery({
+    queryKey: ["withdrawals-count-subaffiliates", currentUserId],
+    queryFn: async () => {
+      if (!currentUserId) return 0;
+      const {
+        count,
+        error
+      } = await supabase.from("withdrawals").select("id", {
+        count: "exact",
+        head: true
+      }).eq("affiliate_id", currentUserId);
+      if (error) {
+        console.error("Error counting withdrawals:", error);
+        return 0;
+      }
+      return count || 0;
+    },
+    enabled: !!currentUserId
+  });
+
   const minSalesRequired = parseInt(minSalesSetting?.value || "10", 10);
   const hasEnoughSales = (otherProductsSalesCount || 0) >= minSalesRequired;
   const salesNeeded = minSalesRequired - (otherProductsSalesCount || 0);
-  const canHaveSubAffiliates = isProPlan && hasEnoughSales;
+  const hasWithdrawal = (withdrawalsCount || 0) >= 1;
+  const canHaveSubAffiliates = isProPlan && hasEnoughSales && hasWithdrawal;
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -402,7 +427,7 @@ const SubAffiliates = () => {
       </ScrollAnimation>
 
       {/* Aviso de requisitos para ter sub-afiliados */}
-      {!isLoadingRequirements && !canHaveSubAffiliates && <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+      {!isLoadingRequirements && !isLoadingWithdrawals && !canHaveSubAffiliates && <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
           <Alert className="border-[#ff5963] bg-[#ff5963] dark:border-[#ff5963] dark:bg-[#ff5963] [&>svg]:text-white">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle className="text-white font-semibold">Atenção!</AlertTitle>
@@ -422,6 +447,13 @@ const SubAffiliates = () => {
                   </span>
                   <span className="flex-1">Ter no mínimo {minSalesRequired} vendas de outros produtos</span>
                   {hasEnoughSales ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span> : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Faltam {salesNeeded}</span>}
+                </div>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${hasWithdrawal ? 'border-green-500/40' : 'border-white/20'}`}>
+                  <span className={`flex items-center justify-center w-5 h-5 rounded-full ${hasWithdrawal ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
+                    {hasWithdrawal ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                  </span>
+                  <span className="flex-1">Ter feito pelo menos um saque</span>
+                  {hasWithdrawal ? <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-medium">Concluído</span> : <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">Pendente</span>}
                 </div>
               </div>
             </AlertDescription>
