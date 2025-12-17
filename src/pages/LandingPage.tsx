@@ -511,6 +511,8 @@ const LandingPage = () => {
     fetchFeatures();
     // Fetch products
     fetchProducts();
+    // Fetch product commissions
+    fetchProductCommissions();
     // Fetch current product
     fetchCurrentProduct();
     // Fetch product info
@@ -779,6 +781,9 @@ const LandingPage = () => {
       if (cached) setFaqs(cached);
     }
   };
+  // State para comissões por produto
+  const [productCommissions, setProductCommissions] = useState<Record<string, { free: number; pro: number }>>({});
+
   const fetchProducts = async () => {
     try {
       const {
@@ -792,6 +797,34 @@ const LandingPage = () => {
       console.error('Error fetching products:', error);
       const cached = getFromCache<AffiliateProduct[]>(CACHE_KEYS.LANDING_PRODUCTS);
       if (cached) setProducts(cached);
+    }
+  };
+
+  // Buscar comissões por produto (nível 1)
+  const fetchProductCommissions = async () => {
+    try {
+      const { data } = await supabase
+        .from("product_commission_levels")
+        .select("product_id, plan_type, percentage")
+        .eq("level", 1)
+        .eq("is_active", true);
+      
+      if (data) {
+        const commissionsByProduct: Record<string, { free: number; pro: number }> = {};
+        data.forEach((item: { product_id: string; plan_type: string; percentage: number }) => {
+          if (!commissionsByProduct[item.product_id]) {
+            commissionsByProduct[item.product_id] = { free: 0, pro: 0 };
+          }
+          if (item.plan_type === 'FREE') {
+            commissionsByProduct[item.product_id].free = item.percentage;
+          } else if (item.plan_type === 'PRO') {
+            commissionsByProduct[item.product_id].pro = item.percentage;
+          }
+        });
+        setProductCommissions(commissionsByProduct);
+      }
+    } catch (error) {
+      console.error('Error fetching product commissions:', error);
     }
   };
   const fetchCurrentProduct = async () => {
@@ -1556,11 +1589,24 @@ const LandingPage = () => {
               {products.map((product, index) => {
             const isDark = theme === 'dark';
             const iconUrl = isDark ? product.icone_dark || product.icone_light : product.icone_light || product.icone_dark;
+            const commissions = productCommissions[product.id];
             return <Card key={product.id} className="transition-all duration-300 hover:shadow-lg cursor-pointer" onClick={() => product.site_landingpage && window.open(product.site_landingpage, '_blank')}>
                     <CardHeader>
                       <div className="flex items-center gap-3 md:gap-4">
                         {iconUrl && <img src={iconUrl} alt={product.nome} className="w-12 h-12 md:w-16 md:h-16 object-contain flex-shrink-0" />}
-                        <CardTitle className="text-lg md:text-xl">{product.nome}</CardTitle>
+                        <div className="flex-1">
+                          <CardTitle className="text-lg md:text-xl">{product.nome}</CardTitle>
+                          {commissions && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
+                                FREE: {commissions.free}%
+                              </span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30">
+                                PRO: {commissions.pro}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <CardDescription className="whitespace-pre-line mt-4">{product.descricao}</CardDescription>
                     </CardHeader>
@@ -1795,18 +1841,6 @@ const LandingPage = () => {
                 })}
 
                   </ul>
-                  
-                  <div className={`mb-8 p-4 rounded-lg border transition-all ${!plan.is_free ? 'bg-gradient-to-r from-primary/40 to-primary/25 border-primary/80 border-2 shadow-2xl shadow-primary/40 ring-2 ring-primary/30' : 'bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30'}`}>
-                    <div className="flex items-center justify-between gap-4">
-                      <p className={`text-sm whitespace-nowrap ${!plan.is_free ? 'text-primary-foreground font-semibold' : 'text-white'}`}>
-                        Comissão recorrente
-                      </p>
-                      <p className={`text-2xl font-bold ${!plan.is_free ? 'text-primary-foreground drop-shadow-lg' : 'text-primary'}`}>
-                        {getCommissionPercentage(plan.is_free ?? false)}%
-                      </p>
-                    </div>
-                  </div>
-
                   {/* Container para elementos alinhados - mt-auto garante que fique no final */}
                   <div className="mt-auto">
                     {/* Preço */}
