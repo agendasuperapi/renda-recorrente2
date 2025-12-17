@@ -515,7 +515,7 @@ const AdminAffiliates = () => {
                         </Badge>
                     </TableCell>
                     <TableCell>
-                      {affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy", { locale: ptBR }) : "-"}
+                      {affiliate.created_at ? format(new Date(affiliate.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}
                     </TableCell>
                     <TableCell className="font-medium">
                       {getWeekdayLabel(affiliate.withdrawal_day)}
