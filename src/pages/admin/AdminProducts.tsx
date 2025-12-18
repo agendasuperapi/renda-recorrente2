@@ -212,6 +212,9 @@ const AdminProducts = () => {
     },
   });
 
+  // Product ID that uses different API structure (tbl_planos format)
+  const TBL_PLANOS_PRODUCT_ID = "b60042c4-c7e8-4817-a6a7-c80698bcdc49";
+
   const importPlansMutation = useMutation({
     mutationFn: async ({ productId, apiUrl, apiKey }: { productId: string; apiUrl: string; apiKey: string }) => {
       // Fetch plans from external API
@@ -226,36 +229,68 @@ const AdminProducts = () => {
         throw new Error(`Erro ao buscar planos: ${response.status} ${response.statusText}`);
       }
 
-      const externalPlans: ExternalPlan[] = await response.json();
+      const externalPlans = await response.json();
 
       // Upsert plans into local database
       let imported = 0;
       let updated = 0;
 
       for (const plan of externalPlans) {
+        // Determine plan ID and data based on product type
+        const isTblPlanosFormat = productId === TBL_PLANOS_PRODUCT_ID;
+        
+        // For tbl_planos format: use 'uuid' field as ID, different field mappings
+        // For standard format: use 'id' field directly
+        const planId = isTblPlanosFormat ? plan.uuid : plan.id;
+        
+        if (!planId) {
+          console.warn("Plan missing ID, skipping:", plan);
+          continue;
+        }
+
         const { data: existing } = await supabase
           .from("plans")
           .select("id")
-          .eq("id", plan.id)
+          .eq("id", planId)
           .maybeSingle();
 
-        const planData = {
-          id: plan.id,
-          name: plan.name,
-          price: plan.price_cents / 100, // Convert cents to currency
-          original_price: plan.price_cents, // Keep original in cents
-          billing_period: "one_time",
-          product_id: productId,
-          is_active: plan.active ?? true,
-          test_stripe_price_id: plan.stripe_price_id || null,
-          features: plan.credits ? { credits: plan.credits, plan_type: plan.plan_type } : null,
-        };
+        let planData;
+        
+        if (isTblPlanosFormat) {
+          // tbl_planos format mapping
+          const billingPeriod = plan.periodo === "ANUAL" ? "yearly" : 
+                               plan.periodo === "MENSAL" ? "monthly" : "one_time";
+          planData = {
+            id: plan.uuid,
+            name: plan.nome,
+            price: plan.valor, // Already in reais
+            original_price: plan.valor_anterior ? plan.valor_anterior * 100 : null, // Convert to cents for storage
+            billing_period: billingPeriod,
+            product_id: productId,
+            is_active: plan.situacao ?? true,
+            test_stripe_price_id: plan.stripe_price_id_live || plan.stripe_price_id_test || null,
+            features: Array.isArray(plan.descricao) ? { items: plan.descricao } : null,
+          };
+        } else {
+          // Standard format mapping (existing logic)
+          planData = {
+            id: plan.id,
+            name: plan.name,
+            price: plan.price_cents / 100, // Convert cents to currency
+            original_price: plan.price_cents, // Keep original in cents
+            billing_period: "one_time",
+            product_id: productId,
+            is_active: plan.active ?? true,
+            test_stripe_price_id: plan.stripe_price_id || null,
+            features: plan.credits ? { credits: plan.credits, plan_type: plan.plan_type } : null,
+          };
+        }
 
         if (existing) {
           const { error } = await supabase
             .from("plans")
             .update(planData)
-            .eq("id", plan.id);
+            .eq("id", planId);
           if (error) throw error;
           updated++;
         } else {
