@@ -761,8 +761,8 @@ const AdminPlans = () => {
                                             </Badge>
                                             <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{plan.commission_percentage}%</Badge>
                                           </div>
-                                          <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
-                                            <code className="flex-1 truncate font-mono">{plan.id.slice(0, 8)}...</code>
+                                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
+                                            <code className="flex-1 truncate font-mono">{plan.id}</code>
                                             <Button
                                               variant="ghost"
                                               size="icon"
@@ -777,7 +777,7 @@ const AdminPlans = () => {
                                             </Button>
                                           </div>
                                           {plan.updated_at && (
-                                            <p className="text-[9px] text-muted-foreground">
+                                            <p className="text-[11px] text-muted-foreground">
                                               {format(new Date(plan.updated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
                                             </p>
                                           )}
@@ -837,8 +837,8 @@ const AdminPlans = () => {
                                           </Badge>
                                           <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{plan.commission_percentage}%</Badge>
                                         </div>
-                                        <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
-                                          <code className="flex-1 truncate font-mono">{plan.id.slice(0, 8)}...</code>
+                                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
+                                          <code className="flex-1 truncate font-mono">{plan.id}</code>
                                           <Button
                                             variant="ghost"
                                             size="icon"
@@ -853,7 +853,7 @@ const AdminPlans = () => {
                                           </Button>
                                         </div>
                                         {plan.updated_at && (
-                                          <p className="text-[9px] text-muted-foreground">
+                                          <p className="text-[11px] text-muted-foreground">
                                             {format(new Date(plan.updated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
                                           </p>
                                         )}
@@ -949,8 +949,8 @@ const AdminPlans = () => {
                               </Badge>
                               <Badge variant="outline" className="h-4 text-[10px] px-1.5 py-0">{plan.commission_percentage}%</Badge>
                             </div>
-                            <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
-                              <code className="flex-1 truncate font-mono">{plan.id.slice(0, 8)}...</code>
+                            <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
+                              <code className="flex-1 truncate font-mono">{plan.id}</code>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -965,7 +965,7 @@ const AdminPlans = () => {
                               </Button>
                             </div>
                             {plan.updated_at && (
-                              <p className="text-[9px] text-muted-foreground">
+                              <p className="text-[11px] text-muted-foreground">
                                 {format(new Date(plan.updated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
                               </p>
                             )}
