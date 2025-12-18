@@ -79,10 +79,7 @@ export function SubAffiliateCommissionsDialog({
             external_user_id,
             name,
             email,
-            plan_id,
-            plans (
-              name
-            )
+            plan_id
           )
         `)
         .eq('affiliate_id', parentAffiliateId)
@@ -111,7 +108,7 @@ export function SubAffiliateCommissionsDialog({
         percentage: c.percentage || 0,
         unified_user_name: c.unified_users?.name || 'N/A',
         unified_user_email: c.unified_users?.email || 'N/A',
-        plan_name: c.unified_users?.plans?.name || 'N/A',
+        plan_name: 'N/A', // Plan relationship removed
       })) || [];
 
       setCommissions(filtered);
