@@ -1238,6 +1238,7 @@ export type Database = {
           new_affiliate: boolean
           new_commission: boolean
           new_payment: boolean
+          new_payment_all_products: boolean | null
           new_sub_affiliate: boolean
           new_support_message: boolean
           new_version: boolean
@@ -1255,6 +1256,7 @@ export type Database = {
           new_affiliate?: boolean
           new_commission?: boolean
           new_payment?: boolean
+          new_payment_all_products?: boolean | null
           new_sub_affiliate?: boolean
           new_support_message?: boolean
           new_version?: boolean
@@ -1272,6 +1274,7 @@ export type Database = {
           new_affiliate?: boolean
           new_commission?: boolean
           new_payment?: boolean
+          new_payment_all_products?: boolean | null
           new_sub_affiliate?: boolean
           new_support_message?: boolean
           new_version?: boolean
@@ -4622,6 +4625,18 @@ export type Database = {
           p_body: string
           p_reference_id?: string
           p_reference_type?: string
+          p_title: string
+          p_type: string
+        }
+        Returns: undefined
+      }
+      send_admin_notification_with_product_filter: {
+        Args: {
+          p_action_url: string
+          p_body: string
+          p_product_id: string
+          p_reference_id: string
+          p_reference_type: string
           p_title: string
           p_type: string
         }
