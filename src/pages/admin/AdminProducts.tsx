@@ -936,6 +936,11 @@ const AdminProducts = () => {
                                   <Copy className="h-3 w-3" />
                                 </Button>
                               </div>
+                              {plan.updated_at && (
+                                <p className="text-[10px] text-muted-foreground">
+                                  Atualizado: {format(new Date(plan.updated_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                                </p>
+                              )}
                             </div>
                           ))}
                         </div>
