@@ -17,11 +17,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Check, X, Edit, Trash2, Tag, Plus, Minus, FileText, CreditCard, Package, FileQuestion, Box } from "lucide-react";
+import { Check, X, Edit, Trash2, Tag, Plus, Minus, FileText, CreditCard, Package, FileQuestion, Box, Copy } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const planFormSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -758,7 +760,27 @@ const AdminPlans = () => {
                                               {plan.is_active ? "Ativo" : "Inativo"}
                                             </Badge>
                                             <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{plan.commission_percentage}%</Badge>
-                                        </div>
+                                          </div>
+                                          <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
+                                            <code className="flex-1 truncate font-mono">{plan.id.slice(0, 8)}...</code>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-4 w-4 shrink-0"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigator.clipboard.writeText(plan.id);
+                                                toast.success("ID copiado!");
+                                              }}
+                                            >
+                                              <Copy className="h-2.5 w-2.5" />
+                                            </Button>
+                                          </div>
+                                          {plan.updated_at && (
+                                            <p className="text-[9px] text-muted-foreground">
+                                              {format(new Date(plan.updated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
+                                            </p>
+                                          )}
                                       </CardContent>
                                     </Card>
                                     </ScrollAnimation>
@@ -815,6 +837,26 @@ const AdminPlans = () => {
                                           </Badge>
                                           <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{plan.commission_percentage}%</Badge>
                                         </div>
+                                        <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
+                                          <code className="flex-1 truncate font-mono">{plan.id.slice(0, 8)}...</code>
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-4 w-4 shrink-0"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              navigator.clipboard.writeText(plan.id);
+                                              toast.success("ID copiado!");
+                                            }}
+                                          >
+                                            <Copy className="h-2.5 w-2.5" />
+                                          </Button>
+                                        </div>
+                                        {plan.updated_at && (
+                                          <p className="text-[9px] text-muted-foreground">
+                                            {format(new Date(plan.updated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
+                                          </p>
+                                        )}
                                       </CardContent>
                                     </Card>
                                   );
@@ -907,6 +949,26 @@ const AdminPlans = () => {
                               </Badge>
                               <Badge variant="outline" className="h-4 text-[10px] px-1.5 py-0">{plan.commission_percentage}%</Badge>
                             </div>
+                            <div className="flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 rounded px-1.5 py-0.5 mt-1">
+                              <code className="flex-1 truncate font-mono">{plan.id.slice(0, 8)}...</code>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 shrink-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigator.clipboard.writeText(plan.id);
+                                  toast.success("ID copiado!");
+                                }}
+                              >
+                                <Copy className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                            {plan.updated_at && (
+                              <p className="text-[9px] text-muted-foreground">
+                                {format(new Date(plan.updated_at), "dd/MM/yy HH:mm", { locale: ptBR })}
+                              </p>
+                            )}
                           </CardContent>
                         </Card>
                       );
