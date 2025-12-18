@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -20,7 +21,8 @@ import {
   Apple,
   Chrome,
   Info,
-  AlertTriangle
+  AlertTriangle,
+  Package
 } from 'lucide-react';
 import { usePushNotifications, IOSDiagnostics } from '@/hooks/usePushNotifications';
 import { supabase } from '@/integrations/supabase/client';
@@ -93,6 +95,11 @@ function DiagnosticsCard({ diagnostics }: { diagnostics: IOSDiagnostics }) {
 export function NotificationsContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const location = useLocation();
+  
+  // Detectar se está no modo admin baseado na rota
+  const isAdminMode = location.pathname.startsWith('/admin');
+  
   const {
     isSupported,
     permission,
@@ -398,41 +405,43 @@ export function NotificationsContent() {
         </CardContent>
       </Card>
 
-      {/* User Notification Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Preferências de Notificação</CardTitle>
-          <CardDescription>
-            Escolha quais notificações você deseja receber
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {userNotificationTypes.map((notif) => {
-            const prefKey = notif.key as keyof typeof preferences;
-            const prefValue = preferences?.[prefKey];
-            const isChecked = typeof prefValue === 'boolean' ? prefValue : true;
-            
-            return (
-              <div key={notif.key} className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor={notif.key} className="font-medium">
-                    {notif.label}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">{notif.description}</p>
+      {/* User Notification Preferences - only show when NOT in admin mode */}
+      {!isAdminMode && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Preferências de Notificação</CardTitle>
+            <CardDescription>
+              Escolha quais notificações você deseja receber
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {userNotificationTypes.map((notif) => {
+              const prefKey = notif.key as keyof typeof preferences;
+              const prefValue = preferences?.[prefKey];
+              const isChecked = typeof prefValue === 'boolean' ? prefValue : true;
+              
+              return (
+                <div key={notif.key} className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor={notif.key} className="font-medium">
+                      {notif.label}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">{notif.description}</p>
+                  </div>
+                  <Switch
+                    id={notif.key}
+                    checked={isChecked}
+                    onCheckedChange={(checked) => handlePreferenceChange(notif.key, checked)}
+                  />
                 </div>
-                <Switch
-                  id={notif.key}
-                  checked={isChecked}
-                  onCheckedChange={(checked) => handlePreferenceChange(notif.key, checked)}
-                />
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Admin Notification Preferences - only show for admins */}
-      {preferences && 'new_affiliate' in preferences && (
+      {/* Admin Notification Preferences - only show when in admin mode */}
+      {isAdminMode && (
         <Card>
           <CardHeader>
             <CardTitle>Notificações de Administrador</CardTitle>
@@ -462,6 +471,29 @@ export function NotificationsContent() {
                 </div>
               );
             })}
+
+            {/* Product filter preference for payments */}
+            <Separator className="my-4" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <Label htmlFor="new_payment_all_products" className="font-medium">
+                    Pagamentos de Todos os Produtos
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {(preferences as any)?.new_payment_all_products !== false
+                      ? 'Recebendo notificações de pagamentos de todos os produtos'
+                      : 'Recebendo apenas notificações do APP Renda Recorrente'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="new_payment_all_products"
+                checked={(preferences as any)?.new_payment_all_products !== false}
+                onCheckedChange={(checked) => handlePreferenceChange('new_payment_all_products', checked)}
+              />
+            </div>
           </CardContent>
         </Card>
       )}
