@@ -403,19 +403,41 @@ export const AdminCommissionProcessingTab = () => {
         </CardContent>
       </Card>
 
-      {/* Environment Filter */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Ambiente:</span>
-        <Select value={environment} onValueChange={(v) => setEnvironment(v as EnvironmentFilter)}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="production">Produção</SelectItem>
-            <SelectItem value="test">Teste</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Environment Filter Cards */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setEnvironment("all")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
+            environment === "all"
+              ? "bg-primary text-primary-foreground border-primary shadow-md"
+              : "bg-card text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground"
+          }`}
+        >
+          <Package className="h-4 w-4" />
+          <span className="text-sm font-medium">Todos</span>
+        </button>
+        <button
+          onClick={() => setEnvironment("production")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
+            environment === "production"
+              ? "bg-emerald-500 text-white border-emerald-500 shadow-md"
+              : "bg-card text-muted-foreground border-border hover:bg-emerald-500/10 hover:text-emerald-600 hover:border-emerald-500/30"
+          }`}
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          <span className="text-sm font-medium">Produção</span>
+        </button>
+        <button
+          onClick={() => setEnvironment("test")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
+            environment === "test"
+              ? "bg-amber-500 text-white border-amber-500 shadow-md"
+              : "bg-card text-muted-foreground border-border hover:bg-amber-500/10 hover:text-amber-600 hover:border-amber-500/30"
+          }`}
+        >
+          <AlertCircle className="h-4 w-4" />
+          <span className="text-sm font-medium">Teste</span>
+        </button>
       </div>
 
       {/* Stats Cards */}
