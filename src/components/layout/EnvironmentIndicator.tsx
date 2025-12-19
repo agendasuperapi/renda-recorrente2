@@ -1,5 +1,5 @@
 import { useEnvironmentOptional, EnvironmentFilter } from '@/contexts/EnvironmentContext';
-import { CheckCircle2, AlertCircle, Layers } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EnvironmentIndicatorProps {
@@ -8,13 +8,6 @@ interface EnvironmentIndicatorProps {
 }
 
 const environmentConfig: Record<EnvironmentFilter, { label: string; icon: React.ElementType; bgColor: string; textColor: string; borderColor: string }> = {
-  all: {
-    label: 'Todos',
-    icon: Layers,
-    bgColor: 'bg-primary/10',
-    textColor: 'text-primary',
-    borderColor: 'border-primary/20',
-  },
   production: {
     label: 'Produção',
     icon: CheckCircle2,
@@ -34,8 +27,8 @@ const environmentConfig: Record<EnvironmentFilter, { label: string; icon: React.
 export function EnvironmentIndicator({ className, showLabel = true }: EnvironmentIndicatorProps) {
   const envContext = useEnvironmentOptional();
   
-  // If not inside provider or environment is 'all', don't show indicator
-  if (!envContext || envContext.environment === 'all') {
+  // If not inside provider, don't show indicator
+  if (!envContext) {
     return null;
   }
 

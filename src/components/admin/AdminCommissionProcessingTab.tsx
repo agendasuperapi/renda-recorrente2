@@ -95,9 +95,7 @@ export const AdminCommissionProcessingTab = () => {
         .from("unified_payments")
         .select("commission_processed, commission_error", { count: "exact" });
       
-      if (environment !== "all") {
-        query = query.eq("environment", environment);
-      }
+      query = query.eq("environment", environment);
       
       const { data, error } = await query;
       
@@ -135,9 +133,7 @@ export const AdminCommissionProcessingTab = () => {
         query = query.eq("product_id", productId);
       }
 
-      if (environment !== "all") {
-        query = query.eq("environment", environment);
-      }
+      query = query.eq("environment", environment);
 
       if (startDate) {
         query = query.gte("created_at", startDate.toISOString());

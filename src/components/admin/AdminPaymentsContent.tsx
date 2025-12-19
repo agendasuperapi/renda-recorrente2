@@ -84,9 +84,7 @@ export default function AdminPaymentsContent() {
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
-      if (globalEnvironment !== "all") {
-        query = query.eq("environment", globalEnvironment);
-      }
+      query = query.eq("environment", globalEnvironment);
       if (syncStatusFilter !== "all") {
         query = query.eq("sync_status", syncStatusFilter);
       }
