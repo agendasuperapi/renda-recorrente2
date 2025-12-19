@@ -1,5 +1,5 @@
 import { useEnvironment, EnvironmentFilter } from '@/contexts/EnvironmentContext';
-import { CheckCircle2, AlertCircle, Layers } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Tooltip,
@@ -17,7 +17,6 @@ export function EnvironmentToggle({ currentTextColor, accentColor }: Environment
   const { environment, setEnvironment } = useEnvironment();
 
   const options: { value: EnvironmentFilter; label: string; icon: React.ElementType; color: string }[] = [
-    { value: 'all', label: 'Todos', icon: Layers, color: 'hsl(var(--primary))' },
     { value: 'production', label: 'Produção', icon: CheckCircle2, color: '#10b981' },
     { value: 'test', label: 'Teste', icon: AlertCircle, color: '#f59e0b' },
   ];

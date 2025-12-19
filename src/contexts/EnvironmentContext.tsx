@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-export type EnvironmentFilter = 'all' | 'test' | 'production';
+export type EnvironmentFilter = 'test' | 'production';
 
 interface EnvironmentContextType {
   environment: EnvironmentFilter;
   setEnvironment: (env: EnvironmentFilter) => void;
   isProduction: boolean;
   isTest: boolean;
-  isAll: boolean;
 }
 
 const EnvironmentContext = createContext<EnvironmentContextType | undefined>(undefined);
@@ -18,7 +17,7 @@ const SYNC_EVENT = 'admin-environment-change';
 export function EnvironmentProvider({ children }: { children: React.ReactNode }) {
   const [environment, setEnvironmentState] = useState<EnvironmentFilter>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === 'test' || saved === 'production' || saved === 'all') {
+    if (saved === 'test' || saved === 'production') {
       return saved;
     }
     return 'production'; // Default to production for safety
@@ -36,7 +35,7 @@ export function EnvironmentProvider({ children }: { children: React.ReactNode })
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY && e.newValue) {
         const newEnv = e.newValue as EnvironmentFilter;
-        if (newEnv === 'test' || newEnv === 'production' || newEnv === 'all') {
+        if (newEnv === 'test' || newEnv === 'production') {
           setEnvironmentState(newEnv);
         }
       }
@@ -60,7 +59,6 @@ export function EnvironmentProvider({ children }: { children: React.ReactNode })
     setEnvironment,
     isProduction: environment === 'production',
     isTest: environment === 'test',
-    isAll: environment === 'all',
   };
 
   return (

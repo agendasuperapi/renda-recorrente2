@@ -461,9 +461,7 @@ export default function AdminStripeEventsContent() {
         filteredQuery = filteredQuery.eq("event_type", eventTypeFilter);
       }
 
-      if (globalEnvironment !== "all") {
-        filteredQuery = filteredQuery.eq("environment", globalEnvironment);
-      }
+      filteredQuery = filteredQuery.eq("environment", globalEnvironment);
 
       if (dateFrom) {
         filteredQuery = filteredQuery.gte("created_at", dateFrom.toISOString());
