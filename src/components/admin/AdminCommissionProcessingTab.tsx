@@ -154,6 +154,14 @@ export const AdminCommissionProcessingTab = () => {
   });
 
   const getStatusBadge = (payment: PaymentProcessing) => {
+    // Pagamentos com valor zero (trial) não precisam sincronizar - mostrar como "N/A"
+    if (payment.amount === 0) {
+      return (
+        <Badge variant="secondary" className="gap-1 bg-muted text-muted-foreground">
+          N/A
+        </Badge>
+      );
+    }
     if (payment.commission_error) {
       return (
         <Badge variant="destructive" className="gap-1">
