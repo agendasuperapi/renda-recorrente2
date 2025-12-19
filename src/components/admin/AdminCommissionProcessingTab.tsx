@@ -373,7 +373,10 @@ export const AdminCommissionProcessingTab = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
+        <Card 
+          className={`cursor-pointer transition-all hover:ring-2 hover:ring-primary/50 ${status === "all" ? "ring-2 ring-primary" : ""}`}
+          onClick={() => setStatus("all")}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-muted rounded-lg">
@@ -386,7 +389,10 @@ export const AdminCommissionProcessingTab = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className={`cursor-pointer transition-all hover:ring-2 hover:ring-emerald-500/50 ${status === "processed" ? "ring-2 ring-emerald-500" : ""}`}
+          onClick={() => setStatus("processed")}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-500/10 rounded-lg">
@@ -399,7 +405,10 @@ export const AdminCommissionProcessingTab = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className={`cursor-pointer transition-all hover:ring-2 hover:ring-amber-500/50 ${status === "pending" ? "ring-2 ring-amber-500" : ""}`}
+          onClick={() => setStatus("pending")}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-amber-500/10 rounded-lg">
@@ -412,7 +421,10 @@ export const AdminCommissionProcessingTab = () => {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card 
+          className={`cursor-pointer transition-all hover:ring-2 hover:ring-destructive/50 ${status === "error" ? "ring-2 ring-destructive" : ""}`}
+          onClick={() => setStatus("error")}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-destructive/10 rounded-lg">
