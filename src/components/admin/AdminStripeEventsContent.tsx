@@ -24,6 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 
 const ClientProfile = ({ userId, email }: { userId: string | null; email?: string | null }) => {
   const { data: profile, isLoading } = useQuery({
@@ -414,6 +415,7 @@ const PlanInfo = ({ userId, email }: { userId: string | null; email?: string | n
 export default function AdminStripeEventsContent() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { environment: globalEnvironment } = useEnvironment();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
@@ -426,14 +428,13 @@ export default function AdminStripeEventsContent() {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
   const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<string | null>(null);
-  const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
   const [sortColumn, setSortColumn] = useState<string | null>("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"compact" | "full">("compact");
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: stripeEvents, isLoading, refetch } = useQuery({
-    queryKey: ["stripe-events", debouncedSearch, page, pageSize, eventTypeFilter, dateFrom, dateTo, showCancelAtPeriodEnd, environmentFilter, sortColumn, sortDirection],
+    queryKey: ["stripe-events", debouncedSearch, page, pageSize, eventTypeFilter, dateFrom, dateTo, showCancelAtPeriodEnd, globalEnvironment, sortColumn, sortDirection],
     queryFn: async () => {
       const rangeFrom = (page - 1) * pageSize;
       const rangeTo = rangeFrom + pageSize - 1;
@@ -460,8 +461,8 @@ export default function AdminStripeEventsContent() {
         filteredQuery = filteredQuery.eq("event_type", eventTypeFilter);
       }
 
-      if (environmentFilter !== "all") {
-        filteredQuery = filteredQuery.eq("environment", environmentFilter);
+      if (globalEnvironment !== "all") {
+        filteredQuery = filteredQuery.eq("environment", globalEnvironment);
       }
 
       if (dateFrom) {
@@ -911,17 +912,6 @@ export default function AdminStripeEventsContent() {
           ))}
         </SelectContent>
       </Select>
-
-      <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-        <SelectTrigger>
-          <SelectValue placeholder="Ambiente" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="production">Produção</SelectItem>
-          <SelectItem value="test">Teste</SelectItem>
-        </SelectContent>
-      </Select>
       
       <div className="grid grid-cols-2 gap-2">
         <Popover>
@@ -1043,16 +1033,6 @@ export default function AdminStripeEventsContent() {
               </SelectContent>
             </Select>
 
-            <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Ambiente" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="production">Produção</SelectItem>
-                <SelectItem value="test">Teste</SelectItem>
-              </SelectContent>
-            </Select>
             
             <Popover>
               <PopoverTrigger asChild>

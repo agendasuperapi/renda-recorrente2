@@ -22,6 +22,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 
 type Payment = {
   id: string;
@@ -51,9 +52,9 @@ type SortDirection = "asc" | "desc";
 
 export default function AdminPaymentsContent() {
   const isMobile = useIsMobile();
+  const { environment: globalEnvironment } = useEnvironment();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
   const [syncStatusFilter, setSyncStatusFilter] = useState<string>("all");
   const [affiliateFilter, setAffiliateFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
@@ -70,7 +71,7 @@ export default function AdminPaymentsContent() {
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: payments, isLoading, refetch } = useQuery({
-    queryKey: ["admin-payments", currentPage, itemsPerPage, debouncedSearch, statusFilter, environmentFilter, syncStatusFilter, affiliateFilter, startDate, endDate, sortColumn, sortDirection],
+    queryKey: ["admin-payments", currentPage, itemsPerPage, debouncedSearch, statusFilter, globalEnvironment, syncStatusFilter, affiliateFilter, startDate, endDate, sortColumn, sortDirection],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
@@ -83,8 +84,8 @@ export default function AdminPaymentsContent() {
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
-      if (environmentFilter !== "all") {
-        query = query.eq("environment", environmentFilter);
+      if (globalEnvironment !== "all") {
+        query = query.eq("environment", globalEnvironment);
       }
       if (syncStatusFilter !== "all") {
         query = query.eq("sync_status", syncStatusFilter);
@@ -168,7 +169,6 @@ export default function AdminPaymentsContent() {
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
-    setEnvironmentFilter("all");
     setSyncStatusFilter("all");
     setAffiliateFilter("");
     setStartDate("");
@@ -337,14 +337,6 @@ export default function AdminPaymentsContent() {
                 <SelectItem value="paid">Pago</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
                 <SelectItem value="failed">Falhou</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-              <SelectTrigger className="w-full lg:w-[180px]"><SelectValue placeholder="Ambiente" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos ambientes</SelectItem>
-                <SelectItem value="production">Produção</SelectItem>
-                <SelectItem value="test">Teste</SelectItem>
               </SelectContent>
             </Select>
             <Select value={syncStatusFilter} onValueChange={setSyncStatusFilter}>

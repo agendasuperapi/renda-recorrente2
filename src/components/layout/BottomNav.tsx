@@ -2,6 +2,7 @@ import { LayoutDashboard, LineChart, Coins, Menu, DollarSign, Wallet } from "luc
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { EnvironmentIndicator } from "./EnvironmentIndicator";
 
 interface BottomNavProps {
   onMenuClick: () => void;
@@ -76,14 +77,21 @@ export const BottomNav = ({ onMenuClick, isAdmin = false }: BottomNavProps) => {
   const navItems = isAdmin && showAdminMenu ? adminNavItems : affiliateNavItems;
 
   return (
-    <nav 
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t lg:hidden"
-      style={{
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)',
-      }}
-    >
+    <>
+      {/* Environment indicator banner for admin mode */}
+      {isAdmin && showAdminMenu && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center lg:hidden pb-[env(safe-area-inset-bottom)]">
+          <EnvironmentIndicator className="shadow-lg" />
+        </div>
+      )}
+      <nav 
+        className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t lg:hidden"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+        }}
+      >
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -113,5 +121,6 @@ export const BottomNav = ({ onMenuClick, isAdmin = false }: BottomNavProps) => {
         </button>
       </div>
     </nav>
+    </>
   );
 };
