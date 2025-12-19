@@ -23,12 +23,6 @@ export function EnvironmentToggle({ currentTextColor, accentColor }: Environment
 
   return (
     <div className="flex flex-col gap-1.5 w-full px-1">
-      <span 
-        className="text-[10px] uppercase tracking-wider font-semibold opacity-60 px-2 text-center block"
-        style={{ color: currentTextColor }}
-      >
-        Ambiente
-      </span>
       <div className="flex gap-1 p-1 rounded-lg" style={{ backgroundColor: `${accentColor || '#10b981'}15` }}>
         <TooltipProvider delayDuration={300}>
           {options.map((option) => {
