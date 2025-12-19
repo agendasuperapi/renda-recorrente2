@@ -17,9 +17,9 @@ import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, Chevron
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 
 type ProcessingStatus = "all" | "processed" | "pending" | "error";
-type EnvironmentFilter = "all" | "test" | "production";
 
 interface PaymentProcessing {
   id: string;
@@ -58,9 +58,9 @@ export const AdminCommissionProcessingTab = () => {
   const isMobile = useIsMobile();
   const { theme } = useTheme();
   const queryClient = useQueryClient();
+  const { environment } = useEnvironment();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProcessingStatus>("all");
-  const [environment, setEnvironment] = useState<EnvironmentFilter>("all");
   const [productId, setProductId] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -403,42 +403,6 @@ export const AdminCommissionProcessingTab = () => {
         </CardContent>
       </Card>
 
-      {/* Environment Filter Cards */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => setEnvironment("all")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
-            environment === "all"
-              ? "bg-primary text-primary-foreground border-primary shadow-md"
-              : "bg-card text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground"
-          }`}
-        >
-          <Package className="h-4 w-4" />
-          <span className="text-sm font-medium">Todos</span>
-        </button>
-        <button
-          onClick={() => setEnvironment("production")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
-            environment === "production"
-              ? "bg-emerald-500 text-white border-emerald-500 shadow-md"
-              : "bg-card text-muted-foreground border-border hover:bg-emerald-500/10 hover:text-emerald-600 hover:border-emerald-500/30"
-          }`}
-        >
-          <CheckCircle2 className="h-4 w-4" />
-          <span className="text-sm font-medium">Produção</span>
-        </button>
-        <button
-          onClick={() => setEnvironment("test")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
-            environment === "test"
-              ? "bg-amber-500 text-white border-amber-500 shadow-md"
-              : "bg-card text-muted-foreground border-border hover:bg-amber-500/10 hover:text-amber-600 hover:border-amber-500/30"
-          }`}
-        >
-          <AlertCircle className="h-4 w-4" />
-          <span className="text-sm font-medium">Teste</span>
-        </button>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

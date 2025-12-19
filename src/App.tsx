@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { EnvironmentProvider } from "@/contexts/EnvironmentContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { useStatusBarColor } from "@/hooks/useStatusBarColor";
 import LandingPage from "./pages/LandingPage";
@@ -73,10 +74,11 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+        <EnvironmentProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
           <Routes>
             {/* Rotas públicas sem prefixo */}
             <Route path="/" element={<LandingPage />} />
@@ -145,8 +147,9 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+    </EnvironmentProvider>
+  </ThemeProvider>
+</QueryClientProvider>
   );
 };
 

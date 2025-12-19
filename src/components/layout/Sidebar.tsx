@@ -4,6 +4,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LayoutDashboard, User, GraduationCap, Users, Target, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity, ShieldCheck } from "lucide-react";
+import { EnvironmentToggle } from "./EnvironmentToggle";
+import { useEnvironmentOptional } from "@/contexts/EnvironmentContext";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -610,6 +612,16 @@ export const Sidebar = ({
         {isAdmin && showAdminMenu && (
           <div className="mt-3 flex justify-center">
             <SystemErrorsAlert />
+          </div>
+        )}
+        
+        {/* Environment Toggle - Only for admins in admin mode */}
+        {isAdmin && showAdminMenu && (
+          <div className="mt-3">
+            <EnvironmentToggle 
+              currentTextColor={currentTextColor}
+              accentColor={accentColor}
+            />
           </div>
         )}
       </div>
