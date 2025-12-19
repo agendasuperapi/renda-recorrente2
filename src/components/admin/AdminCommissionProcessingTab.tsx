@@ -89,11 +89,17 @@ export const AdminCommissionProcessingTab = () => {
   });
 
   const { data: stats } = useQuery({
-    queryKey: ["commission-processing-stats"],
+    queryKey: ["commission-processing-stats", environment],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("unified_payments")
         .select("commission_processed, commission_error", { count: "exact" });
+      
+      if (environment !== "all") {
+        query = query.eq("environment", environment);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
 
@@ -397,6 +403,21 @@ export const AdminCommissionProcessingTab = () => {
         </CardContent>
       </Card>
 
+      {/* Environment Filter */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Ambiente:</span>
+        <Select value={environment} onValueChange={(v) => setEnvironment(v as EnvironmentFilter)}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="production">Produção</SelectItem>
+            <SelectItem value="test">Teste</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card 
@@ -561,16 +582,6 @@ export const AdminCommissionProcessingTab = () => {
               </SelectContent>
             </Select>
 
-            <Select value={environment} onValueChange={(v) => setEnvironment(v as EnvironmentFilter)}>
-              <SelectTrigger className="w-full lg:w-[140px]">
-                <SelectValue placeholder="Ambiente" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="production">Produção</SelectItem>
-                <SelectItem value="test">Teste</SelectItem>
-              </SelectContent>
-            </Select>
 
             <div className="hidden lg:flex gap-2">
               <DatePickerFilter
