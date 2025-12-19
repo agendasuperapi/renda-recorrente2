@@ -190,7 +190,7 @@ export const AdminCommissionProcessingTab = () => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(value / 100);
+    }).format(value);
   };
 
   const truncateId = (id: string, length = 12) => {
