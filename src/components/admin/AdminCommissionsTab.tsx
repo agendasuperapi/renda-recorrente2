@@ -69,12 +69,14 @@ export const AdminCommissionsTab = () => {
     product_id: string;
     plan_id: string;
     status: string;
+    billing_reason: string;
     data_inicio: Date | undefined;
     data_fim: Date | undefined;
   }>({
     product_id: "",
     plan_id: "",
     status: "",
+    billing_reason: "",
     data_inicio: subDays(new Date(), 7),
     data_fim: new Date()
   });
@@ -94,7 +96,7 @@ export const AdminCommissionsTab = () => {
 
   useEffect(() => {
     loadCommissions();
-  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.data_inicio, filters.data_fim, debouncedCliente, debouncedAffiliate]);
+  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.billing_reason, filters.data_inicio, filters.data_fim, debouncedCliente, debouncedAffiliate]);
 
   useEffect(() => {
     loadFiltersData();
@@ -147,6 +149,15 @@ export const AdminCommissionsTab = () => {
       if (filters.status && filters.status.trim() && filters.status !== " ") {
         query = query.eq("status", filters.status);
       }
+      if (filters.billing_reason && filters.billing_reason.trim() && filters.billing_reason !== " ") {
+        if (filters.billing_reason === "subscription_create") {
+          query = query.eq("billing_reason", "subscription_create");
+        } else if (filters.billing_reason === "subscription_cycle") {
+          query = query.eq("billing_reason", "subscription_cycle");
+        } else if (filters.billing_reason === "one_time_purchase") {
+          query = query.or("billing_reason.eq.one_time_purchase,billing_reason.eq.venda_avulsa");
+        }
+      }
       if (filters.data_inicio) {
         query = query.gte("data_filtro", format(filters.data_inicio, "yyyy-MM-dd"));
       }
@@ -186,12 +197,29 @@ export const AdminCommissionsTab = () => {
       product_id: "",
       plan_id: "",
       status: "",
+      billing_reason: "",
       data_inicio: subDays(new Date(), 7),
       data_fim: new Date()
     });
     setClienteSearch("");
     setAffiliateSearch("");
     setPlans([]);
+    setCurrentPage(1);
+  };
+
+  const handleBillingReasonFilter = (billingReason: string | null) => {
+    if (!billingReason) return;
+    
+    let filterValue = "";
+    if (billingReason === "subscription_create") {
+      filterValue = "subscription_create";
+    } else if (billingReason === "subscription_cycle") {
+      filterValue = "subscription_cycle";
+    } else if (billingReason === "one_time_purchase" || billingReason === "venda_avulsa") {
+      filterValue = "one_time_purchase";
+    }
+    
+    setFilters(f => ({ ...f, billing_reason: filterValue }));
     setCurrentPage(1);
   };
 
@@ -246,10 +274,16 @@ export const AdminCommissionsTab = () => {
     );
   };
 
-  const getClientTypeBadge = (billingReason: string | null, purchaseNumber: number | null) => {
+  const getClientTypeBadge = (billingReason: string | null, purchaseNumber: number | null, clickable = false) => {
+    const handleClick = clickable ? () => handleBillingReasonFilter(billingReason) : undefined;
+    const cursorClass = clickable ? "cursor-pointer hover:opacity-80 transition-opacity" : "";
+    
     if (billingReason === 'subscription_create' || billingReason === 'primeira_venda') {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+        <span 
+          className={`px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 ${cursorClass}`}
+          onClick={handleClick}
+        >
           ✨ Novo
         </span>
       );
@@ -257,7 +291,10 @@ export const AdminCommissionsTab = () => {
     
     if (billingReason === 'subscription_cycle' || billingReason === 'renovacao') {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/30">
+        <span 
+          className={`px-2 py-0.5 rounded-full text-[10px] font-medium bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/30 ${cursorClass}`}
+          onClick={handleClick}
+        >
           🔄 Renovação
         </span>
       );
@@ -266,13 +303,19 @@ export const AdminCommissionsTab = () => {
     if ((billingReason === 'one_time_purchase' || billingReason === 'venda_avulsa') && purchaseNumber) {
       if (purchaseNumber === 1) {
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
+          <span 
+            className={`px-2 py-0.5 rounded-full text-[10px] font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 ${cursorClass}`}
+            onClick={handleClick}
+          >
             ✨ 1ª compra
           </span>
         );
       }
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+        <span 
+          className={`px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 ${cursorClass}`}
+          onClick={handleClick}
+        >
           {purchaseNumber}ª compra
         </span>
       );
@@ -359,6 +402,18 @@ export const AdminCommissionsTab = () => {
           />
 
           <Input placeholder="Cliente" value={clienteSearch} onChange={e => setClienteSearch(e.target.value)} />
+
+          <Select value={filters.billing_reason} onValueChange={value => setFilters(f => ({ ...f, billing_reason: value }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value=" ">Todos os tipos</SelectItem>
+              <SelectItem value="subscription_create">✨ Novo</SelectItem>
+              <SelectItem value="subscription_cycle">🔄 Renovação</SelectItem>
+              <SelectItem value="one_time_purchase">🛒 Compra avulsa</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Select value={filters.status} onValueChange={value => setFilters(f => ({ ...f, status: value }))}>
             <SelectTrigger>
@@ -474,7 +529,7 @@ export const AdminCommissionsTab = () => {
                                             <div className="font-semibold text-sm truncate">{commission.affiliate_name}</div>
                                             <div className="flex items-center gap-2 flex-wrap">
                                               <span className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</span>
-                                              {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                              {getClientTypeBadge(commission.billing_reason, commission.purchase_number, true)}
                                             </div>
                                           </div>
                                           <div className="flex items-center gap-3">
@@ -508,7 +563,7 @@ export const AdminCommissionsTab = () => {
                                               <p className="font-medium text-sm truncate">{commission.affiliate_name}</p>
                                               <div className="flex items-center gap-2 flex-wrap">
                                                 <p className="text-xs text-muted-foreground truncate">{commission.cliente || "Sem nome"}</p>
-                                                {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                                {getClientTypeBadge(commission.billing_reason, commission.purchase_number, true)}
                                               </div>
                                             </div>
                                             {getStatusBadge(commission.status, commission.data)}
@@ -638,7 +693,7 @@ export const AdminCommissionsTab = () => {
                                 <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                               </TableCell>
                               <TableCell className="relative border-0">
-                                {getClientTypeBadge(commission.billing_reason, commission.purchase_number)}
+                                {getClientTypeBadge(commission.billing_reason, commission.purchase_number, true)}
                                 <div className="absolute right-0 bottom-0 left-0 h-px bg-border" />
                               </TableCell>
                               <TableCell className="relative border-0">
