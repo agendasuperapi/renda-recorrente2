@@ -24,7 +24,7 @@ export function EnvironmentToggle({ currentTextColor, accentColor }: Environment
   return (
     <div className="flex flex-col gap-1.5 w-full px-1">
       <span 
-        className="text-[10px] uppercase tracking-wider font-semibold opacity-60 px-2"
+        className="text-[10px] uppercase tracking-wider font-semibold opacity-60 px-2 text-center block"
         style={{ color: currentTextColor }}
       >
         Ambiente
