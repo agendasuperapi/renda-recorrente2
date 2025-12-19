@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 
 type ProcessingStatus = "all" | "processed" | "pending" | "error";
+type EnvironmentFilter = "all" | "test" | "production";
 
 interface PaymentProcessing {
   id: string;
@@ -43,6 +44,7 @@ interface PaymentProcessing {
   created_at: string;
   customer_name: string;
   customer_email: string;
+  environment: string;
 }
 
 interface ReprocessResult {
@@ -58,6 +60,7 @@ export const AdminCommissionProcessingTab = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProcessingStatus>("all");
+  const [environment, setEnvironment] = useState<EnvironmentFilter>("all");
   const [productId, setProductId] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
@@ -71,7 +74,7 @@ export const AdminCommissionProcessingTab = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [search, status, productId, startDate, endDate, perPage]);
+  }, [search, status, productId, startDate, endDate, perPage, environment]);
 
   const { data: products } = useQuery({
     queryKey: ["products-filter"],
@@ -104,7 +107,7 @@ export const AdminCommissionProcessingTab = () => {
   });
 
   const { data: paymentsData, isLoading, refetch } = useQuery({
-    queryKey: ["commission-processing", page, perPage, search, status, productId, startDate, endDate],
+    queryKey: ["commission-processing", page, perPage, search, status, productId, startDate, endDate, environment],
     queryFn: async () => {
       let query = supabase
         .from("view_admin_commission_processing")
@@ -124,6 +127,10 @@ export const AdminCommissionProcessingTab = () => {
 
       if (productId !== "all") {
         query = query.eq("product_id", productId);
+      }
+
+      if (environment !== "all") {
+        query = query.eq("environment", environment);
       }
 
       if (startDate) {
@@ -306,6 +313,17 @@ export const AdminCommissionProcessingTab = () => {
         <div>
           <p className="text-xs text-muted-foreground">Comissões Geradas</p>
           <p className="text-sm font-medium">{payment.commissions_generated || 0}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Ambiente</p>
+          <Badge 
+            variant={payment.environment === 'production' ? 'default' : 'secondary'}
+            className={payment.environment === 'production' 
+              ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+              : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}
+          >
+            {payment.environment === 'production' ? 'Produção' : 'Teste'}
+          </Badge>
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Data do Pagamento</p>
@@ -543,6 +561,17 @@ export const AdminCommissionProcessingTab = () => {
               </SelectContent>
             </Select>
 
+            <Select value={environment} onValueChange={(v) => setEnvironment(v as EnvironmentFilter)}>
+              <SelectTrigger className="w-full lg:w-[140px]">
+                <SelectValue placeholder="Ambiente" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="production">Produção</SelectItem>
+                <SelectItem value="test">Teste</SelectItem>
+              </SelectContent>
+            </Select>
+
             <div className="hidden lg:flex gap-2">
               <DatePickerFilter
                 value={startDate}
@@ -655,6 +684,7 @@ export const AdminCommissionProcessingTab = () => {
                   <TableHead>Produto</TableHead>
                   <TableHead>Afiliado</TableHead>
                   <TableHead>Valor</TableHead>
+                  <TableHead>Ambiente</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Comissões</TableHead>
                   <TableHead>Data</TableHead>
@@ -685,6 +715,16 @@ export const AdminCommissionProcessingTab = () => {
                     </TableCell>
                     <TableCell>{payment.affiliate_name || "-"}</TableCell>
                     <TableCell>{formatCurrency(payment.amount)}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={payment.environment === 'production' ? 'default' : 'secondary'}
+                        className={payment.environment === 'production' 
+                          ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                          : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}
+                      >
+                        {payment.environment === 'production' ? 'Produção' : 'Teste'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusBadge(payment)}

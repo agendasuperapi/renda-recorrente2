@@ -3595,6 +3595,7 @@ export type Database = {
           currency: string | null
           customer_email: string | null
           customer_name: string | null
+          environment: string | null
           external_payment_id: string | null
           id: string | null
           payment_date: string | null
