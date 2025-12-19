@@ -80,7 +80,7 @@ const CouponDetailsContent = ({
         </Badge>
         {coupon.products && <Badge variant="secondary">{coupon.products.nome}</Badge>}
         {coupon.activatedCoupon?.is_active && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">Ativo</Badge>}
-        {coupon.activatedCoupon && !coupon.activatedCoupon.is_active && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50">Inativo</Badge>}
+        {coupon.activatedCoupon && !coupon.activatedCoupon.is_active && <Badge className="bg-red-600 text-white dark:bg-red-700 dark:text-white">Inativo</Badge>}
       </div>
     </div>
 
@@ -615,7 +615,7 @@ export const RendaRecorrenteCoupons = () => {
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             const affiliateLink = getAffiliateLink(coupon);
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`p-4 border rounded-lg transition-all duration-300 ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : ""} ${isActivated && isActive ? "bg-background" : ""}`}>
+                    <div className={`p-4 border rounded-lg transition-all duration-300 ${isActivated && !isActive ? "bg-red-100 border-red-400 dark:border-red-600 dark:bg-red-950/30" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : ""} ${isActivated && isActive ? "bg-background" : ""}`}>
                       {/* Header: Nome + Badges */}
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <h3 className="font-semibold text-base">{coupon.name}</h3>
@@ -628,7 +628,7 @@ export const RendaRecorrenteCoupons = () => {
                           </Badge>
                           {isActivated ? <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Liberado</Badge> : <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-xs">Não Liberado</Badge>}
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
-                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
+                          {isActivated && !isActive && <Badge className="bg-red-600 text-white dark:bg-red-700 dark:text-white text-xs">Inativo</Badge>}
                         </div>
                       </div>
                       
@@ -692,7 +692,7 @@ export const RendaRecorrenteCoupons = () => {
             const customCode = profile?.username ? generateCustomCode(profile.username, coupon.code, coupon.is_primary || false) : "";
             const affiliateLink = getAffiliateLink(coupon);
             return <ScrollAnimation key={coupon.id} animation="fade-up" delay={couponIndex * 50} threshold={0.05}>
-                    <div className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "bg-red-50 border-red-300 dark:border-red-500 dark:bg-transparent" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
+                    <div className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-300 hover:shadow-md ${isActivated && !isActive ? "bg-red-100 border-red-400 dark:border-red-600 dark:bg-red-950/30" : ""} ${!isActivated ? "bg-orange-50 border-orange-400 dark:border-orange-500 dark:bg-transparent" : "hover:bg-accent/50"}`}>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold">{coupon.name}</h3>
@@ -708,7 +708,7 @@ export const RendaRecorrenteCoupons = () => {
                           {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50">
                               Ativo
                             </Badge>}
-                          {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50">
+                          {isActivated && !isActive && <Badge className="bg-red-600 text-white dark:bg-red-700 dark:text-white">
                               Inativo
                             </Badge>}
                         </div>
