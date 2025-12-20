@@ -327,10 +327,6 @@ export const AdminCommissionsTab = () => {
     return null;
   };
 
-  if (initialLoading && !hasLoadedOnce) {
-    return <TableSkeleton columns={10} rows={5} showSearch />;
-  }
-
   // Query para estatísticas de comissões
   const { data: statsData } = useQuery({
     queryKey: ["admin-commissions-stats", environment],
@@ -364,6 +360,10 @@ export const AdminCommissionsTab = () => {
       maximumFractionDigits: 2
     }).format(value);
   };
+
+  if (initialLoading && !hasLoadedOnce) {
+    return <TableSkeleton columns={10} rows={5} showSearch />;
+  }
 
   return (
     <div className="space-y-6">
