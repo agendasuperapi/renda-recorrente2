@@ -122,10 +122,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    const environmentMode = envSettings.value; // 'test' ou 'production'
-    console.log('[create-stripe-checkout] Modo de ambiente:', environmentMode);
+    let environmentMode = envSettings.value; // 'test' ou 'production'
+    console.log('[create-stripe-checkout] Modo de ambiente do sistema:', environmentMode);
 
-    // Usar a chave Stripe correta baseada no ambiente
+    // EXCEÇÃO: emails @testex.com sempre usam ambiente de teste (modo desenvolvedor)
+    const isTestEmail = user_email.toLowerCase().endsWith('@testex.com');
+    if (isTestEmail) {
+      console.log('[create-stripe-checkout] Email de teste detectado (@testex.com), forçando ambiente test');
+      environmentMode = 'test';
+    }
+
+    console.log('[create-stripe-checkout] Ambiente efetivo:', environmentMode);
+
+    // Usar a chave Stripe correta baseada no ambiente efetivo
     const stripeSecretKey = environmentMode === 'production'
       ? Deno.env.get('STRIPE_SECRET_KEY_PROD')
       : Deno.env.get('STRIPE_SECRET_KEY_TEST');
