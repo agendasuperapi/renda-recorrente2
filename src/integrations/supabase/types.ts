@@ -1127,6 +1127,36 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_sections: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          order_position: number | null
+          section_key: string
+          section_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_position?: number | null
+          section_key: string
+          section_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          order_position?: number | null
+          section_key?: string
+          section_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_testimonials: {
         Row: {
           avatar_url: string | null
