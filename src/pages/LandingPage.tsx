@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GradientEditor } from "@/components/GradientEditor";
 import { CookieConsent } from "@/components/CookieConsent";
+import { SectionWrapper } from "@/components/landing/SectionWrapper";
+import { useLandingSections } from "@/hooks/useLandingSections";
 import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw, WifiOff } from "lucide-react";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -151,6 +153,7 @@ const LandingPage = () => {
   const { checkVersion, ...versionInfo } = useVersionCheck();
   const { formattedVersion } = useDeployedVersion();
   const isOnline = useOnlineStatus();
+  const { sections: landingSections, toggleSection, isSectionActive, getSectionName } = useLandingSections();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [commissionLevels, setCommissionLevels] = useState<any[]>([]);
@@ -1126,9 +1129,16 @@ const LandingPage = () => {
       </header>
 
       {/* Announcement Banner */}
-      {announcementBanner && <div className="w-full py-3 px-3 md:px-6 text-center relative overflow-hidden" style={{
-      backgroundColor: announcementBanner.background_color
-    }}>
+      {announcementBanner && (isAdmin || isSectionActive('announcement-banner')) && (
+        <SectionWrapper
+          sectionKey="announcement-banner"
+          sectionName={getSectionName('announcement-banner')}
+          isActive={isSectionActive('announcement-banner')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          className="w-full py-3 px-3 md:px-6 text-center overflow-hidden"
+          style={{ backgroundColor: announcementBanner.background_color }}
+        >
           <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">
             <div className="flex-1">
               {announcementBanner.text && <div className="text-sm md:text-base font-semibold rich-text-banner" dangerouslySetInnerHTML={{
@@ -1152,7 +1162,8 @@ const LandingPage = () => {
                 {announcementBanner.button_text}
               </Button>}
           </div>
-        </div>}
+        </SectionWrapper>
+      )}
 
       {/* Hero Section */}
       <section id="hero" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('hero')}>
@@ -1642,50 +1653,61 @@ const LandingPage = () => {
         </section>}
 
       {/* Depoimentos */}
-      <section id="depoimentos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('depoimentos')}>
-        {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'depoimentos' ? null : 'depoimentos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
-            <Edit className="w-4 h-4" />
-          </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
-          color: getHeadingColor('depoimentos')
-        }}>
-            O que dizem nossos afiliados
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
-            {testimonials.slice(0, 3).map((testimonial, index) => <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${visibleSections.has('depoimentos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
-                <CardHeader>
-                  <div className="flex items-center gap-3 md:gap-4 mb-4">
-                    <Avatar className="w-16 h-16 md:w-20 md:h-20">
-                      <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
-                        {testimonial.name.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold text-sm md:text-base" style={{
-                    color: getTextColor('depoimentos')
-                  }}>{testimonial.name}</p>
-                      <p className="text-xs md:text-sm" style={{
-                    color: getTextColor('depoimentos')
-                  }}>{testimonial.role}</p>
+      {(isAdmin || isSectionActive('depoimentos')) && (
+        <SectionWrapper
+          sectionKey="depoimentos"
+          sectionName={getSectionName('depoimentos')}
+          isActive={isSectionActive('depoimentos')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="depoimentos"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('depoimentos')}
+        >
+          {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'depoimentos' ? null : 'depoimentos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
+              <Edit className="w-4 h-4" />
+            </Button>}
+          <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
+            color: getHeadingColor('depoimentos')
+          }}>
+              O que dizem nossos afiliados
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
+              {testimonials.slice(0, 3).map((testimonial, index) => <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${visibleSections.has('depoimentos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+                  <CardHeader>
+                    <div className="flex items-center gap-3 md:gap-4 mb-4">
+                      <Avatar className="w-16 h-16 md:w-20 md:h-20">
+                        <AvatarImage src={testimonial.avatar_url || undefined} alt={testimonial.name} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xl md:text-2xl">
+                          {testimonial.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold text-sm md:text-base" style={{
+                      color: getTextColor('depoimentos')
+                    }}>{testimonial.name}</p>
+                        <p className="text-xs md:text-sm" style={{
+                      color: getTextColor('depoimentos')
+                    }}>{testimonial.role}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-1">
-                    {Array.from({
-                  length: testimonial.rating
-                }).map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="italic text-sm md:text-base" style={{
-                color: getTextColor('depoimentos')
-              }}>"{testimonial.content}"</p>
-                </CardContent>
-              </Card>)}
+                    <div className="flex gap-1">
+                      {Array.from({
+                    length: testimonial.rating
+                  }).map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="italic text-sm md:text-base" style={{
+                  color: getTextColor('depoimentos')
+                }}>"{testimonial.content}"</p>
+                  </CardContent>
+                </Card>)}
+            </div>
           </div>
-        </div>
-      </section>
+        </SectionWrapper>
+      )}
 
       {/* Seção de Cupom */}
       <section id="cupons" className="py-12 md:py-16 px-3 md:px-6 relative" style={getGradientStyle('cupons')}>
@@ -1959,78 +1981,100 @@ const LandingPage = () => {
       </section>
 
       {/* FAQs */}
-      <section id="faq" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('faq')}>
-        {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'faq' ? null : 'faq')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
-            <Edit className="w-4 h-4" />
-          </Button>}
-        <div className={`container mx-auto max-w-4xl px-0 transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
-          color: getHeadingColor('faq')
-        }}>
-            Perguntas Frequentes
-          </h2>
-          <Accordion type="single" collapsible className="w-full px-3 md:px-0">
-            {faqs.map((faq, index) => <AccordionItem key={faq.id} value={`item-${index}`}>
-                <AccordionTrigger className="text-left" style={{
-              color: getTextColor('faq')
-            }}>
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent style={{
-              color: getTextColor('faq')
-            }}>
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>)}
-          </Accordion>
-        </div>
-      </section>
+      {(isAdmin || isSectionActive('faq')) && (
+        <SectionWrapper
+          sectionKey="faq"
+          sectionName={getSectionName('faq')}
+          isActive={isSectionActive('faq')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="faq"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('faq')}
+        >
+          {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'faq' ? null : 'faq')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
+              <Edit className="w-4 h-4" />
+            </Button>}
+          <div className={`container mx-auto max-w-4xl px-0 transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
+            color: getHeadingColor('faq')
+          }}>
+              Perguntas Frequentes
+            </h2>
+            <Accordion type="single" collapsible className="w-full px-3 md:px-0">
+              {faqs.map((faq, index) => <AccordionItem key={faq.id} value={`item-${index}`}>
+                  <AccordionTrigger className="text-left" style={{
+                color: getTextColor('faq')
+              }}>
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent style={{
+                color: getTextColor('faq')
+              }}>
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>)}
+            </Accordion>
+          </div>
+        </SectionWrapper>
+      )}
 
       {/* Call to Action Final */}
-      <section id="cta-final" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('cta-final')}>
-        {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'cta-final' ? null : 'cta-final')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
-            <Edit className="w-4 h-4" />
-          </Button>}
-        <div className="container mx-auto max-w-4xl text-center px-0">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 px-3 md:px-0" style={{
-          color: getHeadingColor('cta-final')
-        }}>
-            Transforme suas Indicações em Renda Recorrente!
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-10 px-3 md:px-0" style={{
-          color: getTextColor('cta-final')
-        }}>
-            Não perca mais tempo sem ganhar! Junte-se ao APP Renda Recorrente e tenha controle total dos seus ganhos mensais.
-          </p>
-          
-          <Button size="lg" onClick={() => scrollToSection("planos")} className="w-full md:w-auto text-base md:text-lg px-8 md:px-12 py-6 md:py-7 mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300">
-            Experimente Gratuitamente! →
-          </Button>
+      {(isAdmin || isSectionActive('cta')) && (
+        <SectionWrapper
+          sectionKey="cta"
+          sectionName={getSectionName('cta')}
+          isActive={isSectionActive('cta')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="cta-final"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('cta-final')}
+        >
+          {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'cta-final' ? null : 'cta-final')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
+              <Edit className="w-4 h-4" />
+            </Button>}
+          <div className="container mx-auto max-w-4xl text-center px-0">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 px-3 md:px-0" style={{
+            color: getHeadingColor('cta-final')
+          }}>
+              Transforme suas Indicações em Renda Recorrente!
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl mb-8 md:mb-10 px-3 md:px-0" style={{
+            color: getTextColor('cta-final')
+          }}>
+              Não perca mais tempo sem ganhar! Junte-se ao APP Renda Recorrente e tenha controle total dos seus ganhos mensais.
+            </p>
+            
+            <Button size="lg" onClick={() => scrollToSection("planos")} className="w-full md:w-auto text-base md:text-lg px-8 md:px-12 py-6 md:py-7 mb-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-300">
+              Experimente Gratuitamente! →
+            </Button>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 px-3 md:px-0">
-            <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full">
-              <CheckCircle2 className="w-5 h-5" style={{
-              color: getTextColor('cta-final')
-            }} />
-              <span className="text-sm md:text-base font-medium" style={{
-              color: getTextColor('cta-final')
-            }}>
-                Plano FREE disponível
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full">
-              <CheckCircle2 className="w-5 h-5" style={{
-              color: getTextColor('cta-final')
-            }} />
-              <span className="text-sm md:text-base font-medium" style={{
-              color: getTextColor('cta-final')
-            }}>
-                Cancele quando quiser
-              </span>
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 px-3 md:px-0">
+              <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                <CheckCircle2 className="w-5 h-5" style={{
+                color: getTextColor('cta-final')
+              }} />
+                <span className="text-sm md:text-base font-medium" style={{
+                color: getTextColor('cta-final')
+              }}>
+                  Plano FREE disponível
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                <CheckCircle2 className="w-5 h-5" style={{
+                color: getTextColor('cta-final')
+              }} />
+                <span className="text-sm md:text-base font-medium" style={{
+                color: getTextColor('cta-final')
+              }}>
+                  Cancele quando quiser
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </SectionWrapper>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border py-8 md:py-12 px-3 md:px-6">

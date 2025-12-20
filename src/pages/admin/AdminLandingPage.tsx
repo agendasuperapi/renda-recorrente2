@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, Copy, LucideProps, Megaphone, Image as ImageIcon, MessageSquareQuote, HelpCircle, Sparkles } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical, CheckCircle2, Search, Edit2, Copy, LucideProps, Megaphone, Image as ImageIcon, MessageSquareQuote, HelpCircle, Sparkles, LayoutGrid, EyeOff, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -37,6 +37,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLandingSections } from "@/hooks/useLandingSections";
 
 interface Testimonial {
   id: string;
@@ -508,6 +509,7 @@ const SortableFeatureCard = ({ feature, onEdit, onDelete }: {
 const AdminLandingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sections: landingSections, toggleSection, loading: loadingSections } = useLandingSections();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [features, setFeatures] = useState<Feature[]>([]);
@@ -1490,6 +1492,10 @@ const AdminLandingPage = () => {
             <Sparkles className="h-4 w-4" />
             <span>Funcionalidades</span>
           </TabsTrigger>
+          <TabsTrigger value="sections" className="flex items-center gap-2 flex-shrink-0">
+            <LayoutGrid className="h-4 w-4" />
+            <span>Seções</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="banner" className="space-y-3 lg:space-y-4">
@@ -2464,6 +2470,61 @@ const AdminLandingPage = () => {
                   </Table>
                 </DndContext>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Sections Management Tab */}
+        <TabsContent value="sections" className="space-y-3 lg:space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gerenciar Seções</CardTitle>
+              <CardDescription>
+                Ative ou desative seções da landing page. Seções inativas só serão visíveis para super admins.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingSections ? (
+                <div className="text-center py-8 text-muted-foreground">Carregando seções...</div>
+              ) : (
+                <div className="space-y-3">
+                  {landingSections.map((section) => (
+                    <div 
+                      key={section.id} 
+                      className={`flex items-center justify-between p-4 rounded-lg border ${
+                        section.is_active 
+                          ? 'bg-background border-border' 
+                          : 'bg-destructive/5 border-destructive/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {section.is_active ? (
+                          <Eye className="h-5 w-5 text-primary" />
+                        ) : (
+                          <EyeOff className="h-5 w-5 text-destructive" />
+                        )}
+                        <div>
+                          <p className="font-medium">{section.section_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {section.is_active ? 'Visível para todos' : 'Visível apenas para admins'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {!section.is_active && (
+                          <Badge variant="destructive" className="text-xs">
+                            Inativa
+                          </Badge>
+                        )}
+                        <Switch
+                          checked={section.is_active}
+                          onCheckedChange={(checked) => toggleSection(section.section_key, checked)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
