@@ -17,6 +17,7 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { SectionWrapper } from "@/components/landing/SectionWrapper";
 import { useLandingSections } from "@/hooks/useLandingSections";
 import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw, WifiOff } from "lucide-react";
+import { DevModeAuthDialog } from "@/components/DevModeAuthDialog";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import * as LucideIcons from "lucide-react";
@@ -179,6 +180,7 @@ const LandingPage = () => {
   const [couponCode, setCouponCode] = useState("");
   const [validatedCoupon, setValidatedCoupon] = useState<any>(null);
   const [loadingCoupon, setLoadingCoupon] = useState(false);
+  const [showDevModeAuth, setShowDevModeAuth] = useState(false);
 
   // Busca banner de anúncio com cache
   const {
@@ -1969,15 +1971,10 @@ const LandingPage = () => {
             setClickCount(0);
           }, 2000);
 
-          // Ativar modo desenvolvedor ao clicar 10x
+          // Abrir diálogo de autenticação ao clicar 10x
           if (newCount === 10) {
-            localStorage.setItem('devMode', 'true');
             setClickCount(0);
-            toast({
-              title: "🔧 Modo Desenvolvedor Ativado",
-              description: "Os formulários serão preenchidos automaticamente",
-              duration: 3000
-            });
+            setShowDevModeAuth(true);
           }
         }}>
             Escolha seu Plano
@@ -2344,6 +2341,16 @@ const LandingPage = () => {
     }} onClose={() => setEditingBlock(null)} />}
 
       <CookieConsent />
+      
+      {/* Diálogo de autenticação para modo desenvolvedor */}
+      <DevModeAuthDialog
+        open={showDevModeAuth}
+        onOpenChange={setShowDevModeAuth}
+        onSuccess={() => {
+          // Forçar re-render para mostrar planos de teste
+          window.location.reload();
+        }}
+      />
       </div>
     </div>
   );
