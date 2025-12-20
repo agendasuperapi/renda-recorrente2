@@ -3698,6 +3698,24 @@ export type Database = {
           },
         ]
       }
+      view_admin_commissions_stats: {
+        Row: {
+          available_amount: number | null
+          available_count: number | null
+          cancelled_amount: number | null
+          cancelled_count: number | null
+          environment: string | null
+          pending_amount: number | null
+          pending_count: number | null
+          requested_amount: number | null
+          requested_count: number | null
+          total_amount: number | null
+          total_count: number | null
+          withdrawn_amount: number | null
+          withdrawn_count: number | null
+        }
+        Relationships: []
+      }
       view_admin_payments: {
         Row: {
           affiliate_name: string | null
