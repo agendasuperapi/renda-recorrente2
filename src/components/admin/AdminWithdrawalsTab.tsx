@@ -76,18 +76,55 @@ export function AdminWithdrawalsTab() {
   const isMobile = useIsMobile();
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  // Buscar estatísticas de saques
+  // Buscar estatísticas de saques (filtrado por environment)
   const { data: stats } = useQuery({
-    queryKey: ["withdrawals-stats"],
+    queryKey: ["withdrawals-stats", environment],
     queryFn: async () => {
-      const { data, error } = await supabase.from("view_withdrawals_stats" as any).select("*").single();
-      if (error) throw error;
-      return data as unknown as {
-        total_pending: number;
-        total_approved: number;
-        total_paid: number;
-        total_rejected_count: number;
-        total_awaiting_release: number;
+      // Query manual para filtrar por environment
+      const { data: withdrawalsData, error: wError } = await supabase
+        .from("withdrawals")
+        .select("amount, status")
+        .eq("environment", environment);
+      
+      if (wError) throw wError;
+
+      const { data: commissionsData, error: cError } = await supabase
+        .from("commissions")
+        .select("amount, available_date, profiles!commissions_affiliate_id_fkey(environment)")
+        .eq("status", "pending")
+        .or(`available_date.is.null,available_date.gt.${new Date().toISOString()}`);
+
+      if (cError) throw cError;
+
+      // Filtrar comissões pelo environment do afiliado
+      const filteredCommissions = (commissionsData || []).filter(
+        (c: any) => c.profiles?.environment === environment
+      );
+
+      const total_pending = (withdrawalsData || [])
+        .filter(w => w.status === "pending")
+        .reduce((sum, w) => sum + Number(w.amount), 0);
+
+      const total_approved = (withdrawalsData || [])
+        .filter(w => w.status === "approved")
+        .reduce((sum, w) => sum + Number(w.amount), 0);
+
+      const total_paid = (withdrawalsData || [])
+        .filter(w => w.status === "paid")
+        .reduce((sum, w) => sum + Number(w.amount), 0);
+
+      const total_rejected_count = (withdrawalsData || [])
+        .filter(w => w.status === "rejected").length;
+
+      const total_awaiting_release = filteredCommissions
+        .reduce((sum: number, c: any) => sum + Number(c.amount), 0);
+
+      return {
+        total_pending,
+        total_approved,
+        total_paid,
+        total_rejected_count,
+        total_awaiting_release
       };
     }
   });
@@ -120,7 +157,7 @@ export function AdminWithdrawalsTab() {
         head: true
       }).eq("environment", environment);
       if (debouncedSearch) {
-        const { data: profilesData } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+        const { data: profilesData } = await supabase.from("profiles").select("id").eq("environment", environment).or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
         if (profilesData && profilesData.length > 0) {
           const profileIds = profilesData.map(p => p.id);
           query = query.in("affiliate_id", profileIds);
@@ -154,7 +191,7 @@ export function AdminWithdrawalsTab() {
         ascending: false
       }).range(from, to);
       if (debouncedSearch) {
-        const { data: profilesData } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+        const { data: profilesData } = await supabase.from("profiles").select("id").eq("environment", environment).or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
         if (profilesData && profilesData.length > 0) {
           const profileIds = profilesData.map(p => p.id);
           query = query.in("affiliate_id", profileIds);
