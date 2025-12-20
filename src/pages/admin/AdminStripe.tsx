@@ -25,25 +25,25 @@ export default function AdminStripe() {
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid grid-cols-2 gap-2 bg-muted/50 p-1.5 rounded-xl w-full sm:w-auto sm:inline-grid">
-          <TabsTrigger value="events" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border rounded-lg">
-            <Zap className="w-4 h-4 mr-2" />
-            <span>Eventos de Afiliados</span>
-          </TabsTrigger>
           <TabsTrigger value="payments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border rounded-lg">
             <CreditCard className="w-4 h-4 mr-2" />
             <span>Pagamentos de Afiliados</span>
           </TabsTrigger>
+          <TabsTrigger value="events" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=inactive]:bg-background data-[state=inactive]:border data-[state=inactive]:border-border rounded-lg">
+            <Zap className="w-4 h-4 mr-2" />
+            <span>Eventos de Afiliados</span>
+          </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="events" forceMount className="data-[state=inactive]:hidden mt-6">
-          <Suspense fallback={<TabLoadingFallback />}>
-            <AdminStripeEventsContent />
-          </Suspense>
-        </TabsContent>
 
         <TabsContent value="payments" forceMount className="data-[state=inactive]:hidden mt-6">
           <Suspense fallback={<TabLoadingFallback />}>
             <AdminPaymentsContent />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="events" forceMount className="data-[state=inactive]:hidden mt-6">
+          <Suspense fallback={<TabLoadingFallback />}>
+            <AdminStripeEventsContent />
           </Suspense>
         </TabsContent>
       </Tabs>
