@@ -54,6 +54,7 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -75,7 +76,7 @@ const AdminUsers = () => {
     data: usersData,
     isLoading
   } = useQuery({
-    queryKey: ["admin-users", debouncedSearch, statusFilter, currentPage, itemsPerPage, sortColumn, sortDirection, environment],
+    queryKey: ["admin-users", debouncedSearch, statusFilter, roleFilter, currentPage, itemsPerPage, sortColumn, sortDirection, environment],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
@@ -91,6 +92,11 @@ const AdminUsers = () => {
         query = query.eq("is_blocked", false);
       } else if (statusFilter === "blocked") {
         query = query.eq("is_blocked", true);
+      }
+      if (roleFilter === "admin") {
+        query = query.eq("role", "super_admin");
+      } else if (roleFilter === "affiliate") {
+        query = query.eq("role", "afiliado");
       }
       const {
         data,
@@ -284,6 +290,7 @@ const AdminUsers = () => {
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
+    setRoleFilter("all");
     setCurrentPage(1);
   };
   return <div className="space-y-3 md:space-y-4 p-4 sm:p-6">
@@ -321,13 +328,23 @@ const AdminUsers = () => {
                 <Input placeholder="Buscar por nome, email, username ou código..." className="pl-9" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectTrigger className="w-full lg:w-[150px]">
                   <SelectValue placeholder="Filtrar Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="all">Todos Status</SelectItem>
                   <SelectItem value="active">Ativos</SelectItem>
                   <SelectItem value="blocked">Bloqueados</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-full lg:w-[150px]">
+                  <SelectValue placeholder="Filtrar Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas Roles</SelectItem>
+                  <SelectItem value="affiliate">Afiliado</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={itemsPerPage.toString()} onValueChange={value => {
