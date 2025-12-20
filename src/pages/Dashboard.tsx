@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X, Lock, Eye, EyeOff } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Wallet, CheckCircle2, ArrowRight, BookOpen, Trophy, Coins, Copy, Share2, Check, X, Lock, Eye, EyeOff, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { Badge } from "@/components/ui/badge";
 import { ActiveGoalsWidget } from "@/components/goals/ActiveGoalsWidget";
 interface DashboardStats {
   affiliate_id: string;
@@ -58,6 +59,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showWelcome, setShowWelcome] = useState(false);
   const [userName, setUserName] = useState<string>("");
+  const [userEnvironment, setUserEnvironment] = useState<string>("production");
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [primaryCoupons, setPrimaryCoupons] = useState<PrimaryCoupon[]>([]);
@@ -81,11 +83,15 @@ const Dashboard = () => {
         const {
           data: profile,
           error: profileError
-        } = (await supabase.from("profiles").select("name, has_seen_welcome_dashboard").eq("id", session.user.id).single()) as any;
+        } = (await supabase.from("profiles").select("name, has_seen_welcome_dashboard, environment").eq("id", session.user.id).single()) as any;
         console.log("[Dashboard] Resultado perfil:", {
           profile,
           profileError
         });
+        
+        if (profile?.environment) {
+          setUserEnvironment(profile.environment);
+        }
 
         // Buscar estatísticas do dashboard
         const {
@@ -509,7 +515,15 @@ const Dashboard = () => {
           <ScrollAnimation animation="fade-up">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard de Afiliado</h1>
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold">Dashboard de Afiliado</h1>
+                  {userEnvironment === "test" && (
+                    <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400 flex items-center gap-1">
+                      <FlaskConical className="h-3 w-3" />
+                      Teste
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm sm:text-base text-muted-foreground">
                   Tenha uma visão geral do seu desempenho
                 </p>
