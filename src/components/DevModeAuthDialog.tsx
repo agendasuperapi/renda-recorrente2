@@ -95,7 +95,11 @@ export const DevModeAuthDialog = ({ open, onOpenChange, onSuccess }: DevModeAuth
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent 
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-full bg-primary/10">
