@@ -1002,8 +1002,8 @@ const Coupons = () => {
                         {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                       </div>
                       <div className="flex items-center gap-1.5 mt-1">
-                        {!isActivated && <span className="text-xs text-muted-foreground whitespace-nowrap">Seu cupom será:</span>}
-                        <code className="text-sm font-mono text-muted-foreground">
+                        {!isActivated && <span className="text-xs text-red-500 dark:text-red-400 whitespace-nowrap">Seu cupom será:</span>}
+                        <code className="text-sm font-mono text-red-500 dark:text-red-400">
                           {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                         </code>
                       </div>
