@@ -4604,6 +4604,7 @@ export type Database = {
         Returns: boolean
       }
       expire_old_checkouts: { Args: never; Returns: undefined }
+      generate_friendly_username: { Args: { p_name: string }; Returns: string }
       get_affiliate_dashboard_stats: {
         Args: { p_affiliate_id: string }
         Returns: {
@@ -4679,6 +4680,7 @@ export type Database = {
         Args: { p_email: string; p_ip_address?: string }
         Returns: Json
       }
+      remove_accents: { Args: { p_text: string }; Returns: string }
       reset_login_attempts: { Args: { p_email: string }; Returns: boolean }
       send_admin_notification: {
         Args: {
