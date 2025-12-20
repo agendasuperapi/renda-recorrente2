@@ -16,6 +16,8 @@ import { AffiliateDetailsDialog } from "@/components/AffiliateDetailsDialog";
 import { AffiliatesFilterCard } from "@/components/admin/AffiliatesFilterCard";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
+import { EnvironmentToggle } from "@/components/layout/EnvironmentToggle";
 
 // Interface para tipagem da view
 interface AdminAffiliate {
@@ -29,6 +31,7 @@ interface AdminAffiliate {
   plan_name: string;
   plan_period: string;
   plan_status: string;
+  environment: string;
   referrals_count: number;
   withdrawal_day: number | null;
   referrer_code: string | null;
@@ -46,6 +49,7 @@ type SortDirection = "asc" | "desc";
 
 const AdminAffiliates = () => {
   const isMobile = useIsMobile();
+  const { environment } = useEnvironment();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
@@ -64,7 +68,7 @@ const AdminAffiliates = () => {
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   const { data: affiliates, isLoading, refetch } = useQuery({
-    queryKey: ["admin-affiliates", currentPage, itemsPerPage, debouncedSearch, planFilter, periodFilter, statusFilter, startDate, endDate, sortColumn, sortDirection],
+    queryKey: ["admin-affiliates", currentPage, itemsPerPage, debouncedSearch, planFilter, periodFilter, statusFilter, startDate, endDate, sortColumn, sortDirection, environment],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
@@ -72,6 +76,9 @@ const AdminAffiliates = () => {
       let query = supabase
         .from("view_admin_affiliates" as any)
         .select("*", { count: "exact" });
+
+      // Filtro de ambiente (produção/teste)
+      query = query.eq("environment", environment);
 
       // Filtros aplicados no banco de dados
       if (debouncedSearch) {
@@ -201,11 +208,16 @@ const AdminAffiliates = () => {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Afiliados</h1>
-        <p className="text-muted-foreground">
-          Gerencie todos os afiliados cadastrados
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Afiliados</h1>
+          <p className="text-muted-foreground">
+            Gerencie todos os afiliados cadastrados
+          </p>
+        </div>
+        <div className="w-full sm:w-auto">
+          <EnvironmentToggle />
+        </div>
       </div>
 
       {/* Botão de filtros e toggle de layout - mobile/tablet */}
