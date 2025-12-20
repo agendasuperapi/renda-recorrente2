@@ -25,7 +25,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useEnvironment } from "@/contexts/EnvironmentContext";
-import { EnvironmentToggle } from "@/components/layout/EnvironmentToggle";
 
 const WEEKDAYS = [{
   value: 1,
@@ -289,15 +288,12 @@ const AdminUsers = () => {
   };
   return <div className="space-y-3 md:space-y-4 p-4 sm:p-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-          <div className="flex items-center gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
-              <p className="text-sm md:text-base text-muted-foreground">
-                Gerencie todos os afiliados e administradores
-              </p>
-            </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Gerencie todos os afiliados e administradores
+            </p>
           </div>
-          <EnvironmentToggle />
         </div>
 
         {/* Mobile Control Bar */}
