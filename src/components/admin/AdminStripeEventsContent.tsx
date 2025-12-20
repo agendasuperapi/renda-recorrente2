@@ -180,6 +180,31 @@ const ClientProfile = ({ userId, email }: { userId: string | null; email?: strin
   );
 };
 
+// Componente para exibir nome do cliente, buscando por email se necessário
+const ClientNameCell = ({ profileName, email, eventData }: { profileName?: string | null; email?: string | null; eventData?: any }) => {
+  const emailToSearch = email || (eventData?.data?.object?.customer_email) || (eventData?.data?.object?.email);
+  
+  const { data: profileByEmail } = useQuery({
+    queryKey: ["profile-by-email", emailToSearch],
+    queryFn: async () => {
+      if (!emailToSearch) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("email", emailToSearch)
+        .maybeSingle();
+      if (error) return null;
+      return data;
+    },
+    enabled: !profileName && !!emailToSearch,
+    staleTime: 1000 * 60 * 5, // Cache por 5 minutos
+  });
+
+  const displayName = profileName || profileByEmail?.name || "-";
+
+  return <span className="font-medium truncate max-w-[200px]">{displayName}</span>;
+};
+
 const PlanInfo = ({ userId, email }: { userId: string | null; email?: string | null }) => {
   const { data: subscription, isLoading: loadingSubscription } = useQuery({
     queryKey: ["user-subscription", userId, email],
@@ -1134,7 +1159,7 @@ export default function AdminStripeEventsContent() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">{event.profiles?.name || event.email || getEmailFromEventData(event.event_data) || "N/A"}</p>
+                        <p className="font-medium text-sm truncate"><ClientNameCell profileName={event.profiles?.name} email={event.email} eventData={event.event_data} /></p>
                         <p className="text-xs text-muted-foreground truncate">{event.event_type}</p>
                       </div>
                     </div>
@@ -1164,7 +1189,7 @@ export default function AdminStripeEventsContent() {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <p className="text-xs text-muted-foreground">Cliente</p>
-                      <p className="truncate font-medium">{event.profiles?.name || "N/A"}</p>
+                      <p className="truncate font-medium"><ClientNameCell profileName={event.profiles?.name} email={event.email} eventData={event.event_data} /></p>
                       <p className="truncate text-xs text-muted-foreground">{event.email || getEmailFromEventData(event.event_data) || "N/A"}</p>
                     </div>
                     <div>
@@ -1216,7 +1241,7 @@ export default function AdminStripeEventsContent() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium truncate max-w-[200px]">{event.profiles?.name || "-"}</span>
+                        <ClientNameCell profileName={event.profiles?.name} email={event.email} eventData={event.event_data} />
                         <span className="text-xs text-muted-foreground truncate max-w-[200px]">{event.email || getEmailFromEventData(event.event_data) || "-"}</span>
                       </div>
                     </TableCell>
@@ -1269,7 +1294,7 @@ export default function AdminStripeEventsContent() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="font-medium truncate max-w-[200px]">{event.profiles?.name || "-"}</span>
+                        <ClientNameCell profileName={event.profiles?.name} email={event.email} eventData={event.event_data} />
                         <span className="text-xs text-muted-foreground truncate max-w-[200px]">{event.email || getEmailFromEventData(event.event_data) || "-"}</span>
                       </div>
                     </TableCell>
