@@ -88,7 +88,6 @@ const Dashboard = () => {
           profile,
           profileError
         });
-        
         if (profile?.environment) {
           setUserEnvironment(profile.environment);
         }
@@ -280,7 +279,6 @@ const Dashboard = () => {
       currency: 'BRL'
     }).format(value);
   };
-  
   const displayValue = (value: string | number, isCount = false) => {
     if (!showValues) {
       return isCount ? "••" : "R$ •••••";
@@ -337,16 +335,12 @@ const Dashboard = () => {
   };
   return <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Modal de Boas-vindas - Drawer no mobile, Dialog no desktop */}
-      {isMobile ? (
-        <Drawer open={showWelcome} onOpenChange={handleCloseWelcome}>
+      {isMobile ? <Drawer open={showWelcome} onOpenChange={handleCloseWelcome}>
           <DrawerContent className="max-h-[90vh]">
             <VisuallyHidden>
               <DrawerTitle>Bem-vindo ao sistema</DrawerTitle>
             </VisuallyHidden>
-            <button
-              onClick={handleCloseWelcome}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            >
+            <button onClick={handleCloseWelcome} className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
               <X className="h-5 w-5" />
               <span className="sr-only">Fechar</span>
             </button>
@@ -413,9 +407,9 @@ const Dashboard = () => {
                   </Button>
                   
                   <Button onClick={() => {
-                    handleCloseWelcome();
-                    navigate("/user/settings");
-                  }} variant="outline" className="w-full h-10 text-sm" size="lg">
+                handleCloseWelcome();
+                navigate("/user/settings");
+              }} variant="outline" className="w-full h-10 text-sm" size="lg">
                     Completar Perfil
                   </Button>
                 </div>
@@ -426,9 +420,7 @@ const Dashboard = () => {
               </div>
             </div>
           </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={showWelcome} onOpenChange={handleCloseWelcome}>
+        </Drawer> : <Dialog open={showWelcome} onOpenChange={handleCloseWelcome}>
           <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden max-h-[90vh] overflow-y-auto">
             <VisuallyHidden>
               <DialogTitle>Bem-vindo ao sistema</DialogTitle>
@@ -495,9 +487,9 @@ const Dashboard = () => {
                 </Button>
                 
                 <Button onClick={() => {
-                  handleCloseWelcome();
-                  navigate("/user/settings/personal");
-                }} variant="outline" className="w-full h-12 text-base" size="lg">
+              handleCloseWelcome();
+              navigate("/user/settings/personal");
+            }} variant="outline" className="w-full h-12 text-base" size="lg">
                   Completar Perfil
                 </Button>
               </div>
@@ -507,8 +499,7 @@ const Dashboard = () => {
               </p>
             </div>
           </DialogContent>
-        </Dialog>
-      )}
+        </Dialog>}
 
       {/* Dashboard Content */}
       <>
@@ -517,29 +508,14 @@ const Dashboard = () => {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <h1 className="text-2xl sm:text-3xl font-bold">Dashboard de Afiliado</h1>
-                  {userEnvironment === "test" && (
-                    <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400 flex items-center gap-1">
-                      <FlaskConical className="h-3 w-3" />
-                      Teste
-                    </Badge>
-                  )}
+                  {userEnvironment === "test"}
                 </div>
                 <p className="text-sm sm:text-base text-muted-foreground">
                   Tenha uma visão geral do seu desempenho
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowValues(!showValues)}
-                className="h-9 w-9 rounded-full bg-background hover:bg-muted border border-border shadow-md transition-all duration-200"
-                title={showValues ? "Ocultar valores" : "Mostrar valores"}
-              >
-                {showValues ? (
-                  <Eye className="h-5 w-5 text-foreground" />
-                ) : (
-                  <EyeOff className="h-5 w-5 text-muted-foreground" />
-                )}
+              <Button variant="ghost" size="icon" onClick={() => setShowValues(!showValues)} className="h-9 w-9 rounded-full bg-background hover:bg-muted border border-border shadow-md transition-all duration-200" title={showValues ? "Ocultar valores" : "Mostrar valores"}>
+                {showValues ? <Eye className="h-5 w-5 text-foreground" /> : <EyeOff className="h-5 w-5 text-muted-foreground" />}
               </Button>
             </div>
           </ScrollAnimation>
@@ -748,10 +724,8 @@ const Dashboard = () => {
                     Nenhum cupom disponível no momento
                   </div> : <div className="space-y-3">
                     {primaryCoupons.map(coupon => {
-                      const isReleased = !!coupon.affiliate_coupon_id;
-                      
-                      return (
-                        <ScrollAnimation key={coupon.id} animation="fade-up" delay={100 * primaryCoupons.indexOf(coupon)}>
+                const isReleased = !!coupon.affiliate_coupon_id;
+                return <ScrollAnimation key={coupon.id} animation="fade-up" delay={100 * primaryCoupons.indexOf(coupon)}>
                           <div className={`flex flex-col gap-3 p-3 sm:p-4 rounded-lg border transition-all duration-300 hover:shadow-md hover:scale-[1.01] ${isReleased ? 'bg-card hover:bg-accent/50' : 'bg-muted/30 border-dashed'}`}>
                           {/* Header com ícone, nome e botões */}
                           <div className="flex items-center gap-3">
@@ -772,8 +746,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* Botões de Ação - Desktop */}
-                            {isReleased ? (
-                              <div className="hidden lg:flex gap-2 flex-shrink-0">
+                            {isReleased ? <div className="hidden lg:flex gap-2 flex-shrink-0">
                                 <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="gap-2 text-xs sm:text-sm">
                                   {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                                   Copiar
@@ -782,32 +755,24 @@ const Dashboard = () => {
                                   <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                   Compartilhar
                                 </Button>
-                              </div>
-                            ) : (
-                              <div className="hidden lg:block flex-shrink-0">
+                              </div> : <div className="hidden lg:block flex-shrink-0">
                                 <Button size="sm" variant="outline" onClick={() => navigate('/user/coupons')} className="gap-2 text-xs sm:text-sm">
                                   <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                   Liberar cupom
                                 </Button>
-                              </div>
-                            )}
+                              </div>}
                           </div>
 
                           {/* URL do Cupom ou Mensagem de liberação */}
-                          {isReleased ? (
-                            <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
+                          {isReleased ? <div className="px-2.5 py-2 bg-primary/10 text-primary rounded text-xs font-mono overflow-x-auto whitespace-nowrap scrollbar-thin">
                               {coupon.product_site_landingpage && (coupon.custom_code || coupon.code) ? `${coupon.product_site_landingpage}/${coupon.custom_code || coupon.code}` : coupon.custom_code || coupon.code}
-                            </div>
-                          ) : (
-                            <div className="px-2.5 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-xs flex items-center gap-2">
+                            </div> : <div className="px-2.5 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded text-xs flex items-center gap-2">
                               <Lock className="w-3.5 h-3.5" />
                               <span>Cupom não liberado. Acesse a página de cupons para liberar.</span>
-                            </div>
-                          )}
+                            </div>}
 
                           {/* Botões de Ação - Mobile */}
-                          {isReleased ? (
-                            <div className="flex gap-2 lg:hidden">
+                          {isReleased ? <div className="flex gap-2 lg:hidden">
                               <Button size="sm" variant="outline" onClick={() => handleCopyCoupon(coupon)} className="flex-1 gap-2 text-xs sm:text-sm">
                                 {copiedCode === coupon.id ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                                 Copiar
@@ -816,19 +781,15 @@ const Dashboard = () => {
                                 <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 Compartilhar
                               </Button>
-                            </div>
-                          ) : (
-                            <div className="lg:hidden">
+                            </div> : <div className="lg:hidden">
                               <Button size="sm" variant="outline" onClick={() => navigate('/user/coupons')} className="w-full gap-2 text-xs sm:text-sm">
                                 <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 Liberar cupom
                               </Button>
-                            </div>
-                          )}
+                            </div>}
                           </div>
-                        </ScrollAnimation>
-                      );
-                    })}
+                        </ScrollAnimation>;
+              })}
                   </div>}
               </CardContent>
             </Card>
@@ -852,8 +813,7 @@ const Dashboard = () => {
                 {recentCommissions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                     Nenhum registro encontrado...
                   </div> : <div className="space-y-3">
-                    {recentCommissions.map((commission, index) => (
-                      <ScrollAnimation key={commission.id} animation="fade-up" delay={100 * index}>
+                    {recentCommissions.map((commission, index) => <ScrollAnimation key={commission.id} animation="fade-up" delay={100 * index}>
                         <div className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 hover:shadow-md hover:scale-[1.01] transition-all duration-300">
                           <div className="flex-1 space-y-1">
                             <div className="font-semibold text-sm">
@@ -882,8 +842,7 @@ const Dashboard = () => {
                             </div>
                           </div>
                         </div>
-                      </ScrollAnimation>
-                    ))}
+                      </ScrollAnimation>)}
                   </div>}
               </CardContent>
             </Card>
