@@ -467,6 +467,34 @@ const LandingPage = () => {
     }
   };
 
+  // Helper para determinar classe de animação - seções inativas sempre visíveis para admin
+  const getAnimationClass = (sectionKey: string) => {
+    // Se a seção está inativa, mostra sem animação para que o admin possa ver o conteúdo
+    if (!isSectionActive(sectionKey)) {
+      return '';
+    }
+    // Se está visível, anima
+    if (visibleSections.has(sectionKey)) {
+      return 'animate-fade-in';
+    }
+    // Caso contrário, esconde até ficar visível
+    return 'opacity-0 translate-y-10';
+  };
+
+  // Helper para cards internos que precisam de opacity-100 quando visível
+  const getCardAnimationClass = (sectionKey: string) => {
+    // Se a seção está inativa, mostra sem animação
+    if (!isSectionActive(sectionKey)) {
+      return 'opacity-100';
+    }
+    // Se está visível, anima com opacity
+    if (visibleSections.has(sectionKey)) {
+      return 'animate-fade-in opacity-100';
+    }
+    // Caso contrário, esconde
+    return 'opacity-0 translate-y-10';
+  };
+
   // Restore scroll position when coming back from legal pages
   useEffect(() => {
     const savedScrollPosition = sessionStorage.getItem('landingScrollPosition');
@@ -1182,7 +1210,7 @@ const LandingPage = () => {
           </Button>}
         <div className="container mx-auto max-w-6xl px-0">
           <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center">
-            <div className={`w-full px-3 md:px-0 text-center md:text-left transition-all duration-700 ${visibleSections.has('hero') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+            <div className={`w-full px-3 md:px-0 text-center md:text-left transition-all duration-700 ${getAnimationClass('hero')}`}>
               {getHeroImage('Logo Alternativo') && <img src={getHeroImage('Logo Alternativo')} alt={heroImages.find(img => img.name === 'Logo Alternativo')?.alt_text || 'Renda Recorrente'} className="h-12 sm:h-14 md:h-16 mb-4 mx-auto md:mx-0" loading="eager" />}
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6" style={{
               color: getHeadingColor('hero')
@@ -1229,14 +1257,14 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'seja-afiliado' ? null : 'seja-afiliado')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('seja-afiliado')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
           color: getHeadingColor('seja-afiliado')
         }}>
             Seja um Afiliado
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-3 md:px-0">
-            <Card className={`transition-all duration-700 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 ${getCardAnimationClass('seja-afiliado')}`}>
               <CardHeader>
                 <GraduationCap className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Curso Completo</CardTitle>
@@ -1248,7 +1276,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${getCardAnimationClass('seja-afiliado')}`}>
               <CardHeader>
                 <Award className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Certificação</CardTitle>
@@ -1260,7 +1288,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${getCardAnimationClass('seja-afiliado')}`}>
               <CardHeader>
                 <Share2 className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Divulgue</CardTitle>
@@ -1272,7 +1300,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('seja-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-300 ${getCardAnimationClass('seja-afiliado')}`}>
               <CardHeader>
                 <DollarSign className="w-12 h-12 text-primary mb-2" />
                 <CardTitle>Ganhe Comissões</CardTitle>
@@ -1303,7 +1331,7 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'comissao-recorrente' ? null : 'comissao-recorrente')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-4xl px-0 text-center transition-all duration-700 ${visibleSections.has('comissao-recorrente') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-4xl px-0 text-center transition-all duration-700 ${getAnimationClass('comissao-recorrente')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6 px-3 md:px-0" style={{
           color: getHeadingColor('comissao-recorrente')
         }}>
@@ -1343,14 +1371,14 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'como-funciona' ? null : 'como-funciona')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('como-funciona')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
           color: getHeadingColor('como-funciona')
         }}>
             Como funciona o programa de afiliados?
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
-            <Card className={`transition-all duration-700 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 ${getCardAnimationClass('como-funciona')}`}>
               <CardHeader>
                 <UserPlus className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -1370,7 +1398,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${getCardAnimationClass('como-funciona')}`}>
               <CardHeader>
                 <Megaphone className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -1390,7 +1418,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('como-funciona') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${getCardAnimationClass('como-funciona')}`}>
               <CardHeader>
                 <DollarSign className="w-10 h-10 md:w-12 md:h-12 text-primary mb-4" />
                 <CardTitle className="flex items-center gap-2">
@@ -1429,7 +1457,7 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('painel-afiliado')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
           color: getHeadingColor('painel-afiliado')
         }}>
@@ -1441,7 +1469,7 @@ const LandingPage = () => {
             Acompanhe suas indicações e seus ganhos de forma prática e rápida.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
-            <Card className={`transition-all duration-700 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 ${getCardAnimationClass('painel-afiliado')}`}>
               <CardHeader>
                 <LayoutDashboard className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Painel Exclusivo</CardTitle>
@@ -1451,7 +1479,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${getCardAnimationClass('painel-afiliado')}`}>
               <CardHeader>
                 <Target className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Metas de Ganhos</CardTitle>
@@ -1461,7 +1489,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${getCardAnimationClass('painel-afiliado')}`}>
               <CardHeader>
                 <Share2 className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Link de Compartilhamento</CardTitle>
@@ -1471,7 +1499,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-300 ${getCardAnimationClass('painel-afiliado')}`}>
               <CardHeader>
                 <Award className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Cupons de Descontos</CardTitle>
@@ -1481,7 +1509,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-[400ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-[400ms] ${getCardAnimationClass('painel-afiliado')}`}>
               <CardHeader>
                 <Shield className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Sistema Seguro</CardTitle>
@@ -1491,7 +1519,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-[500ms] ${visibleSections.has('painel-afiliado') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-[500ms] ${getCardAnimationClass('painel-afiliado')}`}>
               <CardHeader>
                 <FileText className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Relatórios Completos</CardTitle>
@@ -1520,14 +1548,14 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'vantagens' ? null : 'vantagens')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('vantagens')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
           color: getHeadingColor('vantagens')
         }}>
             Vantagens de trabalhar com nosso sistema
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
-            <Card className={`transition-all duration-700 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 ${getCardAnimationClass('vantagens')}`}>
               <CardHeader>
                 <TrendingUp className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Comissão Recorrente</CardTitle>
@@ -1537,7 +1565,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-100 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-100 ${getCardAnimationClass('vantagens')}`}>
               <CardHeader>
                 <GraduationCap className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Treinamento Completo</CardTitle>
@@ -1547,7 +1575,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-200 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-200 ${getCardAnimationClass('vantagens')}`}>
               <CardHeader>
                 <DollarSign className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Baixo Custo</CardTitle>
@@ -1557,7 +1585,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-300 ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-300 ${getCardAnimationClass('vantagens')}`}>
               <CardHeader>
                 <Zap className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Comece GRÁTIS</CardTitle>
@@ -1567,7 +1595,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-[400ms] ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-[400ms] ${getCardAnimationClass('vantagens')}`}>
               <CardHeader>
                 <Clock className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Autonomia de Trabalho</CardTitle>
@@ -1577,7 +1605,7 @@ const LandingPage = () => {
               </CardContent>
             </Card>
 
-            <Card className={`transition-all duration-700 delay-[500ms] ${visibleSections.has('vantagens') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+            <Card className={`transition-all duration-700 delay-[500ms] ${getCardAnimationClass('vantagens')}`}>
               <CardHeader>
                 <CheckCircle2 className="w-10 h-10 text-primary mb-2" />
                 <CardTitle>Fácil de Usar</CardTitle>
@@ -1606,7 +1634,7 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'funcionalidades' ? null : 'funcionalidades')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('funcionalidades') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('funcionalidades')}`}>
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center px-3 md:px-0">
             {/* Imagem do Dashboard */}
             <div className="order-2 md:order-1">
@@ -1663,7 +1691,7 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'layout-responsivo' ? null : 'layout-responsivo')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 text-center transition-all duration-700 ${visibleSections.has('layout-responsivo') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 text-center transition-all duration-700 ${getAnimationClass('layout-responsivo')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6 px-3 md:px-0" style={{
           color: getHeadingColor('layout-responsivo')
         }}>
@@ -1684,7 +1712,7 @@ const LandingPage = () => {
       )}
 
       {/* Produtos Disponíveis */}
-      {products.length > 0 && (isAdmin || isSectionActive('produtos')) && (
+      {(isAdmin || (products.length > 0 && isSectionActive('produtos'))) && (
         <SectionWrapper
           sectionKey="produtos"
           sectionName={getSectionName('produtos')}
@@ -1710,6 +1738,11 @@ const LandingPage = () => {
               Escolha entre nossos produtos e comece a ganhar comissões recorrentes
             </p>
             <div className="grid grid-cols-1 gap-4 md:gap-6 max-w-3xl mx-auto px-3 md:px-0">
+              {products.length === 0 && isAdmin && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Nenhum produto cadastrado para exibir nesta seção.</p>
+                </div>
+              )}
               {products.map((product, index) => {
             const isDark = theme === 'dark';
             const iconUrl = isDark ? product.icone_dark || product.icone_light : product.icone_light || product.icone_dark;
@@ -1766,14 +1799,14 @@ const LandingPage = () => {
           {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'depoimentos' ? null : 'depoimentos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
               <Edit className="w-4 h-4" />
             </Button>}
-          <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('depoimentos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('depoimentos')}`}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
             color: getHeadingColor('depoimentos')
           }}>
               O que dizem nossos afiliados
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 px-3 md:px-0">
-              {testimonials.slice(0, 3).map((testimonial, index) => <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${visibleSections.has('depoimentos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
+              {testimonials.slice(0, 3).map((testimonial, index) => <Card key={testimonial.id} className={`transition-all duration-700 delay-${index * 100} ${getCardAnimationClass('depoimentos')}`}>
                   <CardHeader>
                     <div className="flex items-center gap-3 md:gap-4 mb-4">
                       <Avatar className="w-16 h-16 md:w-20 md:h-20">
@@ -1921,7 +1954,7 @@ const LandingPage = () => {
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
-        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${visibleSections.has('planos') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+        <div className={`container mx-auto max-w-6xl px-0 transition-all duration-700 ${getAnimationClass('planos')}`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-3 md:mb-4 px-3 md:px-0 cursor-pointer select-none" style={{
           color: getHeadingColor('planos')
         }} onClick={() => {
@@ -2116,7 +2149,7 @@ const LandingPage = () => {
           {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'faq' ? null : 'faq')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
               <Edit className="w-4 h-4" />
             </Button>}
-          <div className={`container mx-auto max-w-4xl px-0 transition-all duration-700 ${visibleSections.has('faq') ? 'animate-fade-in' : 'opacity-0 translate-y-10'}`}>
+          <div className={`container mx-auto max-w-4xl px-0 transition-all duration-700 ${getAnimationClass('faq')}`}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 px-3 md:px-0" style={{
             color: getHeadingColor('faq')
           }}>
