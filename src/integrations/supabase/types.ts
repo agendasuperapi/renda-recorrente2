@@ -3621,6 +3621,8 @@ export type Database = {
       }
       view_admin_commission_processing: {
         Row: {
+          affiliate_avatar: string | null
+          affiliate_email: string | null
           affiliate_id: string | null
           affiliate_name: string | null
           amount: number | null
