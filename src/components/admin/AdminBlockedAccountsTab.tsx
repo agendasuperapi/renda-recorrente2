@@ -29,6 +29,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Search, Unlock, Shield, Clock, AlertTriangle, Ban } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 
 interface LoginAttempt {
   id: string;
@@ -48,17 +49,33 @@ export const AdminBlockedAccountsTab = () => {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
+  const { environment } = useEnvironment();
 
   const { data: loginAttempts = [], isLoading } = useQuery({
-    queryKey: ['admin-login-attempts'],
+    queryKey: ['admin-login-attempts', environment],
     queryFn: async () => {
+      // Buscar emails de profiles do ambiente atual
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('environment', environment)
+        .not('email', 'is', null);
+      
+      const environmentEmails = profilesData?.map(p => p.email?.toLowerCase()).filter(Boolean) || [];
+      
       const { data, error } = await supabase
         .from('login_attempts')
         .select('*')
         .order('last_failed_at', { ascending: false });
 
       if (error) throw error;
-      return data as LoginAttempt[];
+      
+      // Filtrar apenas tentativas de login de emails do ambiente atual
+      const filteredData = (data || []).filter(attempt => 
+        environmentEmails.includes(attempt.email?.toLowerCase())
+      );
+      
+      return filteredData as LoginAttempt[];
     }
   });
 

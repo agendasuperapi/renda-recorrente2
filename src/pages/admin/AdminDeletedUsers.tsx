@@ -10,6 +10,7 @@ import { ptBR } from "date-fns/locale";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 import {
   Dialog,
   DialogContent,
@@ -65,9 +66,10 @@ export default function AdminDeletedUsers() {
   const [isAnonymizing, setIsAnonymizing] = useState(false);
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const { environment } = useEnvironment();
 
   const { data: deletedUsers, isLoading, refetch } = useQuery({
-    queryKey: ['deleted-users'],
+    queryKey: ['deleted-users', environment],
     queryFn: async () => {
       // Buscar deleted_users
       const { data: deletedData, error: deletedError } = await supabase
@@ -100,12 +102,13 @@ export default function AdminDeletedUsers() {
         });
       });
 
-      // Buscar profiles correspondentes para verificar status real de anonimização
+      // Buscar profiles correspondentes para verificar status real de anonimização E filtrar por environment
       const userIds = Array.from(groupedByUserId.keys());
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('id, name, created_at')
-        .in('id', userIds);
+        .select('id, name, created_at, environment')
+        .in('id', userIds)
+        .eq('environment', environment);
       
       // Criar mapa de profiles para lookup rápido
       const profilesMap = new Map(profilesData?.map(p => [p.id, { name: p.name, createdAt: p.created_at }]) || []);
@@ -142,9 +145,14 @@ export default function AdminDeletedUsers() {
         commissionsMap.set(comm.affiliate_id, current + Number(comm.amount));
       });
 
-      // Construir resultado final
+      // Construir resultado final - apenas para profiles que existem no ambiente selecionado
       const result: DeletedUser[] = [];
+      const profileUserIds = new Set(profilesData?.map(p => p.id) || []);
+      
       groupedByUserId.forEach((data, user_id) => {
+        // Só incluir se o profile existe no ambiente selecionado
+        if (!profileUserIds.has(user_id)) return;
+        
         // Ordenar records por data (mais recente primeiro)
         data.records.sort((a, b) => new Date(b.deleted_at).getTime() - new Date(a.deleted_at).getTime());
         const latestRecord = data.records[0];
