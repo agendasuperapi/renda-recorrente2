@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DollarSign, Calendar, CreditCard, TrendingUp, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User, SlidersHorizontal, LayoutList, LayoutGrid, CloudUpload, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { DollarSign, Calendar, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, FilterX, ChevronLeft, ChevronRight, X, Receipt, User, SlidersHorizontal, LayoutList, LayoutGrid, CloudUpload, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -142,18 +142,20 @@ export default function AdminPaymentsContent() {
   };
 
   const { data: statsData } = useQuery({
-    queryKey: ["admin-payments-stats"],
+    queryKey: ["admin-payments-stats", globalEnvironment],
     queryFn: async () => {
-      const { data, error } = await supabase.from("view_admin_payments" as any).select("amount, environment, payment_date");
+      const { data, error } = await supabase
+        .from("view_admin_payments" as any)
+        .select("amount, environment, payment_date")
+        .eq("environment", globalEnvironment)
+        .order("payment_date", { ascending: false });
       if (error) throw error;
       type StatsRow = { amount: number; environment: string; payment_date: string };
       const all = data as unknown as StatsRow[] || [];
       const totalPaid = all.reduce((sum, p) => sum + Number(p.amount), 0);
-      const totalPaidProduction = all.filter(p => p.environment === "production").reduce((sum, p) => sum + Number(p.amount), 0);
-      const totalPaidTest = all.filter(p => p.environment === "test").reduce((sum, p) => sum + Number(p.amount), 0);
       const paymentCount = all.length;
       const lastPayment = all[0];
-      return { totalPaid, totalPaidProduction, totalPaidTest, paymentCount, lastPayment };
+      return { totalPaid, paymentCount, lastPayment };
     }
   });
 
@@ -250,11 +252,11 @@ export default function AdminPaymentsContent() {
   return (
     <div className="space-y-6">
       {/* Cards de Resumo */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         <ScrollAnimation animation="fade-up" delay={0} threshold={0.05}>
           <Card className="transition-all duration-300 hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Geral</CardTitle>
+              <CardTitle className="text-sm font-medium">Total</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -265,32 +267,6 @@ export default function AdminPaymentsContent() {
         </ScrollAnimation>
 
         <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
-          <Card className="transition-all duration-300 hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Produção</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(statsData?.totalPaidProduction || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
-              <p className="text-xs text-muted-foreground">Pagamentos reais</p>
-            </CardContent>
-          </Card>
-        </ScrollAnimation>
-
-        <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
-          <Card className="transition-all duration-300 hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Teste</CardTitle>
-              <CreditCard className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(statsData?.totalPaidTest || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
-              <p className="text-xs text-muted-foreground">Pagamentos teste</p>
-            </CardContent>
-          </Card>
-        </ScrollAnimation>
-
-        <ScrollAnimation animation="fade-up" delay={150} threshold={0.05}>
           <Card className="transition-all duration-300 hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Último Pagamento</CardTitle>
