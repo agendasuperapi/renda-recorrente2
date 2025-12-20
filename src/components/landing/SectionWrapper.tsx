@@ -32,7 +32,7 @@ export const SectionWrapper = ({
   return (
     <section
       id={id || sectionKey}
-      className={`relative ${className} ${!isActive ? 'ring-4 ring-destructive ring-offset-4 ring-offset-background' : ''}`}
+      className={`relative ${className} ${!isActive ? 'ring-2 ring-destructive/50 ring-offset-2 ring-offset-background' : ''}`}
       style={style}
     >
       {isAdmin && (
@@ -42,29 +42,11 @@ export const SectionWrapper = ({
           onToggle={() => onToggle(sectionKey, !isActive)}
         />
       )}
-      {/* Overlay forte para seções inativas - grayscale + linhas diagonais */}
+      {/* Overlay sutil para seções inativas */}
       {isAdmin && !isActive && (
-        <>
-          {/* Camada de grayscale */}
-          <div className="absolute inset-0 z-10 pointer-events-none mix-blend-saturation bg-gray-500" />
-          {/* Camada de opacidade */}
-          <div className="absolute inset-0 z-10 pointer-events-none bg-background/60" />
-          {/* Padrão de linhas diagonais */}
-          <div 
-            className="absolute inset-0 z-10 pointer-events-none opacity-30"
-            style={{
-              backgroundImage: `repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                hsl(var(--destructive)) 10px,
-                hsl(var(--destructive)) 12px
-              )`
-            }}
-          />
-        </>
+        <div className="absolute inset-0 z-10 pointer-events-none bg-destructive/10" />
       )}
-      <div className={isAdmin && !isActive ? 'grayscale' : ''}>
+      <div className={isAdmin && !isActive ? 'opacity-60' : ''}>
         {children}
       </div>
     </section>
