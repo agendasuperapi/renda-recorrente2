@@ -24,6 +24,9 @@ import { toast } from "sonner";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
+import { EnvironmentToggle } from "@/components/layout/EnvironmentToggle";
+
 const WEEKDAYS = [{
   value: 1,
   label: "Segunda-feira"
@@ -48,6 +51,7 @@ const WEEKDAYS = [{
 }];
 const AdminUsers = () => {
   const isMobile = useIsMobile();
+  const { environment } = useEnvironment();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -72,13 +76,13 @@ const AdminUsers = () => {
     data: usersData,
     isLoading
   } = useQuery({
-    queryKey: ["admin-users", debouncedSearch, statusFilter, currentPage, itemsPerPage, sortColumn, sortDirection],
+    queryKey: ["admin-users", debouncedSearch, statusFilter, currentPage, itemsPerPage, sortColumn, sortDirection, environment],
     queryFn: async () => {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
       let query = supabase.from("view_admin_users").select("*", {
         count: "exact"
-      }).order(sortColumn, {
+      }).eq("environment", environment).order(sortColumn, {
         ascending: sortDirection === "asc"
       }).range(from, to);
       if (debouncedSearch) {
@@ -285,13 +289,15 @@ const AdminUsers = () => {
   };
   return <div className="space-y-3 md:space-y-4 p-4 sm:p-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Gerencie todos os afiliados e administradores
-            </p>
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">Gestão de Usuários</h1>
+              <p className="text-sm md:text-base text-muted-foreground">
+                Gerencie todos os afiliados e administradores
+              </p>
+            </div>
           </div>
-          
+          <EnvironmentToggle />
         </div>
 
         {/* Mobile Control Bar */}
