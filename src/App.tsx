@@ -46,7 +46,7 @@ import AdminCadastros from "./pages/admin/AdminCadastros";
 import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
 
 import AdminSupport from "./pages/admin/AdminSupport";
-import AdminUserActivities from "./pages/admin/AdminUserActivities";
+
 import AdminCommissions from "./pages/admin/AdminCommissions";
 import AdminCommissionProcessing from "./pages/admin/AdminCommissionProcessing";
 import Payments from "./pages/Payments";
@@ -137,7 +137,7 @@ const App = () => {
               <Route path="/admin/cadastros" element={<AdminCadastros />} />
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/notifications" element={<Notifications />} />
-              <Route path="/admin/activities" element={<AdminUserActivities />} />
+              <Route path="/admin/activities" element={<Navigate to="/admin/settings?tab=activities" replace />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />
               <Route path="/admin/commission-processing" element={<Navigate to="/admin/commissions?tab=processing" replace />} />
             </Route>

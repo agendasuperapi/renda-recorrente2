@@ -100,9 +100,9 @@ const adminMenuItems = [{
   label: "Stripe",
   path: "/admin/stripe"
 }, {
-  icon: Activity,
-  label: "Atividades",
-  path: "/admin/activities"
+  icon: Settings,
+  label: "Configurações",
+  path: "/admin/settings"
 }];
 export const Sidebar = ({
   user,
