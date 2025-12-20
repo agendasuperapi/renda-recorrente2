@@ -687,8 +687,8 @@ export const AdminCommissionProcessingTab = () => {
               <TableBody>
                 {paymentsData.payments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell className="font-mono text-xs">
-                      {truncateId(payment.external_payment_id)}
+                    <TableCell className="font-mono text-xs break-all">
+                      {payment.external_payment_id}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
