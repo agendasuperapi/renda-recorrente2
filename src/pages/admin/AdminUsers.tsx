@@ -436,6 +436,11 @@ const AdminUsers = () => {
                         </div>
 
                         <div className="flex flex-wrap gap-2">
+                          {user.environment === "test" && (
+                            <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400">
+                              Teste
+                            </Badge>
+                          )}
                           <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
                             {user.role === "super_admin" ? "Admin" : "Afiliado"}
                           </Badge>
@@ -501,9 +506,16 @@ const AdminUsers = () => {
                       <TableCell>{user.email || "-"}</TableCell>
                       <TableCell>{user.username || "-"}</TableCell>
                       <TableCell>
-                        <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
-                          {user.role === "super_admin" ? "Admin" : "Afiliado"}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={user.role === "super_admin" ? "default" : "secondary"}>
+                            {user.role === "super_admin" ? "Admin" : "Afiliado"}
+                          </Badge>
+                          {user.environment === "test" && (
+                            <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400">
+                              Teste
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge variant={user.is_blocked ? "destructive" : "default"}>
