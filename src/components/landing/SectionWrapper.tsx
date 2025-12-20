@@ -32,7 +32,7 @@ export const SectionWrapper = ({
   return (
     <section
       id={id || sectionKey}
-      className={`relative ${className} ${!isActive ? 'ring-2 ring-destructive/50 ring-offset-2 ring-offset-background' : ''}`}
+      className={`relative ${className} ${!isActive ? 'ring-4 ring-destructive ring-offset-2 ring-offset-background' : ''}`}
       style={style}
     >
       {isAdmin && (
@@ -42,13 +42,17 @@ export const SectionWrapper = ({
           onToggle={() => onToggle(sectionKey, !isActive)}
         />
       )}
-      {/* Overlay sutil para seções inativas */}
+      {/* X vermelho de canto a canto para seções inativas */}
       {isAdmin && !isActive && (
-        <div className="absolute inset-0 z-10 pointer-events-none bg-destructive/10" />
+        <svg 
+          className="absolute inset-0 w-full h-full z-10 pointer-events-none"
+          preserveAspectRatio="none"
+        >
+          <line x1="0" y1="0" x2="100%" y2="100%" stroke="hsl(var(--destructive))" strokeWidth="3" />
+          <line x1="100%" y1="0" x2="0" y2="100%" stroke="hsl(var(--destructive))" strokeWidth="3" />
+        </svg>
       )}
-      <div className={isAdmin && !isActive ? 'opacity-60' : ''}>
-        {children}
-      </div>
+      {children}
     </section>
   );
 };
