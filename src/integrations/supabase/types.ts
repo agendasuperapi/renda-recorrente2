@@ -3597,6 +3597,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string | null
           email: string | null
+          environment: string | null
           id: string | null
           is_blocked: boolean | null
           name: string | null
