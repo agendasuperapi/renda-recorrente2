@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 import { 
   Search, 
   Filter, 
@@ -76,10 +77,11 @@ export default function AdminUserActivities({ isEmbedded = false }: AdminUserAct
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [expandedActivities, setExpandedActivities] = useState<Set<string>>(new Set());
+  const { environment } = useEnvironment();
 
   // Buscar atividades
   const { data: activities, isLoading, refetch } = useQuery({
-    queryKey: ['admin-user-activities', selectedCategory, selectedUserId],
+    queryKey: ['admin-user-activities', selectedCategory, selectedUserId, environment],
     queryFn: async () => {
       let query = supabase
         .from('activities')
@@ -97,9 +99,11 @@ export default function AdminUserActivities({ isEmbedded = false }: AdminUserAct
             name,
             email,
             username,
-            avatar_url
+            avatar_url,
+            environment
           )
         `)
+        .eq('profiles.environment', environment)
         .order('created_at', { ascending: false })
         .limit(200);
 
@@ -127,11 +131,12 @@ export default function AdminUserActivities({ isEmbedded = false }: AdminUserAct
 
   // Buscar lista de usuários para filtro
   const { data: users } = useQuery({
-    queryKey: ['admin-users-list'],
+    queryKey: ['admin-users-list', environment],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, username, avatar_url')
+        .eq('environment', environment)
         .order('name');
       
       if (error) throw error;
