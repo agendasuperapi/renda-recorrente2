@@ -2120,6 +2120,7 @@ export type Database = {
           deleted_at: string | null
           deleted_reason: string | null
           email: string | null
+          environment: string
           facebook: string | null
           gender: string | null
           has_seen_welcome_dashboard: boolean | null
@@ -2158,6 +2159,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_reason?: string | null
           email?: string | null
+          environment?: string
           facebook?: string | null
           gender?: string | null
           has_seen_welcome_dashboard?: boolean | null
@@ -2196,6 +2198,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_reason?: string | null
           email?: string | null
+          environment?: string
           facebook?: string | null
           gender?: string | null
           has_seen_welcome_dashboard?: boolean | null
@@ -3351,18 +3354,21 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string | null
+          environment: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          environment?: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string | null
+          environment?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
