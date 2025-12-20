@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, Share2, AlertTriangle, Pencil, X } from "lucide-react";
+import { Ticket, Copy, ExternalLink, Check, XCircle, Eye, LayoutGrid, LayoutList, Share2, AlertTriangle, Pencil, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { UsernameEditDialog } from "@/components/UsernameEditDialog";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -179,7 +179,7 @@ const Coupons = () => {
   } = useToast();
   const queryClient = useQueryClient();
   const [productFilter, setProductFilter] = useState<string>("all");
-  const layoutMode = "compact";
+  const [layoutMode, setLayoutMode] = useState<string>("compact");
   const [selectedCoupon, setSelectedCoupon] = useState<AvailableCoupon | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [usernameDialogOpen, setUsernameDialogOpen] = useState(false);
@@ -730,6 +730,14 @@ const Coupons = () => {
               })}
             </SelectContent>
           </Select>
+          <ToggleGroup type="single" value={layoutMode} onValueChange={v => v && setLayoutMode(v)} className="border rounded-lg">
+            <ToggleGroupItem value="compact" aria-label="Layout compacto" className="px-3">
+              <LayoutList className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="complete" aria-label="Layout completo" className="px-3">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </Card>
 
