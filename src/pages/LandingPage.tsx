@@ -2001,7 +2001,16 @@ const LandingPage = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 lg:gap-12 px-3 md:px-0 max-w-7xl mx-auto">
-            {plans.map((plan, index) => {
+            {plans
+              .filter((plan) => {
+                // Mostrar plano diário apenas se modo desenvolvedor estiver ativo
+                const isDevMode = localStorage.getItem('devMode') === 'true';
+                if (plan.billing_period === 'daily' && !isDevMode) {
+                  return false;
+                }
+                return true;
+              })
+              .map((plan, index) => {
             const isFree = plan.price === 0;
             const isPro = !isFree;
             return <div key={plan.id} className={`relative bg-[#2a2a2a] rounded-2xl p-6 md:p-8 shadow-xl transition-all duration-700 hover:scale-105 flex flex-col ${index === 0 ? '' : 'delay-100'} ${visibleSections.has('planos') ? 'animate-fade-in opacity-100' : 'opacity-0 translate-y-10'}`}>
