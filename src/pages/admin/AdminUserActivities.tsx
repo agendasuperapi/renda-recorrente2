@@ -67,7 +67,11 @@ const CATEGORIES = [
   { value: "auth", label: "Autenticação" },
 ];
 
-export default function AdminUserActivities() {
+interface AdminUserActivitiesProps {
+  isEmbedded?: boolean;
+}
+
+export default function AdminUserActivities({ isEmbedded = false }: AdminUserActivitiesProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -192,26 +196,28 @@ export default function AdminUserActivities() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Atividades dos Usuários</h1>
-          <p className="text-muted-foreground">
-            Histórico de ações realizadas pelos usuários no sistema
-          </p>
+    <div className={isEmbedded ? "space-y-4" : "space-y-4 sm:space-y-6 p-4 sm:p-6"}>
+      {/* Header - only show when not embedded */}
+      {!isEmbedded && (
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Atividades dos Usuários</h1>
+            <p className="text-muted-foreground">
+              Histórico de ações realizadas pelos usuários no sistema
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Atualizar
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportToCSV}>
+              <Download className="h-4 w-4 mr-2" />
+              Exportar CSV
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Atualizar
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportToCSV}>
-            <Download className="h-4 w-4 mr-2" />
-            Exportar CSV
-          </Button>
-        </div>
-      </div>
+      )}
 
       {/* Filtros */}
       <Card>
@@ -227,7 +233,7 @@ export default function AdminUserActivities() {
               />
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-[160px]">
                   <Filter className="h-4 w-4 mr-2" />
@@ -259,6 +265,17 @@ export default function AdminUserActivities() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {isEmbedded && (
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => refetch()}>
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={exportToCSV}>
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
