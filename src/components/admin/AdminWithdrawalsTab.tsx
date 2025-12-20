@@ -25,6 +25,7 @@ import { PixQRCode } from "@/components/PixQRCode";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatedTableRow } from "@/components/AnimatedTableRow";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 
 type Withdrawal = {
   id: string;
@@ -56,6 +57,7 @@ type PaymentProofFile = {
 };
 
 export function AdminWithdrawalsTab() {
+  const { environment } = useEnvironment();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<Withdrawal | null>(null);
@@ -111,12 +113,12 @@ export function AdminWithdrawalsTab() {
 
   // Buscar total de registros
   const { data: totalCount } = useQuery({
-    queryKey: ["admin-withdrawals-count", debouncedSearch, statusFilter],
+    queryKey: ["admin-withdrawals-count", debouncedSearch, statusFilter, environment],
     queryFn: async () => {
       let query = supabase.from("withdrawals").select("id", {
         count: 'exact',
         head: true
-      });
+      }).eq("environment", environment);
       if (debouncedSearch) {
         const { data: profilesData } = await supabase.from("profiles").select("id").or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
         if (profilesData && profilesData.length > 0) {
@@ -136,7 +138,7 @@ export function AdminWithdrawalsTab() {
   });
 
   const { data: withdrawals, isLoading, refetch } = useQuery({
-    queryKey: ["admin-withdrawals", debouncedSearch, statusFilter, currentPage, pageSize],
+    queryKey: ["admin-withdrawals", debouncedSearch, statusFilter, currentPage, pageSize, environment],
     queryFn: async () => {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
@@ -148,7 +150,7 @@ export function AdminWithdrawalsTab() {
             username,
             avatar_url
           )
-        `).order("requested_date", {
+        `).eq("environment", environment).order("requested_date", {
         ascending: false
       }).range(from, to);
       if (debouncedSearch) {

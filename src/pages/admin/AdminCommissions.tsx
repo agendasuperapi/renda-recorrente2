@@ -5,10 +5,13 @@ import { Coins, CreditCard, Wallet } from "lucide-react";
 import { AdminCommissionsTab } from "@/components/admin/AdminCommissionsTab";
 import { AdminCommissionProcessingTab } from "@/components/admin/AdminCommissionProcessingTab";
 import { AdminWithdrawalsTab } from "@/components/admin/AdminWithdrawalsTab";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
+import { EnvironmentToggle } from "@/components/layout/EnvironmentToggle";
 
 const AdminCommissions = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "commissions");
+  const { environment } = useEnvironment();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -17,11 +20,16 @@ const AdminCommissions = () => {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div>
-        <h1 className="text-2xl font-bold">Comissões</h1>
-        <p className="text-sm text-muted-foreground">
-          Gerencie comissões de todos os afiliados
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Comissões</h1>
+          <p className="text-sm text-muted-foreground">
+            Gerencie comissões de todos os afiliados
+          </p>
+        </div>
+        <div className="w-full sm:w-auto">
+          <EnvironmentToggle />
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
