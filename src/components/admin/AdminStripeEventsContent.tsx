@@ -746,11 +746,11 @@ export default function AdminStripeEventsContent() {
         </TabsContent>
         
         <TabsContent value="client" forceMount className="data-[state=inactive]:hidden">
-          <ClientProfile userId={selectedEvent.user_id} email={selectedEvent.customer_email} />
+          <ClientProfile userId={selectedEvent.user_id} email={selectedEvent.email || getEmailFromEventData(selectedEvent.event_data)} />
         </TabsContent>
         
         <TabsContent value="plan" forceMount className="data-[state=inactive]:hidden">
-          <PlanInfo userId={selectedEvent.user_id} email={selectedEvent.customer_email} />
+          <PlanInfo userId={selectedEvent.user_id} email={selectedEvent.email || getEmailFromEventData(selectedEvent.event_data)} />
         </TabsContent>
       </Tabs>
     );
