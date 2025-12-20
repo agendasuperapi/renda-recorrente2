@@ -3758,6 +3758,7 @@ export type Database = {
           cpf: string | null
           created_at: string | null
           email: string | null
+          environment: string | null
           facebook: string | null
           gender: string | null
           id: string | null
@@ -3770,7 +3771,7 @@ export type Database = {
           pix_key: string | null
           pix_type: string | null
           referrer_code: string | null
-          role: Database["public"]["Enums"]["app_role"] | null
+          role: string | null
           state: string | null
           street: string | null
           tiktok: string | null
