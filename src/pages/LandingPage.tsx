@@ -1166,7 +1166,17 @@ const LandingPage = () => {
       )}
 
       {/* Hero Section */}
-      <section id="hero" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('hero')}>
+      {(isAdmin || isSectionActive('hero')) && (
+        <SectionWrapper
+          sectionKey="hero"
+          sectionName={getSectionName('hero')}
+          isActive={isSectionActive('hero')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="hero"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('hero')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'hero' ? null : 'hero')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1201,10 +1211,21 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Seja um Afiliado */}
-      <section id="seja-afiliado" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('seja-afiliado')}>
+      {(isAdmin || isSectionActive('seja-afiliado')) && (
+        <SectionWrapper
+          sectionKey="seja-afiliado"
+          sectionName={getSectionName('seja-afiliado')}
+          isActive={isSectionActive('seja-afiliado')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="seja-afiliado"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('seja-afiliado')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'seja-afiliado' ? null : 'seja-afiliado')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1264,10 +1285,21 @@ const LandingPage = () => {
             </Card>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Comissão Recorrente */}
-      <section id="comissao-recorrente" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('comissao-recorrente')}>
+      {(isAdmin || isSectionActive('comissao-recorrente')) && (
+        <SectionWrapper
+          sectionKey="comissao-recorrente"
+          sectionName={getSectionName('comissao-recorrente')}
+          isActive={isSectionActive('comissao-recorrente')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="comissao-recorrente"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('comissao-recorrente')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'comissao-recorrente' ? null : 'comissao-recorrente')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1293,10 +1325,21 @@ const LandingPage = () => {
             </CardContent>
           </Card>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Como Funciona */}
-      <section id="como-funciona" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('como-funciona')}>
+      {(isAdmin || isSectionActive('como-funciona')) && (
+        <SectionWrapper
+          sectionKey="como-funciona"
+          sectionName={getSectionName('como-funciona')}
+          isActive={isSectionActive('como-funciona')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="como-funciona"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('como-funciona')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'como-funciona' ? null : 'como-funciona')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1368,10 +1411,21 @@ const LandingPage = () => {
             </Card>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Painel de Afiliado */}
-      <section id="painel-afiliado" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('painel-afiliado')}>
+      {(isAdmin || isSectionActive('painel-afiliado')) && (
+        <SectionWrapper
+          sectionKey="painel-afiliado"
+          sectionName={getSectionName('painel-afiliado')}
+          isActive={isSectionActive('painel-afiliado')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="painel-afiliado"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('painel-afiliado')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'painel-afiliado' ? null : 'painel-afiliado')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1448,10 +1502,21 @@ const LandingPage = () => {
             </Card>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Vantagens */}
-      <section id="vantagens" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('vantagens')}>
+      {(isAdmin || isSectionActive('vantagens')) && (
+        <SectionWrapper
+          sectionKey="vantagens"
+          sectionName={getSectionName('vantagens')}
+          isActive={isSectionActive('vantagens')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="vantagens"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('vantagens')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'vantagens' ? null : 'vantagens')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1523,10 +1588,21 @@ const LandingPage = () => {
             </Card>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Funcionalidades */}
-      <section id="funcionalidades" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('funcionalidades')}>
+      {(isAdmin || isSectionActive('funcionalidades')) && (
+        <SectionWrapper
+          sectionKey="funcionalidades"
+          sectionName={getSectionName('funcionalidades')}
+          isActive={isSectionActive('funcionalidades')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="funcionalidades"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('funcionalidades')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'funcionalidades' ? null : 'funcionalidades')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1569,10 +1645,21 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Layout Responsivo */}
-      <section id="layout-responsivo" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('layout-responsivo')}>
+      {(isAdmin || isSectionActive('layout-responsivo')) && (
+        <SectionWrapper
+          sectionKey="layout-responsivo"
+          sectionName={getSectionName('layout-responsivo')}
+          isActive={isSectionActive('layout-responsivo')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="layout-responsivo"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('layout-responsivo')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'layout-responsivo' ? null : 'layout-responsivo')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1593,10 +1680,21 @@ const LandingPage = () => {
           }} />}
           </div>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Produtos Disponíveis */}
-      {products.length > 0 && <section id="produtos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('produtos')}>
+      {products.length > 0 && (isAdmin || isSectionActive('produtos')) && (
+        <SectionWrapper
+          sectionKey="produtos"
+          sectionName={getSectionName('produtos')}
+          isActive={isSectionActive('produtos')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="produtos"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('produtos')}
+        >
           {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'produtos' ? null : 'produtos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
               <Edit className="w-4 h-4" />
             </Button>}
@@ -1650,7 +1748,8 @@ const LandingPage = () => {
           })}
             </div>
           </div>
-        </section>}
+        </SectionWrapper>
+      )}
 
       {/* Depoimentos */}
       {(isAdmin || isSectionActive('depoimentos')) && (
@@ -1710,7 +1809,17 @@ const LandingPage = () => {
       )}
 
       {/* Seção de Cupom */}
-      <section id="cupons" className="py-12 md:py-16 px-3 md:px-6 relative" style={getGradientStyle('cupons')}>
+      {(isAdmin || isSectionActive('cupons')) && (
+        <SectionWrapper
+          sectionKey="cupons"
+          sectionName={getSectionName('cupons')}
+          isActive={isSectionActive('cupons')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="cupons"
+          className="py-12 md:py-16 px-3 md:px-6"
+          style={getGradientStyle('cupons')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'cupons' ? null : 'cupons')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1794,10 +1903,21 @@ const LandingPage = () => {
             </div>
           )}
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* Planos */}
-      <section id="planos" className="py-12 md:py-16 lg:py-20 px-3 md:px-6 relative" style={getGradientStyle('planos')}>
+      {(isAdmin || isSectionActive('planos')) && (
+        <SectionWrapper
+          sectionKey="planos"
+          sectionName={getSectionName('planos')}
+          isActive={isSectionActive('planos')}
+          isAdmin={isAdmin}
+          onToggle={toggleSection}
+          id="planos"
+          className="py-12 md:py-16 lg:py-20 px-3 md:px-6"
+          style={getGradientStyle('planos')}
+        >
         {isAdmin && <Button onClick={() => setEditingBlock(editingBlock === 'planos' ? null : 'planos')} className="absolute top-4 right-4 z-40" size="sm" variant="outline">
             <Edit className="w-4 h-4" />
           </Button>}
@@ -1978,7 +2098,8 @@ const LandingPage = () => {
             Seu pagamento será processado pela Stripe, empresa líder mundial em pagamentos online, usada por grandes empresas e oferece máxima segurança e confiabilidade em todas as transações.
           </p>
         </div>
-      </section>
+      </SectionWrapper>
+      )}
 
       {/* FAQs */}
       {(isAdmin || isSectionActive('faq')) && (
