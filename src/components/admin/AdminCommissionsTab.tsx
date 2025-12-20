@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, DollarSign, RefreshCw, X, Loader2, SlidersHorizontal, LayoutList, LayoutGrid, Eye, ChevronUp, Calendar, ChevronLeft, ChevronRight, CheckCircle2, Wallet, Ban } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
@@ -331,8 +331,97 @@ export const AdminCommissionsTab = () => {
     return <TableSkeleton columns={10} rows={5} showSearch />;
   }
 
+  // Query para estatísticas de comissões
+  const { data: statsData } = useQuery({
+    queryKey: ["admin-commissions-stats", environment],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("view_admin_commissions_stats")
+        .select("*")
+        .eq("environment", environment)
+        .maybeSingle();
+      if (error) throw error;
+      return data as {
+        total_count: number;
+        total_amount: number;
+        pending_count: number;
+        pending_amount: number;
+        available_count: number;
+        available_amount: number;
+        withdrawn_count: number;
+        withdrawn_amount: number;
+        cancelled_count: number;
+        cancelled_amount: number;
+      } | null;
+    }
+  });
+
+  const formatCurrencyShort = (value: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Cards de Resumo */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <ScrollAnimation animation="fade-up" delay={0} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrencyShort(statsData?.total_amount || 0)}</div>
+              <p className="text-xs text-muted-foreground">{statsData?.total_count || 0} comissões</p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
+
+        <ScrollAnimation animation="fade-up" delay={50} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Disponível</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{formatCurrencyShort(statsData?.available_amount || 0)}</div>
+              <p className="text-xs text-muted-foreground">{statsData?.available_count || 0} comissões</p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
+
+        <ScrollAnimation animation="fade-up" delay={100} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Aguardando</CardTitle>
+              <Clock className="h-4 w-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">{formatCurrencyShort(statsData?.pending_amount || 0)}</div>
+              <p className="text-xs text-muted-foreground">{statsData?.pending_count || 0} comissões</p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
+
+        <ScrollAnimation animation="fade-up" delay={150} threshold={0.05}>
+          <Card className="transition-all duration-300 hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Sacado</CardTitle>
+              <Wallet className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">{formatCurrencyShort(statsData?.withdrawn_amount || 0)}</div>
+              <p className="text-xs text-muted-foreground">{statsData?.withdrawn_count || 0} comissões</p>
+            </CardContent>
+          </Card>
+        </ScrollAnimation>
+      </div>
+
       {/* Botão de filtros mobile/tablet */}
       <div className="lg:hidden flex items-center justify-between">
         <Button variant="outline" onClick={() => setShowFilters(!showFilters)} className="gap-2">
