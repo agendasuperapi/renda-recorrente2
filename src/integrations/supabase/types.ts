@@ -3473,6 +3473,7 @@ export type Database = {
           approved_date: string | null
           commission_ids: string[]
           created_at: string | null
+          environment: string | null
           id: string
           paid_date: string | null
           payment_proof_url: Json | null
@@ -3490,6 +3491,7 @@ export type Database = {
           approved_date?: string | null
           commission_ids: string[]
           created_at?: string | null
+          environment?: string | null
           id?: string
           paid_date?: string | null
           payment_proof_url?: Json | null
@@ -3507,6 +3509,7 @@ export type Database = {
           approved_date?: string | null
           commission_ids?: string[]
           created_at?: string | null
+          environment?: string | null
           id?: string
           paid_date?: string | null
           payment_proof_url?: Json | null
@@ -3938,6 +3941,7 @@ export type Database = {
           created_at: string | null
           data: string | null
           data_filtro: string | null
+          environment: string | null
           id: string | null
           level: number | null
           percentual: number | null

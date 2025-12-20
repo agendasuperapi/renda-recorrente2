@@ -18,6 +18,7 @@ import { format, subDays, differenceInDays, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { useEnvironment } from "@/contexts/EnvironmentContext";
 
 interface Commission {
   id: string;
@@ -44,6 +45,7 @@ interface Commission {
 
 export const AdminCommissionsTab = () => {
   const isMobile = useIsMobile();
+  const { environment } = useEnvironment();
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -96,7 +98,7 @@ export const AdminCommissionsTab = () => {
 
   useEffect(() => {
     loadCommissions();
-  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.billing_reason, filters.data_inicio, filters.data_fim, debouncedCliente, debouncedAffiliate]);
+  }, [currentPage, itemsPerPage, filters.product_id, filters.plan_id, filters.status, filters.billing_reason, filters.data_inicio, filters.data_fim, debouncedCliente, debouncedAffiliate, environment]);
 
   useEffect(() => {
     loadFiltersData();
@@ -132,7 +134,8 @@ export const AdminCommissionsTab = () => {
     try {
       let query = (supabase as any)
         .from("view_commissions_daily")
-        .select("*, profiles!inner(name)", { count: "exact" });
+        .select("*, profiles!inner(name)", { count: "exact" })
+        .eq("environment", environment);
 
       if (filters.product_id && filters.product_id.trim() && filters.product_id !== " ") {
         query = query.eq("product_id", filters.product_id);
