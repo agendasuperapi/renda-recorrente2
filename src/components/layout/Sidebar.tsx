@@ -99,10 +99,6 @@ const adminMenuItems = [{
   icon: CreditCard,
   label: "Stripe",
   path: "/admin/stripe"
-}, {
-  icon: Settings,
-  label: "Configurações",
-  path: "/admin/settings"
 }];
 export const Sidebar = ({
   user,
