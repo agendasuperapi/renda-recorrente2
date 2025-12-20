@@ -13,7 +13,8 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X, Play, Loader2, Info } from "lucide-react";
+import { Search, CheckCircle2, Clock, AlertCircle, Package, ChevronLeft, ChevronRight, Eye, RefreshCw, Filter, X, Play, Loader2, Info, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
@@ -32,6 +33,8 @@ interface PaymentProcessing {
   plan_name: string;
   affiliate_id: string;
   affiliate_name: string;
+  affiliate_email: string | null;
+  affiliate_avatar: string | null;
   amount: number;
   currency: string;
   billing_reason: string;
@@ -706,7 +709,22 @@ export const AdminCommissionProcessingTab = () => {
                         <span>{payment.product_name || "-"}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{payment.affiliate_name || "-"}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-7 w-7">
+                          <AvatarImage src={payment.affiliate_avatar || undefined} alt={payment.affiliate_name} />
+                          <AvatarFallback className="text-xs">
+                            <User className="h-3 w-3" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{payment.affiliate_name || "-"}</span>
+                          {payment.affiliate_email && (
+                            <span className="text-xs text-muted-foreground">{payment.affiliate_email}</span>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
                     <TableCell>{formatCurrency(payment.amount)}</TableCell>
                     <TableCell>
                       <Badge 
