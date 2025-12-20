@@ -823,8 +823,15 @@ const Coupons = () => {
                       ) : (
                         <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300 dark:border dark:border-orange-500/50 text-[10px]">Não Liberado</Badge>
                       )}
-                      {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
+                    {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-[10px]">Ativo</Badge>}
                       {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-[10px]">Inativo</Badge>}
+                    </div>
+                    {/* Linha 3: Código do cupom */}
+                    <div className="flex items-center gap-1.5 bg-muted/50 rounded px-2 py-1.5">
+                      {!isActivated && <span className="text-[10px] text-muted-foreground whitespace-nowrap">Seu cupom será:</span>}
+                      <code className="text-xs font-mono text-muted-foreground truncate">
+                        {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                      </code>
                     </div>
                     {/* Linha 4: Link com ícone de copiar */}
                     {getAffiliateLink(coupon) && isActive && <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -993,6 +1000,12 @@ const Coupons = () => {
                         )}
                         {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
                         {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        {!isActivated && <span className="text-xs text-muted-foreground whitespace-nowrap">Seu cupom será:</span>}
+                        <code className="text-sm font-mono text-muted-foreground">
+                          {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                        </code>
                       </div>
                       {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <span className="font-semibold">Link: </span>
@@ -1166,9 +1179,12 @@ const Coupons = () => {
                 
                 {/* Linha 3: Código e ações */}
                 <div className="flex items-center justify-between gap-2 bg-muted/50 rounded px-2 py-1.5">
-                  <code className="text-xs font-mono text-muted-foreground truncate flex-1">
-                    {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                  </code>
+                  <div className="flex items-center gap-1.5 truncate flex-1">
+                    {!isActivated && <span className="text-[10px] text-muted-foreground whitespace-nowrap">Seu cupom será:</span>}
+                    <code className="text-xs font-mono text-muted-foreground truncate">
+                      {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                    </code>
+                  </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {isActivated && isActive && <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(coupon.activatedCoupon?.custom_code || "")}>
                         <Copy className="h-3.5 w-3.5" />
@@ -1282,9 +1298,12 @@ const Coupons = () => {
                     {isActivated && isActive && <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 dark:border dark:border-green-500/50 text-xs">Ativo</Badge>}
                     {isActivated && !isActive && <Badge className="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 dark:border dark:border-red-500/50 text-xs">Inativo</Badge>}
                   </div>
-                  <code className="text-sm font-mono text-muted-foreground">
-                    {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
-                  </code>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    {!isActivated && <span className="text-xs text-muted-foreground whitespace-nowrap">Seu cupom será:</span>}
+                    <code className="text-sm font-mono text-muted-foreground">
+                      {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
+                    </code>
+                  </div>
                   {getAffiliateLink(coupon) && isActive && <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                     <span className="font-semibold">Link: </span>
                     <code className="bg-muted px-2 py-1 rounded truncate">
