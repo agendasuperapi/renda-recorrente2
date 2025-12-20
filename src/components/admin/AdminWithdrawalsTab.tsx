@@ -76,30 +76,45 @@ export function AdminWithdrawalsTab() {
   const isMobile = useIsMobile();
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  // Buscar estatísticas de saques (filtrado por environment)
+  // Buscar estatísticas de saques (filtrado por environment do profile)
   const { data: stats } = useQuery({
     queryKey: ["withdrawals-stats", environment],
     queryFn: async () => {
-      // Query manual para filtrar por environment
+      // Buscar IDs de profiles do ambiente correto
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("environment", environment);
+      
+      if (!profilesData || profilesData.length === 0) {
+        return {
+          total_pending: 0,
+          total_approved: 0,
+          total_paid: 0,
+          total_rejected_count: 0,
+          total_awaiting_release: 0
+        };
+      }
+      
+      const profileIds = profilesData.map(p => p.id);
+      
+      // Query para withdrawals filtrado pelos profiles do ambiente
       const { data: withdrawalsData, error: wError } = await supabase
         .from("withdrawals")
         .select("amount, status")
-        .eq("environment", environment);
+        .in("affiliate_id", profileIds);
       
       if (wError) throw wError;
 
+      // Query para comissões pendentes filtrado pelos profiles do ambiente
       const { data: commissionsData, error: cError } = await supabase
         .from("commissions")
-        .select("amount, available_date, profiles!commissions_affiliate_id_fkey(environment)")
+        .select("amount, available_date")
         .eq("status", "pending")
+        .in("affiliate_id", profileIds)
         .or(`available_date.is.null,available_date.gt.${new Date().toISOString()}`);
 
       if (cError) throw cError;
-
-      // Filtrar comissões pelo environment do afiliado
-      const filteredCommissions = (commissionsData || []).filter(
-        (c: any) => c.profiles?.environment === environment
-      );
 
       const total_pending = (withdrawalsData || [])
         .filter(w => w.status === "pending")
@@ -116,7 +131,7 @@ export function AdminWithdrawalsTab() {
       const total_rejected_count = (withdrawalsData || [])
         .filter(w => w.status === "rejected").length;
 
-      const total_awaiting_release = filteredCommissions
+      const total_awaiting_release = (commissionsData || [])
         .reduce((sum: number, c: any) => sum + Number(c.amount), 0);
 
       return {
@@ -152,19 +167,29 @@ export function AdminWithdrawalsTab() {
   const { data: totalCount } = useQuery({
     queryKey: ["admin-withdrawals-count", debouncedSearch, statusFilter, environment],
     queryFn: async () => {
+      // Primeiro buscar IDs de profiles do ambiente correto
+      let profilesQuery = supabase
+        .from("profiles")
+        .select("id")
+        .eq("environment", environment);
+      
+      if (debouncedSearch) {
+        profilesQuery = profilesQuery.or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+      }
+      
+      const { data: profilesData } = await profilesQuery;
+      
+      if (!profilesData || profilesData.length === 0) {
+        return 0;
+      }
+      
+      const profileIds = profilesData.map(p => p.id);
+      
       let query = supabase.from("withdrawals").select("id", {
         count: 'exact',
         head: true
-      }).eq("environment", environment);
-      if (debouncedSearch) {
-        const { data: profilesData } = await supabase.from("profiles").select("id").eq("environment", environment).or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
-        if (profilesData && profilesData.length > 0) {
-          const profileIds = profilesData.map(p => p.id);
-          query = query.in("affiliate_id", profileIds);
-        } else {
-          return 0;
-        }
-      }
+      }).in("affiliate_id", profileIds);
+      
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter as any);
       }
@@ -179,6 +204,25 @@ export function AdminWithdrawalsTab() {
     queryFn: async () => {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
+      
+      // Primeiro buscar IDs de profiles do ambiente correto
+      let profilesQuery = supabase
+        .from("profiles")
+        .select("id")
+        .eq("environment", environment);
+      
+      if (debouncedSearch) {
+        profilesQuery = profilesQuery.or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
+      }
+      
+      const { data: profilesData } = await profilesQuery;
+      
+      if (!profilesData || profilesData.length === 0) {
+        return [];
+      }
+      
+      const profileIds = profilesData.map(p => p.id);
+      
       let query = supabase.from("withdrawals").select(`
           *,
           profiles!withdrawals_affiliate_id_fkey (
@@ -187,18 +231,11 @@ export function AdminWithdrawalsTab() {
             username,
             avatar_url
           )
-        `).eq("environment", environment).order("requested_date", {
-        ascending: false
-      }).range(from, to);
-      if (debouncedSearch) {
-        const { data: profilesData } = await supabase.from("profiles").select("id").eq("environment", environment).or(`name.ilike.%${debouncedSearch}%,email.ilike.%${debouncedSearch}%,username.ilike.%${debouncedSearch}%`);
-        if (profilesData && profilesData.length > 0) {
-          const profileIds = profilesData.map(p => p.id);
-          query = query.in("affiliate_id", profileIds);
-        } else {
-          return [];
-        }
-      }
+        `)
+        .in("affiliate_id", profileIds)
+        .order("requested_date", { ascending: false })
+        .range(from, to);
+      
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter as any);
       }
