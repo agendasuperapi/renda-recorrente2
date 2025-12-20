@@ -1099,11 +1099,6 @@ export const Sidebar = ({
                             </div>
                           </div>
                         </div>
-                        
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Comissão</p>
-                          <p className="text-lg font-semibold text-primary">{userSubscription.commission_percentage}%</p>
-                        </div>
                       </>
                     ) : (
                       <div className="space-y-1">
