@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, GraduationCap, Users, Target, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, User, GraduationCap, Users, Target, Wallet, Ticket, CreditCard, MapPin, LogOut, Crown, Link2, Package, Building2, Home, Settings, ChevronDown, PlusSquare, Coins, Zap, Star, TrendingUp, Banknote, LineChart, UserPlus, UserCog, RefreshCw, Check, X, Camera, Loader2, Headphones, Activity, ShieldCheck, FlaskConical } from "lucide-react";
 import { EnvironmentToggle } from "./EnvironmentToggle";
 import { useEnvironmentOptional } from "@/contexts/EnvironmentContext";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
@@ -121,6 +121,7 @@ export const Sidebar = ({
   });
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userEnvironment, setUserEnvironment] = useState<string>("production");
   const [userPlan, setUserPlan] = useState<{
     is_free: boolean;
     plan_name: string | null;
@@ -256,10 +257,13 @@ export const Sidebar = ({
       if (user?.id) {
         const {
           data
-        } = await supabase.from('profiles').select('avatar_url, name').eq('id', user.id).single();
+        } = await supabase.from('profiles').select('avatar_url, name, environment').eq('id', user.id).single();
         if (data) {
           setAvatarUrl(data.avatar_url);
           setUserName(data.name);
+          if (data.environment) {
+            setUserEnvironment(data.environment);
+          }
         }
 
         // Buscar plano do usuário através de subscriptions
@@ -618,6 +622,16 @@ export const Sidebar = ({
               currentTextColor={currentTextColor}
               accentColor={accentColor}
             />
+          </div>
+        )}
+        
+        {/* Test Environment Banner - Visible for test users */}
+        {userEnvironment === "test" && (
+          <div className="mt-3 mx-2 p-2 rounded-lg bg-amber-500/20 border border-amber-500/50 flex items-center gap-2">
+            <FlaskConical className="h-4 w-4 text-amber-500 flex-shrink-0" />
+            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+              Ambiente de Teste
+            </span>
           </div>
         )}
       </div>
