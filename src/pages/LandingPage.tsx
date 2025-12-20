@@ -16,7 +16,7 @@ import { GradientEditor } from "@/components/GradientEditor";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SectionWrapper } from "@/components/landing/SectionWrapper";
 import { useLandingSections } from "@/hooks/useLandingSections";
-import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw, WifiOff } from "lucide-react";
+import { Target, TrendingUp, Users, DollarSign, Share2, GraduationCap, UserPlus, Megaphone, LayoutDashboard, FileText, Award, Shield, Clock, Zap, CheckCircle2, Star, MessageSquare, LucideIcon, Edit, Menu, Link, Check, MousePointer2, Trophy, Lock, X, Ticket, LogOut, RefreshCw, WifiOff, Code, XCircle } from "lucide-react";
 import { DevModeAuthDialog } from "@/components/DevModeAuthDialog";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -181,6 +181,20 @@ const LandingPage = () => {
   const [validatedCoupon, setValidatedCoupon] = useState<any>(null);
   const [loadingCoupon, setLoadingCoupon] = useState(false);
   const [showDevModeAuth, setShowDevModeAuth] = useState(false);
+  const [isDevMode, setIsDevMode] = useState(() => localStorage.getItem('devMode') === 'true');
+
+  // Função para desativar modo desenvolvedor
+  const handleDisableDevMode = () => {
+    localStorage.removeItem('devMode');
+    localStorage.removeItem('devModeActivatedBy');
+    localStorage.removeItem('devModeActivatedAt');
+    setIsDevMode(false);
+    toast({
+      title: "Modo Desenvolvedor Desativado",
+      description: "Os formulários voltarão ao comportamento normal",
+      duration: 3000,
+    });
+  };
 
   // Busca banner de anúncio com cache
   const {
@@ -2341,6 +2355,23 @@ const LandingPage = () => {
     }} onClose={() => setEditingBlock(null)} />}
 
       <CookieConsent />
+      
+      {/* Indicador flutuante do modo desenvolvedor */}
+      {isDevMode && (
+        <div className="fixed bottom-4 left-4 z-50 animate-fade-in">
+          <div className="flex items-center gap-2 bg-yellow-500 text-yellow-950 px-4 py-2 rounded-full shadow-lg">
+            <Code className="h-4 w-4" />
+            <span className="text-sm font-medium">Modo Dev</span>
+            <button
+              onClick={handleDisableDevMode}
+              className="ml-1 p-1 hover:bg-yellow-600/50 rounded-full transition-colors"
+              title="Desativar modo desenvolvedor"
+            >
+              <XCircle className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Diálogo de autenticação para modo desenvolvedor */}
       <DevModeAuthDialog
