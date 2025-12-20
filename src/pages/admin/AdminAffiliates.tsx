@@ -142,10 +142,10 @@ const AdminAffiliates = () => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "trial"> = {
       active: "default",
       trialing: "trial",
-      inactive: "secondary",
+      inactive: "destructive",
       cancelled: "destructive"
     };
-    return variants[status] || "secondary";
+    return variants[status] || "destructive";
   };
 
   const getInitials = (name: string) => {
