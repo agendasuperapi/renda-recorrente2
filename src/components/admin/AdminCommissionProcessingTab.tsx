@@ -96,7 +96,7 @@ export const AdminCommissionProcessingTab = () => {
     queryFn: async () => {
       let query = supabase
         .from("unified_payments")
-        .select("commission_processed, commission_error", { count: "exact" });
+        .select("commission_processed, commission_error, amount", { count: "exact" });
       
       query = query.eq("environment", environment);
       
@@ -105,11 +105,26 @@ export const AdminCommissionProcessingTab = () => {
       if (error) throw error;
 
       const total = data?.length || 0;
-      const processed = data?.filter(p => p.commission_processed === true && !p.commission_error).length || 0;
-      const pending = data?.filter(p => p.commission_processed === false && !p.commission_error).length || 0;
-      const withError = data?.filter(p => p.commission_error !== null).length || 0;
+      const totalAmount = data?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
+      
+      const processedItems = data?.filter(p => p.commission_processed === true && !p.commission_error) || [];
+      const processed = processedItems.length;
+      const processedAmount = processedItems.reduce((sum, p) => sum + (p.amount || 0), 0);
+      
+      const pendingItems = data?.filter(p => p.commission_processed === false && !p.commission_error) || [];
+      const pending = pendingItems.length;
+      const pendingAmount = pendingItems.reduce((sum, p) => sum + (p.amount || 0), 0);
+      
+      const errorItems = data?.filter(p => p.commission_error !== null) || [];
+      const withError = errorItems.length;
+      const errorAmount = errorItems.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-      return { total, processed, pending, withError };
+      return { 
+        total, totalAmount,
+        processed, processedAmount,
+        pending, pendingAmount,
+        withError, errorAmount
+      };
     },
   });
 
@@ -417,6 +432,9 @@ export const AdminCommissionProcessingTab = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Total</p>
                 <p className="text-xl font-bold">{stats?.total || 0}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatCurrency(stats?.totalAmount || 0)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -433,6 +451,9 @@ export const AdminCommissionProcessingTab = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Processados</p>
                 <p className="text-xl font-bold text-emerald-600">{stats?.processed || 0}</p>
+                <p className="text-xs text-emerald-600/80">
+                  {formatCurrency(stats?.processedAmount || 0)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -449,6 +470,9 @@ export const AdminCommissionProcessingTab = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Pendentes</p>
                 <p className="text-xl font-bold text-amber-600">{stats?.pending || 0}</p>
+                <p className="text-xs text-amber-600/80">
+                  {formatCurrency(stats?.pendingAmount || 0)}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -465,6 +489,9 @@ export const AdminCommissionProcessingTab = () => {
               <div>
                 <p className="text-xs text-muted-foreground">Com Erro</p>
                 <p className="text-xl font-bold text-destructive">{stats?.withError || 0}</p>
+                <p className="text-xs text-destructive/80">
+                  {formatCurrency(stats?.errorAmount || 0)}
+                </p>
               </div>
             </div>
           </CardContent>
