@@ -91,7 +91,7 @@ export const AdminCommissionProcessingTab = () => {
     },
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["commission-processing-stats", environment],
     queryFn: async () => {
       let query = supabase
@@ -629,7 +629,7 @@ export const AdminCommissionProcessingTab = () => {
               </SelectContent>
             </Select>
 
-            <Button variant="outline" size="icon" onClick={() => refetch()}>
+            <Button variant="outline" size="icon" onClick={() => { refetch(); refetchStats(); }}>
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
