@@ -828,8 +828,8 @@ const Coupons = () => {
                     </div>
                     {/* Linha 3: Código do cupom */}
                     <div className="flex items-center gap-1.5 bg-muted/50 rounded px-2 py-1.5">
-                      {!isActivated && <span className="text-[10px] text-muted-foreground whitespace-nowrap">Seu cupom será:</span>}
-                      <code className="text-xs font-mono text-muted-foreground truncate">
+                      {!isActivated && <span className="text-[10px] text-red-500 dark:text-red-400 whitespace-nowrap">Seu cupom será:</span>}
+                      <code className="text-xs font-mono text-red-500 dark:text-red-400 font-bold truncate">
                         {isActivated ? coupon.activatedCoupon?.custom_code : customCode}
                       </code>
                     </div>
