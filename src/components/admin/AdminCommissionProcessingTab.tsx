@@ -418,8 +418,8 @@ export const AdminCommissionProcessingTab = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total</p>
-                <p className="text-xl font-bold">{stats?.total || 0}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-2xl font-bold">{stats?.total || 0}</p>
+                <p className="text-sm font-semibold text-foreground">
                   {formatCurrency(stats?.totalAmount || 0)}
                 </p>
               </div>
@@ -437,8 +437,8 @@ export const AdminCommissionProcessingTab = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Processados</p>
-                <p className="text-xl font-bold text-emerald-600">{stats?.processed || 0}</p>
-                <p className="text-xs text-emerald-600/80">
+                <p className="text-2xl font-bold text-emerald-600">{stats?.processed || 0}</p>
+                <p className="text-sm font-semibold text-emerald-600">
                   {formatCurrency(stats?.processedAmount || 0)}
                 </p>
               </div>
@@ -456,8 +456,8 @@ export const AdminCommissionProcessingTab = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Pendentes</p>
-                <p className="text-xl font-bold text-amber-600">{stats?.pending || 0}</p>
-                <p className="text-xs text-amber-600/80">
+                <p className="text-2xl font-bold text-amber-600">{stats?.pending || 0}</p>
+                <p className="text-sm font-semibold text-amber-600">
                   {formatCurrency(stats?.pendingAmount || 0)}
                 </p>
               </div>
@@ -475,8 +475,8 @@ export const AdminCommissionProcessingTab = () => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Com Erro</p>
-                <p className="text-xl font-bold text-destructive">{stats?.withError || 0}</p>
-                <p className="text-xs text-destructive/80">
+                <p className="text-2xl font-bold text-destructive">{stats?.withError || 0}</p>
+                <p className="text-sm font-semibold text-destructive">
                   {formatCurrency(stats?.errorAmount || 0)}
                 </p>
               </div>
