@@ -616,6 +616,23 @@ export const AdminCommissionProcessingTab = () => {
               </SelectContent>
             </Select>
 
+            {(search || status !== "all" || productId !== "all" || startDate || endDate) && (
+              <Button 
+                variant="ghost" 
+                className="gap-2 text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  setSearch("");
+                  setStatus("all");
+                  setProductId("all");
+                  setStartDate(undefined);
+                  setEndDate(undefined);
+                }}
+              >
+                <X className="h-4 w-4" />
+                <span className="hidden sm:inline">Limpar</span>
+              </Button>
+            )}
+
             <Button variant="outline" size="icon" onClick={() => { refetch(); refetchStats(); }}>
               <RefreshCw className="h-4 w-4" />
             </Button>
