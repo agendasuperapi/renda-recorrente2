@@ -348,7 +348,7 @@ export const AdminCommissionProcessingTab = () => {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="details" className="mt-4 min-h-[320px]">
+        <TabsContent value="details" className="mt-4 min-h-[320px] data-[state=inactive]:animate-none data-[state=active]:animate-none">
           <div className="space-y-4 p-2">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -447,7 +447,7 @@ export const AdminCommissionProcessingTab = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="commissions" className="mt-4 min-h-[320px]">
+        <TabsContent value="commissions" className="mt-4 min-h-[320px] data-[state=inactive]:animate-none data-[state=active]:animate-none">
           <div className="space-y-3 p-2">
             {commissionsLoading ? (
               <div className="space-y-3">
