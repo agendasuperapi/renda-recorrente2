@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -278,104 +279,243 @@ export const AdminCommissionProcessingTab = () => {
     }
   };
 
-  const DetailContent = ({ payment }: { payment: PaymentProcessing }) => (
-    <div className="space-y-4 p-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-xs text-muted-foreground">External ID</p>
-          <p className="text-sm font-mono break-all">{payment.external_payment_id}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Status</p>
-          {getStatusBadge(payment)}
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Produto</p>
-          <p className="text-sm">{payment.product_name || "-"}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Plano</p>
-          <p className="text-sm">{payment.plan_name || "-"}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Cliente</p>
-          <p className="text-sm">{payment.customer_name || "-"}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Email</p>
-          <p className="text-sm break-all">{payment.customer_email || "-"}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Afiliado</p>
-          <p className="text-sm">{payment.affiliate_name || "-"}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Valor</p>
-          <p className="text-sm font-medium">{formatCurrency(payment.amount)}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Billing Reason</p>
-          <p className="text-sm">{payment.billing_reason || "-"}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Comissões Geradas</p>
-          <p className="text-sm font-medium">{payment.commissions_generated || 0}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Ambiente</p>
-          <Badge 
-            variant={payment.environment === 'production' ? 'default' : 'secondary'}
-            className={payment.environment === 'production' 
-              ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
-              : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}
-          >
-            {payment.environment === 'production' ? 'Produção' : 'Teste'}
-          </Badge>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Data do Pagamento</p>
-          <p className="text-sm">
-            {payment.payment_date 
-              ? format(new Date(payment.payment_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
-              : "-"}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Processado em</p>
-          <p className="text-sm">
-            {payment.commission_processed_at 
-              ? format(new Date(payment.commission_processed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
-              : "-"}
-          </p>
-        </div>
-      </div>
-      
-      {payment.commission_error && (
-        <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-xs text-destructive font-medium mb-1">Erro de Processamento:</p>
-          <p className="text-sm text-destructive/80 font-mono break-all">{payment.commission_error}</p>
-        </div>
-      )}
+  const DetailContent = ({ payment }: { payment: PaymentProcessing }) => {
+    // Buscar comissões geradas por esse pagamento
+    const { data: commissions, isLoading: commissionsLoading } = useQuery({
+      queryKey: ['payment-commissions', payment.id],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from('commissions')
+          .select(`
+            id,
+            amount,
+            percentage,
+            level,
+            status,
+            created_at,
+            affiliate_id,
+            profiles!commissions_affiliate_id_fkey(name, avatar_url)
+          `)
+          .eq('unified_payment_id', payment.id)
+          .order('level', { ascending: true });
+        
+        if (error) throw error;
+        return data;
+      },
+      enabled: !!payment.id
+    });
 
-      {/* Reprocess button for non-processed or error payments */}
-      {(!payment.commission_processed || payment.commission_error) && (
-        <div className="mt-4 pt-4 border-t">
-          <Button 
-            onClick={() => handleReprocessSingle(payment.id)}
-            disabled={isReprocessing}
-            className="w-full gap-2"
-          >
-            {isReprocessing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Play className="h-4 w-4" />
+    const getLevelBadge = (level: number | null) => {
+      const levelNum = level || 1;
+      const colors: Record<number, string> = {
+        1: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        2: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+        3: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
+        4: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+        5: 'bg-pink-500/10 text-pink-600 border-pink-500/20',
+      };
+      return (
+        <Badge variant="outline" className={colors[levelNum] || 'bg-muted text-muted-foreground'}>
+          N{levelNum}
+        </Badge>
+      );
+    };
+
+    const getStatusBadgeCommission = (status: string) => {
+      switch (status) {
+        case 'available':
+          return <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Disponível</Badge>;
+        case 'pending':
+          return <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20">Pendente</Badge>;
+        case 'paid':
+          return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">Pago</Badge>;
+        default:
+          return <Badge variant="outline">{status}</Badge>;
+      }
+    };
+
+    return (
+      <Tabs defaultValue="details" className="w-full">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="details">Detalhes</TabsTrigger>
+          <TabsTrigger value="commissions" className="gap-1.5">
+            Comissões
+            {payment.commissions_generated > 0 && (
+              <Badge variant="secondary" className="h-5 min-w-5 px-1.5 text-xs">
+                {payment.commissions_generated}
+              </Badge>
             )}
-            Reprocessar Comissão
-          </Button>
-        </div>
-      )}
-    </div>
-  );
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="details" className="mt-4">
+          <div className="space-y-4 p-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-muted-foreground">External ID</p>
+                <p className="text-sm font-mono break-all">{payment.external_payment_id}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Status</p>
+                {getStatusBadge(payment)}
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Produto</p>
+                <p className="text-sm">{payment.product_name || "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Plano</p>
+                <p className="text-sm">{payment.plan_name || "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Cliente</p>
+                <p className="text-sm">{payment.customer_name || "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="text-sm break-all">{payment.customer_email || "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Afiliado</p>
+                <p className="text-sm">{payment.affiliate_name || "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Valor</p>
+                <p className="text-sm font-medium">{formatCurrency(payment.amount)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Billing Reason</p>
+                <p className="text-sm">{payment.billing_reason || "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Comissões Geradas</p>
+                <p className="text-sm font-medium">{payment.commissions_generated || 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Ambiente</p>
+                <Badge 
+                  variant={payment.environment === 'production' ? 'default' : 'secondary'}
+                  className={payment.environment === 'production' 
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                    : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}
+                >
+                  {payment.environment === 'production' ? 'Produção' : 'Teste'}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Data do Pagamento</p>
+                <p className="text-sm">
+                  {payment.payment_date 
+                    ? format(new Date(payment.payment_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                    : "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Processado em</p>
+                <p className="text-sm">
+                  {payment.commission_processed_at 
+                    ? format(new Date(payment.commission_processed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                    : "-"}
+                </p>
+              </div>
+            </div>
+            
+            {payment.commission_error && (
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-xs text-destructive font-medium mb-1">Erro de Processamento:</p>
+                <p className="text-sm text-destructive/80 font-mono break-all">{payment.commission_error}</p>
+              </div>
+            )}
+
+            {/* Reprocess button for non-processed or error payments */}
+            {(!payment.commission_processed || payment.commission_error) && (
+              <div className="mt-4 pt-4 border-t">
+                <Button 
+                  onClick={() => handleReprocessSingle(payment.id)}
+                  disabled={isReprocessing}
+                  className="w-full gap-2"
+                >
+                  {isReprocessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  Reprocessar Comissão
+                </Button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="commissions" className="mt-4">
+          <div className="space-y-3 p-2">
+            {commissionsLoading ? (
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border rounded-lg">
+                    <Skeleton className="h-9 w-9 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                ))}
+              </div>
+            ) : commissions && commissions.length > 0 ? (
+              <>
+                <div className="text-xs text-muted-foreground mb-3">
+                  {commissions.length} comissão(ões) gerada(s) por este pagamento
+                </div>
+                {commissions.map((commission: any) => (
+                  <div 
+                    key={commission.id} 
+                    className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={commission.profiles?.avatar_url || undefined} />
+                      <AvatarFallback className="text-xs">
+                        {commission.profiles?.name?.substring(0, 2).toUpperCase() || 'AF'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium truncate">
+                          {commission.profiles?.name || 'Afiliado'}
+                        </p>
+                        {getLevelBadge(commission.level)}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{commission.percentage}%</span>
+                        <span>•</span>
+                        {getStatusBadgeCommission(commission.status)}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-emerald-600">
+                        {formatCurrency(commission.amount)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {format(new Date(commission.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <AlertCircle className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Nenhuma comissão gerada</p>
+                <p className="text-xs mt-1">
+                  Este pagamento ainda não gerou comissões
+                </p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    );
+  };
 
   return (
     <div className="space-y-6">
