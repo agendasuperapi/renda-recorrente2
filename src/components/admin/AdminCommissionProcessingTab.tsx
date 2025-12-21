@@ -94,36 +94,23 @@ export const AdminCommissionProcessingTab = () => {
   const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ["commission-processing-stats", environment],
     queryFn: async () => {
-      let query = supabase
-        .from("unified_payments")
-        .select("commission_processed, commission_error, amount", { count: "exact" });
-      
-      query = query.eq("environment", environment);
-      
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .from("view_commission_processing_stats")
+        .select("*")
+        .eq("environment", environment)
+        .single();
       
       if (error) throw error;
 
-      const total = data?.length || 0;
-      const totalAmount = data?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
-      
-      const processedItems = data?.filter(p => p.commission_processed === true && !p.commission_error) || [];
-      const processed = processedItems.length;
-      const processedAmount = processedItems.reduce((sum, p) => sum + (p.amount || 0), 0);
-      
-      const pendingItems = data?.filter(p => p.commission_processed === false && !p.commission_error) || [];
-      const pending = pendingItems.length;
-      const pendingAmount = pendingItems.reduce((sum, p) => sum + (p.amount || 0), 0);
-      
-      const errorItems = data?.filter(p => p.commission_error !== null) || [];
-      const withError = errorItems.length;
-      const errorAmount = errorItems.reduce((sum, p) => sum + (p.amount || 0), 0);
-
       return { 
-        total, totalAmount,
-        processed, processedAmount,
-        pending, pendingAmount,
-        withError, errorAmount
+        total: Number(data?.total || 0),
+        totalAmount: Number(data?.total_amount || 0),
+        processed: Number(data?.processed || 0),
+        processedAmount: Number(data?.processed_amount || 0),
+        pending: Number(data?.pending || 0),
+        pendingAmount: Number(data?.pending_amount || 0),
+        withError: Number(data?.with_error || 0),
+        errorAmount: Number(data?.error_amount || 0)
       };
     },
   });
