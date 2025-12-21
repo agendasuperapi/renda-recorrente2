@@ -3952,6 +3952,20 @@ export type Database = {
           },
         ]
       }
+      view_commission_processing_stats: {
+        Row: {
+          environment: string | null
+          error_amount: number | null
+          pending: number | null
+          pending_amount: number | null
+          processed: number | null
+          processed_amount: number | null
+          total: number | null
+          total_amount: number | null
+          with_error: number | null
+        }
+        Relationships: []
+      }
       view_commissions_daily: {
         Row: {
           affiliate_id: string | null
