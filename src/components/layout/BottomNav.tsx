@@ -80,7 +80,7 @@ export const BottomNav = ({ onMenuClick, isAdmin = false }: BottomNavProps) => {
     <>
       {/* Environment indicator banner for admin mode */}
       {isAdmin && showAdminMenu && (
-        <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center lg:hidden pb-[env(safe-area-inset-bottom)]">
+        <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-end pr-3 lg:hidden pb-[env(safe-area-inset-bottom)]">
           <EnvironmentIndicator className="shadow-lg" />
         </div>
       )}
