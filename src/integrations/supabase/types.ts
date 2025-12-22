@@ -82,6 +82,13 @@ export type Database = {
             foreignKeyName: "accounts_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "accounts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
@@ -260,6 +267,13 @@ export type Database = {
             foreignKeyName: "affiliate_coupons_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "affiliate_coupons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
@@ -351,6 +365,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "affiliate_goals_product_id_fkey"
@@ -686,6 +707,13 @@ export type Database = {
             foreignKeyName: "commissions_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "commissions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
@@ -861,6 +889,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "coupons_product_id_fkey"
@@ -1970,6 +2005,13 @@ export type Database = {
             foreignKeyName: "plans_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "plans_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
@@ -2030,6 +2072,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_commission_levels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "product_commission_levels_product_id_fkey"
@@ -2532,6 +2581,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_stripe_events_product_id"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "fk_stripe_events_product_id"
@@ -3191,6 +3247,13 @@ export type Database = {
             foreignKeyName: "unified_payments_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
@@ -3340,6 +3403,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "unified_users_product_id_fkey"
@@ -3625,6 +3695,14 @@ export type Database = {
         }
         Relationships: []
       }
+      view_admin_affiliates_daily: {
+        Row: {
+          day: string | null
+          environment: string | null
+          new_affiliates: number | null
+        }
+        Relationships: []
+      }
       view_admin_commission_processing: {
         Row: {
           affiliate_avatar: string | null
@@ -3661,6 +3739,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "unified_payments_product_id_fkey"
@@ -3724,6 +3809,36 @@ export type Database = {
         }
         Relationships: []
       }
+      view_admin_dashboard_stats: {
+        Row: {
+          active_subscriptions: number | null
+          affiliates_7_days: number | null
+          affiliates_last_month: number | null
+          affiliates_prev_7_days: number | null
+          affiliates_this_month: number | null
+          commissions_paid_last_month: number | null
+          commissions_paid_this_month: number | null
+          commissions_paid_today: number | null
+          commissions_paid_total: number | null
+          commissions_paid_yesterday: number | null
+          environment: string | null
+          pending_withdrawals_amount: number | null
+          pending_withdrawals_count: number | null
+          revenue_7_days: number | null
+          revenue_last_month: number | null
+          revenue_last_year: number | null
+          revenue_prev_7_days: number | null
+          revenue_this_month: number | null
+          revenue_this_year: number | null
+          revenue_today: number | null
+          revenue_yesterday: number | null
+          subscriptions_last_month: number | null
+          subscriptions_this_month: number | null
+          total_affiliates: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
       view_admin_payments: {
         Row: {
           affiliate_name: string | null
@@ -3748,6 +3863,64 @@ export type Database = {
           user_name: string | null
         }
         Relationships: []
+      }
+      view_admin_product_stats: {
+        Row: {
+          active_subscriptions: number | null
+          environment: string | null
+          icone_dark: string | null
+          icone_light: string | null
+          product_id: string | null
+          product_name: string | null
+          revenue_30_days: number | null
+          revenue_7_days: number | null
+          revenue_last_month: number | null
+          revenue_last_year: number | null
+          revenue_this_month: number | null
+          revenue_this_year: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
+      view_admin_revenue_daily: {
+        Row: {
+          day: string | null
+          environment: string | null
+          payment_count: number | null
+          product_id: string | null
+          product_name: string | null
+          revenue: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_daily"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_commissions_monthly"
+            referencedColumns: ["product_id"]
+          },
+        ]
       }
       view_admin_stripe_events: {
         Row: {
@@ -3941,6 +4114,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_goals_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "affiliate_goals_product_id_fkey"
@@ -4294,6 +4474,13 @@ export type Database = {
             foreignKeyName: "unified_users_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "view_commissions_daily"
             referencedColumns: ["product_id"]
           },
@@ -4357,6 +4544,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "unified_users_product_id_fkey"
@@ -4435,6 +4629,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_users_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_product_stats"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "unified_users_product_id_fkey"
