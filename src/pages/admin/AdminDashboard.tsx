@@ -687,39 +687,7 @@ const AdminDashboard = () => {
                         borderRadius: '8px'
                       }}
                     />
-                    <Legend 
-                      content={() => (
-                        <ul className="flex flex-wrap items-center justify-center gap-4 mt-2">
-                          {productNames.map((name, index) => {
-                            const product = productStats?.find(p => p.product_name === name);
-                            return (
-                              <li key={name} className="flex items-center gap-2">
-                                {product?.icone_light || product?.icone_dark ? (
-                                  <>
-                                    <img 
-                                      src={product.icone_light || ''} 
-                                      alt={name}
-                                      className="h-5 w-5 rounded-full object-cover dark:hidden"
-                                    />
-                                    <img 
-                                      src={product.icone_dark || product.icone_light || ''} 
-                                      alt={name}
-                                      className="h-5 w-5 rounded-full object-cover hidden dark:block"
-                                    />
-                                  </>
-                                ) : (
-                                  <span 
-                                    className="h-3 w-3 rounded-full" 
-                                    style={{ backgroundColor: getProductColor(name, index) }}
-                                  />
-                                )}
-                                <span className="text-sm text-muted-foreground">{name}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    />
+                    <Legend />
                     {productNames.map((name, index) => (
                       <Line
                         key={name}
