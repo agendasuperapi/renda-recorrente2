@@ -4699,41 +4699,82 @@ export type Database = {
       }
       remove_accents: { Args: { p_text: string }; Returns: string }
       reset_login_attempts: { Args: { p_email: string }; Returns: boolean }
-      send_admin_notification: {
-        Args: {
-          p_action_url?: string
-          p_body: string
-          p_reference_id?: string
-          p_reference_type?: string
-          p_title: string
-          p_type: string
-        }
-        Returns: undefined
-      }
-      send_admin_notification_with_product_filter: {
-        Args: {
-          p_action_url: string
-          p_body: string
-          p_product_id: string
-          p_reference_id: string
-          p_reference_type: string
-          p_title: string
-          p_type: string
-        }
-        Returns: undefined
-      }
-      send_push_notification: {
-        Args: {
-          p_action_url?: string
-          p_body: string
-          p_reference_id?: string
-          p_reference_type?: string
-          p_title: string
-          p_type: string
-          p_user_id: string
-        }
-        Returns: undefined
-      }
+      send_admin_notification:
+        | {
+            Args: {
+              p_action_url?: string
+              p_body: string
+              p_reference_id?: string
+              p_reference_type?: string
+              p_title: string
+              p_type: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_action_url?: string
+              p_body: string
+              p_environment?: string
+              p_reference_id?: string
+              p_reference_type?: string
+              p_title: string
+              p_type: string
+            }
+            Returns: undefined
+          }
+      send_admin_notification_with_product_filter:
+        | {
+            Args: {
+              p_action_url: string
+              p_body: string
+              p_product_id: string
+              p_reference_id: string
+              p_reference_type: string
+              p_title: string
+              p_type: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_action_url: string
+              p_body: string
+              p_environment?: string
+              p_product_id: string
+              p_reference_id: string
+              p_reference_type: string
+              p_title: string
+              p_type: string
+            }
+            Returns: undefined
+          }
+      send_push_notification:
+        | {
+            Args: {
+              p_action_url?: string
+              p_body: string
+              p_reference_id?: string
+              p_reference_type?: string
+              p_title: string
+              p_type: string
+              p_user_id: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_action_url?: string
+              p_body: string
+              p_environment?: string
+              p_reference_id?: string
+              p_reference_type?: string
+              p_title: string
+              p_type: string
+              p_user_id: string
+            }
+            Returns: undefined
+          }
       validate_coupon: {
         Args: { p_coupon_code: string; p_product_id: string }
         Returns: {
