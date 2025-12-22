@@ -22,7 +22,8 @@ import {
   Chrome,
   Info,
   AlertTriangle,
-  Package
+  Package,
+  FlaskConical
 } from 'lucide-react';
 import { usePushNotifications, IOSDiagnostics } from '@/hooks/usePushNotifications';
 import { supabase } from '@/integrations/supabase/client';
@@ -471,6 +472,29 @@ export function NotificationsContent() {
                 </div>
               );
             })}
+
+            {/* Test notifications filter preference */}
+            <Separator className="my-4" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <FlaskConical className="h-5 w-5 text-orange-500 mt-0.5" />
+                <div>
+                  <Label htmlFor="receive_test_notifications" className="font-medium">
+                    Notificações de Teste
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {(preferences as any)?.receive_test_notifications !== false
+                      ? 'Recebendo notificações de ambiente de teste'
+                      : 'Apenas notificações de produção'}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="receive_test_notifications"
+                checked={(preferences as any)?.receive_test_notifications !== false}
+                onCheckedChange={(checked) => handlePreferenceChange('receive_test_notifications', checked)}
+              />
+            </div>
 
             {/* Product filter preference for payments */}
             <Separator className="my-4" />

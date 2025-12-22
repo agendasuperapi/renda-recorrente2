@@ -1273,6 +1273,7 @@ export type Database = {
           new_support_message: boolean
           new_version: boolean
           new_withdrawal_request: boolean
+          receive_test_notifications: boolean
           updated_at: string
           user_id: string
           withdrawal_day: boolean
@@ -1291,6 +1292,7 @@ export type Database = {
           new_support_message?: boolean
           new_version?: boolean
           new_withdrawal_request?: boolean
+          receive_test_notifications?: boolean
           updated_at?: string
           user_id: string
           withdrawal_day?: boolean
@@ -1309,6 +1311,7 @@ export type Database = {
           new_support_message?: boolean
           new_version?: boolean
           new_withdrawal_request?: boolean
+          receive_test_notifications?: boolean
           updated_at?: string
           user_id?: string
           withdrawal_day?: boolean
