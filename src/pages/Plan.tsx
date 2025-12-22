@@ -351,13 +351,18 @@ const Plan = () => {
 
       {/* Alert quando não tem plano ativo e não tem checkout pendente */}
       {!subscription && user && !pendingCheckout && (
-        <Alert className="border-destructive bg-destructive/10">
+        <Alert className="border-2 border-destructive bg-destructive/10">
           <AlertCircle className="h-5 w-5 text-destructive" />
+          <AlertTitle className="text-lg font-bold text-destructive">
+            Assinatura Necessária
+          </AlertTitle>
           <AlertDescription>
-            <div className="space-y-1">
-              <p className="font-semibold text-foreground">Você ainda não possui um plano ativo</p>
-              <p className="text-muted-foreground">
-                Escolha um dos planos abaixo para começar a usar todas as funcionalidades do aplicativo e começar a ganhar comissões!
+            <div className="space-y-2">
+              <p className="text-foreground font-medium">
+                Você ainda não possui um plano ativo. Para continuar usando o aplicativo, escolha um dos planos abaixo.
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Sem uma assinatura ativa, você não terá acesso às funcionalidades do aplicativo e não poderá receber comissões.
               </p>
             </div>
           </AlertDescription>
