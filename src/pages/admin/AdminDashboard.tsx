@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEnvironment } from "@/contexts/EnvironmentContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -82,6 +83,7 @@ interface RecentAffiliate {
   id: string;
   name: string;
   email: string | null;
+  avatar_url: string | null;
   created_at: string;
   environment: string;
 }
@@ -230,7 +232,7 @@ const AdminDashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, email, created_at, environment")
+        .select("id, name, email, avatar_url, created_at, environment")
         .eq("environment", environment)
         .is("deleted_at", null)
         .order("created_at", { ascending: false })
@@ -536,7 +538,13 @@ const AdminDashboard = () => {
               ) : (
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   {recentAffiliates.map(affiliate => (
-                    <div key={affiliate.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <div key={affiliate.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <Avatar className="h-8 w-8 shrink-0">
+                        <AvatarImage src={affiliate.avatar_url || undefined} alt={affiliate.name} />
+                        <AvatarFallback className="text-xs">
+                          {affiliate.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{affiliate.name}</div>
                         <div className="text-xs text-muted-foreground truncate">{affiliate.email}</div>
