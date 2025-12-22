@@ -144,18 +144,19 @@ const VariationIndicator = ({ current, previous, label }: { current: number; pre
   );
 };
 
-// Chart colors
+// Chart colors - using fixed hex values for SVG compatibility
 const chartColors = [
-  "hsl(var(--primary))",
-  "hsl(var(--success))",
-  "hsl(var(--info))",
-  "hsl(var(--warning))",
-  "hsl(var(--destructive))",
+  "#10b981", // green (success)
+  "#3b82f6", // blue (info)
+  "#f59e0b", // amber (warning)
+  "#ef4444", // red (destructive)
+  "#8b5cf6", // purple
+  "#06b6d4", // cyan
 ];
 
 // Product-specific colors override
 const productColorOverrides: Record<string, string> = {
-  "Créditos Lovable": "hsl(25, 95%, 53%)", // Orange
+  "Créditos Lovable": "#f97316", // Orange
 };
 
 // Get chart color for product
@@ -688,7 +689,7 @@ const AdminDashboard = () => {
                     />
                     <Bar 
                       dataKey="novos" 
-                      fill="hsl(var(--primary))" 
+                      fill="#10b981"
                       radius={[4, 4, 0, 0]}
                       name="Novos Afiliados"
                     />
