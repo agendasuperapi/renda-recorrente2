@@ -247,10 +247,10 @@ export default function SignupFunnel() {
     // Fetch debug info in development mode or if dev mode is active
     const isDevMode = import.meta.env.DEV || localStorage.getItem('devMode') === 'true';
     if (isDevMode) {
-      await fetchDebugInfo(planId!);
+      await fetchDebugInfo(planId!, data.name);
     }
   };
-  const fetchDebugInfo = async (planId: string) => {
+  const fetchDebugInfo = async (planId: string, planName?: string) => {
     try {
       // 1. Buscar modo do ambiente via Edge Function (bypass RLS do app_settings)
       const { data: stripeConfig, error: stripeConfigError } = await supabase.functions.invoke('get-stripe-config');
@@ -286,7 +286,7 @@ export default function SignupFunnel() {
       setDebugInfo({
         environmentMode,
         planId,
-        planName: plan?.name || "",
+        planName: planName || plan?.name || "",
         integrationId: integrationData?.id || null,
         integrationData: integrationData || null,
         integrationAccountId: integrationData?.account_id || null,
