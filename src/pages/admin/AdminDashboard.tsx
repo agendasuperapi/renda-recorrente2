@@ -159,6 +159,7 @@ const chartColors = [
 // Product-specific colors override
 const productColorOverrides: Record<string, string> = {
   "Créditos Lovable": "hsl(25 95% 53%)", // Orange
+  "APP Financeiro": "hsl(217 91% 60%)", // Blue
 };
 
 // Get chart color for product
