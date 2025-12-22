@@ -645,7 +645,9 @@ const AdminDashboard = () => {
                         dataKey={name}
                         stroke={getProductColor(name, index)}
                         strokeWidth={2}
-                        dot={false}
+                        dot={{ r: 3, fill: getProductColor(name, index) }}
+                        activeDot={{ r: 5 }}
+                        connectNulls={true}
                       />
                     ))}
                   </LineChart>
