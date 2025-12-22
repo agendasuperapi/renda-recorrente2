@@ -13,6 +13,7 @@ import { DollarSign, Calendar, Eye, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -67,6 +68,8 @@ export default function AdminPaymentsContent() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"compact" | "complete">("compact");
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [selectedErrorMessage, setSelectedErrorMessage] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
@@ -433,7 +436,17 @@ export default function AdminPaymentsContent() {
                           <Badge variant="default" className="bg-green-500"><CheckCircle2 className="w-3 h-3 mr-1" />Synced</Badge>
                         ) : payment.sync_status === 'error' ? (
                           <>
-                            <Badge variant="destructive" title={payment.sync_response || ''}><AlertTriangle className="w-3 h-3 mr-1" />Erro</Badge>
+                            <Badge 
+                              variant="destructive" 
+                              className="cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedErrorMessage(payment.sync_response || 'Erro desconhecido');
+                                setErrorDialogOpen(true);
+                              }}
+                            >
+                              <AlertTriangle className="w-3 h-3 mr-1" />Erro
+                            </Badge>
                             <Button
                               variant="ghost"
                               size="icon"
@@ -500,6 +513,24 @@ export default function AdminPaymentsContent() {
           </DialogContent>
         </Dialog>
       )}
+
+      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Erro de Sincronização</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="mt-2">
+                <pre className="bg-muted p-3 rounded-md text-xs overflow-auto max-h-[300px] whitespace-pre-wrap break-words">
+                  {selectedErrorMessage}
+                </pre>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Fechar</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
