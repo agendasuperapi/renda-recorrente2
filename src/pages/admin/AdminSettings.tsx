@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SidebarConfigEditor } from "@/components/SidebarConfigEditor";
 import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
-import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText, UserX, Shield, Activity } from "lucide-react";
+import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText, UserX, Shield, Activity, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
@@ -295,23 +295,63 @@ export default function AdminSettings() {
 
         <TabsContent value="environment" className="mt-4">
           <ScrollAnimation animation="fade-up">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>Ambiente da Aplicação</CardTitle>
-                <CardDescription>
-                  Escolha se o aplicativo está operando em modo de teste ou produção
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="environment-mode" className="text-base">
-                      Modo de Operação
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      {isProduction ? "Produção" : "Teste"} - {isProduction 
+            <Card className={`relative overflow-hidden border-2 transition-all duration-300 ${
+              isProduction 
+                ? "border-emerald-500/50 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5" 
+                : "border-red-500/50 bg-gradient-to-br from-red-500/10 to-red-600/5"
+            }`}>
+              {/* Status indicator bar */}
+              <div className={`absolute top-0 left-0 right-0 h-1.5 ${
+                isProduction ? "bg-emerald-500" : "bg-red-500"
+              }`} />
+              
+              <CardHeader className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                    isProduction 
+                      ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" 
+                      : "bg-red-500/20 text-red-600 dark:text-red-400"
+                  }`}>
+                    {isProduction ? (
+                      <CheckCircle2 className="h-6 w-6" />
+                    ) : (
+                      <AlertTriangle className="h-6 w-6" />
+                    )}
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Ambiente da Aplicação
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        isProduction 
+                          ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300" 
+                          : "bg-red-500/20 text-red-700 dark:text-red-300"
+                      }`}>
+                        {isProduction ? "PRODUÇÃO" : "TESTE"}
+                      </span>
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {isProduction 
                         ? "Operações reais com dados de produção" 
                         : "Ambiente de testes com dados de sandbox"}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                <div className={`flex items-center justify-between rounded-lg p-4 ${
+                  isProduction 
+                    ? "bg-emerald-500/10 border border-emerald-500/20" 
+                    : "bg-red-500/10 border border-red-500/20"
+                }`}>
+                  <div className="space-y-1">
+                    <Label htmlFor="environment-mode" className="text-base font-medium">
+                      Alternar Modo de Operação
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {isProduction 
+                        ? "Clique para mudar para modo de teste" 
+                        : "Clique para mudar para modo de produção"}
                     </p>
                   </div>
                   <Switch
@@ -319,8 +359,21 @@ export default function AdminSettings() {
                     checked={isProduction}
                     onCheckedChange={handleToggle}
                     disabled={isLoading || updateSettingMutation.isPending}
+                    className={isProduction 
+                      ? "data-[state=checked]:bg-emerald-500" 
+                      : "data-[state=unchecked]:bg-red-500"
+                    }
                   />
                 </div>
+                
+                {!isProduction && (
+                  <div className="mt-4 flex items-start gap-2 rounded-lg bg-red-500/10 border border-red-500/20 p-3">
+                    <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-700 dark:text-red-300">
+                      <strong>Atenção:</strong> Você está no modo de teste. As transações não serão processadas em produção.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </ScrollAnimation>
