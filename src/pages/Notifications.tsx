@@ -523,6 +523,9 @@ function NotificationsList({ notifications, onNotificationClick, onDelete, typeI
                               <div className="min-w-0 flex-1">
                                 <p className={`font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
                                   {notification.title}
+                                  {notification.environment === 'test' && (
+                                    <span className="text-orange-500 font-semibold"> - Teste</span>
+                                  )}
                                 </p>
                                 <p className="text-sm text-muted-foreground line-clamp-2">
                                   {notification.body}

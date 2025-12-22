@@ -1357,6 +1357,7 @@ export type Database = {
           action_url: string | null
           body: string
           created_at: string
+          environment: string | null
           icon: string | null
           id: string
           is_read: boolean
@@ -1370,6 +1371,7 @@ export type Database = {
           action_url?: string | null
           body: string
           created_at?: string
+          environment?: string | null
           icon?: string | null
           id?: string
           is_read?: boolean
@@ -1383,6 +1385,7 @@ export type Database = {
           action_url?: string | null
           body?: string
           created_at?: string
+          environment?: string | null
           icon?: string | null
           id?: string
           is_read?: boolean
