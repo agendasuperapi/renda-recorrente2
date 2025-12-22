@@ -499,57 +499,6 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Product Stats Card with Period Filter */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Estatísticas por Produto
-              </CardTitle>
-              <Select value={productPeriod} onValueChange={setProductPeriod}>
-                <SelectTrigger className="w-[160px] h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {periodOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardHeader>
-            <CardContent>
-              {productStatsLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                  <Skeleton className="h-6 w-full" />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {productStats?.filter(p => p.active_subscriptions > 0 || getProductRevenueByPeriod(p) > 0).map(product => (
-                    <div key={product.product_id} className="flex items-center justify-between text-sm">
-                      <span className="font-medium truncate max-w-[150px]">{product.product_name}</span>
-                      <div className="flex items-center gap-4">
-                        <Badge variant="secondary" className="text-xs">
-                          {product.active_subscriptions} ativas
-                        </Badge>
-                        <span className="text-success font-medium min-w-[100px] text-right">
-                          {formatCurrency(getProductRevenueByPeriod(product))}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!productStats || productStats.length === 0) && (
-                    <div className="text-center text-muted-foreground py-2">
-                      Nenhum produto encontrado
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </ScrollAnimation>
 
@@ -648,6 +597,60 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </div>
+      </ScrollAnimation>
+
+      {/* Product Stats Card with Period Filter */}
+      <ScrollAnimation animation="fade-up" delay={225}>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Estatísticas por Produto
+            </CardTitle>
+            <Select value={productPeriod} onValueChange={setProductPeriod}>
+              <SelectTrigger className="w-[160px] h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {periodOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardHeader>
+          <CardContent>
+            {productStatsLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-full" />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {productStats?.map(product => (
+                  <div key={product.product_id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium truncate max-w-[200px]">{product.product_name}</span>
+                    <div className="flex items-center gap-4">
+                      <Badge variant="secondary" className="text-xs">
+                        {product.active_subscriptions} ativas
+                      </Badge>
+                      <span className="text-success font-medium min-w-[100px] text-right">
+                        {formatCurrency(getProductRevenueByPeriod(product))}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {(!productStats || productStats.length === 0) && (
+                  <div className="text-center text-muted-foreground py-2">
+                    Nenhum produto encontrado
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </ScrollAnimation>
 
       {/* Charts */}
