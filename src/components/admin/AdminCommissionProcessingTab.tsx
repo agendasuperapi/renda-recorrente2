@@ -280,6 +280,8 @@ export const AdminCommissionProcessingTab = () => {
   };
 
   const DetailContent = ({ payment }: { payment: PaymentProcessing }) => {
+    const [activeTab, setActiveTab] = useState('details');
+    
     // Buscar comissões geradas por esse pagamento
     const { data: commissions, isLoading: commissionsLoading } = useQuery({
       queryKey: ['payment-commissions', payment.id],
@@ -335,7 +337,7 @@ export const AdminCommissionProcessingTab = () => {
     };
 
     return (
-      <Tabs defaultValue="details" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="details">Detalhes</TabsTrigger>
           <TabsTrigger value="commissions" className="gap-1.5">
@@ -348,7 +350,8 @@ export const AdminCommissionProcessingTab = () => {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="details" className="mt-4 min-h-[320px] data-[state=inactive]:animate-none data-[state=active]:animate-none">
+        <div className="mt-4 min-h-[320px]">
+          <div className={activeTab === 'details' ? 'block' : 'hidden'}>
           <div className="space-y-4 p-2">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -445,9 +448,9 @@ export const AdminCommissionProcessingTab = () => {
               </div>
             )}
           </div>
-        </TabsContent>
-        
-        <TabsContent value="commissions" className="mt-4 min-h-[320px] data-[state=inactive]:animate-none data-[state=active]:animate-none">
+          </div>
+          
+          <div className={activeTab === 'commissions' ? 'block' : 'hidden'}>
           <div className="space-y-3 p-2">
             {commissionsLoading ? (
               <div className="space-y-3">
@@ -512,7 +515,8 @@ export const AdminCommissionProcessingTab = () => {
               </div>
             )}
           </div>
-        </TabsContent>
+          </div>
+        </div>
       </Tabs>
     );
   };
