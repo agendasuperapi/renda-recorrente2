@@ -260,6 +260,9 @@ export function SidebarNotificationsPopover({
                                 <div className="flex-1 min-w-0">
                                   <p className={`text-xs font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
                                     {notification.title}
+                                    {notification.environment === 'test' && (
+                                      <span className="text-orange-500 font-semibold"> - Teste</span>
+                                    )}
                                   </p>
                                   <p className="text-[10px] text-muted-foreground line-clamp-2">
                                     {notification.body}

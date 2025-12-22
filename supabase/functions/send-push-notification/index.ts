@@ -18,6 +18,7 @@ interface PushPayload {
   icon?: string;
   skip_preference_check?: boolean;
   admin_only?: boolean;
+  environment?: string;
 }
 
 // Convert base64url to Uint8Array
@@ -434,6 +435,7 @@ serve(async (req) => {
       icon,
       skip_preference_check,
       admin_only,
+      environment,
     } = payload;
 
     if (!title || !body || !type) {
@@ -512,6 +514,7 @@ serve(async (req) => {
           reference_type,
           action_url,
           icon,
+          environment: environment || 'production',
         });
 
       const inboxSaved = !insertError;
