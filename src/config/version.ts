@@ -8,4 +8,4 @@
  * - PATCH: Correções de bugs
  */
 
-export const APP_VERSION = "1.1.26";
+export const APP_VERSION = "1.1.27";
