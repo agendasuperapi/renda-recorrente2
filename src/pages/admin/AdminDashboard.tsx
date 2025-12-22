@@ -151,6 +151,16 @@ const chartColors = [
   "hsl(var(--destructive))",
 ];
 
+// Product-specific colors override
+const productColorOverrides: Record<string, string> = {
+  "Créditos Lovable": "hsl(25, 95%, 53%)", // Orange
+};
+
+// Get chart color for product
+const getProductColor = (productName: string, index: number): string => {
+  return productColorOverrides[productName] || chartColors[index % chartColors.length];
+};
+
 const AdminDashboard = () => {
   const { environment } = useEnvironment();
   const [productPeriod, setProductPeriod] = useState("this_month");
@@ -624,7 +634,7 @@ const AdminDashboard = () => {
                         key={name}
                         type="monotone"
                         dataKey={name}
-                        stroke={chartColors[index % chartColors.length]}
+                        stroke={getProductColor(name, index)}
                         strokeWidth={2}
                         dot={false}
                       />
