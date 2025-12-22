@@ -6,30 +6,18 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const getStripeConfig = async () => {
-  const { data: settings } = await supabase
-    .from("app_settings")
-    .select("value")
-    .eq("key", "environment_mode")
-    .single();
-
-  const isProduction = settings?.value === "production";
-  const environment = isProduction ? "production" : "test";
-  
-  const secretKey = isProduction 
-    ? Deno.env.get("STRIPE_SECRET_KEY_PROD")
-    : Deno.env.get("STRIPE_SECRET_KEY_TEST");
-  
-  const webhookSecret = isProduction
-    ? Deno.env.get("STRIPE_WEBHOOK_SECRET_PROD")
-    : Deno.env.get("STRIPE_WEBHOOK_SECRET_TEST");
-
-  const stripe = new Stripe(secretKey || "", {
-    apiVersion: "2023-10-16",
-    httpClient: Stripe.createFetchHttpClient(),
-  });
-
-  return { stripe, webhookSecret: webhookSecret || "", environment };
+// Retorna configurações para ambos os ambientes (produção e teste)
+const getStripeConfigs = () => {
+  return {
+    production: {
+      secretKey: Deno.env.get("STRIPE_SECRET_KEY_PROD") || "",
+      webhookSecret: Deno.env.get("STRIPE_WEBHOOK_SECRET_PROD") || "",
+    },
+    test: {
+      secretKey: Deno.env.get("STRIPE_SECRET_KEY_TEST") || "",
+      webhookSecret: Deno.env.get("STRIPE_WEBHOOK_SECRET_TEST") || "",
+    }
+  };
 };
 
 const toIsoFromUnix = (value: number | null | undefined) =>
@@ -48,22 +36,47 @@ serve(async (req) => {
   try {
     const signature = req.headers.get("stripe-signature");
     if (!signature) {
-      console.error("Missing stripe-signature header");
+      console.error("[Stripe Webhook] Missing stripe-signature header");
       return new Response("Missing stripe-signature", { status: 400 });
     }
 
     const body = await req.text();
+    const configs = getStripeConfigs();
+    
     let event: Stripe.Event;
-    const { stripe, webhookSecret, environment } = await getStripeConfig();
+    let stripe: Stripe;
+    let environment: string;
 
+    // Tentar verificar com o secret de PRODUÇÃO primeiro
     try {
-      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-    } catch (err: any) {
-      console.error(`Webhook signature verification failed: ${err.message}`);
-      return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+      stripe = new Stripe(configs.production.secretKey, {
+        apiVersion: "2023-10-16",
+        httpClient: Stripe.createFetchHttpClient(),
+      });
+      event = await stripe.webhooks.constructEventAsync(body, signature, configs.production.webhookSecret);
+      environment = "production";
+      console.log(`[Stripe Webhook] ✓ Verified with PRODUCTION secret`);
+    } catch (prodErr: any) {
+      console.log(`[Stripe Webhook] Production verification failed: ${prodErr.message}`);
+      
+      // Se falhou com produção, tentar com TESTE
+      try {
+        stripe = new Stripe(configs.test.secretKey, {
+          apiVersion: "2023-10-16",
+          httpClient: Stripe.createFetchHttpClient(),
+        });
+        event = await stripe.webhooks.constructEventAsync(body, signature, configs.test.webhookSecret);
+        environment = "test";
+        console.log(`[Stripe Webhook] ✓ Verified with TEST secret`);
+      } catch (testErr: any) {
+        console.error(`[Stripe Webhook] ✗ Signature verification failed for BOTH environments`);
+        console.error(`[Stripe Webhook] Production error: ${prodErr.message}`);
+        console.error(`[Stripe Webhook] Test error: ${testErr.message}`);
+        return new Response(`Webhook Error: Signature verification failed for both environments`, { status: 400 });
+      }
     }
 
-    console.log(`[Stripe Webhook] Event type: ${event.type}`);
+    console.log(`[Stripe Webhook] Event type: ${event.type} | Environment: ${environment}`);
 
     // Extrair metadata, email e dados de cancelamento do evento
     const eventObject = event.data.object as any;
