@@ -12,6 +12,16 @@ import { BackgroundConfigEditor } from "@/components/BackgroundConfigEditor";
 import { StatusBarConfigEditor } from "@/components/StatusBarConfigEditor";
 import { Loader2, RefreshCw, Settings, DollarSign, Palette, LayoutDashboard, GitBranch, Users, Coins, FileSearch, FileText, UserX, Shield, Activity, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 
@@ -67,6 +77,8 @@ export default function AdminSettings() {
   const [scheduleType, setScheduleType] = useState<'hourly' | 'specific'>('hourly');
   const [scheduleTime, setScheduleTime] = useState('00:00');
   const [minSalesForRenda, setMinSalesForRenda] = useState('10');
+  const [showEnvironmentConfirm, setShowEnvironmentConfirm] = useState(false);
+  const [pendingEnvironment, setPendingEnvironment] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (commissionDaysData) setCommissionDays(commissionDaysData.value);
@@ -167,15 +179,22 @@ export default function AdminSettings() {
     },
   });
 
-  const handleToggle = async (checked: boolean) => {
-    const environment = checked ? "production" : "test";
+  const handleToggleRequest = (checked: boolean) => {
+    setPendingEnvironment(checked);
+    setShowEnvironmentConfirm(true);
+  };
+
+  const handleConfirmToggle = async () => {
+    if (pendingEnvironment === null) return;
+    
+    const environment = pendingEnvironment ? "production" : "test";
     
     try {
       await updateSettingMutation.mutateAsync(environment);
       
       toast({
         title: "Configuração atualizada",
-        description: `Modo ${checked ? "Produção" : "Teste"} ativado`,
+        description: `Modo ${pendingEnvironment ? "Produção" : "Teste"} ativado`,
       });
     } catch (error) {
       toast({
@@ -183,7 +202,15 @@ export default function AdminSettings() {
         description: "Não foi possível salvar a configuração",
         variant: "destructive",
       });
+    } finally {
+      setShowEnvironmentConfirm(false);
+      setPendingEnvironment(null);
     }
+  };
+
+  const handleCancelToggle = () => {
+    setShowEnvironmentConfirm(false);
+    setPendingEnvironment(null);
   };
 
   const handleSaveCommissionSettings = async () => {
@@ -233,6 +260,42 @@ export default function AdminSettings() {
   };
 
   return (
+    <>
+    <AlertDialog open={showEnvironmentConfirm} onOpenChange={setShowEnvironmentConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            {pendingEnvironment ? (
+              <>
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                Ativar Modo Produção?
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                Ativar Modo Teste?
+              </>
+            )}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {pendingEnvironment 
+              ? "Ao ativar o modo produção, todas as operações serão realizadas com dados reais. Pagamentos e transações serão processados em ambiente de produção."
+              : "Ao ativar o modo teste, todas as operações serão realizadas em ambiente de sandbox. Pagamentos e transações NÃO serão processados em produção."}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancelToggle}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleConfirmToggle}
+            className={pendingEnvironment 
+              ? "bg-emerald-600 hover:bg-emerald-700" 
+              : "bg-red-600 hover:bg-red-700"}
+          >
+            {pendingEnvironment ? "Ativar Produção" : "Ativar Teste"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     <div className="w-full p-3 md:p-6 space-y-4 md:space-y-6">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold mb-2">Configurações</h1>
@@ -357,7 +420,7 @@ export default function AdminSettings() {
                   <Switch
                     id="environment-mode"
                     checked={isProduction}
-                    onCheckedChange={handleToggle}
+                    onCheckedChange={handleToggleRequest}
                     disabled={isLoading || updateSettingMutation.isPending}
                     className={isProduction 
                       ? "data-[state=checked]:bg-emerald-500" 
@@ -680,5 +743,6 @@ export default function AdminSettings() {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 }
