@@ -12,6 +12,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useBgConfig } from "@/hooks/useBgConfig";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 
+// Rotas que não precisam de assinatura ativa
+const ROUTES_WITHOUT_SUBSCRIPTION = ["/user/plan", "/checkout", "/checkout/return"];
+
 export const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,6 +29,7 @@ export const DashboardLayout = () => {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const initRef = useRef(false);
+  const lastSubscriptionCheck = useRef<string | null>(null);
 
   // Redirecionar super admin para /admin/versions se a versão atual não estiver cadastrada
   useEffect(() => {
@@ -38,6 +42,46 @@ export const DashboardLayout = () => {
       navigate("/admin/versions");
     }
   }, [isAdmin, isCheckingVersion, isCurrentVersionRegistered, location.pathname, navigate]);
+
+  // Verificar assinatura a cada mudança de rota (para usuários não-admin)
+  useEffect(() => {
+    // Só verificar se já inicializou, temos user, não é admin e não é rota permitida
+    if (!initialized || !user || isAdmin === true) return;
+    
+    const isAdminRoute = location.pathname.startsWith('/admin');
+    const isAllowedRoute = ROUTES_WITHOUT_SUBSCRIPTION.some(route => location.pathname.startsWith(route));
+    
+    if (isAdminRoute || isAllowedRoute) return;
+    
+    // Evitar verificações repetidas na mesma rota
+    const checkKey = `${user.id}-${location.pathname}`;
+    if (lastSubscriptionCheck.current === checkKey) return;
+    lastSubscriptionCheck.current = checkKey;
+
+    const checkSubscriptionForRoute = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("subscriptions")
+          .select("id, status")
+          .eq("user_id", user.id)
+          .in("status", ["active", "trialing"])
+          .limit(1)
+          .maybeSingle();
+
+        const hasActive = !error && !!data;
+        setHasActivePlan(hasActive);
+
+        if (!hasActive) {
+          console.log("[DashboardLayout] Usuário sem assinatura ativa, redirecionando para /user/plan");
+          navigate("/user/plan", { replace: true });
+        }
+      } catch (error) {
+        console.error("Error checking subscription on route change:", error);
+      }
+    };
+
+    checkSubscriptionForRoute();
+  }, [location.pathname, initialized, user, isAdmin, navigate]);
 
   const checkUserRole = async (userId: string): Promise<boolean> => {
     // Tentar ler do cache primeiro
@@ -82,8 +126,10 @@ export const DashboardLayout = () => {
       return;
     }
 
-    // Não verificar subscription em rotas admin
+    // Não verificar subscription em rotas admin ou rotas permitidas
     const isAdminRoute = window.location.pathname.startsWith('/admin');
+    const isAllowedRoute = ROUTES_WITHOUT_SUBSCRIPTION.some(route => window.location.pathname.startsWith(route));
+    
     if (isAdminRoute) {
       setHasActivePlan(true);
       return;
@@ -101,9 +147,10 @@ export const DashboardLayout = () => {
       const hasActive = !error && !!data;
       setHasActivePlan(hasActive);
 
-      // Se não tiver plano ativo e não estiver já na página /user/plan, redirecionar
-      if (!hasActive && window.location.pathname !== "/user/plan") {
-        navigate("/user/plan");
+      // Se não tiver plano ativo e não estiver em rota permitida, redirecionar
+      if (!hasActive && !isAllowedRoute) {
+        console.log("[DashboardLayout] Usuário sem assinatura ativa na inicialização, redirecionando para /user/plan");
+        navigate("/user/plan", { replace: true });
       }
     } catch (error) {
       console.error("Error checking subscription:", error);
