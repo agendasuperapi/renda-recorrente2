@@ -12,7 +12,7 @@ import {
   Users, DollarSign, TrendingUp, CreditCard, ArrowUpCircle, ArrowDownCircle, 
   MinusCircle, Clock, ShoppingCart, UserPlus, Package
 } from "lucide-react";
-import { format } from "date-fns";
+import { eachDayOfInterval, format, startOfDay, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -144,19 +144,19 @@ const VariationIndicator = ({ current, previous, label }: { current: number; pre
   );
 };
 
-// Chart colors - using fixed hex values for SVG compatibility
+// Chart colors - fixed HSL strings for SVG compatibility
 const chartColors = [
-  "#10b981", // green (success)
-  "#3b82f6", // blue (info)
-  "#f59e0b", // amber (warning)
-  "#ef4444", // red (destructive)
-  "#8b5cf6", // purple
-  "#06b6d4", // cyan
+  "hsl(160 84% 39%)", // green (success)
+  "hsl(217 91% 60%)", // blue (info)
+  "hsl(38 92% 50%)", // amber (warning)
+  "hsl(0 84% 60%)", // red (destructive)
+  "hsl(262 83% 58%)", // purple
+  "hsl(189 94% 43%)", // cyan
 ];
 
 // Product-specific colors override
 const productColorOverrides: Record<string, string> = {
-  "Créditos Lovable": "#f97316", // Orange
+  "Créditos Lovable": "hsl(25 95% 53%)", // Orange
 };
 
 // Get chart color for product
@@ -277,30 +277,52 @@ const AdminDashboard = () => {
     },
   });
 
-  // Process revenue chart data
-  const revenueChartData = revenueDaily?.reduce((acc: any[], item) => {
-    const existingDay = acc.find(d => d.day === item.day);
-    if (existingDay) {
-      existingDay[item.product_name || 'Produto'] = Number(item.revenue);
-    } else {
-      acc.push({
-        day: item.day,
-        dayFormatted: format(new Date(item.day), "dd/MM", { locale: ptBR }),
-        [item.product_name || 'Produto']: Number(item.revenue),
-      });
-    }
-    return acc;
-  }, []).slice(-30) || [];
+  const endDay = startOfDay(new Date());
+  const startDay = subDays(endDay, 29);
+  const days30 = eachDayOfInterval({ start: startDay, end: endDay });
 
   // Get unique product names for chart
   const productNames = [...new Set(revenueDaily?.map(d => d.product_name || 'Produto') || [])];
 
-  // Process affiliates chart data
-  const affiliatesChartData = affiliatesDaily?.slice(-30).map(item => ({
-    day: item.day,
-    dayFormatted: format(new Date(item.day), "dd/MM", { locale: ptBR }),
-    novos: item.new_affiliates,
-  })) || [];
+  // Process revenue chart data (always fill last 30 days so sparse data still renders)
+  const revenueByDay = new Map<string, Record<string, number>>();
+  revenueDaily?.forEach((item) => {
+    const dayKey = item.day;
+    const productKey = item.product_name || "Produto";
+    const existing = revenueByDay.get(dayKey) || {};
+    existing[productKey] = Number(item.revenue);
+    revenueByDay.set(dayKey, existing);
+  });
+
+  const revenueChartData = days30.map((day) => {
+    const dayKey = format(day, "yyyy-MM-dd");
+    const row: Record<string, any> = {
+      day: dayKey,
+      dayFormatted: format(day, "dd/MM", { locale: ptBR }),
+    };
+
+    const revenueForDay = revenueByDay.get(dayKey) || {};
+    productNames.forEach((name) => {
+      row[name] = revenueForDay[name] ?? 0;
+    });
+
+    return row;
+  });
+
+  // Process affiliates chart data (always fill last 30 days)
+  const affiliatesByDay = new Map<string, number>();
+  affiliatesDaily?.forEach((item) => {
+    affiliatesByDay.set(item.day, Number(item.new_affiliates) || 0);
+  });
+
+  const affiliatesChartData = days30.map((day) => {
+    const dayKey = format(day, "yyyy-MM-dd");
+    return {
+      day: dayKey,
+      dayFormatted: format(day, "dd/MM", { locale: ptBR }),
+      novos: affiliatesByDay.get(dayKey) ?? 0,
+    };
+  });
 
   // Get revenue value based on selected period
   const getProductRevenueByPeriod = (product: ProductStats) => {
@@ -611,7 +633,7 @@ const AdminDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {revenueChartData.length === 0 ? (
+              {productNames.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   Sem dados para exibir
                 </div>
@@ -665,7 +687,7 @@ const AdminDashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {affiliatesChartData.length === 0 ? (
+              {!affiliatesDaily || affiliatesDaily.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   Sem dados para exibir
                 </div>
@@ -691,7 +713,7 @@ const AdminDashboard = () => {
                     />
                     <Bar 
                       dataKey="novos" 
-                      fill="#10b981"
+                      fill="hsl(160 84% 39%)" 
                       radius={[4, 4, 0, 0]}
                       name="Novos Afiliados"
                     />
