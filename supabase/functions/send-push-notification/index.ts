@@ -499,6 +499,16 @@ serve(async (req) => {
             results.push({ user_id: uid, sent: 0, failed: 0, skipped: true, inbox_saved: false });
             continue;
           }
+          
+          // Check if user wants to receive test notifications (only for test environment)
+          if (environment === 'test') {
+            const receiveTestNotifs = (prefs as Record<string, unknown>)['receive_test_notifications'];
+            if (receiveTestNotifs === false) {
+              console.log(`User ${uid} has disabled test notifications`);
+              results.push({ user_id: uid, sent: 0, failed: 0, skipped: true, inbox_saved: false });
+              continue;
+            }
+          }
         }
       }
 
