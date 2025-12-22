@@ -357,19 +357,21 @@ const AdminDashboard = () => {
       <ScrollAnimation animation="fade-up" delay={100}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Total Affiliates */}
-          <Card className="hover:scale-[1.02] transition-transform duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-primary/20 flex items-end justify-start pl-3 pb-3">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total de Afiliados
               </CardTitle>
-              <Users className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
               {statsLoading ? (
                 <Skeleton className="h-8 w-20" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">{stats?.total_affiliates || 0}</div>
+                  <div className="text-2xl font-bold text-primary">{stats?.total_affiliates || 0}</div>
                   <VariationIndicator 
                     current={stats?.affiliates_this_month || 0}
                     previous={stats?.affiliates_last_month || 0}
@@ -381,19 +383,21 @@ const AdminDashboard = () => {
           </Card>
 
           {/* Active Subscriptions */}
-          <Card className="hover:scale-[1.02] transition-transform duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-emerald-200/60 dark:bg-emerald-800/40 flex items-end justify-start pl-3 pb-3">
+              <CreditCard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Assinaturas Ativas
               </CardTitle>
-              <CreditCard className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
               {statsLoading ? (
                 <Skeleton className="h-8 w-20" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-success">{stats?.active_subscriptions || 0}</div>
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats?.active_subscriptions || 0}</div>
                   <VariationIndicator 
                     current={stats?.subscriptions_this_month || 0}
                     previous={stats?.subscriptions_last_month || 0}
@@ -405,19 +409,21 @@ const AdminDashboard = () => {
           </Card>
 
           {/* Revenue */}
-          <Card className="hover:scale-[1.02] transition-transform duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-sky-200/60 dark:bg-sky-800/40 flex items-end justify-start pl-3 pb-3">
+              <DollarSign className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            </div>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Receitas
               </CardTitle>
-              <DollarSign className="h-4 w-4 text-info" />
             </CardHeader>
             <CardContent>
               {statsLoading ? (
                 <Skeleton className="h-8 w-24" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-info">{formatCurrency(Number(stats?.total_revenue) || 0)}</div>
+                  <div className="text-2xl font-bold text-sky-600 dark:text-sky-400">{formatCurrency(Number(stats?.total_revenue) || 0)}</div>
                   <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
                     <div>Mês: {formatCurrency(Number(stats?.revenue_this_month) || 0)}</div>
                     <div>Hoje: {formatCurrency(Number(stats?.revenue_today) || 0)}</div>
@@ -433,19 +439,21 @@ const AdminDashboard = () => {
           </Card>
 
           {/* Commissions Paid */}
-          <Card className="hover:scale-[1.02] transition-transform duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-violet-200/60 dark:bg-violet-800/40 flex items-end justify-start pl-3 pb-3">
+              <TrendingUp className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Comissões Pagas
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
               {statsLoading ? (
                 <Skeleton className="h-8 w-24" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">{formatCurrency(Number(stats?.commissions_paid_total) || 0)}</div>
+                  <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{formatCurrency(Number(stats?.commissions_paid_total) || 0)}</div>
                   <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
                     <div>Mês: {formatCurrency(Number(stats?.commissions_paid_this_month) || 0)}</div>
                     <div>Hoje: {formatCurrency(Number(stats?.commissions_paid_today) || 0)}</div>
@@ -465,19 +473,21 @@ const AdminDashboard = () => {
       {/* Pending Withdrawals Card */}
       <ScrollAnimation animation="fade-up" delay={150}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="hover:scale-[1.02] transition-transform duration-300">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+            <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-3 pb-3">
+              <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Saques Pendentes
               </CardTitle>
-              <Clock className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
               {statsLoading ? (
                 <Skeleton className="h-8 w-24" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-warning">
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                     {formatCurrency(Number(stats?.pending_withdrawals_amount) || 0)}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
