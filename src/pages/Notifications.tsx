@@ -31,6 +31,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { ScrollAnimation } from '@/components/ScrollAnimation';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { NotificationsContent } from '@/components/settings/NotificationsContent';
 
 const typeIcons: Record<string, React.ReactNode> = {
@@ -407,6 +408,7 @@ export default function Notifications() {
           onNotificationClick={handleNotificationClick}
           onDelete={(id) => deleteNotification.mutate(id)}
           typeIcons={typeIcons}
+          isMobile={isMobile}
         />
       )}
 
@@ -447,9 +449,10 @@ interface NotificationsListProps {
   onNotificationClick: (notification: any) => void;
   onDelete: (id: string) => void;
   typeIcons: Record<string, React.ReactNode>;
+  isMobile?: boolean;
 }
 
-function NotificationsList({ notifications, onNotificationClick, onDelete, typeIcons }: NotificationsListProps) {
+function NotificationsList({ notifications, onNotificationClick, onDelete, typeIcons, isMobile }: NotificationsListProps) {
   if (!notifications || notifications.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground rounded-lg border bg-card">
@@ -500,56 +503,106 @@ function NotificationsList({ notifications, onNotificationClick, onDelete, typeI
                     <div className="absolute left-[-22px] top-1/2 -translate-y-1/2 z-20 w-3 h-3 rounded-full bg-primary border-2 border-background" />
 
                     <Card 
-                      className={`transition-all duration-300 hover:scale-[1.01] hover:shadow-md cursor-pointer ${
-                        !notification.is_read ? 'ring-2 ring-primary/20 bg-primary/5' : ''
-                      }`}
+                      className={cn(
+                        "transition-all duration-300 hover:scale-[1.01] hover:shadow-md cursor-pointer",
+                        !notification.is_read && 'ring-2 ring-primary/20 bg-primary/5'
+                      )}
                       onClick={() => onNotificationClick(notification)}
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          {/* Hora */}
-                          <div className="flex-shrink-0 text-xs text-muted-foreground w-12 pt-0.5">
-                            {format(parseISO(notification.created_at), 'HH:mm')}
-                          </div>
-
-                          {/* Ícone do tipo */}
-                          <div className="flex-shrink-0 mt-0.5">
-                            {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
-                          </div>
-
-                          {/* Conteúdo */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 flex-1">
-                                <p className={`font-medium truncate ${!notification.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                  {notification.title}
-                                  {notification.environment === 'test' && (
-                                    <span className="text-orange-500 font-semibold"> - Teste</span>
-                                  )}
-                                </p>
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                  {notification.body}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2 flex-shrink-0">
+                      <CardContent className={cn("p-4", isMobile && "p-3")}>
+                        {isMobile ? (
+                          // Layout mobile: hora e ações em cima, conteúdo embaixo
+                          <div className="space-y-2">
+                            {/* Linha superior: hora, ícone, indicador e delete */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground font-medium">
+                                  {format(parseISO(notification.created_at), 'HH:mm')}
+                                </span>
+                                {typeIcons[notification.type] || <Bell className="h-4 w-4 text-muted-foreground" />}
                                 {!notification.is_read && (
                                   <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
                                 )}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onDelete(notification.id);
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                                </Button>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDelete(notification.id);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                              </Button>
+                            </div>
+
+                            {/* Conteúdo: título e corpo */}
+                            <div>
+                              <p className={cn(
+                                "font-medium",
+                                !notification.is_read ? 'text-foreground' : 'text-muted-foreground'
+                              )}>
+                                {notification.title}
+                                {notification.environment === 'test' && (
+                                  <span className="text-orange-500 font-semibold"> - Teste</span>
+                                )}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-0.5">
+                                {notification.body}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          // Layout desktop: original em linha
+                          <div className="flex items-start gap-3">
+                            {/* Hora */}
+                            <div className="flex-shrink-0 text-xs text-muted-foreground w-12 pt-0.5">
+                              {format(parseISO(notification.created_at), 'HH:mm')}
+                            </div>
+
+                            {/* Ícone do tipo */}
+                            <div className="flex-shrink-0 mt-0.5">
+                              {typeIcons[notification.type] || <Bell className="h-5 w-5 text-muted-foreground" />}
+                            </div>
+
+                            {/* Conteúdo */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0 flex-1">
+                                  <p className={cn(
+                                    "font-medium truncate",
+                                    !notification.is_read ? 'text-foreground' : 'text-muted-foreground'
+                                  )}>
+                                    {notification.title}
+                                    {notification.environment === 'test' && (
+                                      <span className="text-orange-500 font-semibold"> - Teste</span>
+                                    )}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground line-clamp-2">
+                                    {notification.body}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  {!notification.is_read && (
+                                    <Badge variant="default" className="h-2 w-2 p-0 rounded-full" />
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onDelete(notification.id);
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        )}
                       </CardContent>
                     </Card>
                   </div>
