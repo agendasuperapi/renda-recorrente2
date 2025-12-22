@@ -252,19 +252,23 @@ export default function SignupFunnel() {
   };
   const fetchDebugInfo = async (planId: string) => {
     try {
-      // 1. Buscar modo do ambiente - forçando busca sem cache
-      const {
-        data: settingData,
-        error: settingError
-      } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "environment_mode")
-        .maybeSingle();
-      
-      console.log("[Debug] Setting query result:", { settingData, settingError });
-      const environmentMode = settingData?.value || "test";
-      console.log("[Debug] Environment mode:", environmentMode);
+      // 1. Buscar modo do ambiente via Edge Function (bypass RLS do app_settings)
+      const { data: stripeConfig, error: stripeConfigError } = await supabase.functions.invoke('get-stripe-config');
+
+      if (stripeConfigError) {
+        console.error('[Debug] Erro ao buscar get-stripe-config:', stripeConfigError);
+      }
+
+      const systemEnvironmentMode = stripeConfigError
+        ? 'unknown'
+        : (stripeConfig as any)?.environment || 'test';
+
+      // Espelha a exceção do backend: emails @testex.com usam ambiente de teste
+      const effectiveEnvironmentMode = formData.email?.toLowerCase().endsWith('@testex.com')
+        ? 'test'
+        : systemEnvironmentMode;
+
+      const environmentMode = effectiveEnvironmentMode;
 
       // 2. Buscar integração do plano filtrando por environment_type
       const {
