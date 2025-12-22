@@ -546,10 +546,13 @@ serve(async (req) => {
       let sent = 0;
       let failed = 0;
 
+      // Add " - Teste" suffix to title if environment is test
+      const displayTitle = environment === 'test' ? `${title} - Teste` : title;
+
       for (const sub of subscriptions) {
         const result = await sendWebPush(
           sub,
-          { title, body, icon, action_url, type },
+          { title: displayTitle, body, icon, action_url, type },
           vapidPublicKey,
           vapidPrivateKey,
           vapidSubject
