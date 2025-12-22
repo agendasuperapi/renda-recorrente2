@@ -252,11 +252,19 @@ export default function SignupFunnel() {
   };
   const fetchDebugInfo = async (planId: string) => {
     try {
-      // 1. Buscar modo do ambiente
+      // 1. Buscar modo do ambiente - forçando busca sem cache
       const {
-        data: settingData
-      } = await supabase.from("app_settings").select("value").eq("key", "environment_mode").maybeSingle();
+        data: settingData,
+        error: settingError
+      } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "environment_mode")
+        .maybeSingle();
+      
+      console.log("[Debug] Setting query result:", { settingData, settingError });
       const environmentMode = settingData?.value || "test";
+      console.log("[Debug] Environment mode:", environmentMode);
 
       // 2. Buscar integração do plano filtrando por environment_type
       const {
