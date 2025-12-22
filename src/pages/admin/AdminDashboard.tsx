@@ -93,6 +93,8 @@ interface RecentSale {
   amount: number;
   payment_date: string;
   product_name: string;
+  product_icon_light: string | null;
+  product_icon_dark: string | null;
   user_name: string;
   environment: string;
 }
@@ -257,7 +259,7 @@ const AdminDashboard = () => {
           environment,
           unified_user_id,
           product_id,
-          products:product_id (nome),
+          products:product_id (nome, icone_light, icone_dark),
           unified_users:unified_user_id (name)
         `)
         .eq("environment", environment)
@@ -271,6 +273,8 @@ const AdminDashboard = () => {
         amount: sale.amount,
         payment_date: sale.payment_date,
         product_name: sale.products?.nome || "Produto",
+        product_icon_light: sale.products?.icone_light || null,
+        product_icon_dark: sale.products?.icone_dark || null,
         user_name: sale.unified_users?.name || "Usuário",
         environment: sale.environment,
       })) as RecentSale[];
@@ -602,7 +606,21 @@ const AdminDashboard = () => {
               ) : (
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   {recentSales.map(sale => (
-                    <div key={sale.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <div key={sale.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      {(sale.product_icon_light || sale.product_icon_dark) && (
+                        <img 
+                          src={sale.product_icon_light || sale.product_icon_dark || ''} 
+                          alt={sale.product_name}
+                          className="h-8 w-8 rounded-md object-contain dark:hidden"
+                        />
+                      )}
+                      {(sale.product_icon_dark || sale.product_icon_light) && (
+                        <img 
+                          src={sale.product_icon_dark || sale.product_icon_light || ''} 
+                          alt={sale.product_name}
+                          className="h-8 w-8 rounded-md object-contain hidden dark:block"
+                        />
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-success">{formatCurrency(sale.amount)}</div>
                         <div className="text-xs text-muted-foreground truncate">
