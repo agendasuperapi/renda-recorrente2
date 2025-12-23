@@ -354,9 +354,9 @@ const AdminDashboard = () => {
         </div>
       </ScrollAnimation>
 
-      {/* Stats Cards - Row 1 */}
+      {/* Stats Cards */}
       <ScrollAnimation animation="fade-up" delay={100}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Total Affiliates */}
           <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
             <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-primary/20 flex items-end justify-start pl-3 pb-3">
@@ -468,12 +468,8 @@ const AdminDashboard = () => {
               )}
             </CardContent>
           </Card>
-        </div>
-      </ScrollAnimation>
 
-      {/* Pending Withdrawals Card */}
-      <ScrollAnimation animation="fade-up" delay={150}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Pending Withdrawals */}
           <Card className="relative overflow-hidden hover:scale-[1.02] transition-transform duration-300">
             <div className="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-end justify-start pl-3 pb-3">
               <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -498,7 +494,6 @@ const AdminDashboard = () => {
               )}
             </CardContent>
           </Card>
-
         </div>
       </ScrollAnimation>
 
