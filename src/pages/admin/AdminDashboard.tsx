@@ -602,9 +602,9 @@ const AdminDashboard = () => {
       {/* Product Stats Card with Period Filter */}
       <ScrollAnimation animation="fade-up" delay={225}>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Package className="h-4 w-4" />
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
               Estatísticas por Produto
             </CardTitle>
             <Select value={productPeriod} onValueChange={setProductPeriod}>
@@ -622,28 +622,84 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             {productStatsLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-6 w-full" />
-                <Skeleton className="h-6 w-full" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                ))}
               </div>
             ) : (
-              <div className="space-y-3">
-                {productStats?.map(product => (
-                  <div key={product.product_id} className="flex items-center justify-between text-sm">
-                    <span className="font-medium truncate max-w-[200px]">{product.product_name}</span>
-                    <div className="flex items-center gap-4">
-                      <Badge variant="secondary" className="text-xs">
-                        {product.active_subscriptions} ativas
-                      </Badge>
-                      <span className="text-success font-medium min-w-[100px] text-right">
-                        {formatCurrency(getProductRevenueByPeriod(product))}
-                      </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {productStats?.map((product, index) => {
+                  const productColor = getProductColor(product.product_name, index);
+                  const revenue = getProductRevenueByPeriod(product);
+                  
+                  return (
+                    <div
+                      key={product.product_id}
+                      className="relative overflow-hidden rounded-xl border bg-card p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+                      style={{
+                        borderLeft: `4px solid ${productColor}`,
+                      }}
+                    >
+                      {/* Background decoration */}
+                      <div 
+                        className="absolute -top-6 -right-6 h-20 w-20 rounded-full opacity-10"
+                        style={{ backgroundColor: productColor }}
+                      />
+                      
+                      {/* Product icon and name */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div 
+                          className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+                          style={{ backgroundColor: `${productColor}20` }}
+                        >
+                          {product.icone_light || product.icone_dark ? (
+                            <>
+                              <img 
+                                src={product.icone_light || product.icone_dark || ''} 
+                                alt={product.product_name}
+                                className="h-6 w-6 object-contain dark:hidden"
+                              />
+                              <img 
+                                src={product.icone_dark || product.icone_light || ''} 
+                                alt={product.product_name}
+                                className="h-6 w-6 object-contain hidden dark:block"
+                              />
+                            </>
+                          ) : (
+                            <Package className="h-5 w-5" style={{ color: productColor }} />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-sm truncate">{product.product_name}</h3>
+                          <div 
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium mt-1"
+                            style={{ 
+                              backgroundColor: `${productColor}15`,
+                              color: productColor 
+                            }}
+                          >
+                            <Users className="h-3 w-3" />
+                            {product.active_subscriptions} ativas
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Revenue */}
+                      <div className="mt-2">
+                        <p className="text-xs text-muted-foreground mb-1">Receita</p>
+                        <p 
+                          className="text-lg font-bold"
+                          style={{ color: revenue > 0 ? productColor : undefined }}
+                        >
+                          {formatCurrency(revenue)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {(!productStats || productStats.length === 0) && (
-                  <div className="text-center text-muted-foreground py-2">
+                  <div className="col-span-full text-center text-muted-foreground py-8">
                     Nenhum produto encontrado
                   </div>
                 )}
