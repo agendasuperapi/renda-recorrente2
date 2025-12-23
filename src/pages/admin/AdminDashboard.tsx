@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Users, DollarSign, TrendingUp, CreditCard, ArrowUpCircle, ArrowDownCircle, 
-  MinusCircle, Clock, ShoppingCart, UserPlus, Package
+  MinusCircle, Clock, ShoppingCart, UserPlus, Package, ArrowRight
 } from "lucide-react";
 import { eachDayOfInterval, format, startOfDay, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -502,14 +504,21 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Recent Affiliates */}
           <Card className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center gap-2">
-              <UserPlus className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Novos Afiliados (Últimos 10)</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base">Novos Afiliados (Últimos 10)</CardTitle>
+              </div>
+              <Button variant="ghost" size="sm" asChild className="text-xs gap-1">
+                <Link to="/admin/affiliates">
+                  Ver todos <ArrowRight className="h-3 w-3" />
+                </Link>
+              </Button>
             </CardHeader>
             <CardContent>
               {!recentAffiliates ? (
                 <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(10)].map((_, i) => (
                     <Skeleton key={i} className="h-10 w-full" />
                   ))}
                 </div>
@@ -518,7 +527,7 @@ const AdminDashboard = () => {
                   Nenhum afiliado recente
                 </div>
               ) : (
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="space-y-2">
                   {recentAffiliates.map(affiliate => (
                     <div key={affiliate.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                       <Avatar className="h-8 w-8 shrink-0">
@@ -528,7 +537,7 @@ const AdminDashboard = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">{affiliate.name}</div>
+                        <div className="font-medium truncate text-sm">{affiliate.name}</div>
                         <div className="text-xs text-muted-foreground truncate">{affiliate.email}</div>
                       </div>
                       <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
@@ -543,14 +552,21 @@ const AdminDashboard = () => {
 
           {/* Recent Sales */}
           <Card className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-success" />
-              <CardTitle className="text-base">Novas Vendas (Últimas 10)</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-success" />
+                <CardTitle className="text-base">Novas Vendas (Últimas 10)</CardTitle>
+              </div>
+              <Button variant="ghost" size="sm" asChild className="text-xs gap-1">
+                <Link to="/admin/stripe?tab=payments">
+                  Ver todos <ArrowRight className="h-3 w-3" />
+                </Link>
+              </Button>
             </CardHeader>
             <CardContent>
               {!recentSales ? (
                 <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
+                  {[...Array(10)].map((_, i) => (
                     <Skeleton key={i} className="h-10 w-full" />
                   ))}
                 </div>
@@ -559,7 +575,7 @@ const AdminDashboard = () => {
                   Nenhuma venda recente
                 </div>
               ) : (
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="space-y-2">
                   {recentSales.map(sale => (
                     <div key={sale.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                       {(sale.product_icon_light || sale.product_icon_dark) && (
@@ -577,7 +593,7 @@ const AdminDashboard = () => {
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-success">{formatCurrency(sale.amount)}</div>
+                        <div className="font-medium text-success text-sm">{formatCurrency(sale.amount)}</div>
                         <div className="text-xs text-muted-foreground truncate">
                           {sale.product_name} - {sale.user_name}
                         </div>
