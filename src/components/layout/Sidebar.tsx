@@ -145,6 +145,7 @@ export const Sidebar = ({
   const { checkVersion, ...versionInfo } = useVersionCheck();
   const { formattedVersion } = useDeployedVersion();
   const { unreadCount } = useUnreadMessages(isAdmin && showAdminMenu);
+  const environmentContext = useEnvironmentOptional();
 
   // Salvar preferência de menu no localStorage e notificar BottomNav
   useEffect(() => {
@@ -625,8 +626,8 @@ export const Sidebar = ({
           </div>
         )}
         
-        {/* Test Environment Banner - Visible for test users */}
-        {userEnvironment === "test" && (
+        {/* Test Environment Banner - Visible for test users or when admin is in test mode */}
+        {(isAdmin ? environmentContext?.isTest : userEnvironment === "test") && (
           <div className="mt-3 mx-2 p-2 rounded-lg bg-amber-500/20 border border-amber-500/50 flex items-center gap-2">
             <FlaskConical className="h-4 w-4 text-amber-500 flex-shrink-0" />
             <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
