@@ -18,6 +18,8 @@ import Dashboard from "./pages/Dashboard";
 import Performance from "./pages/Performance";
 import Profile from "./pages/Profile";
 import Training from "./pages/Training";
+import TrainingCategory from "./pages/TrainingCategory";
+import TrainingLesson from "./pages/TrainingLesson";
 import Referrals from "./pages/Referrals";
 import SubAffiliates from "./pages/SubAffiliates";
 import Commissions from "./pages/Commissions";
@@ -44,6 +46,7 @@ import AdminVersions from "./pages/admin/AdminVersions";
 import AdminAffiliates from "./pages/admin/AdminAffiliates";
 import AdminCadastros from "./pages/admin/AdminCadastros";
 import AdminCommissionLevels from "./pages/admin/AdminCommissionLevels";
+import AdminTraining from "./pages/admin/AdminTraining";
 
 import AdminSupport from "./pages/admin/AdminSupport";
 
@@ -98,6 +101,8 @@ const App = () => {
               <Route path="/user/performance" element={<Performance />} />
               <Route path="/user/profile" element={<Profile />} />
               <Route path="/user/training" element={<Training />} />
+              <Route path="/user/training/category/:categoryId" element={<TrainingCategory />} />
+              <Route path="/user/training/lesson/:lessonId" element={<TrainingLesson />} />
               <Route path="/user/referrals" element={<Referrals />} />
               <Route path="/user/sub-affiliates" element={<SubAffiliates />} />
               <Route path="/user/commissions" element={<Commissions />} />
@@ -140,6 +145,7 @@ const App = () => {
               <Route path="/admin/activities" element={<Navigate to="/admin/settings?tab=activities" replace />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />
               <Route path="/admin/commission-processing" element={<Navigate to="/admin/commissions?tab=processing" replace />} />
+              <Route path="/admin/training" element={<AdminTraining />} />
             </Route>
             
             {/* Catch-all - Intercepta cupons ou mostra 404 */}

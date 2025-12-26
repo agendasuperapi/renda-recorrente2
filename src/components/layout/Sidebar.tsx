@@ -96,6 +96,10 @@ const adminMenuItems = [{
   label: "Comissões",
   path: "/admin/commissions"
 }, {
+  icon: GraduationCap,
+  label: "Treinamentos",
+  path: "/admin/training"
+}, {
   icon: CreditCard,
   label: "Stripe",
   path: "/admin/stripe"
