@@ -594,12 +594,12 @@ const LessonsTab = () => {
       <div className="flex justify-between items-center gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold">Aulas</h3>
-          <Select value={selectedTraining} onValueChange={setSelectedTraining}>
+          <Select value={selectedTraining || "all"} onValueChange={(v) => setSelectedTraining(v === "all" ? "" : v)}>
             <SelectTrigger className="w-[250px]">
               <SelectValue placeholder="Filtrar por treinamento" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
               {trainings?.map((t) => (
                 <SelectItem key={t.id} value={t.id}>{t.title}</SelectItem>
               ))}
