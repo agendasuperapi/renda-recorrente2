@@ -12,9 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { RichTextEditor } from "@/components/training/RichTextEditor";
 
 // Categories Tab Component
 const CategoriesTab = () => {
@@ -673,13 +674,11 @@ const LessonsTab = () => {
               )}
               {(formData.content_type === "text" || formData.content_type === "mixed") && (
                 <div className="space-y-2">
-                  <Label>Conteúdo (HTML)</Label>
-                  <Textarea
+                  <Label>Conteúdo</Label>
+                  <RichTextEditor
                     value={formData.content_html}
-                    onChange={(e) => setFormData({ ...formData, content_html: e.target.value })}
-                    placeholder="<p>Seu conteúdo aqui...</p>"
-                    rows={6}
-                    className="font-mono text-sm"
+                    onChange={(value) => setFormData({ ...formData, content_html: value })}
+                    placeholder="Digite o conteúdo da aula aqui..."
                   />
                 </div>
               )}
