@@ -78,7 +78,7 @@ const RatingStars = ({ value, onChange, readonly = false }: { value: number; onC
 };
 
 const TrainingLesson = () => {
-  const { trainingId, lessonId } = useParams();
+  const { lessonId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { userId } = useAuth();
@@ -86,6 +86,23 @@ const TrainingLesson = () => {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [showRatingForm, setShowRatingForm] = useState(false);
+
+  // Fetch current lesson first (to discover training_id)
+  const { data: lesson, isLoading: lessonLoading } = useQuery({
+    queryKey: ["training-lesson", lessonId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("training_lessons")
+        .select("*")
+        .eq("id", lessonId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!lessonId,
+  });
+
+  const trainingId = lesson?.training_id as string | undefined;
 
   // Fetch training details
   const { data: training, isLoading: trainingLoading } = useQuery({
@@ -99,7 +116,7 @@ const TrainingLesson = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!trainingId
+    enabled: !!trainingId,
   });
 
   // Fetch lessons
@@ -153,7 +170,7 @@ const TrainingLesson = () => {
 
   // Get current lesson
   const currentLessonIndex = lessons?.findIndex(l => l.id === lessonId) ?? 0;
-  const currentLesson = lessonId ? lessons?.find(l => l.id === lessonId) : lessons?.[0];
+  const currentLesson = (lessonId ? lessons?.find(l => l.id === lessonId) : undefined) ?? lesson;
   const prevLesson = lessons?.[currentLessonIndex - 1];
   const nextLesson = lessons?.[currentLessonIndex + 1];
 
@@ -179,29 +196,33 @@ const TrainingLesson = () => {
   const completeLessonMutation = useMutation({
     mutationFn: async (lessonId: string) => {
       if (!userId) throw new Error("Not authenticated");
-      
+      if (!trainingId) throw new Error("Missing training");
+
       const { error } = await supabase
         .from("training_progress")
-        .upsert({
-          user_id: userId,
-          lesson_id: lessonId,
-          training_id: trainingId,
-          is_completed: true,
-          completed_at: new Date().toISOString()
-        }, { onConflict: 'user_id,lesson_id' });
-      
+        .upsert(
+          {
+            user_id: userId,
+            lesson_id: lessonId,
+            training_id: trainingId,
+            is_completed: true,
+            completed_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,lesson_id" }
+        );
+
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-lesson-progress", trainingId] });
       queryClient.invalidateQueries({ queryKey: ["user-training-progress"] });
       toast.success("Aula concluída!");
-      
+
       // Check if this was the last lesson
       if (currentLessonIndex === (lessons?.length || 0) - 1) {
         setShowRatingForm(true);
       } else if (nextLesson) {
-        navigate(`/user/training/${trainingId}/${nextLesson.id}`);
+        navigate(`/user/training/lesson/${nextLesson.id}`);
       }
     },
     onError: (error: any) => {
@@ -286,14 +307,8 @@ const TrainingLesson = () => {
     }
   }, [userRating]);
 
-  // Redirect to first lesson if no lessonId
-  useEffect(() => {
-    if (!lessonId && lessons && lessons.length > 0 && !lessonsLoading) {
-      navigate(`/user/training/${trainingId}/${lessons[0].id}`, { replace: true });
-    }
-  }, [lessonId, lessons, lessonsLoading, trainingId, navigate]);
 
-  if (trainingLoading || lessonsLoading) {
+  if (lessonLoading || trainingLoading || lessonsLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
@@ -390,14 +405,14 @@ const TrainingLesson = () => {
                 <Button
                   variant="outline"
                   disabled={!prevLesson}
-                  onClick={() => prevLesson && navigate(`/user/training/${trainingId}/${prevLesson.id}`)}
+                  onClick={() => prevLesson && navigate(`/user/training/lesson/${prevLesson.id}`)}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Anterior
                 </Button>
                 <Button
                   disabled={!nextLesson || !isLessonCompleted(currentLesson.id)}
-                  onClick={() => nextLesson && navigate(`/user/training/${trainingId}/${nextLesson.id}`)}
+                  onClick={() => nextLesson && navigate(`/user/training/lesson/${nextLesson.id}`)}
                 >
                   Próxima
                   <ArrowRight className="h-4 w-4 ml-2" />
@@ -508,7 +523,7 @@ const TrainingLesson = () => {
                   return (
                     <button
                       key={lesson.id}
-                      onClick={() => isAccessible && navigate(`/user/training/${trainingId}/${lesson.id}`)}
+                      onClick={() => isAccessible && navigate(`/user/training/lesson/${lesson.id}`)}
                       disabled={!isAccessible}
                       className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
                         isCurrent ? 'bg-primary/10' : 'hover:bg-muted/50'
