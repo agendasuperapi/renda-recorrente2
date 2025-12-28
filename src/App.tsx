@@ -19,6 +19,7 @@ import Performance from "./pages/Performance";
 import Profile from "./pages/Profile";
 import Training from "./pages/Training";
 import TrainingCategory from "./pages/TrainingCategory";
+import TrainingDetail from "./pages/TrainingDetail";
 import TrainingLesson from "./pages/TrainingLesson";
 import Referrals from "./pages/Referrals";
 import SubAffiliates from "./pages/SubAffiliates";
@@ -102,6 +103,7 @@ const App = () => {
               <Route path="/user/profile" element={<Profile />} />
               <Route path="/user/training" element={<Training />} />
               <Route path="/user/training/category/:categoryId" element={<TrainingCategory />} />
+              <Route path="/user/training/:trainingId" element={<TrainingDetail />} />
               <Route path="/user/training/lesson/:lessonId" element={<TrainingLesson />} />
               <Route path="/user/referrals" element={<Referrals />} />
               <Route path="/user/sub-affiliates" element={<SubAffiliates />} />
