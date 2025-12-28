@@ -69,6 +69,10 @@ const affiliateMenuItems: MenuItem[] = [{
   label: "Meus Cupons",
   path: "/user/coupons"
 }, {
+  icon: GraduationCap,
+  label: "Treinamentos",
+  path: "/user/training"
+}, {
   icon: Users,
   label: "Sub Afiliados",
   path: "/user/sub-affiliates",
