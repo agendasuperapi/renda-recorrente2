@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, CheckCircle, Lock, PlayCircle, MessageSquare, Star, Send, Clock, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Lock, PlayCircle, MessageSquare, Star, Send, Clock, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -84,6 +84,7 @@ const TrainingLesson = () => {
   const { userId } = useAuth();
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<{ id: string; name: string } | null>(null);
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [showRatingForm, setShowRatingForm] = useState(false);
@@ -523,22 +524,54 @@ const TrainingLesson = () => {
                               )}
                             </div>
                             <p className="text-sm mb-2">{comment.content}</p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 text-xs text-muted-foreground hover:text-foreground"
-                              onClick={() => setReplyingTo({ 
-                                id: comment.id, 
-                                name: (comment.profiles as any)?.name || "Usuário" 
-                              })}
-                            >
-                              Responder
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                                onClick={() => setReplyingTo({ 
+                                  id: comment.id, 
+                                  name: (comment.profiles as any)?.name || "Usuário" 
+                                })}
+                              >
+                                Responder
+                              </Button>
+                              {repliesByParent[comment.id]?.length > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                                  onClick={() => {
+                                    setExpandedComments(prev => {
+                                      const newSet = new Set(prev);
+                                      if (newSet.has(comment.id)) {
+                                        newSet.delete(comment.id);
+                                      } else {
+                                        newSet.add(comment.id);
+                                      }
+                                      return newSet;
+                                    });
+                                  }}
+                                >
+                                  {expandedComments.has(comment.id) ? (
+                                    <>
+                                      <ChevronUp className="h-3 w-3 mr-1" />
+                                      Ocultar {repliesByParent[comment.id].length} {repliesByParent[comment.id].length === 1 ? 'resposta' : 'respostas'}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="h-3 w-3 mr-1" />
+                                      Ver {repliesByParent[comment.id].length} {repliesByParent[comment.id].length === 1 ? 'resposta' : 'respostas'}
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        {/* Replies */}
-                        {repliesByParent[comment.id]?.length > 0 && (
+                        {/* Replies - only show when expanded */}
+                        {repliesByParent[comment.id]?.length > 0 && expandedComments.has(comment.id) && (
                           <div className="ml-6 space-y-2">
                             {repliesByParent[comment.id].map((reply: any) => (
                               <div key={reply.id} className="flex gap-3 p-3 bg-muted/30 rounded-lg border-l-2 border-primary/30">
