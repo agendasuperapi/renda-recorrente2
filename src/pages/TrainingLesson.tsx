@@ -350,131 +350,135 @@ const TrainingLesson = () => {
       <div className="grid lg:grid-cols-[1fr_300px] gap-6">
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Lesson Content */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Badge variant="outline" className="mb-2">
-                    Aula {currentLessonIndex + 1} de {totalLessons}
-                  </Badge>
-                  <CardTitle>{currentLesson.title}</CardTitle>
+          {/* Lesson Content - Hidden when training is complete */}
+          {!isTrainingComplete && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Badge variant="outline" className="mb-2">
+                      Aula {currentLessonIndex + 1} de {totalLessons}
+                    </Badge>
+                    <CardTitle>{currentLesson.title}</CardTitle>
+                  </div>
+                  {isLessonCompleted(currentLesson.id) && (
+                    <Badge className="bg-green-500">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Concluída
+                    </Badge>
+                  )}
                 </div>
-                {isLessonCompleted(currentLesson.id) && (
-                  <Badge className="bg-green-500">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Concluída
-                  </Badge>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Video */}
+                {(currentLesson.content_type === 'video' || currentLesson.content_type === 'mixed') && currentLesson.video_url && (
+                  <VideoPlayer url={currentLesson.video_url} />
                 )}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Video */}
-              {(currentLesson.content_type === 'video' || currentLesson.content_type === 'mixed') && currentLesson.video_url && (
-                <VideoPlayer url={currentLesson.video_url} />
-              )}
 
-              {/* Text Content */}
-              {(currentLesson.content_type === 'text' || currentLesson.content_type === 'mixed') && currentLesson.content_html && (
-                <div 
-                  className="prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: currentLesson.content_html }}
-                />
-              )}
+                {/* Text Content */}
+                {(currentLesson.content_type === 'text' || currentLesson.content_type === 'mixed') && currentLesson.content_html && (
+                  <div 
+                    className="prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: currentLesson.content_html }}
+                  />
+                )}
 
-              {/* Description */}
-              {currentLesson.description && (
-                <p className="text-muted-foreground">{currentLesson.description}</p>
-              )}
+                {/* Description */}
+                {currentLesson.description && (
+                  <p className="text-muted-foreground">{currentLesson.description}</p>
+                )}
 
-              {/* Complete Button */}
-              {!isLessonCompleted(currentLesson.id) && (
-                <Button 
-                  onClick={() => completeLessonMutation.mutate(currentLesson.id)}
-                  disabled={completeLessonMutation.isPending}
-                  className="w-full"
-                  size="lg"
-                >
-                  <CheckCircle className="h-5 w-5 mr-2" />
-                  {completeLessonMutation.isPending ? "Salvando..." : "Marcar como Concluída"}
-                </Button>
-              )}
+                {/* Complete Button */}
+                {!isLessonCompleted(currentLesson.id) && (
+                  <Button 
+                    onClick={() => completeLessonMutation.mutate(currentLesson.id)}
+                    disabled={completeLessonMutation.isPending}
+                    className="w-full"
+                    size="lg"
+                  >
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    {completeLessonMutation.isPending ? "Salvando..." : "Marcar como Concluída"}
+                  </Button>
+                )}
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-4 border-t">
-                <Button
-                  variant="outline"
-                  disabled={!prevLesson}
-                  onClick={() => prevLesson && navigate(`/user/training/lesson/${prevLesson.id}`)}
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Anterior
-                </Button>
-                <Button
-                  disabled={!nextLesson || !isLessonCompleted(currentLesson.id)}
-                  onClick={() => nextLesson && navigate(`/user/training/lesson/${nextLesson.id}`)}
-                >
-                  Próxima
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Comments Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Comentários
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add Comment */}
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Escreva um comentário..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  rows={2}
-                />
-                <Button 
-                  onClick={() => addCommentMutation.mutate(newComment)}
-                  disabled={!newComment.trim() || addCommentMutation.isPending}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Comments List */}
-              {comments?.length === 0 ? (
-                <p className="text-center text-muted-foreground py-4">
-                  Seja o primeiro a comentar!
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {comments?.map((comment) => (
-                    <div key={comment.id} className="flex gap-3 p-3 bg-muted/50 rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">
-                            {(comment.profiles as any)?.name || "Usuário"}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(comment.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                          </span>
-                          {!comment.is_approved && comment.user_id === userId && (
-                            <Badge variant="secondary" className="text-xs">Pendente</Badge>
-                          )}
-                        </div>
-                        <p className="text-sm">{comment.content}</p>
-                      </div>
-                    </div>
-                  ))}
+                {/* Navigation */}
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    disabled={!prevLesson}
+                    onClick={() => prevLesson && navigate(`/user/training/lesson/${prevLesson.id}`)}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Anterior
+                  </Button>
+                  <Button
+                    disabled={!nextLesson || !isLessonCompleted(currentLesson.id)}
+                    onClick={() => nextLesson && navigate(`/user/training/lesson/${nextLesson.id}`)}
+                  >
+                    Próxima
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Comments Section - Hidden when training is complete */}
+          {!isTrainingComplete && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Comentários
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Add Comment */}
+                <div className="flex gap-2">
+                  <Textarea
+                    placeholder="Escreva um comentário..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    rows={2}
+                  />
+                  <Button 
+                    onClick={() => addCommentMutation.mutate(newComment)}
+                    disabled={!newComment.trim() || addCommentMutation.isPending}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Comments List */}
+                {comments?.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    Seja o primeiro a comentar!
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {comments?.map((comment) => (
+                      <div key={comment.id} className="flex gap-3 p-3 bg-muted/50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">
+                              {(comment.profiles as any)?.name || "Usuário"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(comment.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                            </span>
+                            {!comment.is_approved && comment.user_id === userId && (
+                              <Badge variant="secondary" className="text-xs">Pendente</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm">{comment.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Rating Form (shown when training is complete) */}
           {(showRatingForm || isTrainingComplete) && (
