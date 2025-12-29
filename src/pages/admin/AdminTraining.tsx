@@ -178,7 +178,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
       ) : (
         <div className="grid gap-3">
           {categories?.map((category) => (
-            <Card key={category.id} className="hover:shadow-md transition-shadow">
+            <Card key={category.id} className={`hover:shadow-md transition-shadow ${!category.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}>
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg">
@@ -188,7 +188,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{category.name}</span>
                       {!category.is_active && (
-                        <Badge variant="secondary">Inativa</Badge>
+                        <Badge variant="destructive">Inativa</Badge>
                       )}
                     </div>
                     {category.description && (
