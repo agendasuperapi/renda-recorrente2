@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -511,6 +512,12 @@ const TrainingLesson = () => {
                       <div key={comment.id} className="space-y-2">
                         {/* Main Comment */}
                         <div className="flex gap-3 p-3 bg-muted/50 rounded-lg">
+                          <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarImage src={(comment.profiles as any)?.avatar_url || undefined} />
+                            <AvatarFallback className="text-xs">
+                              {((comment.profiles as any)?.name || "U").charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-medium text-sm">
@@ -575,6 +582,12 @@ const TrainingLesson = () => {
                           <div className="ml-6 space-y-2">
                             {repliesByParent[comment.id].map((reply: any) => (
                               <div key={reply.id} className="flex gap-3 p-3 bg-muted/30 rounded-lg border-l-2 border-primary/30">
+                                <Avatar className="h-7 w-7 flex-shrink-0">
+                                  <AvatarImage src={(reply.profiles as any)?.avatar_url || undefined} />
+                                  <AvatarFallback className="text-xs">
+                                    {((reply.profiles as any)?.name || "U").charAt(0).toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="font-medium text-sm">
