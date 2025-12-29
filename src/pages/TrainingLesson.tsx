@@ -293,7 +293,7 @@ const TrainingLesson = () => {
       queryClient.invalidateQueries({ queryKey: ["user-training-rating"] });
       toast.success("Avaliação enviada!");
       setShowRatingForm(false);
-      navigate(`/user/training/category/${(training?.training_categories as any)?.id}`);
+      navigate("/user/training");
     },
     onError: (error: any) => {
       toast.error("Erro ao enviar avaliação: " + error.message);
