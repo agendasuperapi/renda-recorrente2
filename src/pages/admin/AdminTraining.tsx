@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
@@ -879,6 +880,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
 // Comments Tab Component
 const CommentsTab = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: comments, isLoading } = useQuery({
     queryKey: ["training-comments-admin"],
@@ -938,9 +940,9 @@ const CommentsTab = () => {
                 variant="ghost"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => window.open(`/treinamentos/aula/${comment.lesson_id}`, '_blank')}
+                onClick={() => navigate(`/user/training/lesson/${comment.lesson_id}`)}
               >
-                <ExternalLink className="h-3 w-3 mr-1" />
+                <ArrowRight className="h-3 w-3 mr-1" />
                 Ir para aula
               </Button>
             </div>
