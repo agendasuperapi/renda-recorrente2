@@ -87,7 +87,22 @@ const TrainingLesson = () => {
   const [review, setReview] = useState("");
   const [showRatingForm, setShowRatingForm] = useState(false);
 
-  // Fetch current lesson first (to discover training_id)
+  // Check if user is admin
+  const { data: isAdmin } = useQuery({
+    queryKey: ["user-is-admin", userId],
+    queryFn: async () => {
+      if (!userId) return false;
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "super_admin")
+        .maybeSingle();
+      if (error) return false;
+      return !!data;
+    },
+    enabled: !!userId
+  });
   const { data: lesson, isLoading: lessonLoading } = useQuery({
     queryKey: ["training-lesson", lessonId],
     queryFn: async () => {
@@ -241,7 +256,8 @@ const TrainingLesson = () => {
           lesson_id: currentLesson.id,
           user_id: userId,
           content,
-          is_approved: false
+          is_approved: isAdmin === true,
+          approved_at: isAdmin ? new Date().toISOString() : null
         });
       
       if (error) throw error;
@@ -249,7 +265,7 @@ const TrainingLesson = () => {
     onSuccess: () => {
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["lesson-comments"] });
-      toast.success("Comentário enviado! Aguardando aprovação.");
+      toast.success(isAdmin ? "Comentário publicado!" : "Comentário enviado! Aguardando aprovação.");
     },
     onError: (error: any) => {
       toast.error("Erro ao enviar comentário: " + error.message);
