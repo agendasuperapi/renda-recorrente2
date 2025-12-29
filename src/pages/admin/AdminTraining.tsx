@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
@@ -881,6 +882,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
 const CommentsTab = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
 
   const { data: comments, isLoading } = useQuery({
     queryKey: ["training-comments-admin"],
@@ -894,8 +896,30 @@ const CommentsTab = () => {
     }
   });
 
-  const pendingComments = comments?.filter(c => !c.is_approved) || [];
-  const approvedComments = comments?.filter(c => c.is_approved) || [];
+  // Separate main comments (no parent) and replies
+  const mainComments = comments?.filter(c => !c.parent_id) || [];
+  const repliesByParent = comments?.reduce((acc: Record<string, any[]>, c) => {
+    if (c.parent_id) {
+      if (!acc[c.parent_id]) acc[c.parent_id] = [];
+      acc[c.parent_id].push(c);
+    }
+    return acc;
+  }, {}) || {};
+
+  const pendingComments = mainComments.filter(c => !c.is_approved);
+  const approvedComments = mainComments.filter(c => c.is_approved);
+
+  const toggleExpand = (commentId: string) => {
+    setExpandedComments(prev => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
 
   const approveMutation = useMutation({
     mutationFn: async ({ id, approve }: { id: string; approve: boolean }) => {
@@ -919,62 +943,125 @@ const CommentsTab = () => {
     }
   });
 
-  const CommentCard = ({ comment, showActions = false }: { comment: any; showActions?: boolean }) => (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-              <span className="font-medium text-foreground">{(comment.profiles as any)?.name || "Usuário"}</span>
-              <span>•</span>
-              <span>{format(new Date(comment.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>
-            </div>
-            <p className="text-sm mb-2">{comment.content}</p>
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-muted-foreground">
-                <span>{(comment.training_lessons as any)?.trainings?.title}</span>
-                <ChevronRight className="inline h-3 w-3 mx-1" />
-                <span>{(comment.training_lessons as any)?.title}</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => navigate(`/user/training/lesson/${comment.lesson_id}`)}
-              >
-                <ArrowRight className="h-3 w-3 mr-1" />
-                Ir para aula
-              </Button>
-            </div>
+  const CommentCard = ({ comment, showActions = false }: { comment: any; showActions?: boolean }) => {
+    const replies = repliesByParent[comment.id] || [];
+    const isExpanded = expandedComments.has(comment.id);
+    
+    return (
+      <Card className="hover:shadow-md transition-shadow">
+        <CardContent className="p-4 space-y-3">
+          {/* Lesson Header - Hierarchy */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground pb-2 border-b">
+            <BookOpen className="h-3.5 w-3.5" />
+            <span className="font-medium">{(comment.training_lessons as any)?.trainings?.title}</span>
+            <ChevronRight className="h-3 w-3" />
+            <span>{(comment.training_lessons as any)?.title}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-xs ml-auto"
+              onClick={() => navigate(`/user/training/lesson/${comment.lesson_id}`)}
+            >
+              <ArrowRight className="h-3 w-3 mr-1" />
+              Ir para aula
+            </Button>
           </div>
-          {showActions && (
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-green-600"
-                onClick={() => approveMutation.mutate({ id: comment.id, approve: true })}
-                disabled={approveMutation.isPending}
-              >
-                <Check className="h-4 w-4 mr-1" />
-                Aprovar
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-destructive"
-                onClick={() => approveMutation.mutate({ id: comment.id, approve: false })}
-                disabled={approveMutation.isPending}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Rejeitar
-              </Button>
+
+          {/* Main Comment */}
+          <div className="flex gap-3">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={(comment.profiles as any)?.avatar_url || undefined} />
+              <AvatarFallback className="text-xs">
+                {((comment.profiles as any)?.name || "U").charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 text-sm mb-1">
+                <span className="font-medium">{(comment.profiles as any)?.name || "Usuário"}</span>
+                <span className="text-muted-foreground text-xs">
+                  {format(new Date(comment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </span>
+              </div>
+              <p className="text-sm">{comment.content}</p>
+              
+              {/* Toggle replies button */}
+              {replies.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-xs mt-2 text-muted-foreground hover:text-foreground"
+                  onClick={() => toggleExpand(comment.id)}
+                >
+                  {isExpanded ? (
+                    <>
+                      <ChevronUp className="h-3 w-3 mr-1" />
+                      Ocultar {replies.length} resposta{replies.length > 1 ? 's' : ''}
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3 mr-1" />
+                      Ver {replies.length} resposta{replies.length > 1 ? 's' : ''}
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            
+            {/* Actions */}
+            {showActions && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-green-600"
+                  onClick={() => approveMutation.mutate({ id: comment.id, approve: true })}
+                  disabled={approveMutation.isPending}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Aprovar
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-destructive"
+                  onClick={() => approveMutation.mutate({ id: comment.id, approve: false })}
+                  disabled={approveMutation.isPending}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Rejeitar
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Replies */}
+          {isExpanded && replies.length > 0 && (
+            <div className="ml-10 space-y-2 pt-2 border-l-2 border-primary/20 pl-4">
+              {replies.map((reply: any) => (
+                <div key={reply.id} className="flex gap-3 p-2 bg-muted/30 rounded-lg">
+                  <Avatar className="h-7 w-7 flex-shrink-0">
+                    <AvatarImage src={(reply.profiles as any)?.avatar_url || undefined} />
+                    <AvatarFallback className="text-xs">
+                      {((reply.profiles as any)?.name || "U").charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 text-sm mb-1">
+                      <span className="font-medium text-sm">{(reply.profiles as any)?.name || "Usuário"}</span>
+                      <span className="text-muted-foreground text-xs">
+                        {format(new Date(reply.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                      </span>
+                    </div>
+                    <p className="text-sm">{reply.content}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -993,7 +1080,7 @@ const CommentsTab = () => {
             Nenhum comentário pendente
           </div>
         ) : (
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {pendingComments.map((comment) => (
               <CommentCard key={comment.id} comment={comment} showActions />
             ))}
@@ -1008,7 +1095,7 @@ const CommentsTab = () => {
             Nenhum comentário aprovado ainda
           </div>
         ) : (
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {approvedComments.slice(0, 10).map((comment) => (
               <CommentCard key={comment.id} comment={comment} />
             ))}
