@@ -909,6 +909,30 @@ const CommentsTab = () => {
   const pendingComments = mainComments.filter(c => !c.is_approved);
   const approvedComments = mainComments.filter(c => c.is_approved);
 
+  // Group comments by Training > Lesson
+  const groupCommentsByTrainingAndLesson = (commentsList: any[]) => {
+    const grouped: Record<string, { trainingTitle: string; lessons: Record<string, { lessonTitle: string; lessonId: string; comments: any[] }> }> = {};
+    
+    commentsList.forEach(comment => {
+      const trainingTitle = (comment.training_lessons as any)?.trainings?.title || "Sem Treinamento";
+      const lessonTitle = (comment.training_lessons as any)?.title || "Sem Aula";
+      const lessonId = comment.lesson_id;
+      
+      if (!grouped[trainingTitle]) {
+        grouped[trainingTitle] = { trainingTitle, lessons: {} };
+      }
+      if (!grouped[trainingTitle].lessons[lessonId]) {
+        grouped[trainingTitle].lessons[lessonId] = { lessonTitle, lessonId, comments: [] };
+      }
+      grouped[trainingTitle].lessons[lessonId].comments.push(comment);
+    });
+    
+    return grouped;
+  };
+
+  const groupedPending = groupCommentsByTrainingAndLesson(pendingComments);
+  const groupedApproved = groupCommentsByTrainingAndLesson(approvedComments);
+
   const toggleExpand = (commentId: string) => {
     setExpandedComments(prev => {
       const next = new Set(prev);
@@ -943,125 +967,153 @@ const CommentsTab = () => {
     }
   });
 
-  const CommentCard = ({ comment, showActions = false }: { comment: any; showActions?: boolean }) => {
+  const CommentItem = ({ comment, showActions = false }: { comment: any; showActions?: boolean }) => {
     const replies = repliesByParent[comment.id] || [];
     const isExpanded = expandedComments.has(comment.id);
     
     return (
-      <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-4 space-y-3">
-          {/* Lesson Header - Hierarchy */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground pb-2 border-b">
-            <BookOpen className="h-3.5 w-3.5" />
-            <span className="font-medium">{(comment.training_lessons as any)?.trainings?.title}</span>
-            <ChevronRight className="h-3 w-3" />
-            <span>{(comment.training_lessons as any)?.title}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 text-xs ml-auto"
-              onClick={() => navigate(`/user/training/lesson/${comment.lesson_id}`)}
-            >
-              <ArrowRight className="h-3 w-3 mr-1" />
-              Ir para aula
-            </Button>
-          </div>
-
-          {/* Main Comment */}
-          <div className="flex gap-3">
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={(comment.profiles as any)?.avatar_url || undefined} />
-              <AvatarFallback className="text-xs">
-                {((comment.profiles as any)?.name || "U").charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 text-sm mb-1">
-                <span className="font-medium">{(comment.profiles as any)?.name || "Usuário"}</span>
-                <span className="text-muted-foreground text-xs">
-                  {format(new Date(comment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                </span>
-              </div>
-              <p className="text-sm">{comment.content}</p>
-              
-              {/* Toggle replies button */}
-              {replies.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-xs mt-2 text-muted-foreground hover:text-foreground"
-                  onClick={() => toggleExpand(comment.id)}
-                >
-                  {isExpanded ? (
-                    <>
-                      <ChevronUp className="h-3 w-3 mr-1" />
-                      Ocultar {replies.length} resposta{replies.length > 1 ? 's' : ''}
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-3 w-3 mr-1" />
-                      Ver {replies.length} resposta{replies.length > 1 ? 's' : ''}
-                    </>
-                  )}
-                </Button>
-              )}
+      <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+        {/* Main Comment */}
+        <div className="flex gap-3">
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarImage src={(comment.profiles as any)?.avatar_url || undefined} />
+            <AvatarFallback className="text-xs">
+              {((comment.profiles as any)?.name || "U").charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-sm mb-1">
+              <span className="font-medium">{(comment.profiles as any)?.name || "Usuário"}</span>
+              <span className="text-muted-foreground text-xs">
+                {format(new Date(comment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+              </span>
             </div>
+            <p className="text-sm">{comment.content}</p>
             
-            {/* Actions */}
-            {showActions && (
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-green-600"
-                  onClick={() => approveMutation.mutate({ id: comment.id, approve: true })}
-                  disabled={approveMutation.isPending}
-                >
-                  <Check className="h-4 w-4 mr-1" />
-                  Aprovar
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-destructive"
-                  onClick={() => approveMutation.mutate({ id: comment.id, approve: false })}
-                  disabled={approveMutation.isPending}
-                >
-                  <X className="h-4 w-4 mr-1" />
-                  Rejeitar
-                </Button>
-              </div>
+            {/* Toggle replies button */}
+            {replies.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 text-xs mt-2 text-muted-foreground hover:text-foreground"
+                onClick={() => toggleExpand(comment.id)}
+              >
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    Ocultar {replies.length} resposta{replies.length > 1 ? 's' : ''}
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    Ver {replies.length} resposta{replies.length > 1 ? 's' : ''}
+                  </>
+                )}
+              </Button>
             )}
           </div>
-
-          {/* Replies */}
-          {isExpanded && replies.length > 0 && (
-            <div className="ml-10 space-y-2 pt-2 border-l-2 border-primary/20 pl-4">
-              {replies.map((reply: any) => (
-                <div key={reply.id} className="flex gap-3 p-2 bg-muted/30 rounded-lg">
-                  <Avatar className="h-7 w-7 flex-shrink-0">
-                    <AvatarImage src={(reply.profiles as any)?.avatar_url || undefined} />
-                    <AvatarFallback className="text-xs">
-                      {((reply.profiles as any)?.name || "U").charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 text-sm mb-1">
-                      <span className="font-medium text-sm">{(reply.profiles as any)?.name || "Usuário"}</span>
-                      <span className="text-muted-foreground text-xs">
-                        {format(new Date(reply.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                      </span>
-                    </div>
-                    <p className="text-sm">{reply.content}</p>
-                  </div>
-                </div>
-              ))}
+          
+          {/* Actions */}
+          {showActions && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-green-600"
+                onClick={() => approveMutation.mutate({ id: comment.id, approve: true })}
+                disabled={approveMutation.isPending}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Aprovar
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-destructive"
+                onClick={() => approveMutation.mutate({ id: comment.id, approve: false })}
+                disabled={approveMutation.isPending}
+              >
+                <X className="h-4 w-4 mr-1" />
+                Rejeitar
+              </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Replies */}
+        {isExpanded && replies.length > 0 && (
+          <div className="ml-10 space-y-2 pt-2 border-l-2 border-primary/20 pl-4">
+            {replies.map((reply: any) => (
+              <div key={reply.id} className="flex gap-3 p-2 bg-background/50 rounded-lg">
+                <Avatar className="h-7 w-7 flex-shrink-0">
+                  <AvatarImage src={(reply.profiles as any)?.avatar_url || undefined} />
+                  <AvatarFallback className="text-xs">
+                    {((reply.profiles as any)?.name || "U").charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 text-sm mb-1">
+                    <span className="font-medium text-sm">{(reply.profiles as any)?.name || "Usuário"}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {format(new Date(reply.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                    </span>
+                  </div>
+                  <p className="text-sm">{reply.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     );
   };
+
+  const GroupedComments = ({ grouped, showActions = false }: { grouped: Record<string, { trainingTitle: string; lessons: Record<string, { lessonTitle: string; lessonId: string; comments: any[] }> }>; showActions?: boolean }) => (
+    <div className="space-y-6">
+      {Object.entries(grouped).map(([trainingKey, training]) => (
+        <Card key={trainingKey} className="overflow-hidden">
+          {/* Training Header */}
+          <CardHeader className="py-3 bg-primary/10">
+            <CardTitle className="text-base flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              {training.trainingTitle}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {Object.entries(training.lessons).map(([lessonKey, lesson]) => (
+              <div key={lessonKey} className="border-b last:border-b-0">
+                {/* Lesson Header */}
+                <div className="flex items-center justify-between px-4 py-2 bg-muted/50">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Video className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{lesson.lessonTitle}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {lesson.comments.length} comentário{lesson.comments.length > 1 ? 's' : ''}
+                    </Badge>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => navigate(`/user/training/lesson/${lesson.lessonId}`)}
+                  >
+                    <ArrowRight className="h-3 w-3 mr-1" />
+                    Ir para aula
+                  </Button>
+                </div>
+                {/* Comments */}
+                <div className="p-3 space-y-2">
+                  {lesson.comments.map((comment) => (
+                    <CommentItem key={comment.id} comment={comment} showActions={showActions} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -1080,11 +1132,7 @@ const CommentsTab = () => {
             Nenhum comentário pendente
           </div>
         ) : (
-          <div className="grid gap-4">
-            {pendingComments.map((comment) => (
-              <CommentCard key={comment.id} comment={comment} showActions />
-            ))}
-          </div>
+          <GroupedComments grouped={groupedPending} showActions />
         )}
       </div>
 
@@ -1095,11 +1143,7 @@ const CommentsTab = () => {
             Nenhum comentário aprovado ainda
           </div>
         ) : (
-          <div className="grid gap-4">
-            {approvedComments.slice(0, 10).map((comment) => (
-              <CommentCard key={comment.id} comment={comment} />
-            ))}
-          </div>
+          <GroupedComments grouped={groupedApproved} />
         )}
       </div>
     </div>
