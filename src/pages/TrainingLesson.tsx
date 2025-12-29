@@ -481,36 +481,23 @@ const TrainingLesson = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Add Comment */}
-                {/* Reply indicator */}
-                {replyingTo && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-                    <span>Respondendo a <strong>{replyingTo.name}</strong></span>
+                {/* Add New Comment (only when not replying) */}
+                {!replyingTo && (
+                  <div className="flex gap-2">
+                    <Textarea
+                      placeholder="Escreva um comentário..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      rows={2}
+                    />
                     <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-5 px-2 text-xs"
-                      onClick={() => setReplyingTo(null)}
+                      onClick={() => addCommentMutation.mutate({ content: newComment })}
+                      disabled={!newComment.trim() || addCommentMutation.isPending}
                     >
-                      Cancelar
+                      <Send className="h-4 w-4" />
                     </Button>
                   </div>
                 )}
-
-                <div className="flex gap-2">
-                  <Textarea
-                    placeholder={replyingTo ? `Responder a ${replyingTo.name}...` : "Escreva um comentário..."}
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    rows={2}
-                  />
-                  <Button 
-                    onClick={() => addCommentMutation.mutate({ content: newComment, parentId: replyingTo?.id })}
-                    disabled={!newComment.trim() || addCommentMutation.isPending}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
 
                 {/* Comments List */}
                 {comments?.length === 0 ? (
@@ -571,6 +558,38 @@ const TrainingLesson = () => {
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        )}
+
+                        {/* Reply Input - appears below the comment being replied to */}
+                        {replyingTo?.id === comment.id && (
+                          <div className="ml-6 space-y-2">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span>Respondendo a <strong>{replyingTo.name}</strong></span>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-5 px-2 text-xs"
+                                onClick={() => setReplyingTo(null)}
+                              >
+                                Cancelar
+                              </Button>
+                            </div>
+                            <div className="flex gap-2">
+                              <Textarea
+                                placeholder={`Responder a ${replyingTo.name}...`}
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                rows={2}
+                                autoFocus
+                              />
+                              <Button 
+                                onClick={() => addCommentMutation.mutate({ content: newComment, parentId: replyingTo.id })}
+                                disabled={!newComment.trim() || addCommentMutation.isPending}
+                              >
+                                <Send className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         )}
                       </div>
