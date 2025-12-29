@@ -83,6 +83,7 @@ const TrainingLesson = () => {
   const queryClient = useQueryClient();
   const { userId } = useAuth();
   const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<{ id: string; name: string } | null>(null);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [showRatingForm, setShowRatingForm] = useState(false);
@@ -247,7 +248,7 @@ const TrainingLesson = () => {
 
   // Add comment mutation
   const addCommentMutation = useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async ({ content, parentId }: { content: string; parentId?: string }) => {
       if (!userId || !currentLesson?.id) throw new Error("Missing data");
       
       const { error } = await supabase
@@ -256,6 +257,7 @@ const TrainingLesson = () => {
           lesson_id: currentLesson.id,
           user_id: userId,
           content,
+          parent_id: parentId || null,
           is_approved: isAdmin === true,
           approved_at: isAdmin ? new Date().toISOString() : null
         });
@@ -264,6 +266,7 @@ const TrainingLesson = () => {
     },
     onSuccess: () => {
       setNewComment("");
+      setReplyingTo(null);
       queryClient.invalidateQueries({ queryKey: ["lesson-comments"] });
       toast.success(isAdmin ? "Comentário publicado!" : "Comentário enviado! Aguardando aprovação.");
     },
@@ -281,6 +284,7 @@ const TrainingLesson = () => {
         .from("training_comments")
         .select("*, profiles:user_id(name, avatar_url)")
         .eq("lesson_id", currentLesson.id)
+        .is("parent_id", null)
         .or(`is_approved.eq.true,user_id.eq.${userId}`)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -288,6 +292,32 @@ const TrainingLesson = () => {
     },
     enabled: !!currentLesson?.id
   });
+
+  // Fetch replies for all comments
+  const { data: allReplies } = useQuery({
+    queryKey: ["lesson-comment-replies", currentLesson?.id],
+    queryFn: async () => {
+      if (!currentLesson?.id) return [];
+      const { data, error } = await supabase
+        .from("training_comments")
+        .select("*, profiles:user_id(name, avatar_url)")
+        .eq("lesson_id", currentLesson.id)
+        .not("parent_id", "is", null)
+        .or(`is_approved.eq.true,user_id.eq.${userId}`)
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!currentLesson?.id
+  });
+
+  // Group replies by parent_id
+  const repliesByParent = (allReplies || []).reduce((acc, reply) => {
+    const parentId = reply.parent_id;
+    if (!acc[parentId]) acc[parentId] = [];
+    acc[parentId].push(reply);
+    return acc;
+  }, {} as Record<string, typeof allReplies>);
 
   // Submit rating mutation
   const submitRatingMutation = useMutation({
@@ -451,15 +481,30 @@ const TrainingLesson = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Add Comment */}
+                {/* Reply indicator */}
+                {replyingTo && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+                    <span>Respondendo a <strong>{replyingTo.name}</strong></span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-5 px-2 text-xs"
+                      onClick={() => setReplyingTo(null)}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
+
                 <div className="flex gap-2">
                   <Textarea
-                    placeholder="Escreva um comentário..."
+                    placeholder={replyingTo ? `Responder a ${replyingTo.name}...` : "Escreva um comentário..."}
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     rows={2}
                   />
                   <Button 
-                    onClick={() => addCommentMutation.mutate(newComment)}
+                    onClick={() => addCommentMutation.mutate({ content: newComment, parentId: replyingTo?.id })}
                     disabled={!newComment.trim() || addCommentMutation.isPending}
                   >
                     <Send className="h-4 w-4" />
@@ -474,21 +519,59 @@ const TrainingLesson = () => {
                 ) : (
                   <div className="space-y-4">
                     {comments?.map((comment) => (
-                      <div key={comment.id} className="flex gap-3 p-3 bg-muted/50 rounded-lg">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">
-                              {(comment.profiles as any)?.name || "Usuário"}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {format(new Date(comment.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                            </span>
-                            {!comment.is_approved && comment.user_id === userId && (
-                              <Badge variant="secondary" className="text-xs">Pendente</Badge>
-                            )}
+                      <div key={comment.id} className="space-y-2">
+                        {/* Main Comment */}
+                        <div className="flex gap-3 p-3 bg-muted/50 rounded-lg">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">
+                                {(comment.profiles as any)?.name || "Usuário"}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(comment.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                              </span>
+                              {!comment.is_approved && comment.user_id === userId && (
+                                <Badge variant="secondary" className="text-xs">Pendente</Badge>
+                              )}
+                            </div>
+                            <p className="text-sm mb-2">{comment.content}</p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 text-xs text-muted-foreground hover:text-foreground"
+                              onClick={() => setReplyingTo({ 
+                                id: comment.id, 
+                                name: (comment.profiles as any)?.name || "Usuário" 
+                              })}
+                            >
+                              Responder
+                            </Button>
                           </div>
-                          <p className="text-sm">{comment.content}</p>
                         </div>
+
+                        {/* Replies */}
+                        {repliesByParent[comment.id]?.length > 0 && (
+                          <div className="ml-6 space-y-2">
+                            {repliesByParent[comment.id].map((reply: any) => (
+                              <div key={reply.id} className="flex gap-3 p-3 bg-muted/30 rounded-lg border-l-2 border-primary/30">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-medium text-sm">
+                                      {(reply.profiles as any)?.name || "Usuário"}
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {format(new Date(reply.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                                    </span>
+                                    {!reply.is_approved && reply.user_id === userId && (
+                                      <Badge variant="secondary" className="text-xs">Pendente</Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm">{reply.content}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
