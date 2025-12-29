@@ -3211,6 +3211,7 @@ export type Database = {
           is_approved: boolean | null
           lesson_id: string
           parent_comment_id: string | null
+          parent_id: string | null
           updated_at: string | null
           user_id: string
         }
@@ -3223,6 +3224,7 @@ export type Database = {
           is_approved?: boolean | null
           lesson_id: string
           parent_comment_id?: string | null
+          parent_id?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -3235,6 +3237,7 @@ export type Database = {
           is_approved?: boolean | null
           lesson_id?: string
           parent_comment_id?: string | null
+          parent_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -3249,6 +3252,13 @@ export type Database = {
           {
             foreignKeyName: "training_comments_parent_comment_id_fkey"
             columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "training_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_comments_parent_id_fkey"
+            columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "training_comments"
             referencedColumns: ["id"]
