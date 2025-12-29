@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,7 @@ import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
 
 // Categories Tab Component
-const CategoriesTab = () => {
+const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: string) => void }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
@@ -38,6 +38,22 @@ const CategoriesTab = () => {
         .order("order_position", { ascending: true });
       if (error) throw error;
       return data;
+    }
+  });
+
+  // Count trainings per category
+  const { data: trainingCounts } = useQuery({
+    queryKey: ["training-counts-by-category"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("trainings")
+        .select("category_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      data?.forEach(t => {
+        counts[t.category_id] = (counts[t.category_id] || 0) + 1;
+      });
+      return counts;
     }
   });
 
@@ -183,6 +199,18 @@ const CategoriesTab = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => onViewTrainings(category.id)}
+                    className="gap-1"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline">Treinamentos</span>
+                    {trainingCounts?.[category.id] ? (
+                      <Badge variant="secondary" className="ml-1">{trainingCounts[category.id]}</Badge>
+                    ) : null}
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -208,10 +236,11 @@ const CategoriesTab = () => {
 };
 
 // Trainings Tab Component
-const TrainingsTab = () => {
+const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: string; onViewLessons: (trainingId: string) => void }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTraining, setEditingTraining] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>(filterCategoryId);
   const [formData, setFormData] = useState({
     category_id: "",
     title: "",
@@ -220,6 +249,13 @@ const TrainingsTab = () => {
     estimated_duration_minutes: 0,
     is_active: true,
     is_published: false
+  });
+
+  // Sync with external filter
+  useState(() => {
+    if (filterCategoryId) {
+      setSelectedCategory(filterCategoryId);
+    }
   });
 
   const { data: categories } = useQuery({
@@ -236,14 +272,36 @@ const TrainingsTab = () => {
   });
 
   const { data: trainings, isLoading } = useQuery({
-    queryKey: ["trainings-admin"],
+    queryKey: ["trainings-admin", selectedCategory],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("trainings")
         .select("*, training_categories(name)")
         .order("order_position");
+      
+      if (selectedCategory) {
+        query = query.eq("category_id", selectedCategory);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data;
+    }
+  });
+
+  // Count lessons per training
+  const { data: lessonCounts } = useQuery({
+    queryKey: ["lesson-counts-by-training"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("training_lessons")
+        .select("training_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      data?.forEach(l => {
+        counts[l.training_id] = (counts[l.training_id] || 0) + 1;
+      });
+      return counts;
     }
   });
 
@@ -290,7 +348,7 @@ const TrainingsTab = () => {
 
   const resetForm = () => {
     setFormData({
-      category_id: "",
+      category_id: selectedCategory || "",
       title: "",
       description: "",
       introduction_video_url: "",
@@ -315,10 +373,30 @@ const TrainingsTab = () => {
     setDialogOpen(true);
   };
 
+  // Update selected category when filterCategoryId changes
+  React.useEffect(() => {
+    if (filterCategoryId) {
+      setSelectedCategory(filterCategoryId);
+    }
+  }, [filterCategoryId]);
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Treinamentos</h3>
+      <div className="flex justify-between items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-semibold">Treinamentos</h3>
+          <Select value={selectedCategory || "all"} onValueChange={(v) => setSelectedCategory(v === "all" ? "" : v)}>
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder="Filtrar por categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as categorias</SelectItem>
+              {categories?.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button size="sm">
@@ -411,7 +489,7 @@ const TrainingsTab = () => {
         <div className="text-center py-8 text-muted-foreground">Carregando...</div>
       ) : trainings?.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
-          Nenhum treinamento cadastrado
+          {selectedCategory ? "Nenhum treinamento nesta categoria" : "Nenhum treinamento cadastrado"}
         </div>
       ) : (
         <div className="grid gap-3">
@@ -447,6 +525,18 @@ const TrainingsTab = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => onViewLessons(training.id)}
+                      className="gap-1"
+                    >
+                      <Video className="h-4 w-4" />
+                      <span className="hidden sm:inline">Aulas</span>
+                      {lessonCounts?.[training.id] ? (
+                        <Badge variant="secondary" className="ml-1">{lessonCounts[training.id]}</Badge>
+                      ) : null}
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(training)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -473,11 +563,11 @@ const TrainingsTab = () => {
 };
 
 // Lessons Tab Component
-const LessonsTab = () => {
+const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
-  const [selectedTraining, setSelectedTraining] = useState<string>("");
+  const [selectedTraining, setSelectedTraining] = useState<string>(filterTrainingId);
   const [formData, setFormData] = useState({
     training_id: "",
     title: "",
@@ -488,6 +578,13 @@ const LessonsTab = () => {
     duration_minutes: 0,
     is_active: true
   });
+
+  // Update selected training when filterTrainingId changes
+  React.useEffect(() => {
+    if (filterTrainingId) {
+      setSelectedTraining(filterTrainingId);
+    }
+  }, [filterTrainingId]);
 
   const { data: trainings } = useQuery({
     queryKey: ["trainings-admin"],
@@ -911,6 +1008,20 @@ const CommentsTab = () => {
 
 // Main Admin Training Page
 const AdminTraining = () => {
+  const [activeTab, setActiveTab] = useState("categories");
+  const [filterCategoryId, setFilterCategoryId] = useState("");
+  const [filterTrainingId, setFilterTrainingId] = useState("");
+
+  const handleViewTrainings = (categoryId: string) => {
+    setFilterCategoryId(categoryId);
+    setActiveTab("trainings");
+  };
+
+  const handleViewLessons = (trainingId: string) => {
+    setFilterTrainingId(trainingId);
+    setActiveTab("lessons");
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -920,7 +1031,12 @@ const AdminTraining = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="categories" className="w-full">
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+        // Clear filters when manually switching tabs
+        if (value === "trainings") setFilterCategoryId("");
+        if (value === "lessons") setFilterTrainingId("");
+      }} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="categories">Categorias</TabsTrigger>
           <TabsTrigger value="trainings">Treinamentos</TabsTrigger>
@@ -929,15 +1045,15 @@ const AdminTraining = () => {
         </TabsList>
         
         <TabsContent value="categories" className="mt-6">
-          <CategoriesTab />
+          <CategoriesTab onViewTrainings={handleViewTrainings} />
         </TabsContent>
         
         <TabsContent value="trainings" className="mt-6">
-          <TrainingsTab />
+          <TrainingsTab filterCategoryId={filterCategoryId} onViewLessons={handleViewLessons} />
         </TabsContent>
         
         <TabsContent value="lessons" className="mt-6">
-          <LessonsTab />
+          <LessonsTab filterTrainingId={filterTrainingId} />
         </TabsContent>
         
         <TabsContent value="comments" className="mt-6">
