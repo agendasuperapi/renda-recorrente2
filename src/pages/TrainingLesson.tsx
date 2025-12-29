@@ -523,12 +523,17 @@ const TrainingLesson = () => {
                 {lessons?.map((lesson, index) => {
                   const isCompleted = isLessonCompleted(lesson.id);
                   const isAccessible = isLessonAccessible(index);
-                  const isCurrent = lesson.id === currentLesson.id;
+                  const isCurrent = lesson.id === currentLesson?.id && !showRatingForm;
 
                   return (
                     <button
                       key={lesson.id}
-                      onClick={() => isAccessible && navigate(`/user/training/lesson/${lesson.id}`)}
+                      onClick={() => {
+                        if (isAccessible) {
+                          setShowRatingForm(false);
+                          navigate(`/user/training/lesson/${lesson.id}`);
+                        }
+                      }}
                       disabled={!isAccessible}
                       className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
                         isCurrent ? 'bg-primary/10' : 'hover:bg-muted/50'
@@ -565,6 +570,45 @@ const TrainingLesson = () => {
                     </button>
                   );
                 })}
+
+                {/* Conclusão/Avaliação Card */}
+                <button
+                  onClick={() => {
+                    if (isTrainingComplete) {
+                      setShowRatingForm(true);
+                    }
+                  }}
+                  disabled={!isTrainingComplete}
+                  className={`w-full flex items-center gap-3 p-3 text-left transition-colors ${
+                    showRatingForm ? 'bg-primary/10' : 'hover:bg-muted/50'
+                  } ${!isTrainingComplete ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 text-sm font-medium ${
+                    userRating 
+                      ? 'bg-green-500 text-white' 
+                      : showRatingForm 
+                        ? 'bg-primary text-primary-foreground'
+                        : !isTrainingComplete
+                          ? 'bg-muted text-muted-foreground'
+                          : 'bg-muted'
+                  }`}>
+                    {userRating ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : !isTrainingComplete ? (
+                      <Lock className="h-3 w-3" />
+                    ) : (
+                      <Star className="h-4 w-4" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm truncate ${showRatingForm ? 'font-medium' : ''}`}>
+                      Conclusão
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Avalie o treinamento
+                    </p>
+                  </div>
+                </button>
               </div>
             </CardContent>
           </Card>
