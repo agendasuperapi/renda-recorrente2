@@ -3253,6 +3253,41 @@ export type Database = {
             referencedRelation: "training_comments"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "training_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_affiliate_dashboard_stats"
+            referencedColumns: ["affiliate_id"]
+          },
+          {
+            foreignKeyName: "training_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "view_referrals"
+            referencedColumns: ["referrer_id"]
+          },
         ]
       }
       training_lessons: {
