@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
@@ -928,10 +928,21 @@ const CommentsTab = () => {
               <span>{format(new Date(comment.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</span>
             </div>
             <p className="text-sm mb-2">{comment.content}</p>
-            <div className="text-xs text-muted-foreground">
-              <span>{(comment.training_lessons as any)?.trainings?.title}</span>
-              <ChevronRight className="inline h-3 w-3 mx-1" />
-              <span>{(comment.training_lessons as any)?.title}</span>
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-muted-foreground">
+                <span>{(comment.training_lessons as any)?.trainings?.title}</span>
+                <ChevronRight className="inline h-3 w-3 mx-1" />
+                <span>{(comment.training_lessons as any)?.title}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => window.open(`/treinamentos/aula/${comment.lesson_id}`, '_blank')}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Ir para aula
+              </Button>
             </div>
           </div>
           {showActions && (
