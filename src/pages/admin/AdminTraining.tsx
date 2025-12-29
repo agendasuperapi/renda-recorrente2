@@ -1031,16 +1031,9 @@ const AdminTraining = () => {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(value) => {
-        setActiveTab(value);
-        // Clear filters when manually switching tabs
-        if (value === "trainings") setFilterCategoryId("");
-        if (value === "lessons") setFilterTrainingId("");
-      }} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="categories">Categorias</TabsTrigger>
-          <TabsTrigger value="trainings">Treinamentos</TabsTrigger>
-          <TabsTrigger value="lessons">Aulas</TabsTrigger>
           <TabsTrigger value="comments">Comentários</TabsTrigger>
         </TabsList>
         
