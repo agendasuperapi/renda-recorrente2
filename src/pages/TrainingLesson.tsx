@@ -516,7 +516,7 @@ const TrainingLesson = () => {
                                 {(comment.profiles as any)?.name || "Usuário"}
                               </span>
                               <span className="text-xs text-muted-foreground">
-                                {format(new Date(comment.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                                {format(new Date(comment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                               </span>
                               {!comment.is_approved && comment.user_id === userId && (
                                 <Badge variant="secondary" className="text-xs">Pendente</Badge>
@@ -548,7 +548,7 @@ const TrainingLesson = () => {
                                       {(reply.profiles as any)?.name || "Usuário"}
                                     </span>
                                     <span className="text-xs text-muted-foreground">
-                                      {format(new Date(reply.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                                      {format(new Date(reply.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                                     </span>
                                     {!reply.is_approved && reply.user_id === userId && (
                                       <Badge variant="secondary" className="text-xs">Pendente</Badge>
