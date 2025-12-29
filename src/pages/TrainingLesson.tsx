@@ -264,10 +264,11 @@ const TrainingLesson = () => {
       
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       setNewComment("");
       setReplyingTo(null);
-      queryClient.invalidateQueries({ queryKey: ["lesson-comments"] });
+      queryClient.invalidateQueries({ queryKey: ["lesson-comments", currentLesson?.id] });
+      queryClient.invalidateQueries({ queryKey: ["lesson-comment-replies", currentLesson?.id] });
       toast.success(isAdmin ? "Comentário publicado!" : "Comentário enviado! Aguardando aprovação.");
     },
     onError: (error: any) => {
