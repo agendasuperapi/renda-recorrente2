@@ -351,8 +351,8 @@ const TrainingLesson = () => {
       <div className="grid lg:grid-cols-[1fr_300px] gap-6">
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Lesson Content - Hidden when training is complete */}
-          {!isTrainingComplete && (
+          {/* Lesson Content - Hidden when showing rating form */}
+          {!showRatingForm && (
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -424,8 +424,8 @@ const TrainingLesson = () => {
             </Card>
           )}
 
-          {/* Comments Section - Hidden when training is complete */}
-          {!isTrainingComplete && (
+          {/* Comments Section - Hidden when showing rating form */}
+          {!showRatingForm && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
