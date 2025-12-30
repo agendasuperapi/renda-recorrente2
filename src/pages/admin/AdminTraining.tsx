@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 // Categories Tab Component
 const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: string) => void }) => {
@@ -155,24 +156,21 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                   placeholder="Descrição da categoria..."
                 />
               </div>
-              <div className="space-y-2">
-                <Label>URL da Capa</Label>
-                <Input
-                  value={formData.cover_image_url}
-                  onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                  placeholder="https://exemplo.com/capa.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Imagem de capa para o card (recomendado: 400x225px)</p>
-              </div>
-              <div className="space-y-2">
-                <Label>URL do Banner</Label>
-                <Input
-                  value={formData.banner_url}
-                  onChange={(e) => setFormData({ ...formData, banner_url: e.target.value })}
-                  placeholder="https://exemplo.com/banner.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Banner para o topo da página (recomendado: 1200x400px)</p>
-              </div>
+              <ImageUpload
+                label="Imagem de Capa"
+                value={formData.cover_image_url}
+                onChange={(url) => setFormData({ ...formData, cover_image_url: url })}
+                folder="categories/covers"
+                hint="Imagem do card (recomendado: 400x225px)"
+              />
+              <ImageUpload
+                label="Banner"
+                value={formData.banner_url}
+                onChange={(url) => setFormData({ ...formData, banner_url: url })}
+                folder="categories/banners"
+                aspectRatio="aspect-[3/1]"
+                hint="Banner para o topo da página (recomendado: 1200x400px)"
+              />
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
                 <Switch
@@ -500,24 +498,21 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                   onChange={(e) => setFormData({ ...formData, estimated_duration_minutes: parseInt(e.target.value) || 0 })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>URL da Miniatura</Label>
-                <Input
-                  value={formData.thumbnail_url}
-                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                  placeholder="https://exemplo.com/thumbnail.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Imagem do card (recomendado: 400x225px)</p>
-              </div>
-              <div className="space-y-2">
-                <Label>URL do Banner</Label>
-                <Input
-                  value={formData.banner_url}
-                  onChange={(e) => setFormData({ ...formData, banner_url: e.target.value })}
-                  placeholder="https://exemplo.com/banner.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Banner da página (recomendado: 1200x400px)</p>
-              </div>
+              <ImageUpload
+                label="Miniatura"
+                value={formData.thumbnail_url}
+                onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
+                folder="trainings/thumbnails"
+                hint="Imagem do card (recomendado: 400x225px)"
+              />
+              <ImageUpload
+                label="Banner"
+                value={formData.banner_url}
+                onChange={(url) => setFormData({ ...formData, banner_url: url })}
+                folder="trainings/banners"
+                aspectRatio="aspect-[3/1]"
+                hint="Banner da página (recomendado: 1200x400px)"
+              />
               <div className="flex items-center justify-between">
                 <Label>Ativo</Label>
                 <Switch
@@ -865,15 +860,13 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                   onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>URL da Miniatura</Label>
-                <Input
-                  value={formData.thumbnail_url}
-                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                  placeholder="https://exemplo.com/thumbnail.jpg"
-                />
-                <p className="text-xs text-muted-foreground">Imagem do card da aula (recomendado: 400x225px)</p>
-              </div>
+              <ImageUpload
+                label="Miniatura"
+                value={formData.thumbnail_url}
+                onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
+                folder="lessons/thumbnails"
+                hint="Imagem do card da aula (recomendado: 400x225px)"
+              />
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
                 <Switch
