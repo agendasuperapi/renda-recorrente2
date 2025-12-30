@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FolderOpen, BookOpen, CheckCircle, ChevronRight, Clock, Star } from "lucide-react";
+import { GraduationCap, FolderOpen, CheckCircle, ChevronRight, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Training = () => {
@@ -34,6 +34,8 @@ const Training = () => {
         .select(`
           id,
           category_id,
+          title,
+          thumbnail_url,
           training_lessons(id)
         `)
         .eq("is_published", true)
@@ -80,6 +82,11 @@ const Training = () => {
     return { totalTrainings, totalLessons, completedLessons, percentage };
   };
 
+  // Get trainings for carousel
+  const getCategoryTrainings = (categoryId: string) => {
+    return trainings?.filter(t => t.category_id === categoryId) || [];
+  };
+
   // Calculate overall progress
   const overallProgress = (() => {
     if (!trainings || trainings.length === 0) return 0;
@@ -99,150 +106,172 @@ const Training = () => {
     return totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
   })();
 
+  // Get first category for hero banner
+  const firstCategory = categories?.[0];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Treinamentos</h1>
-        <p className="text-muted-foreground">
-          Aprenda tudo sobre o programa de afiliados
-        </p>
-      </div>
-
-      {/* Overall Progress Card */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-primary/20 rounded-full">
-              <GraduationCap className="h-8 w-8 text-primary" />
+    <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+      {/* Hero Banner */}
+      {firstCategory && (
+        <div 
+          className="relative h-[300px] md:h-[400px] bg-cover bg-center"
+          style={{
+            backgroundImage: firstCategory.banner_url 
+              ? `url(${firstCategory.banner_url})` 
+              : firstCategory.cover_image_url 
+                ? `url(${firstCategory.cover_image_url})`
+                : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-full">
+                <GraduationCap className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-4xl font-bold text-foreground">Treinamentos</h1>
+                <p className="text-muted-foreground">Aprenda tudo sobre o programa de afiliados</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold">Seu Progresso Geral</h2>
-              <p className="text-sm text-muted-foreground">
-                {overallProgress === 100 
-                  ? "Parabéns! Você completou todos os treinamentos!" 
-                  : "Continue aprendendo para desbloquear todo o conteúdo"}
-              </p>
-            </div>
-            {overallProgress === 100 && (
-              <Badge className="bg-green-500">
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Completo
-              </Badge>
-            )}
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Progresso</span>
-              <span className="font-medium">{overallProgress}%</span>
-            </div>
-            <Progress value={overallProgress} className="h-3" />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Categories Grid */}
-      {categoriesLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-48" />
-          ))}
-        </div>
-      ) : categories?.length === 0 ? (
-        <Card className="p-12">
-          <div className="text-center">
-            <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum treinamento disponível</h3>
-            <p className="text-muted-foreground">
-              Os treinamentos estarão disponíveis em breve!
-            </p>
-          </div>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categories?.map((category) => {
-            const stats = getCategoryStats(category.id);
-            const isCompleted = stats.percentage === 100;
             
-            return (
-              <Link 
-                key={category.id} 
-                to={`/user/training/category/${category.id}`}
-                className="block"
-              >
-                <Card className={`h-full hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer ${
-                  isCompleted ? 'border-green-500/50 bg-green-500/5' : ''
-                }`}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          isCompleted ? 'bg-green-500/20' : 'bg-primary/10'
-                        }`}>
-                          {isCompleted ? (
-                            <CheckCircle className="h-6 w-6 text-green-500" />
-                          ) : (
-                            <FolderOpen className="h-6 w-6 text-primary" />
-                          )}
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">{category.name}</CardTitle>
-                          {stats.totalTrainings > 0 && (
-                            <p className="text-sm text-muted-foreground">
-                              {stats.totalTrainings} {stats.totalTrainings === 1 ? 'treinamento' : 'treinamentos'}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {category.description && (
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {category.description}
-                      </p>
-                    )}
-                    
-                    {stats.totalLessons > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">
-                            {stats.completedLessons} de {stats.totalLessons} aulas
-                          </span>
-                          <span className={`font-medium ${isCompleted ? 'text-green-500' : ''}`}>
-                            {stats.percentage}%
-                          </span>
-                        </div>
-                        <Progress 
-                          value={stats.percentage} 
-                          className={`h-2 ${isCompleted ? '[&>div]:bg-green-500' : ''}`} 
+            {/* Progress bar in banner */}
+            <div className="max-w-md">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-foreground/80">Seu progresso geral</span>
+                <span className="font-medium text-foreground">{overallProgress}%</span>
+              </div>
+              <Progress value={overallProgress} className="h-2" />
+            </div>
+          </div>
+
+          {/* Trainings Carousel in Banner */}
+          {getCategoryTrainings(firstCategory.id).length > 0 && (
+            <div className="absolute bottom-4 right-4 md:right-8">
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {getCategoryTrainings(firstCategory.id).slice(0, 3).map((training) => (
+                  <Link
+                    key={training.id}
+                    to={`/user/training/${training.id}`}
+                    className="flex-shrink-0 group"
+                  >
+                    <div className="w-32 md:w-40 bg-card/90 backdrop-blur-sm rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all hover:scale-105">
+                      {training.thumbnail_url ? (
+                        <img 
+                          src={training.thumbnail_url} 
+                          alt={training.title}
+                          className="w-full h-20 object-cover"
                         />
+                      ) : (
+                        <div className="w-full h-20 bg-muted flex items-center justify-center">
+                          <PlayCircle className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="p-2">
+                        <p className="text-xs font-medium line-clamp-2">{training.title}</p>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
+                    </div>
+                  </Link>
+                ))}
+                {getCategoryTrainings(firstCategory.id).length > 3 && (
+                  <Link
+                    to={`/user/training/category/${firstCategory.id}`}
+                    className="flex-shrink-0 w-10 h-full flex items-center justify-center bg-card/90 backdrop-blur-sm rounded-lg border border-border/50 hover:border-primary/50 transition-all"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Help Card */}
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <GraduationCap className="h-6 w-6 text-primary" />
-            Precisa de Ajuda?
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Entre em contato com nosso suporte para tirar dúvidas ou agendar
-            uma sessão de treinamento personalizada.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Categories Grid */}
+        {categoriesLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => (
+              <Skeleton key={i} className="h-64 rounded-xl" />
+            ))}
+          </div>
+        ) : categories?.length === 0 ? (
+          <Card className="p-12">
+            <div className="text-center">
+              <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nenhum treinamento disponível</h3>
+              <p className="text-muted-foreground">
+                Os treinamentos estarão disponíveis em breve!
+              </p>
+            </div>
+          </Card>
+        ) : (
+          categories?.map((category) => {
+            const stats = getCategoryStats(category.id);
+            const isCompleted = stats.percentage === 100;
+            const categoryTrainings = getCategoryTrainings(category.id);
+            
+            return (
+              <div key={category.id} className="space-y-4">
+                {/* Category Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl md:text-2xl font-bold">{category.name}</h2>
+                    {isCompleted && (
+                      <Badge className="bg-green-500">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Completo
+                      </Badge>
+                    )}
+                  </div>
+                  <Link 
+                    to={`/user/training/category/${category.id}`}
+                    className="text-sm text-primary hover:underline flex items-center gap-1"
+                  >
+                    Ver todos
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+
+                {/* Trainings Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {categoryTrainings.map((training) => (
+                    <Link
+                      key={training.id}
+                      to={`/user/training/${training.id}`}
+                      className="group"
+                    >
+                      <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] h-full">
+                        {/* Thumbnail */}
+                        <div className="aspect-video relative bg-muted">
+                          {training.thumbnail_url ? (
+                            <img 
+                              src={training.thumbnail_url} 
+                              alt={training.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                              <PlayCircle className="h-10 w-10 text-primary/50" />
+                            </div>
+                          )}
+                          {/* Play overlay on hover */}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <PlayCircle className="h-12 w-12 text-white" />
+                          </div>
+                        </div>
+                        <CardContent className="p-3">
+                          <h3 className="font-medium text-sm line-clamp-2">{training.title}</h3>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };

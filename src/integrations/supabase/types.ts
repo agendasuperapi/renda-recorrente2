@@ -3167,6 +3167,7 @@ export type Database = {
       }
       training_categories: {
         Row: {
+          banner_url: string | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
@@ -3178,6 +3179,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          banner_url?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -3189,6 +3191,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          banner_url?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
@@ -3310,6 +3313,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           order_position: number | null
+          thumbnail_url: string | null
           title: string
           training_id: string
           updated_at: string | null
@@ -3324,6 +3328,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           order_position?: number | null
+          thumbnail_url?: string | null
           title: string
           training_id: string
           updated_at?: string | null
@@ -3338,6 +3343,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           order_position?: number | null
+          thumbnail_url?: string | null
           title?: string
           training_id?: string
           updated_at?: string | null
@@ -3465,6 +3471,7 @@ export type Database = {
       }
       trainings: {
         Row: {
+          banner_url: string | null
           category_id: string
           created_at: string | null
           description: string | null
@@ -3479,6 +3486,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          banner_url?: string | null
           category_id: string
           created_at?: string | null
           description?: string | null
@@ -3493,6 +3501,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          banner_url?: string | null
           category_id?: string
           created_at?: string | null
           description?: string | null
