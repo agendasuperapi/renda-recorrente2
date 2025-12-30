@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp, Image, ImagePlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -28,6 +28,8 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
     name: "",
     description: "",
     icon: "BookOpen",
+    cover_image_url: "",
+    banner_url: "",
     is_active: true
   });
 
@@ -104,7 +106,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
   });
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", icon: "BookOpen", is_active: true });
+    setFormData({ name: "", description: "", icon: "BookOpen", cover_image_url: "", banner_url: "", is_active: true });
     setEditingCategory(null);
   };
 
@@ -114,6 +116,8 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
       name: category.name,
       description: category.description || "",
       icon: category.icon || "BookOpen",
+      cover_image_url: category.cover_image_url || "",
+      banner_url: category.banner_url || "",
       is_active: category.is_active
     });
     setDialogOpen(true);
@@ -151,6 +155,24 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                   placeholder="Descrição da categoria..."
                 />
               </div>
+              <div className="space-y-2">
+                <Label>URL da Capa</Label>
+                <Input
+                  value={formData.cover_image_url}
+                  onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                  placeholder="https://exemplo.com/capa.jpg"
+                />
+                <p className="text-xs text-muted-foreground">Imagem de capa para o card (recomendado: 400x225px)</p>
+              </div>
+              <div className="space-y-2">
+                <Label>URL do Banner</Label>
+                <Input
+                  value={formData.banner_url}
+                  onChange={(e) => setFormData({ ...formData, banner_url: e.target.value })}
+                  placeholder="https://exemplo.com/banner.jpg"
+                />
+                <p className="text-xs text-muted-foreground">Banner para o topo da página (recomendado: 1200x400px)</p>
+              </div>
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
                 <Switch
@@ -178,29 +200,42 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
           Nenhuma categoria cadastrada
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories?.map((category) => (
-            <Card key={category.id} className={`hover:shadow-md transition-shadow ${!category.is_active ? 'border-destructive/50 bg-destructive/5' : ''}`}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <FolderOpen className="h-5 w-5 text-primary" />
+            <Card key={category.id} className={`overflow-hidden hover:shadow-lg transition-all group ${!category.is_active ? 'border-destructive/50 opacity-60' : ''}`}>
+              {/* Cover Image */}
+              <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                {category.cover_image_url ? (
+                  <img 
+                    src={category.cover_image_url} 
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <FolderOpen className="h-12 w-12 text-primary/40" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{category.name}</span>
-                      {!category.is_active && (
-                        <Badge variant="destructive">Inativa</Badge>
-                      )}
-                    </div>
-                    {category.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {category.description}
-                      </p>
-                    )}
-                  </div>
+                )}
+                {!category.is_active && (
+                  <Badge variant="destructive" className="absolute top-2 right-2">Inativa</Badge>
+                )}
+                {category.banner_url && (
+                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1">
+                    <Image className="h-3 w-3" />
+                    Banner
+                  </Badge>
+                )}
+              </div>
+              <CardContent className="p-4">
+                <div className="mb-3">
+                  <h3 className="font-semibold text-lg">{category.name}</h3>
+                  {category.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                      {category.description}
+                    </p>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -208,25 +243,27 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                     className="gap-1"
                   >
                     <BookOpen className="h-4 w-4" />
-                    <span className="hidden sm:inline">Treinamentos</span>
+                    Treinamentos
                     {trainingCounts?.[category.id] ? (
                       <Badge variant="secondary" className="ml-1">{trainingCounts[category.id]}</Badge>
                     ) : null}
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => {
-                      if (confirm("Excluir esta categoria? Todos os treinamentos serão removidos.")) {
-                        deleteMutation.mutate(category.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => {
+                        if (confirm("Excluir esta categoria? Todos os treinamentos serão removidos.")) {
+                          deleteMutation.mutate(category.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -248,6 +285,8 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
     title: "",
     description: "",
     introduction_video_url: "",
+    thumbnail_url: "",
+    banner_url: "",
     estimated_duration_minutes: 0,
     is_active: true,
     is_published: false
@@ -354,6 +393,8 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       title: "",
       description: "",
       introduction_video_url: "",
+      thumbnail_url: "",
+      banner_url: "",
       estimated_duration_minutes: 0,
       is_active: true,
       is_published: false
@@ -368,6 +409,8 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       title: training.title,
       description: training.description || "",
       introduction_video_url: training.introduction_video_url || "",
+      thumbnail_url: training.thumbnail_url || "",
+      banner_url: training.banner_url || "",
       estimated_duration_minutes: training.estimated_duration_minutes || 0,
       is_active: training.is_active,
       is_published: training.is_published
@@ -457,6 +500,24 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                   onChange={(e) => setFormData({ ...formData, estimated_duration_minutes: parseInt(e.target.value) || 0 })}
                 />
               </div>
+              <div className="space-y-2">
+                <Label>URL da Miniatura</Label>
+                <Input
+                  value={formData.thumbnail_url}
+                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+                  placeholder="https://exemplo.com/thumbnail.jpg"
+                />
+                <p className="text-xs text-muted-foreground">Imagem do card (recomendado: 400x225px)</p>
+              </div>
+              <div className="space-y-2">
+                <Label>URL do Banner</Label>
+                <Input
+                  value={formData.banner_url}
+                  onChange={(e) => setFormData({ ...formData, banner_url: e.target.value })}
+                  placeholder="https://exemplo.com/banner.jpg"
+                />
+                <p className="text-xs text-muted-foreground">Banner da página (recomendado: 1200x400px)</p>
+              </div>
               <div className="flex items-center justify-between">
                 <Label>Ativo</Label>
                 <Switch
@@ -494,51 +555,63 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
           {selectedCategory ? "Nenhum treinamento nesta categoria" : "Nenhum treinamento cadastrado"}
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {trainings?.map((training) => (
-            <Card key={training.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <BookOpen className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{training.title}</span>
-                        {training.is_published ? (
-                          <Badge className="bg-green-500">Publicado</Badge>
-                        ) : (
-                          <Badge variant="secondary">Rascunho</Badge>
-                        )}
-                        {!training.is_active && (
-                          <Badge variant="outline">Inativo</Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{(training.training_categories as any)?.name}</span>
-                        {training.estimated_duration_minutes > 0 && (
-                          <>
-                            <span>•</span>
-                            <span>{training.estimated_duration_minutes} min</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+            <Card key={training.id} className={`overflow-hidden hover:shadow-lg transition-all group ${!training.is_active ? 'opacity-60' : ''}`}>
+              {/* Thumbnail */}
+              <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                {training.thumbnail_url ? (
+                  <img 
+                    src={training.thumbnail_url} 
+                    alt={training.title}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <BookOpen className="h-12 w-12 text-primary/40" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => onViewLessons(training.id)}
-                      className="gap-1"
-                    >
-                      <Video className="h-4 w-4" />
-                      <span className="hidden sm:inline">Aulas</span>
-                      {lessonCounts?.[training.id] ? (
-                        <Badge variant="secondary" className="ml-1">{lessonCounts[training.id]}</Badge>
-                      ) : null}
-                    </Button>
+                )}
+                <div className="absolute top-2 right-2 flex gap-1">
+                  {training.is_published ? (
+                    <Badge className="bg-green-500">Publicado</Badge>
+                  ) : (
+                    <Badge variant="secondary">Rascunho</Badge>
+                  )}
+                </div>
+                {training.banner_url && (
+                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1">
+                    <Image className="h-3 w-3" />
+                    Banner
+                  </Badge>
+                )}
+              </div>
+              <CardContent className="p-4">
+                <div className="mb-3">
+                  <h3 className="font-semibold text-lg line-clamp-1">{training.title}</h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <span>{(training.training_categories as any)?.name}</span>
+                    {training.estimated_duration_minutes > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>{training.estimated_duration_minutes} min</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => onViewLessons(training.id)}
+                    className="gap-1"
+                  >
+                    <Video className="h-4 w-4" />
+                    Aulas
+                    {lessonCounts?.[training.id] ? (
+                      <Badge variant="secondary" className="ml-1">{lessonCounts[training.id]}</Badge>
+                    ) : null}
+                  </Button>
+                  <div className="flex items-center gap-1">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(training)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -577,6 +650,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
     content_type: "video",
     video_url: "",
     content_html: "",
+    thumbnail_url: "",
     duration_minutes: 0,
     is_active: true
   });
@@ -667,6 +741,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
       content_type: "video",
       video_url: "",
       content_html: "",
+      thumbnail_url: "",
       duration_minutes: 0,
       is_active: true
     });
@@ -682,6 +757,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
       content_type: lesson.content_type,
       video_url: lesson.video_url || "",
       content_html: lesson.content_html || "",
+      thumbnail_url: lesson.thumbnail_url || "",
       duration_minutes: lesson.duration_minutes || 0,
       is_active: lesson.is_active
     });
@@ -789,6 +865,15 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                   onChange={(e) => setFormData({ ...formData, duration_minutes: parseInt(e.target.value) || 0 })}
                 />
               </div>
+              <div className="space-y-2">
+                <Label>URL da Miniatura</Label>
+                <Input
+                  value={formData.thumbnail_url}
+                  onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+                  placeholder="https://exemplo.com/thumbnail.jpg"
+                />
+                <p className="text-xs text-muted-foreground">Imagem do card da aula (recomendado: 400x225px)</p>
+              </div>
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
                 <Switch
@@ -819,55 +904,60 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
           {selectedTraining ? "Nenhuma aula neste treinamento" : "Nenhuma aula cadastrada"}
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {lessons?.map((lesson, index) => (
-            <Card key={lesson.id} className="hover:shadow-md transition-shadow">
+            <Card key={lesson.id} className={`overflow-hidden hover:shadow-lg transition-all group ${!lesson.is_active ? 'opacity-60' : ''}`}>
+              {/* Thumbnail */}
+              <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                {lesson.thumbnail_url ? (
+                  <img 
+                    src={lesson.thumbnail_url} 
+                    alt={lesson.title}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Video className="h-12 w-12 text-primary/40" />
+                  </div>
+                )}
+                <div className="absolute top-2 left-2 flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                  {index + 1}
+                </div>
+                <Badge variant="outline" className="absolute top-2 right-2 bg-background/80 text-xs">
+                  {lesson.content_type === "video" ? "Vídeo" : lesson.content_type === "text" ? "Texto" : "Misto"}
+                </Badge>
+                {!lesson.is_active && (
+                  <Badge variant="secondary" className="absolute bottom-2 right-2">Inativa</Badge>
+                )}
+              </div>
               <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold">
-                      {index + 1}
-                    </div>
-                    <div className="p-2 bg-muted rounded-lg">
-                      <Video className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{lesson.title}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {lesson.content_type === "video" ? "Vídeo" : lesson.content_type === "text" ? "Texto" : "Misto"}
-                        </Badge>
-                        {!lesson.is_active && (
-                          <Badge variant="secondary">Inativa</Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{(lesson.trainings as any)?.title}</span>
-                        {lesson.duration_minutes > 0 && (
-                          <>
-                            <span>•</span>
-                            <span>{lesson.duration_minutes} min</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                <div className="mb-3">
+                  <h3 className="font-semibold line-clamp-1">{lesson.title}</h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <span className="line-clamp-1">{(lesson.trainings as any)?.title}</span>
+                    {lesson.duration_minutes > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>{lesson.duration_minutes} min</span>
+                      </>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(lesson)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => {
-                        if (confirm("Excluir esta aula?")) {
-                          deleteMutation.mutate(lesson.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(lesson)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => {
+                      if (confirm("Excluir esta aula?")) {
+                        deleteMutation.mutate(lesson.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
