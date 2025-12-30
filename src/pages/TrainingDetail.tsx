@@ -21,7 +21,7 @@ const TrainingDetail = () => {
         .from("trainings")
         .select(`
           *,
-          training_categories(id, name),
+          training_categories(id, name, banner_url, cover_image_url),
           training_ratings(rating)
         `)
         .eq("id", trainingId)
@@ -98,12 +98,11 @@ const TrainingDetail = () => {
 
   if (trainingLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-4 w-full max-w-md" />
-        <div className="grid gap-4">
-          {[1, 2, 3].map(i => (
-            <Skeleton key={i} className="h-20 w-full" />
+      <div className="space-y-6 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+        <Skeleton className="h-[250px] w-full" />
+        <div className="px-4 sm:px-6 lg:px-8 space-y-4">
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} className="h-24 w-full" />
           ))}
         </div>
       </div>
@@ -124,157 +123,184 @@ const TrainingDetail = () => {
   const avgRating = getAverageRating(training.training_ratings as any[]);
   const categoryId = (training.training_categories as any)?.id;
   const categoryName = (training.training_categories as any)?.name;
+  const categoryBanner = (training.training_categories as any)?.banner_url || (training.training_categories as any)?.cover_image_url;
+
+  // Use training banner, or fallback to category banner
+  const bannerImage = training.banner_url || training.thumbnail_url || categoryBanner;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => navigate(categoryId ? `/user/training/category/${categoryId}` : "/user/training")} 
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          {categoryName ? `Voltar para ${categoryName}` : "Voltar"}
-        </Button>
+    <div className="space-y-6 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+      {/* Hero Banner */}
+      <div 
+        className="relative h-[200px] md:h-[300px] bg-cover bg-center"
+        style={{
+          backgroundImage: bannerImage 
+            ? `url(${bannerImage})` 
+            : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{training.title}</h1>
-            {training.description && (
-              <p className="text-muted-foreground mb-4">{training.description}</p>
-            )}
-            
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
-                {lessons?.length || 0} {(lessons?.length || 0) === 1 ? 'aula' : 'aulas'}
-              </span>
-              {training.estimated_duration_minutes > 0 && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {training.estimated_duration_minutes} min
-                </span>
-              )}
-              {Number(avgRating) > 0 && (
-                <span className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  {avgRating}
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Back Button */}
+        <div className="absolute top-4 left-4 md:top-6 md:left-6">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate(categoryId ? `/user/training/category/${categoryId}` : "/user/training")} 
+            className="bg-background/20 backdrop-blur-sm hover:bg-background/40"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {categoryName ? `Voltar para ${categoryName}` : "Voltar"}
+          </Button>
+        </div>
 
-          {/* Quick Start Button */}
-          {progress.percentage < 100 && (
+        {/* Training Info */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+          <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-2">{training.title}</h1>
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+            <span className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              {lessons?.length || 0} {(lessons?.length || 0) === 1 ? 'aula' : 'aulas'}
+            </span>
+            {training.estimated_duration_minutes > 0 && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                {training.estimated_duration_minutes} min
+              </span>
+            )}
+            {Number(avgRating) > 0 && (
+              <span className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                {avgRating}
+              </span>
+            )}
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="max-w-md">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-foreground/80">Seu Progresso</span>
+              <span className="font-medium text-foreground">{progress.completed} de {progress.total} aulas ({progress.percentage}%)</span>
+            </div>
+            <Progress value={progress.percentage} className="h-2" />
+            {progress.percentage === 100 && (
+              <div className="flex items-center gap-2 mt-2 text-green-500">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">Treinamento concluído!</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Start Button */}
+        {progress.percentage < 100 && (
+          <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8">
             <Button asChild size="lg">
               <Link to={`/user/training/lesson/${getFirstUncompletedLesson()?.id || lessons?.[0]?.id}`}>
                 <PlayCircle className="h-5 w-5 mr-2" />
                 {progress.percentage > 0 ? 'Continuar' : 'Iniciar'}
               </Link>
             </Button>
-          )}
-        </div>
-        
-        {/* Progress Bar */}
-        <div className="bg-card border rounded-lg p-4 mt-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Seu Progresso</span>
-            <span className="text-sm text-muted-foreground">{progress.completed} de {progress.total} aulas ({progress.percentage}%)</span>
           </div>
-          <Progress value={progress.percentage} className="h-2" />
-          {progress.percentage === 100 && (
-            <div className="flex items-center gap-2 mt-2 text-green-600">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-sm font-medium">Treinamento concluído!</span>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Lessons List */}
-      {lessonsLoading ? (
-        <div className="grid gap-3">
-          {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-20 w-full" />
-          ))}
-        </div>
-      ) : lessons?.length === 0 ? (
-        <div className="text-center py-12 border rounded-lg">
-          <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Nenhuma aula disponível neste treinamento</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Aulas</h2>
-          {lessons?.map((lesson, index) => {
-            const completed = isLessonCompleted(lesson.id);
-            const locked = isLessonLocked(index);
+      {/* Content */}
+      <div className="px-4 sm:px-6 lg:px-8 space-y-6">
+        {training.description && (
+          <p className="text-muted-foreground">{training.description}</p>
+        )}
 
-            return (
-              <Card 
-                key={lesson.id} 
-                className={`transition-all ${locked ? 'opacity-60' : 'hover:shadow-md cursor-pointer'} ${completed ? 'border-green-500/50' : ''}`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    {/* Lesson Number / Status */}
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 ${
-                      completed 
-                        ? 'bg-green-500 text-white' 
-                        : locked 
-                          ? 'bg-muted text-muted-foreground'
-                          : 'bg-primary/10 text-primary'
-                    }`}>
-                      {completed ? (
-                        <CheckCircle className="h-5 w-5" />
-                      ) : locked ? (
-                        <Lock className="h-4 w-4" />
-                      ) : (
-                        <span className="font-semibold">{index + 1}</span>
-                      )}
-                    </div>
+        <h2 className="text-xl font-bold">Aulas</h2>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium truncate">{lesson.title}</h3>
-                        {completed && (
-                          <Badge variant="outline" className="text-green-600 border-green-500">
-                            Concluída
-                          </Badge>
-                        )}
+        {/* Lessons List */}
+        {lessonsLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map(i => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
+          </div>
+        ) : lessons?.length === 0 ? (
+          <div className="text-center py-12 border rounded-lg">
+            <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Nenhuma aula disponível neste treinamento</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {lessons?.map((lesson, index) => {
+              const completed = isLessonCompleted(lesson.id);
+              const locked = isLessonLocked(index);
+
+              return (
+                <Link
+                  key={lesson.id}
+                  to={locked ? '#' : `/user/training/lesson/${lesson.id}`}
+                  className={locked ? 'cursor-not-allowed' : ''}
+                  onClick={(e) => locked && e.preventDefault()}
+                >
+                  <Card 
+                    className={`overflow-hidden transition-all ${locked ? 'opacity-60' : 'hover:shadow-md'} ${completed ? 'border-green-500/50' : ''}`}
+                  >
+                    <CardContent className="p-0">
+                      <div className="flex items-stretch">
+                        {/* Thumbnail */}
+                        <div className="w-24 md:w-36 flex-shrink-0 relative">
+                          {lesson.thumbnail_url ? (
+                            <img 
+                              src={lesson.thumbnail_url} 
+                              alt={lesson.title}
+                              className="w-full h-full object-cover min-h-[80px]"
+                            />
+                          ) : (
+                            <div className="w-full h-full min-h-[80px] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                              <PlayCircle className="h-8 w-8 text-primary/50" />
+                            </div>
+                          )}
+                          {/* Overlay for status */}
+                          {(locked || completed) && (
+                            <div className={`absolute inset-0 flex items-center justify-center ${completed ? 'bg-green-500/20' : 'bg-black/50'}`}>
+                              {completed ? (
+                                <CheckCircle className="h-6 w-6 text-green-500" />
+                              ) : (
+                                <Lock className="h-5 w-5 text-white" />
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 p-4 flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium">{lesson.title}</h3>
+                              {completed && (
+                                <Badge variant="outline" className="text-green-600 border-green-500">
+                                  Concluída
+                                </Badge>
+                              )}
+                            </div>
+                            {lesson.duration_minutes > 0 && (
+                              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                                <Clock className="h-3 w-3" />
+                                {lesson.duration_minutes} min
+                              </p>
+                            )}
+                          </div>
+                          
+                          {!locked && (
+                            <PlayCircle className="h-6 w-6 text-primary flex-shrink-0" />
+                          )}
+                        </div>
                       </div>
-                      {lesson.duration_minutes > 0 && (
-                        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                          <Clock className="h-3 w-3" />
-                          {lesson.duration_minutes} min
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Action */}
-                    <div className="flex-shrink-0">
-                      {locked ? (
-                        <Button variant="ghost" size="sm" disabled>
-                          <Lock className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/user/training/lesson/${lesson.id}`}>
-                            <PlayCircle className="h-5 w-5" />
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
