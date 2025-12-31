@@ -129,20 +129,9 @@ const TrainingCategory = () => {
   return (
     <div className="space-y-6 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
-      <div 
-        className="relative h-[250px] md:h-[350px] bg-cover bg-center"
-        style={{
-          backgroundImage: category.banner_url 
-            ? `url(${category.banner_url})` 
-            : category.cover_image_url 
-              ? `url(${category.cover_image_url})`
-              : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        
+      <div className="relative">
         {/* Back Button */}
-        <div className="absolute top-4 left-4 md:top-6 md:left-6">
+        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -154,27 +143,42 @@ const TrainingCategory = () => {
           </Button>
         </div>
 
-        {/* Category Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-2">{category.name}</h1>
-          {category.description && (
-            <p className="text-muted-foreground max-w-2xl">{category.description}</p>
-          )}
-          
-          {/* Progress Bar */}
-          <div className="max-w-md mt-4">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-foreground/80">Progresso na Categoria</span>
-              <span className="font-medium text-foreground">{categoryProgress}%</span>
-            </div>
-            <Progress value={categoryProgress} className="h-2" />
-            {categoryProgress === 100 && (
-              <div className="flex items-center gap-2 mt-2 text-green-500">
-                <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Categoria concluída!</span>
+        <div 
+          className="relative h-[200px] md:h-[280px] bg-cover bg-center"
+          style={{
+            backgroundImage: category.banner_url 
+              ? `url(${category.banner_url})` 
+              : category.cover_image_url 
+                ? `url(${category.cover_image_url})`
+                : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
+          }}
+        />
+        
+        {/* Info Card below banner */}
+        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+          <Card className="bg-card/95 backdrop-blur-sm border shadow-lg">
+            <CardContent className="p-6">
+              <h1 className="text-2xl md:text-4xl font-bold mb-2">{category.name}</h1>
+              {category.description && (
+                <p className="text-muted-foreground max-w-2xl mb-4">{category.description}</p>
+              )}
+              
+              {/* Progress Bar */}
+              <div className="max-w-md">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">Progresso na Categoria</span>
+                  <span className="font-medium">{categoryProgress}%</span>
+                </div>
+                <Progress value={categoryProgress} className="h-2" />
+                {categoryProgress === 100 && (
+                  <div className="flex items-center gap-2 mt-2 text-green-500">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">Categoria concluída!</span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
