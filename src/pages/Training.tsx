@@ -132,13 +132,18 @@ const Training = () => {
   const heroBackgroundImage = pageBannerUrl ? `url(${pageBannerUrl})` : pageCoverUrl ? `url(${pageCoverUrl})` : firstCategory?.banner_url ? `url(${firstCategory.banner_url})` : firstCategory?.cover_image_url ? `url(${firstCategory.cover_image_url})` : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)';
   return <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
-      {firstCategory && <div className="relative h-[300px] md:h-[400px] bg-cover bg-center" style={{
-      backgroundImage: heroBackgroundImage
-    }}>
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+      {firstCategory && <>
+        <div className="relative h-[200px] md:h-[280px] bg-cover bg-center" style={{
+          backgroundImage: heroBackgroundImage
+        }}>
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        </div>
+        
+        {/* Info Card below banner */}
+        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+          <Card className="p-6 md:p-8 bg-card/95 backdrop-blur-sm border">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-full">
+              <div className="p-3 bg-primary/20 rounded-full">
                 <GraduationCap className="h-8 w-8 text-primary" />
               </div>
               <div>
@@ -147,7 +152,7 @@ const Training = () => {
               </div>
             </div>
             
-            {/* Progress bar in banner */}
+            {/* Progress bar */}
             <div className="max-w-md">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-foreground/80">Seu progresso geral</span>
@@ -155,11 +160,9 @@ const Training = () => {
               </div>
               <Progress value={overallProgress} className="h-2" />
             </div>
-          </div>
-
-          {/* Trainings Carousel in Banner */}
-          {getCategoryTrainings(firstCategory.id).length > 0}
-        </div>}
+          </Card>
+        </div>
+      </>}
 
       <div className="px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Categories Grid */}
