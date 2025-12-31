@@ -107,6 +107,16 @@ const Training = () => {
     return trainings?.filter(t => t.category_id === categoryId) || [];
   };
 
+  // Check if a specific training is completed
+  const isTrainingCompleted = (trainingId: string) => {
+    const training = trainings?.find(t => t.id === trainingId);
+    if (!training) return false;
+    const lessonCount = (training.training_lessons as any[])?.length || 0;
+    if (lessonCount === 0) return false;
+    const completedLessons = userProgress?.filter(p => p.training_id === trainingId && p.is_completed).length || 0;
+    return completedLessons >= lessonCount;
+  };
+
   // Calculate overall progress
   const overallProgress = (() => {
     if (!trainings || trainings.length === 0) return 0;
@@ -198,23 +208,34 @@ const Training = () => {
 
                 {/* Trainings Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {categoryTrainings.map(training => <Link key={training.id} to={`/user/training/${training.id}`} className="group">
-                      <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] h-full">
-                        {/* Thumbnail */}
-                        <div className="aspect-video relative bg-muted">
-                          {training.thumbnail_url ? <img src={training.thumbnail_url} alt={training.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                              <PlayCircle className="h-10 w-10 text-primary/50" />
-                            </div>}
-                          {/* Play overlay on hover */}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <PlayCircle className="h-12 w-12 text-white" />
+                  {categoryTrainings.map(training => {
+                    const completed = isTrainingCompleted(training.id);
+                    return (
+                      <Link key={training.id} to={`/user/training/${training.id}`} className="group">
+                        <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] h-full">
+                          {/* Thumbnail */}
+                          <div className="aspect-video relative bg-muted">
+                            {training.thumbnail_url ? <img src={training.thumbnail_url} alt={training.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                                <PlayCircle className="h-10 w-10 text-primary/50" />
+                              </div>}
+                            {/* Play overlay on hover */}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <PlayCircle className="h-12 w-12 text-white" />
+                            </div>
+                            {/* Completion badge */}
+                            {completed && (
+                              <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 shadow-lg">
+                                <CheckCircle className="h-4 w-4 text-white" />
+                              </div>
+                            )}
                           </div>
-                        </div>
-                        <CardContent className="p-3">
-                          <h3 className="font-medium text-sm line-clamp-2">{training.title}</h3>
-                        </CardContent>
-                      </Card>
-                    </Link>)}
+                          <CardContent className="p-3">
+                            <h3 className="font-medium text-sm line-clamp-2">{training.title}</h3>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>;
       })}
