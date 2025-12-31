@@ -7,66 +7,74 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, FolderOpen, CheckCircle, ChevronRight, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-
 const Training = () => {
-  const { userId } = useAuth();
+  const {
+    userId
+  } = useAuth();
 
   // Fetch training page settings
-  const { data: pageSettings } = useQuery({
+  const {
+    data: pageSettings
+  } = useQuery({
     queryKey: ["training-page-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("app_settings")
-        .select("*")
-        .in("key", ["training_page_cover_url", "training_page_banner_url"]);
+      const {
+        data,
+        error
+      } = await supabase.from("app_settings").select("*").in("key", ["training_page_cover_url", "training_page_banner_url"]);
       if (error) throw error;
       return data;
     }
   });
 
   // Fetch categories
-  const { data: categories, isLoading: categoriesLoading } = useQuery({
+  const {
+    data: categories,
+    isLoading: categoriesLoading
+  } = useQuery({
     queryKey: ["training-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("training_categories")
-        .select("*")
-        .eq("is_active", true)
-        .order("order_position");
+      const {
+        data,
+        error
+      } = await supabase.from("training_categories").select("*").eq("is_active", true).order("order_position");
       if (error) throw error;
       return data;
     }
   });
 
   // Fetch all trainings with stats
-  const { data: trainings } = useQuery({
+  const {
+    data: trainings
+  } = useQuery({
     queryKey: ["trainings-with-stats"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("trainings")
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from("trainings").select(`
           id,
           category_id,
           title,
           thumbnail_url,
           training_lessons(id)
-        `)
-        .eq("is_published", true)
-        .eq("is_active", true);
+        `).eq("is_published", true).eq("is_active", true);
       if (error) throw error;
       return data;
     }
   });
 
   // Fetch user progress
-  const { data: userProgress } = useQuery({
+  const {
+    data: userProgress
+  } = useQuery({
     queryKey: ["user-all-progress", userId],
     queryFn: async () => {
       if (!userId) return [];
-      const { data, error } = await supabase
-        .from("training_progress")
-        .select("lesson_id, is_completed, training_id")
-        .eq("user_id", userId);
+      const {
+        data,
+        error
+      } = await supabase.from("training_progress").select("lesson_id, is_completed, training_id").eq("user_id", userId);
       if (error) throw error;
       return data;
     },
@@ -79,20 +87,19 @@ const Training = () => {
     const totalTrainings = categoryTrainings.length;
     let totalLessons = 0;
     let completedLessons = 0;
-
     categoryTrainings.forEach(training => {
       const lessonCount = (training.training_lessons as any[])?.length || 0;
       totalLessons += lessonCount;
-      
-      const trainingProgress = userProgress?.filter(
-        p => p.training_id === training.id && p.is_completed
-      ).length || 0;
+      const trainingProgress = userProgress?.filter(p => p.training_id === training.id && p.is_completed).length || 0;
       completedLessons += trainingProgress;
     });
-
-    const percentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-
-    return { totalTrainings, totalLessons, completedLessons, percentage };
+    const percentage = totalLessons > 0 ? Math.round(completedLessons / totalLessons * 100) : 0;
+    return {
+      totalTrainings,
+      totalLessons,
+      completedLessons,
+      percentage
+    };
   };
 
   // Get trainings for carousel
@@ -105,18 +112,13 @@ const Training = () => {
     if (!trainings || trainings.length === 0) return 0;
     let totalLessons = 0;
     let completedLessons = 0;
-
     trainings.forEach(training => {
       const lessonCount = (training.training_lessons as any[])?.length || 0;
       totalLessons += lessonCount;
-      
-      const trainingProgress = userProgress?.filter(
-        p => p.training_id === training.id && p.is_completed
-      ).length || 0;
+      const trainingProgress = userProgress?.filter(p => p.training_id === training.id && p.is_completed).length || 0;
       completedLessons += trainingProgress;
     });
-
-    return totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    return totalLessons > 0 ? Math.round(completedLessons / totalLessons * 100) : 0;
   })();
 
   // Get first category for hero banner
@@ -127,26 +129,12 @@ const Training = () => {
   const pageCoverUrl = pageSettings?.find(s => s.key === "training_page_cover_url")?.value;
 
   // Determine which image to use for the hero
-  const heroBackgroundImage = pageBannerUrl 
-    ? `url(${pageBannerUrl})`
-    : pageCoverUrl
-      ? `url(${pageCoverUrl})`
-      : firstCategory?.banner_url 
-        ? `url(${firstCategory.banner_url})` 
-        : firstCategory?.cover_image_url 
-          ? `url(${firstCategory.cover_image_url})`
-          : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)';
-
-  return (
-    <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+  const heroBackgroundImage = pageBannerUrl ? `url(${pageBannerUrl})` : pageCoverUrl ? `url(${pageCoverUrl})` : firstCategory?.banner_url ? `url(${firstCategory.banner_url})` : firstCategory?.cover_image_url ? `url(${firstCategory.cover_image_url})` : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)';
+  return <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
-      {firstCategory && (
-        <div 
-          className="relative h-[300px] md:h-[400px] bg-cover bg-center"
-          style={{
-            backgroundImage: heroBackgroundImage
-          }}
-        >
+      {firstCategory && <div className="relative h-[300px] md:h-[400px] bg-cover bg-center" style={{
+      backgroundImage: heroBackgroundImage
+    }}>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="flex items-center gap-3 mb-4">
@@ -170,57 +158,14 @@ const Training = () => {
           </div>
 
           {/* Trainings Carousel in Banner */}
-          {getCategoryTrainings(firstCategory.id).length > 0 && (
-            <div className="absolute bottom-4 right-4 md:right-8">
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {getCategoryTrainings(firstCategory.id).slice(0, 3).map((training) => (
-                  <Link
-                    key={training.id}
-                    to={`/user/training/${training.id}`}
-                    className="flex-shrink-0 group"
-                  >
-                    <div className="w-32 md:w-40 bg-card/90 backdrop-blur-sm rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all hover:scale-105">
-                      {training.thumbnail_url ? (
-                        <img 
-                          src={training.thumbnail_url} 
-                          alt={training.title}
-                          className="w-full h-20 object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-20 bg-muted flex items-center justify-center">
-                          <PlayCircle className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      <div className="p-2">
-                        <p className="text-xs font-medium line-clamp-2">{training.title}</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-                {getCategoryTrainings(firstCategory.id).length > 3 && (
-                  <Link
-                    to={`/user/training/category/${firstCategory.id}`}
-                    className="flex-shrink-0 w-10 h-full flex items-center justify-center bg-card/90 backdrop-blur-sm rounded-lg border border-border/50 hover:border-primary/50 transition-all"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Link>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+          {getCategoryTrainings(firstCategory.id).length > 0}
+        </div>}
 
       <div className="px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Categories Grid */}
-        {categoriesLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className="h-64 rounded-xl" />
-            ))}
-          </div>
-        ) : categories?.length === 0 ? (
-          <Card className="p-12">
+        {categoriesLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64 rounded-xl" />)}
+          </div> : categories?.length === 0 ? <Card className="p-12">
             <div className="text-center">
               <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Nenhum treinamento disponível</h3>
@@ -228,30 +173,21 @@ const Training = () => {
                 Os treinamentos estarão disponíveis em breve!
               </p>
             </div>
-          </Card>
-        ) : (
-          categories?.map((category) => {
-            const stats = getCategoryStats(category.id);
-            const isCompleted = stats.percentage === 100;
-            const categoryTrainings = getCategoryTrainings(category.id);
-            
-            return (
-              <div key={category.id} className="space-y-4">
+          </Card> : categories?.map(category => {
+        const stats = getCategoryStats(category.id);
+        const isCompleted = stats.percentage === 100;
+        const categoryTrainings = getCategoryTrainings(category.id);
+        return <div key={category.id} className="space-y-4">
                 {/* Category Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl md:text-2xl font-bold">{category.name}</h2>
-                    {isCompleted && (
-                      <Badge className="bg-green-500">
+                    {isCompleted && <Badge className="bg-green-500">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Completo
-                      </Badge>
-                    )}
+                      </Badge>}
                   </div>
-                  <Link 
-                    to={`/user/training/category/${category.id}`}
-                    className="text-sm text-primary hover:underline flex items-center gap-1"
-                  >
+                  <Link to={`/user/training/category/${category.id}`} className="text-sm text-primary hover:underline flex items-center gap-1">
                     Ver todos
                     <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -259,26 +195,13 @@ const Training = () => {
 
                 {/* Trainings Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {categoryTrainings.map((training) => (
-                    <Link
-                      key={training.id}
-                      to={`/user/training/${training.id}`}
-                      className="group"
-                    >
+                  {categoryTrainings.map(training => <Link key={training.id} to={`/user/training/${training.id}`} className="group">
                       <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] h-full">
                         {/* Thumbnail */}
                         <div className="aspect-video relative bg-muted">
-                          {training.thumbnail_url ? (
-                            <img 
-                              src={training.thumbnail_url} 
-                              alt={training.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                          {training.thumbnail_url ? <img src={training.thumbnail_url} alt={training.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
                               <PlayCircle className="h-10 w-10 text-primary/50" />
-                            </div>
-                          )}
+                            </div>}
                           {/* Play overlay on hover */}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <PlayCircle className="h-12 w-12 text-white" />
@@ -288,16 +211,11 @@ const Training = () => {
                           <h3 className="font-medium text-sm line-clamp-2">{training.title}</h3>
                         </CardContent>
                       </Card>
-                    </Link>
-                  ))}
+                    </Link>)}
                 </div>
-              </div>
-            );
-          })
-        )}
+              </div>;
+      })}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Training;
