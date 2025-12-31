@@ -136,7 +136,7 @@ const Training = () => {
         <div className="relative h-[200px] md:h-[280px] bg-cover bg-center" style={{
           backgroundImage: heroBackgroundImage
         }}>
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          {/* Removed gradient overlay to show original banner color */}
         </div>
         
         {/* Info Card below banner */}
