@@ -1263,30 +1263,28 @@ const SettingsTab = () => {
     }
   }, [settings]);
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      // Update cover URL
-      const { error: coverError } = await supabase
-        .from("app_settings")
-        .update({ value: coverUrl, updated_at: new Date().toISOString() })
-        .eq("key", "training_page_cover_url");
-      if (coverError) throw coverError;
-
-      // Update banner URL
-      const { error: bannerError } = await supabase
-        .from("app_settings")
-        .update({ value: bannerUrl, updated_at: new Date().toISOString() })
-        .eq("key", "training_page_banner_url");
-      if (bannerError) throw bannerError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
-      toast.success("Configurações salvas!");
-    },
-    onError: (error: any) => {
+  const saveUrl = async (key: string, url: string) => {
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ value: url, updated_at: new Date().toISOString() })
+      .eq("key", key);
+    if (error) {
       toast.error("Erro ao salvar: " + error.message);
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
+      toast.success("Configuração salva!");
     }
-  });
+  };
+
+  const handleBannerChange = (url: string) => {
+    setBannerUrl(url);
+    saveUrl("training_page_banner_url", url);
+  };
+
+  const handleCoverChange = (url: string) => {
+    setCoverUrl(url);
+    saveUrl("training_page_cover_url", url);
+  };
 
   if (isLoading) {
     return (
@@ -1318,7 +1316,7 @@ const SettingsTab = () => {
           <ImageUpload
             label="Banner Principal (16:9 recomendado)"
             value={bannerUrl}
-            onChange={setBannerUrl}
+            onChange={handleBannerChange}
             folder="training-page"
             hint="Imagem de fundo do topo da página de treinamentos"
           />
@@ -1326,20 +1324,11 @@ const SettingsTab = () => {
           <ImageUpload
             label="Capa Alternativa (4:3 recomendado)"
             value={coverUrl}
-            onChange={setCoverUrl}
+            onChange={handleCoverChange}
             folder="training-page"
             aspectRatio="aspect-[4/3]"
             hint="Usada como fallback se o banner não estiver definido"
           />
-        </div>
-
-        <div className="flex justify-end">
-          <Button 
-            onClick={() => saveMutation.mutate()} 
-            disabled={saveMutation.isPending}
-          >
-            {saveMutation.isPending ? "Salvando..." : "Salvar Configurações"}
-          </Button>
         </div>
       </CardContent>
     </Card>
