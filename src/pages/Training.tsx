@@ -11,6 +11,19 @@ import { useAuth } from "@/hooks/useAuth";
 const Training = () => {
   const { userId } = useAuth();
 
+  // Fetch training page settings
+  const { data: pageSettings } = useQuery({
+    queryKey: ["training-page-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("*")
+        .in("key", ["training_page_cover_url", "training_page_banner_url"]);
+      if (error) throw error;
+      return data;
+    }
+  });
+
   // Fetch categories
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["training-categories"],
@@ -109,6 +122,21 @@ const Training = () => {
   // Get first category for hero banner
   const firstCategory = categories?.[0];
 
+  // Get page banner/cover from settings
+  const pageBannerUrl = pageSettings?.find(s => s.key === "training_page_banner_url")?.value;
+  const pageCoverUrl = pageSettings?.find(s => s.key === "training_page_cover_url")?.value;
+
+  // Determine which image to use for the hero
+  const heroBackgroundImage = pageBannerUrl 
+    ? `url(${pageBannerUrl})`
+    : pageCoverUrl
+      ? `url(${pageCoverUrl})`
+      : firstCategory?.banner_url 
+        ? `url(${firstCategory.banner_url})` 
+        : firstCategory?.cover_image_url 
+          ? `url(${firstCategory.cover_image_url})`
+          : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)';
+
   return (
     <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
@@ -116,11 +144,7 @@ const Training = () => {
         <div 
           className="relative h-[300px] md:h-[400px] bg-cover bg-center"
           style={{
-            backgroundImage: firstCategory.banner_url 
-              ? `url(${firstCategory.banner_url})` 
-              : firstCategory.cover_image_url 
-                ? `url(${firstCategory.cover_image_url})`
-                : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
+            backgroundImage: heroBackgroundImage
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />

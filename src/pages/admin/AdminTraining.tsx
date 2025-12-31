@@ -1233,6 +1233,119 @@ const CommentsTab = () => {
   );
 };
 
+// Training Page Settings Tab
+const SettingsTab = () => {
+  const queryClient = useQueryClient();
+  const [coverUrl, setCoverUrl] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch current settings
+  const { data: settings } = useQuery({
+    queryKey: ["training-page-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("*")
+        .in("key", ["training_page_cover_url", "training_page_banner_url"]);
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  React.useEffect(() => {
+    if (settings) {
+      const cover = settings.find(s => s.key === "training_page_cover_url");
+      const banner = settings.find(s => s.key === "training_page_banner_url");
+      setCoverUrl(cover?.value || "");
+      setBannerUrl(banner?.value || "");
+      setIsLoading(false);
+    }
+  }, [settings]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      // Update cover URL
+      const { error: coverError } = await supabase
+        .from("app_settings")
+        .update({ value: coverUrl, updated_at: new Date().toISOString() })
+        .eq("key", "training_page_cover_url");
+      if (coverError) throw coverError;
+
+      // Update banner URL
+      const { error: bannerError } = await supabase
+        .from("app_settings")
+        .update({ value: bannerUrl, updated_at: new Date().toISOString() })
+        .eq("key", "training_page_banner_url");
+      if (bannerError) throw bannerError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
+      toast.success("Configurações salvas!");
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao salvar: " + error.message);
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-muted rounded w-1/4"></div>
+            <div className="h-32 bg-muted rounded"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Image className="h-5 w-5" />
+          Configurações da Página Principal
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <p className="text-sm text-muted-foreground">
+          Configure as imagens que aparecem no topo da página de treinamentos (/user/training)
+        </p>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <ImageUpload
+            label="Banner Principal (16:9 recomendado)"
+            value={bannerUrl}
+            onChange={setBannerUrl}
+            folder="training-page"
+            hint="Imagem de fundo do topo da página de treinamentos"
+          />
+
+          <ImageUpload
+            label="Capa Alternativa (4:3 recomendado)"
+            value={coverUrl}
+            onChange={setCoverUrl}
+            folder="training-page"
+            aspectRatio="aspect-[4/3]"
+            hint="Usada como fallback se o banner não estiver definido"
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <Button 
+            onClick={() => saveMutation.mutate()} 
+            disabled={saveMutation.isPending}
+          >
+            {saveMutation.isPending ? "Salvando..." : "Salvar Configurações"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 // Main Admin Training Page
 const AdminTraining = () => {
   const [activeTab, setActiveTab] = useState("categories");
@@ -1259,9 +1372,10 @@ const AdminTraining = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="categories">Categorias</TabsTrigger>
           <TabsTrigger value="comments">Comentários</TabsTrigger>
+          <TabsTrigger value="settings">Configurações</TabsTrigger>
         </TabsList>
         
         <TabsContent value="categories" className="mt-6">
@@ -1278,6 +1392,10 @@ const AdminTraining = () => {
         
         <TabsContent value="comments" className="mt-6">
           <CommentsTab />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <SettingsTab />
         </TabsContent>
       </Tabs>
     </div>
