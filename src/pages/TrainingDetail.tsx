@@ -131,18 +131,9 @@ const TrainingDetail = () => {
   return (
     <div className="space-y-6 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
-      <div 
-        className="relative h-[200px] md:h-[300px] bg-cover bg-center"
-        style={{
-          backgroundImage: bannerImage 
-            ? `url(${bannerImage})` 
-            : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        
+      <div className="relative">
         {/* Back Button */}
-        <div className="absolute top-4 left-4 md:top-6 md:left-6">
+        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10">
           <Button 
             variant="ghost" 
             size="sm" 
@@ -154,56 +145,71 @@ const TrainingDetail = () => {
           </Button>
         </div>
 
-        {/* Training Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-2">{training.title}</h1>
-          
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-            <span className="flex items-center gap-1">
-              <BookOpen className="h-4 w-4" />
-              {lessons?.length || 0} {(lessons?.length || 0) === 1 ? 'aula' : 'aulas'}
-            </span>
-            {training.estimated_duration_minutes > 0 && (
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {training.estimated_duration_minutes} min
-              </span>
-            )}
-            {Number(avgRating) > 0 && (
-              <span className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                {avgRating}
-              </span>
-            )}
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="max-w-md">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-foreground/80">Seu Progresso</span>
-              <span className="font-medium text-foreground">{progress.completed} de {progress.total} aulas ({progress.percentage}%)</span>
-            </div>
-            <Progress value={progress.percentage} className="h-2" />
-            {progress.percentage === 100 && (
-              <div className="flex items-center gap-2 mt-2 text-green-500">
-                <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Treinamento concluído!</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <div 
+          className="relative h-[200px] md:h-[280px] bg-cover bg-center"
+          style={{
+            backgroundImage: bannerImage 
+              ? `url(${bannerImage})` 
+              : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
+          }}
+        />
+        
+        {/* Info Card below banner */}
+        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+          <Card className="bg-card/95 backdrop-blur-sm border shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="flex-1">
+                  <h1 className="text-2xl md:text-4xl font-bold mb-2">{training.title}</h1>
+                  
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                    <span className="flex items-center gap-1">
+                      <BookOpen className="h-4 w-4" />
+                      {lessons?.length || 0} {(lessons?.length || 0) === 1 ? 'aula' : 'aulas'}
+                    </span>
+                    {training.estimated_duration_minutes > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {training.estimated_duration_minutes} min
+                      </span>
+                    )}
+                    {Number(avgRating) > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        {avgRating}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="max-w-md">
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-muted-foreground">Seu Progresso</span>
+                      <span className="font-medium">{progress.completed} de {progress.total} aulas ({progress.percentage}%)</span>
+                    </div>
+                    <Progress value={progress.percentage} className="h-2" />
+                    {progress.percentage === 100 && (
+                      <div className="flex items-center gap-2 mt-2 text-green-500">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="text-sm font-medium">Treinamento concluído!</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-        {/* Quick Start Button */}
-        {progress.percentage < 100 && (
-          <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8">
-            <Button asChild size="lg">
-              <Link to={`/user/training/lesson/${getFirstUncompletedLesson()?.id || lessons?.[0]?.id}`}>
-                <PlayCircle className="h-5 w-5 mr-2" />
-                {progress.percentage > 0 ? 'Continuar' : 'Iniciar'}
-              </Link>
-            </Button>
-          </div>
-        )}
+                {/* Quick Start Button */}
+                {progress.percentage < 100 && (
+                  <Button asChild size="lg" className="md:self-start">
+                    <Link to={`/user/training/lesson/${getFirstUncompletedLesson()?.id || lessons?.[0]?.id}`}>
+                      <PlayCircle className="h-5 w-5 mr-2" />
+                      {progress.percentage > 0 ? 'Continuar' : 'Iniciar'}
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Content */}
