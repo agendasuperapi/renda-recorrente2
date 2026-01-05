@@ -81,6 +81,26 @@ const vipMenuItems: MenuItem[] = [{
   label: "Sub Afiliados",
   path: "/user/sub-affiliates",
   isPro: true
+}, {
+  icon: MapPin,
+  label: "Extrator Google Maps",
+  path: "/user/extrator-google-maps",
+  isPro: true
+}, {
+  icon: Building2,
+  label: "Extrator CNPJ",
+  path: "/user/extrator-cnpj",
+  isPro: true
+}, {
+  icon: Zap,
+  label: "Disparo WhatsApp",
+  path: "/user/disparo-whatsapp",
+  isPro: true
+}, {
+  icon: Camera,
+  label: "Extrator Instagram",
+  path: "/user/extrator-instagram",
+  isPro: true
 }];
 const settingsMenuItems = [{
   icon: User,

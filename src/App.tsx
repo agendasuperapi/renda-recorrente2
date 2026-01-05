@@ -60,6 +60,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
 import NotFound from "./pages/NotFound";
+import ComingSoon from "./pages/ComingSoon";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,6 +119,10 @@ const App = () => {
               <Route path="/user/notifications" element={<Notifications />} />
               <Route path="/user/plan" element={<Plan />} />
               <Route path="/user/google-business" element={<GoogleBusiness />} />
+              <Route path="/user/extrator-google-maps" element={<ComingSoon title="Extrator Google Maps" />} />
+              <Route path="/user/extrator-cnpj" element={<ComingSoon title="Extrator CNPJ" />} />
+              <Route path="/user/disparo-whatsapp" element={<ComingSoon title="Disparo WhatsApp" />} />
+              <Route path="/user/extrator-instagram" element={<ComingSoon title="Extrator Instagram" />} />
               <Route path="/user/settings" element={<Settings />} />
               <Route path="/user/settings/profile" element={<ProfileSettings />} />
               <Route path="/user/settings/personal" element={<Navigate to="/user/settings?tab=personal" replace />} />
