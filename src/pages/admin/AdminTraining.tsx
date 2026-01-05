@@ -1405,7 +1405,7 @@ const AdminTraining = () => {
                   overlayOpacity: 40
                 }}
                 onChange={(value) => console.log("Banner updated:", value)}
-                bucket="training-banners"
+                bucket="training-images"
                 folder="custom"
               />
             </CardContent>
