@@ -74,7 +74,8 @@ const affiliateMenuItems: MenuItem[] = [{
 const vipMenuItems: MenuItem[] = [{
   icon: GraduationCap,
   label: "Treinamentos",
-  path: "/user/training"
+  path: "/user/training",
+  isPro: true
 }, {
   icon: Users,
   label: "Sub Afiliados",
