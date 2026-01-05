@@ -676,7 +676,7 @@ export const Sidebar = ({
               {item.isPro && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
                   <Crown className="h-2.5 w-2.5" />
-                  PRO
+                  VIP
                 </span>
               )}
             </Link>;
@@ -738,7 +738,7 @@ export const Sidebar = ({
                     {item.isPro && (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
                         <Crown className="h-2.5 w-2.5" />
-                        PRO
+                        VIP
                       </span>
                     )}
                   </Link>
@@ -913,7 +913,7 @@ export const Sidebar = ({
                       <span>PLANO FREE</span>
                     </> : <>
                       <Crown className="w-4 h-4 text-amber-500" />
-                      <span>PLANO PRO</span>
+                      <span>PLANO VIP</span>
                     </>}
                 </div>
                 <p className="text-xs truncate text-slate-600 dark:text-slate-400">
@@ -1001,7 +1001,7 @@ export const Sidebar = ({
                       <div className="space-y-1">
                         <p className="text-xs text-muted-foreground">Plano</p>
                         <p className="text-sm font-medium">
-                          {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "Pro")}
+                          {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "VIP")}
                         </p>
                       </div>
                       
@@ -1118,7 +1118,7 @@ export const Sidebar = ({
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground">Plano</p>
                       <p className="text-sm font-medium">
-                        {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "Pro")}
+                        {userPlan?.plan_name || (userPlan?.is_free ? "FREE" : "VIP")}
                       </p>
                     </div>
                     
