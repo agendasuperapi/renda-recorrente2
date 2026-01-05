@@ -68,7 +68,10 @@ const affiliateMenuItems: MenuItem[] = [{
   icon: Ticket,
   label: "Meus Cupons",
   path: "/user/coupons"
-}, {
+}];
+
+// Itens dentro do menu Área VIP
+const vipMenuItems: MenuItem[] = [{
   icon: GraduationCap,
   label: "Treinamentos",
   path: "/user/training"
@@ -646,8 +649,8 @@ export const Sidebar = ({
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-      {/* Admin menu shows all adminMenuItems, affiliate menu shows first 4 */}
-      {menuItems.slice(0, isAdmin && showAdminMenu ? menuItems.length : 4).map(item => {
+      {/* Admin menu shows all adminMenuItems, affiliate menu shows all affiliateMenuItems */}
+      {menuItems.map(item => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "?") || (item.path !== "/" && location.pathname.startsWith(item.path));
         const isSupport = item.path === "/user/support" || item.path === "/admin/support";
@@ -679,37 +682,71 @@ export const Sidebar = ({
             </Link>;
       })}
 
-        {(!isAdmin || !showAdminMenu) && menuItems.slice(4).map(item => {
-        const Icon = item.icon;
-        const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "?") || (item.path !== "/" && location.pathname.startsWith(item.path));
-        const isSupport = item.path === "/user/support" || item.path === "/admin/support";
-        return <Link key={item.path} to={item.path} onClick={() => closeSidebar?.()} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")} style={{
-          backgroundColor: isActive ? accentColor : `${accentColor}15`,
-          color: currentTextColor
-        }} onMouseEnter={e => {
-          if (!isActive) {
-            e.currentTarget.style.backgroundColor = `${accentColor}30`;
-          }
-        }} onMouseLeave={e => {
-          if (!isActive) {
-            e.currentTarget.style.backgroundColor = `${accentColor}15`;
-          }
-        }}>
-              <Icon size={18} />
-              <span className="flex-1">{item.label}</span>
-              {isSupport && unreadCount > 0 && (
-                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </Badge>
-              )}
-              {item.isPro && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
-                  <Crown className="h-2.5 w-2.5" />
-                  PRO
-                </span>
-              )}
-            </Link>;
-      })}
+        {/* Área VIP collapsible menu (only for affiliate/user mode) */}
+        {(!isAdmin || !showAdminMenu) && (
+          <Collapsible
+            defaultOpen={vipMenuItems.some(item => location.pathname === item.path || location.pathname.startsWith(item.path + "/"))}
+          >
+            <CollapsibleTrigger asChild>
+              <button
+                className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")}
+                style={{
+                  backgroundColor: vipMenuItems.some(item => location.pathname === item.path || location.pathname.startsWith(item.path + "/")) ? `${accentColor}30` : `${accentColor}15`,
+                  color: currentTextColor
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }}
+                onMouseLeave={e => {
+                  if (!vipMenuItems.some(item => location.pathname === item.path || location.pathname.startsWith(item.path + "/"))) {
+                    e.currentTarget.style.backgroundColor = `${accentColor}15`;
+                  }
+                }}
+              >
+                <Star size={18} />
+                <span className="flex-1 text-left">Área VIP</span>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pl-4 mt-1 space-y-1">
+              {vipMenuItems.map(item => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "?") || (item.path !== "/" && location.pathname.startsWith(item.path));
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => closeSidebar?.()}
+                    className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm")}
+                    style={{
+                      backgroundColor: isActive ? accentColor : `${accentColor}15`,
+                      color: currentTextColor
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                      }
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) {
+                        e.currentTarget.style.backgroundColor = `${accentColor}15`;
+                      }
+                    }}
+                  >
+                    <Icon size={18} />
+                    <span className="flex-1">{item.label}</span>
+                    {item.isPro && (
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+                        <Crown className="h-2.5 w-2.5" />
+                        PRO
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
         {(!isAdmin || !showAdminMenu) && <>
             <Link 
