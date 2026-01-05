@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { BannerEditor } from "@/components/admin/BannerEditor";
 
 // Categories Tab Component
 const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: string) => void }) => {
@@ -1361,9 +1362,10 @@ const AdminTraining = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="categories">Categorias</TabsTrigger>
           <TabsTrigger value="comments">Comentários</TabsTrigger>
+          <TabsTrigger value="banner-editor">Editor de Banner</TabsTrigger>
           <TabsTrigger value="settings">Configurações</TabsTrigger>
         </TabsList>
         
@@ -1381,6 +1383,33 @@ const AdminTraining = () => {
         
         <TabsContent value="comments" className="mt-6">
           <CommentsTab />
+        </TabsContent>
+
+        <TabsContent value="banner-editor" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Editor de Banner</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Crie banners com imagem de fundo e texto sobreposto
+              </p>
+            </CardHeader>
+            <CardContent>
+              <BannerEditor 
+                value={{
+                  imageUrl: "",
+                  title: "",
+                  subtitle: "",
+                  textColor: "#ffffff",
+                  textAlign: "center",
+                  overlayColor: "#000000",
+                  overlayOpacity: 40
+                }}
+                onChange={(value) => console.log("Banner updated:", value)}
+                bucket="training-banners"
+                folder="custom"
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
