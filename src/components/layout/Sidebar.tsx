@@ -703,7 +703,7 @@ export const Sidebar = ({
                   }
                 }}
               >
-                <Star size={18} />
+                <Crown size={18} />
                 <span className="flex-1 text-left">Área VIP</span>
                 <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </button>
