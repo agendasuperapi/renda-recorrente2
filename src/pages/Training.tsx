@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FolderOpen, CheckCircle, ChevronRight, PlayCircle } from "lucide-react";
+import { GraduationCap, FolderOpen, CheckCircle, ChevronRight, PlayCircle, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 const Training = () => {
   const {
@@ -157,7 +157,13 @@ const Training = () => {
                 <GraduationCap className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-4xl font-bold text-foreground">Treinamentos</h1>
+                <h1 className="text-2xl md:text-4xl font-bold text-foreground flex items-center gap-2">
+                  Treinamentos
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+                    <Crown className="h-3 w-3" />
+                    VIP
+                  </span>
+                </h1>
                 <p className="text-muted-foreground">Aprenda tudo sobre o programa de afiliados</p>
               </div>
             </div>
