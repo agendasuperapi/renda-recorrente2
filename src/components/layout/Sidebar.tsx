@@ -757,9 +757,8 @@ export const Sidebar = ({
                     <Icon size={18} />
                     <span className="flex-1">{item.label}</span>
                     {item.isPro && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
-                        <Crown className="h-2.5 w-2.5" />
-                        VIP
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50">
+                        <Crown className="h-3 w-3 text-amber-700 dark:text-amber-400" />
                       </span>
                     )}
                   </Link>
