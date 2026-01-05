@@ -417,7 +417,7 @@ const SubAffiliates = () => {
             Sub Afiliados
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
               <Crown className="h-3 w-3" />
-              PRO
+              VIP
             </span>
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
