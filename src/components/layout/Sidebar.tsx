@@ -690,7 +690,19 @@ export const Sidebar = ({
           >
             <CollapsibleTrigger asChild>
               <button
-                className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/70")}
+                className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm w-full")}
+                style={{
+                  backgroundColor: vipMenuItems.some(item => location.pathname === item.path || location.pathname.startsWith(item.path + "/")) ? `${accentColor}30` : `${accentColor}15`,
+                  color: currentTextColor
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = `${accentColor}30`;
+                }}
+                onMouseLeave={e => {
+                  if (!vipMenuItems.some(item => location.pathname === item.path || location.pathname.startsWith(item.path + "/"))) {
+                    e.currentTarget.style.backgroundColor = `${accentColor}15`;
+                  }
+                }}
               >
                 <Crown size={18} />
                 <span className="flex-1 text-left">Área VIP</span>
