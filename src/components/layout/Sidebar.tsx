@@ -1095,7 +1095,7 @@ export const Sidebar = ({
                     <div className="w-full p-3 rounded-xl border text-center space-y-1 shadow-lg bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600">
                       <div className="flex items-center justify-center gap-1.5 text-base font-bold text-slate-700 dark:text-slate-300">
                         {userPlan.is_free ? <Zap className="w-4 h-4" /> : <Crown className="w-4 h-4 text-amber-500" />}
-                        <span>{userPlan.is_free ? "PLANO FREE" : "PLANO PRO"}</span>
+                        <span>{userPlan.is_free ? "PLANO FREE" : "PLANO VIP"}</span>
                       </div>
                       {!userPlan.is_free && userPlan.plan_name && (
                         <p className="text-slate-600 dark:text-slate-400 text-xs">{userPlan.plan_name}</p>
