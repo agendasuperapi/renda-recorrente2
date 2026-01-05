@@ -71,8 +71,9 @@ export const BannerEditor = ({
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'jpg';
+      const uniqueId = Math.random().toString(36).substring(2, 10);
+      const fileName = `${folder}/${Date.now()}_${uniqueId}.${fileExt}`;
 
       const { data, error } = await supabase.storage
         .from(bucket)
