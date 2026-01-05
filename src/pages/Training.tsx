@@ -143,9 +143,12 @@ const Training = () => {
   return <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
       {firstCategory && <>
-        <div className="relative h-[200px] md:h-[280px] bg-cover bg-center" style={{
-          backgroundImage: heroBackgroundImage
-        }}>
+        <div 
+          className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]" 
+          style={{
+            backgroundImage: heroBackgroundImage
+          }}
+        >
           {/* Removed gradient overlay to show original banner color */}
         </div>
         

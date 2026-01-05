@@ -146,7 +146,7 @@ const TrainingDetail = () => {
         </div>
 
         <div 
-          className="relative h-[200px] md:h-[280px] bg-cover bg-center"
+          className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]"
           style={{
             backgroundImage: bannerImage 
               ? `url(${bannerImage})` 
