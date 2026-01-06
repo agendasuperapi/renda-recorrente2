@@ -162,7 +162,7 @@ const Training = () => {
     }
   };
 
-  return <div className="-mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+  return <div className="-mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
       {firstCategory && <>
         <div
