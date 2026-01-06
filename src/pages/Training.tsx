@@ -206,7 +206,7 @@ const Training = () => {
         </div>
         
         {/* Info Card below banner */}
-        <div className="px-4 sm:px-6 lg:px-8 -mt-8 sm:-mt-12 lg:-mt-16 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
           <Card className="p-6 md:p-8 bg-card/95 backdrop-blur-sm border">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-primary/20 rounded-full">
