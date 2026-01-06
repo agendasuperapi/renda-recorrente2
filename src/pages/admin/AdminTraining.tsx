@@ -1236,7 +1236,17 @@ const CommentsTab = () => {
   );
 };
 
-// Banner Preview Component with Text Overlay
+// Banner Preview Component with Text Overlay and Device Sizes
+import { Smartphone, Tablet, Monitor } from "lucide-react";
+
+type DevicePreview = "mobile" | "tablet" | "desktop";
+
+const deviceDimensions = {
+  mobile: { width: 375, height: 200, label: "Celular", icon: Smartphone },
+  tablet: { width: 768, height: 280, label: "Tablet", icon: Tablet },
+  desktop: { width: 1200, height: 350, label: "Computador", icon: Monitor },
+};
+
 interface BannerPreviewProps {
   imageUrl: string;
   title?: string;
@@ -1245,7 +1255,6 @@ interface BannerPreviewProps {
   textAlign?: "left" | "center" | "right";
   overlayColor?: string;
   overlayOpacity?: number;
-  aspectRatio?: string;
   label: string;
 }
 
@@ -1257,9 +1266,10 @@ const BannerPreview = ({
   textAlign = "center",
   overlayColor = "#000000",
   overlayOpacity = 40,
-  aspectRatio = "aspect-[16/9]",
   label,
 }: BannerPreviewProps) => {
+  const [activeDevice, setActiveDevice] = useState<DevicePreview>("desktop");
+
   const getTextAlignClass = () => {
     switch (textAlign) {
       case "left":
@@ -1271,60 +1281,112 @@ const BannerPreview = ({
     }
   };
 
+  const getPreviewStyle = () => {
+    const device = deviceDimensions[activeDevice];
+    return {
+      width: "100%",
+      maxWidth: device.width,
+      aspectRatio: `${device.width} / ${device.height}`,
+    };
+  };
+
+  const getTextSize = () => {
+    switch (activeDevice) {
+      case "mobile":
+        return { title: "text-lg", subtitle: "text-sm" };
+      case "tablet":
+        return { title: "text-2xl", subtitle: "text-base" };
+      default:
+        return { title: "text-3xl", subtitle: "text-lg" };
+    }
+  };
+
+  const textSize = getTextSize();
+
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-medium">{label}</Label>
-      <div className={`relative ${aspectRatio} w-full overflow-hidden rounded-lg border shadow-sm`}>
-        {imageUrl ? (
-          <>
-            <img
-              src={imageUrl}
-              alt={label}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            {/* Overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundColor: overlayColor,
-                opacity: overlayOpacity / 100,
-              }}
-            />
-            {/* Text Content */}
-            {(title || subtitle) && (
-              <div
-                className={cn(
-                  "absolute inset-0 flex flex-col justify-center p-6 md:p-8",
-                  getTextAlignClass()
-                )}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">{label}</Label>
+        <div className="flex gap-1">
+          {(Object.entries(deviceDimensions) as [DevicePreview, typeof deviceDimensions.mobile][]).map(([key, device]) => {
+            const Icon = device.icon;
+            return (
+              <Button
+                key={key}
+                type="button"
+                variant={activeDevice === key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveDevice(key)}
+                className="h-8 px-2"
               >
-                {title && (
-                  <h2
-                    className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
-                    style={{ color: textColor }}
-                  >
-                    {title}
-                  </h2>
-                )}
-                {subtitle && (
-                  <p
-                    className="mt-2 text-base md:text-lg opacity-90"
-                    style={{ color: textColor }}
-                  >
-                    {subtitle}
-                  </p>
-                )}
+                <Icon className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">{device.label}</span>
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        {deviceDimensions[activeDevice].label} ({deviceDimensions[activeDevice].width}x{deviceDimensions[activeDevice].height}px)
+      </p>
+
+      <div className="flex justify-center bg-muted/30 p-4 rounded-lg border">
+        <div
+          className="relative overflow-hidden rounded-lg shadow-lg transition-all duration-300"
+          style={getPreviewStyle()}
+        >
+          {imageUrl ? (
+            <>
+              <img
+                src={imageUrl}
+                alt={label}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              {/* Overlay */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: overlayColor,
+                  opacity: overlayOpacity / 100,
+                }}
+              />
+              {/* Text Content */}
+              {(title || subtitle) && (
+                <div
+                  className={cn(
+                    "absolute inset-0 flex flex-col justify-center p-4 sm:p-6",
+                    getTextAlignClass()
+                  )}
+                >
+                  {title && (
+                    <h2
+                      className={cn("font-bold leading-tight", textSize.title)}
+                      style={{ color: textColor }}
+                    >
+                      {title}
+                    </h2>
+                  )}
+                  {subtitle && (
+                    <p
+                      className={cn("mt-1 opacity-90", textSize.subtitle)}
+                      style={{ color: textColor }}
+                    >
+                      {subtitle}
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-muted flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <Image className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Nenhuma imagem definida</p>
               </div>
-            )}
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-muted flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <Image className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Nenhuma imagem definida</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1508,8 +1570,7 @@ const SettingsTab = () => {
             textAlign={bannerData.textAlign}
             overlayColor={bannerData.overlayColor}
             overlayOpacity={bannerData.overlayOpacity}
-            aspectRatio="aspect-[16/9]"
-            label="Preview do Banner (tamanho real)"
+            label="Preview do Banner"
           />
         </div>
 
@@ -1535,8 +1596,7 @@ const SettingsTab = () => {
             textAlign={coverData.textAlign}
             overlayColor={coverData.overlayColor}
             overlayOpacity={coverData.overlayOpacity}
-            aspectRatio="aspect-[4/3]"
-            label="Preview da Capa (tamanho real)"
+            label="Preview da Capa"
           />
         </div>
 
