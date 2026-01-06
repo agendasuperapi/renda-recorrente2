@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 interface BannerEditorProps {
   value: {
     imageUrl: string;
-    title: string;
+    title?: string;
     subtitle?: string;
     textColor?: string;
     textAlign?: "left" | "center" | "right";
@@ -33,6 +33,8 @@ interface BannerEditorProps {
   onChange: (value: BannerEditorProps["value"]) => void;
   bucket?: string;
   folder?: string;
+  /** If true, hides text overlay options and shows only image upload */
+  simpleMode?: boolean;
 }
 
 type DevicePreview = "mobile" | "tablet" | "desktop";
@@ -48,6 +50,7 @@ export const BannerEditor = ({
   onChange,
   bucket = "training-images",
   folder = "banners",
+  simpleMode = false,
 }: BannerEditorProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [activePreview, setActivePreview] = useState<DevicePreview>("desktop");
@@ -172,109 +175,113 @@ export const BannerEditor = ({
         />
       </div>
 
-      {/* Text Content */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Título</Label>
-          <Input
-            value={value.title}
-            onChange={(e) => onChange({ ...value, title: e.target.value })}
-            placeholder="Digite o título..."
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Subtítulo (opcional)</Label>
-          <Input
-            value={value.subtitle || ""}
-            onChange={(e) => onChange({ ...value, subtitle: e.target.value })}
-            placeholder="Digite o subtítulo..."
-          />
-        </div>
-      </div>
+      {/* Text Content - only shown if not simpleMode */}
+      {!simpleMode && (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Título</Label>
+              <Input
+                value={value.title || ""}
+                onChange={(e) => onChange({ ...value, title: e.target.value })}
+                placeholder="Digite o título..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Subtítulo (opcional)</Label>
+              <Input
+                value={value.subtitle || ""}
+                onChange={(e) => onChange({ ...value, subtitle: e.target.value })}
+                placeholder="Digite o subtítulo..."
+              />
+            </div>
+          </div>
 
-      {/* Styling Options */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label>Cor do Texto</Label>
-          <div className="flex gap-2">
-            <Input
-              type="color"
-              value={value.textColor || "#ffffff"}
-              onChange={(e) => onChange({ ...value, textColor: e.target.value })}
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              type="text"
-              value={value.textColor || "#ffffff"}
-              onChange={(e) => onChange({ ...value, textColor: e.target.value })}
-              placeholder="#ffffff"
-              className="flex-1"
+          {/* Styling Options */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Cor do Texto</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={value.textColor || "#ffffff"}
+                  onChange={(e) => onChange({ ...value, textColor: e.target.value })}
+                  className="w-12 h-10 p-1 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={value.textColor || "#ffffff"}
+                  onChange={(e) => onChange({ ...value, textColor: e.target.value })}
+                  placeholder="#ffffff"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Cor da Sobreposição</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={value.overlayColor || "#000000"}
+                  onChange={(e) => onChange({ ...value, overlayColor: e.target.value })}
+                  className="w-12 h-10 p-1 cursor-pointer"
+                />
+                <Input
+                  type="text"
+                  value={value.overlayColor || "#000000"}
+                  onChange={(e) => onChange({ ...value, overlayColor: e.target.value })}
+                  placeholder="#000000"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Alinhamento</Label>
+              <div className="flex gap-1">
+                <Button
+                  type="button"
+                  variant={value.textAlign === "left" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onChange({ ...value, textAlign: "left" })}
+                >
+                  <AlignLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={value.textAlign === "center" || !value.textAlign ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onChange({ ...value, textAlign: "center" })}
+                >
+                  <AlignCenter className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={value.textAlign === "right" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => onChange({ ...value, textAlign: "right" })}
+                >
+                  <AlignRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Overlay Opacity */}
+          <div className="space-y-2">
+            <Label>Opacidade da Sobreposição: {value.overlayOpacity ?? 50}%</Label>
+            <Slider
+              value={[value.overlayOpacity ?? 50]}
+              onValueChange={([val]) => onChange({ ...value, overlayOpacity: val })}
+              min={0}
+              max={100}
+              step={5}
+              className="w-full"
             />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Cor da Sobreposição</Label>
-          <div className="flex gap-2">
-            <Input
-              type="color"
-              value={value.overlayColor || "#000000"}
-              onChange={(e) => onChange({ ...value, overlayColor: e.target.value })}
-              className="w-12 h-10 p-1 cursor-pointer"
-            />
-            <Input
-              type="text"
-              value={value.overlayColor || "#000000"}
-              onChange={(e) => onChange({ ...value, overlayColor: e.target.value })}
-              placeholder="#000000"
-              className="flex-1"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Alinhamento</Label>
-          <div className="flex gap-1">
-            <Button
-              type="button"
-              variant={value.textAlign === "left" ? "default" : "outline"}
-              size="icon"
-              onClick={() => onChange({ ...value, textAlign: "left" })}
-            >
-              <AlignLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant={value.textAlign === "center" || !value.textAlign ? "default" : "outline"}
-              size="icon"
-              onClick={() => onChange({ ...value, textAlign: "center" })}
-            >
-              <AlignCenter className="h-4 w-4" />
-            </Button>
-            <Button
-              type="button"
-              variant={value.textAlign === "right" ? "default" : "outline"}
-              size="icon"
-              onClick={() => onChange({ ...value, textAlign: "right" })}
-            >
-              <AlignRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Overlay Opacity */}
-      <div className="space-y-2">
-        <Label>Opacidade da Sobreposição: {value.overlayOpacity ?? 50}%</Label>
-        <Slider
-          value={[value.overlayOpacity ?? 50]}
-          onValueChange={([val]) => onChange({ ...value, overlayOpacity: val })}
-          min={0}
-          max={100}
-          step={5}
-          className="w-full"
-        />
-      </div>
+        </>
+      )}
 
       {/* Device Preview Selector */}
       <div className="space-y-2">
@@ -336,45 +343,49 @@ export const BannerEditor = ({
               </div>
             )}
 
-            {/* Overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundColor: value.overlayColor || "#000000",
-                opacity: (value.overlayOpacity ?? 50) / 100,
-              }}
-            />
+            {/* Overlay - only shown if not simpleMode */}
+            {!simpleMode && (
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: value.overlayColor || "#000000",
+                  opacity: (value.overlayOpacity ?? 50) / 100,
+                }}
+              />
+            )}
 
-            {/* Text Content */}
-            <div
-              className={cn(
-                "absolute inset-0 flex flex-col justify-center p-4 sm:p-6 lg:p-8",
-                getTextAlignClass()
-              )}
-            >
-              {value.title && (
-                <h2
-                  className={cn(
-                    "font-bold leading-tight",
-                    activePreview === "mobile" ? "text-lg" : activePreview === "tablet" ? "text-2xl" : "text-3xl"
-                  )}
-                  style={{ color: value.textColor || "#ffffff" }}
-                >
-                  {value.title}
-                </h2>
-              )}
-              {value.subtitle && (
-                <p
-                  className={cn(
-                    "mt-1 opacity-90",
-                    activePreview === "mobile" ? "text-sm" : activePreview === "tablet" ? "text-base" : "text-lg"
-                  )}
-                  style={{ color: value.textColor || "#ffffff" }}
-                >
-                  {value.subtitle}
-                </p>
-              )}
-            </div>
+            {/* Text Content - only shown if not simpleMode */}
+            {!simpleMode && (
+              <div
+                className={cn(
+                  "absolute inset-0 flex flex-col justify-center p-4 sm:p-6 lg:p-8",
+                  getTextAlignClass()
+                )}
+              >
+                {value.title && (
+                  <h2
+                    className={cn(
+                      "font-bold leading-tight",
+                      activePreview === "mobile" ? "text-lg" : activePreview === "tablet" ? "text-2xl" : "text-3xl"
+                    )}
+                    style={{ color: value.textColor || "#ffffff" }}
+                  >
+                    {value.title}
+                  </h2>
+                )}
+                {value.subtitle && (
+                  <p
+                    className={cn(
+                      "mt-1 opacity-90",
+                      activePreview === "mobile" ? "text-sm" : activePreview === "tablet" ? "text-base" : "text-lg"
+                    )}
+                    style={{ color: value.textColor || "#ffffff" }}
+                  >
+                    {value.subtitle}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

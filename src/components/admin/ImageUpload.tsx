@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { ImageEditorDialog, ImageEditorValue } from "./ImageEditorDialog";
 
 interface ImageUploadProps {
   label: string;
@@ -14,6 +15,14 @@ interface ImageUploadProps {
   folder?: string;
   aspectRatio?: string;
   hint?: string;
+  /** If true, shows the advanced editor button */
+  showEditor?: boolean;
+  /** If true, the editor will show text overlay options */
+  editorWithText?: boolean;
+  /** Additional image metadata for editor */
+  editorValue?: ImageEditorValue;
+  /** Callback for full editor value changes */
+  onEditorChange?: (value: ImageEditorValue) => void;
 }
 
 export const ImageUpload = ({
@@ -23,9 +32,14 @@ export const ImageUpload = ({
   bucket = "training-images",
   folder = "general",
   aspectRatio = "aspect-video",
-  hint
+  hint,
+  showEditor = true,
+  editorWithText = false,
+  editorValue,
+  onEditorChange,
 }: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,8 +63,9 @@ export const ImageUpload = ({
 
     try {
       // Generate unique filename
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'jpg';
+      const uniqueId = Math.random().toString(36).substring(2, 10);
+      const fileName = `${folder}/${Date.now()}_${uniqueId}.${fileExt}`;
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
@@ -98,6 +113,23 @@ export const ImageUpload = ({
     onChange("");
   };
 
+  const handleEditorSave = (newValue: ImageEditorValue) => {
+    onChange(newValue.imageUrl);
+    if (onEditorChange) {
+      onEditorChange(newValue);
+    }
+  };
+
+  const currentEditorValue: ImageEditorValue = editorValue || {
+    imageUrl: value,
+    title: "",
+    subtitle: "",
+    textColor: "#ffffff",
+    textAlign: "center",
+    overlayColor: "#000000",
+    overlayOpacity: 40,
+  };
+
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
@@ -111,6 +143,17 @@ export const ImageUpload = ({
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              {showEditor && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setEditorOpen(true)}
+                >
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Editar
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="secondary"
@@ -144,6 +187,21 @@ export const ImageUpload = ({
               <>
                 <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
                 <span className="text-sm text-muted-foreground">Clique para enviar</span>
+                {showEditor && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="mt-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditorOpen(true);
+                    }}
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Abrir editor avançado
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -173,6 +231,20 @@ export const ImageUpload = ({
           className="h-8 text-xs"
         />
       </div>
+
+      {/* Image Editor Dialog */}
+      {showEditor && (
+        <ImageEditorDialog
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          value={currentEditorValue}
+          onSave={handleEditorSave}
+          title={`Editar: ${label}`}
+          bucket={bucket}
+          folder={folder}
+          simpleMode={!editorWithText}
+        />
+      )}
     </div>
   );
 };
