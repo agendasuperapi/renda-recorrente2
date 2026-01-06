@@ -17,7 +17,11 @@ interface ImageUploadProps {
   hint?: string;
   /** If true, shows the advanced editor button */
   showEditor?: boolean;
-  /** If true, the editor will show text overlay options */
+  /** 
+   * If true, the editor will show text overlay options (title, subtitle, colors, alignment).
+   * Set to true for banners that need text overlays.
+   * Defaults to true for full editing capabilities.
+   */
   editorWithText?: boolean;
   /** Additional image metadata for editor */
   editorValue?: ImageEditorValue;
@@ -34,7 +38,7 @@ export const ImageUpload = ({
   aspectRatio = "aspect-video",
   hint,
   showEditor = true,
-  editorWithText = false,
+  editorWithText = true,
   editorValue,
   onEditorChange,
 }: ImageUploadProps) => {
