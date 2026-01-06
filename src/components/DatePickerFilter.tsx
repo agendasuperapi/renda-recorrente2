@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { format, isValid, parse } from "date-fns";
+import { format } from "date-fns";
+import { isValid } from "date-fns/isValid";
+import { parse } from "date-fns/parse";
 import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";

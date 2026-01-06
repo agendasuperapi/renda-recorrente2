@@ -19,7 +19,8 @@ import { AvatarCropDialog, AvatarSizes } from "@/components/AvatarCropDialog";
 import { DatePickerFilter } from "@/components/DatePickerFilter";
 import { generateAvatarPaths, getAvatarOriginalUrl } from "@/lib/avatarUtils";
 import { logActivity } from "@/lib/activityLogger";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
+import { parse } from "date-fns/parse";
 import { ptBR } from "date-fns/locale";
 interface UsernameHistoryItem {
   id: string;
