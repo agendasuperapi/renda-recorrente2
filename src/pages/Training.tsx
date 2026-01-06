@@ -166,26 +166,11 @@ const Training = () => {
       {/* Hero Banner */}
       {firstCategory && <>
         <div 
-          className="relative w-full overflow-hidden" 
+          className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]" 
           style={{
-            aspectRatio: "1200 / 350",
+            backgroundImage: heroBackgroundImage
           }}
         >
-          {/* Background Image - full width without cropping */}
-          {(pageBannerUrl || pageCoverUrl || firstCategory?.banner_url || firstCategory?.cover_image_url) ? (
-            <img 
-              src={pageBannerUrl || pageCoverUrl || firstCategory?.banner_url || firstCategory?.cover_image_url || ""} 
-              alt="Banner de treinamentos"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : (
-            <div 
-              className="absolute inset-0 w-full h-full"
-              style={{
-                background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
-              }}
-            />
-          )}
           {/* Overlay */}
           {bannerConfig && (
             <div 
