@@ -21,7 +21,12 @@ const Training = () => {
       const {
         data,
         error
-      } = await supabase.from("app_settings").select("*").in("key", ["training_page_cover_url", "training_page_banner_url"]);
+      } = await supabase.from("app_settings").select("*").in("key", [
+        "training_page_cover_url", 
+        "training_page_banner_url",
+        "training_page_banner_config",
+        "training_page_cover_config"
+      ]);
       if (error) throw error;
       return data;
     }
@@ -137,9 +142,26 @@ const Training = () => {
   // Get page banner/cover from settings
   const pageBannerUrl = pageSettings?.find(s => s.key === "training_page_banner_url")?.value;
   const pageCoverUrl = pageSettings?.find(s => s.key === "training_page_cover_url")?.value;
+  
+  // Get banner config
+  const bannerConfigRaw = pageSettings?.find(s => s.key === "training_page_banner_config")?.value;
+  const bannerConfig = bannerConfigRaw ? JSON.parse(bannerConfigRaw) : null;
 
   // Determine which image to use for the hero
   const heroBackgroundImage = pageBannerUrl ? `url(${pageBannerUrl})` : pageCoverUrl ? `url(${pageCoverUrl})` : firstCategory?.banner_url ? `url(${firstCategory.banner_url})` : firstCategory?.cover_image_url ? `url(${firstCategory.cover_image_url})` : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)';
+  
+  // Text alignment class
+  const getTextAlignClass = () => {
+    switch (bannerConfig?.textAlign) {
+      case "left":
+        return "items-start text-left";
+      case "right":
+        return "items-end text-right";
+      default:
+        return "items-center text-center";
+    }
+  };
+
   return <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
       {firstCategory && <>
@@ -149,7 +171,38 @@ const Training = () => {
             backgroundImage: heroBackgroundImage
           }}
         >
-          {/* Removed gradient overlay to show original banner color */}
+          {/* Overlay */}
+          {bannerConfig && (
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundColor: bannerConfig.overlayColor || "#000000",
+                opacity: (bannerConfig.overlayOpacity ?? 40) / 100,
+              }}
+            />
+          )}
+          
+          {/* Title and Subtitle */}
+          {bannerConfig && (bannerConfig.title || bannerConfig.subtitle) && (
+            <div className={`absolute inset-0 flex flex-col justify-center px-4 sm:px-8 lg:px-16 ${getTextAlignClass()}`}>
+              {bannerConfig.title && (
+                <h1 
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
+                  style={{ color: bannerConfig.textColor || "#ffffff" }}
+                >
+                  {bannerConfig.title}
+                </h1>
+              )}
+              {bannerConfig.subtitle && (
+                <p 
+                  className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90"
+                  style={{ color: bannerConfig.textColor || "#ffffff" }}
+                >
+                  {bannerConfig.subtitle}
+                </p>
+              )}
+            </div>
+          )}
         </div>
         
         {/* Info Card below banner */}
