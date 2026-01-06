@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp, Image, ImagePlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +20,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RichTextEditor } from "@/components/training/RichTextEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { ImageEditorDialog } from "@/components/admin/ImageEditorDialog";
+import { cn } from "@/lib/utils";
 
 // Categories Tab Component
 const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: string) => void }) => {
@@ -1233,12 +1236,124 @@ const CommentsTab = () => {
   );
 };
 
+// Banner Preview Component with Text Overlay
+interface BannerPreviewProps {
+  imageUrl: string;
+  title?: string;
+  subtitle?: string;
+  textColor?: string;
+  textAlign?: "left" | "center" | "right";
+  overlayColor?: string;
+  overlayOpacity?: number;
+  aspectRatio?: string;
+  label: string;
+}
+
+const BannerPreview = ({
+  imageUrl,
+  title,
+  subtitle,
+  textColor = "#ffffff",
+  textAlign = "center",
+  overlayColor = "#000000",
+  overlayOpacity = 40,
+  aspectRatio = "aspect-[16/9]",
+  label,
+}: BannerPreviewProps) => {
+  const getTextAlignClass = () => {
+    switch (textAlign) {
+      case "left":
+        return "items-start text-left";
+      case "right":
+        return "items-end text-right";
+      default:
+        return "items-center text-center";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm font-medium">{label}</Label>
+      <div className={`relative ${aspectRatio} w-full overflow-hidden rounded-lg border shadow-sm`}>
+        {imageUrl ? (
+          <>
+            <img
+              src={imageUrl}
+              alt={label}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {/* Overlay */}
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundColor: overlayColor,
+                opacity: overlayOpacity / 100,
+              }}
+            />
+            {/* Text Content */}
+            {(title || subtitle) && (
+              <div
+                className={cn(
+                  "absolute inset-0 flex flex-col justify-center p-6 md:p-8",
+                  getTextAlignClass()
+                )}
+              >
+                {title && (
+                  <h2
+                    className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
+                    style={{ color: textColor }}
+                  >
+                    {title}
+                  </h2>
+                )}
+                {subtitle && (
+                  <p
+                    className="mt-2 text-base md:text-lg opacity-90"
+                    style={{ color: textColor }}
+                  >
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-muted flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <Image className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Nenhuma imagem definida</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Training Page Settings Tab
 const SettingsTab = () => {
   const queryClient = useQueryClient();
-  const [coverUrl, setCoverUrl] = useState("");
-  const [bannerUrl, setBannerUrl] = useState("");
+  const [bannerData, setBannerData] = useState({
+    imageUrl: "",
+    title: "",
+    subtitle: "",
+    textColor: "#ffffff",
+    textAlign: "center" as "left" | "center" | "right",
+    overlayColor: "#000000",
+    overlayOpacity: 40,
+  });
+  const [coverData, setCoverData] = useState({
+    imageUrl: "",
+    title: "",
+    subtitle: "",
+    textColor: "#ffffff",
+    textAlign: "center" as "left" | "center" | "right",
+    overlayColor: "#000000",
+    overlayOpacity: 40,
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [bannerEditorOpen, setBannerEditorOpen] = useState(false);
+  const [coverEditorOpen, setCoverEditorOpen] = useState(false);
 
   // Fetch current settings
   const { data: settings } = useQuery({
@@ -1247,7 +1362,12 @@ const SettingsTab = () => {
       const { data, error } = await supabase
         .from("app_settings")
         .select("*")
-        .in("key", ["training_page_cover_url", "training_page_banner_url"]);
+        .in("key", [
+          "training_page_cover_url",
+          "training_page_banner_url",
+          "training_page_banner_config",
+          "training_page_cover_config"
+        ]);
       if (error) throw error;
       return data;
     }
@@ -1255,35 +1375,90 @@ const SettingsTab = () => {
 
   React.useEffect(() => {
     if (settings) {
-      const cover = settings.find(s => s.key === "training_page_cover_url");
-      const banner = settings.find(s => s.key === "training_page_banner_url");
-      setCoverUrl(cover?.value || "");
-      setBannerUrl(banner?.value || "");
+      const coverUrl = settings.find(s => s.key === "training_page_cover_url");
+      const bannerUrl = settings.find(s => s.key === "training_page_banner_url");
+      const bannerConfig = settings.find(s => s.key === "training_page_banner_config");
+      const coverConfig = settings.find(s => s.key === "training_page_cover_config");
+
+      const parsedBannerConfig = bannerConfig?.value ? JSON.parse(bannerConfig.value) : {};
+      const parsedCoverConfig = coverConfig?.value ? JSON.parse(coverConfig.value) : {};
+
+      setBannerData({
+        imageUrl: bannerUrl?.value || "",
+        title: parsedBannerConfig.title || "",
+        subtitle: parsedBannerConfig.subtitle || "",
+        textColor: parsedBannerConfig.textColor || "#ffffff",
+        textAlign: parsedBannerConfig.textAlign || "center",
+        overlayColor: parsedBannerConfig.overlayColor || "#000000",
+        overlayOpacity: parsedBannerConfig.overlayOpacity ?? 40,
+      });
+      setCoverData({
+        imageUrl: coverUrl?.value || "",
+        title: parsedCoverConfig.title || "",
+        subtitle: parsedCoverConfig.subtitle || "",
+        textColor: parsedCoverConfig.textColor || "#ffffff",
+        textAlign: parsedCoverConfig.textAlign || "center",
+        overlayColor: parsedCoverConfig.overlayColor || "#000000",
+        overlayOpacity: parsedCoverConfig.overlayOpacity ?? 40,
+      });
       setIsLoading(false);
     }
   }, [settings]);
 
-  const saveUrl = async (key: string, url: string) => {
+  const saveConfig = async (key: string, config: object) => {
     const { error } = await supabase
       .from("app_settings")
-      .update({ value: url, updated_at: new Date().toISOString() })
-      .eq("key", key);
+      .upsert({ 
+        key, 
+        value: JSON.stringify(config), 
+        updated_at: new Date().toISOString() 
+      }, { onConflict: "key" });
     if (error) {
-      toast.error("Erro ao salvar: " + error.message);
-    } else {
-      queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
-      toast.success("Configuração salva!");
+      toast.error("Erro ao salvar configuração: " + error.message);
     }
   };
 
-  const handleBannerChange = (url: string) => {
-    setBannerUrl(url);
-    saveUrl("training_page_banner_url", url);
+  const saveUrl = async (key: string, url: string) => {
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert({ 
+        key, 
+        value: url, 
+        updated_at: new Date().toISOString() 
+      }, { onConflict: "key" });
+    if (error) {
+      toast.error("Erro ao salvar: " + error.message);
+    }
   };
 
-  const handleCoverChange = (url: string) => {
-    setCoverUrl(url);
-    saveUrl("training_page_cover_url", url);
+  const handleBannerSave = async (data: typeof bannerData) => {
+    setBannerData(data);
+    await saveUrl("training_page_banner_url", data.imageUrl);
+    await saveConfig("training_page_banner_config", {
+      title: data.title,
+      subtitle: data.subtitle,
+      textColor: data.textColor,
+      textAlign: data.textAlign,
+      overlayColor: data.overlayColor,
+      overlayOpacity: data.overlayOpacity,
+    });
+    queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
+    toast.success("Banner salvo com sucesso!");
+  };
+
+  const handleCoverSave = async (data: typeof coverData) => {
+    setCoverData(data);
+    await saveUrl("training_page_cover_url", data.imageUrl);
+    await saveConfig("training_page_cover_config", {
+      title: data.title,
+      subtitle: data.subtitle,
+      textColor: data.textColor,
+      textAlign: data.textAlign,
+      overlayColor: data.overlayColor,
+      overlayOpacity: data.overlayOpacity,
+    });
+    queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
+    toast.success("Capa salva com sucesso!");
   };
 
   if (isLoading) {
@@ -1292,7 +1467,7 @@ const SettingsTab = () => {
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-muted rounded w-1/4"></div>
-            <div className="h-32 bg-muted rounded"></div>
+            <div className="h-48 bg-muted rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -1307,29 +1482,85 @@ const SettingsTab = () => {
           Configurações da Página Principal
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8">
         <p className="text-sm text-muted-foreground">
-          Configure as imagens que aparecem no topo da página de treinamentos (/user/training)
+          Configure as imagens que aparecem no topo da página de treinamentos (/user/training).
+          Clique em "Editar" para alterar a imagem, textos, cores e sobreposição.
         </p>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <ImageUpload
-            label="Banner Principal (16:9 recomendado)"
-            value={bannerUrl}
-            onChange={handleBannerChange}
-            folder="training-page"
-            hint="Imagem de fundo do topo da página de treinamentos"
-          />
-
-          <ImageUpload
-            label="Capa Alternativa (4:3 recomendado)"
-            value={coverUrl}
-            onChange={handleCoverChange}
-            folder="training-page"
-            aspectRatio="aspect-[4/3]"
-            hint="Usada como fallback se o banner não estiver definido"
+        {/* Banner Principal - Full Width Preview */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Banner Principal</h3>
+              <p className="text-xs text-muted-foreground">Proporção 16:9 - Exibido no topo da página</p>
+            </div>
+            <Button onClick={() => setBannerEditorOpen(true)} variant="outline" size="sm">
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar Banner
+            </Button>
+          </div>
+          <BannerPreview
+            imageUrl={bannerData.imageUrl}
+            title={bannerData.title}
+            subtitle={bannerData.subtitle}
+            textColor={bannerData.textColor}
+            textAlign={bannerData.textAlign}
+            overlayColor={bannerData.overlayColor}
+            overlayOpacity={bannerData.overlayOpacity}
+            aspectRatio="aspect-[16/9]"
+            label="Preview do Banner (tamanho real)"
           />
         </div>
+
+        <Separator />
+
+        {/* Capa Alternativa - Full Width Preview */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Capa Alternativa</h3>
+              <p className="text-xs text-muted-foreground">Proporção 4:3 - Usada como fallback</p>
+            </div>
+            <Button onClick={() => setCoverEditorOpen(true)} variant="outline" size="sm">
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar Capa
+            </Button>
+          </div>
+          <BannerPreview
+            imageUrl={coverData.imageUrl}
+            title={coverData.title}
+            subtitle={coverData.subtitle}
+            textColor={coverData.textColor}
+            textAlign={coverData.textAlign}
+            overlayColor={coverData.overlayColor}
+            overlayOpacity={coverData.overlayOpacity}
+            aspectRatio="aspect-[4/3]"
+            label="Preview da Capa (tamanho real)"
+          />
+        </div>
+
+        {/* Banner Editor Dialog */}
+        <ImageEditorDialog
+          open={bannerEditorOpen}
+          onOpenChange={setBannerEditorOpen}
+          value={bannerData}
+          onSave={handleBannerSave}
+          title="Editar Banner Principal"
+          bucket="training-images"
+          folder="training-page"
+        />
+
+        {/* Cover Editor Dialog */}
+        <ImageEditorDialog
+          open={coverEditorOpen}
+          onOpenChange={setCoverEditorOpen}
+          value={coverData}
+          onSave={handleCoverSave}
+          title="Editar Capa Alternativa"
+          bucket="training-images"
+          folder="training-page"
+        />
       </CardContent>
     </Card>
   );
