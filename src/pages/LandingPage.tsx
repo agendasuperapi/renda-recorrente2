@@ -156,6 +156,7 @@ const LandingPage = () => {
   const isOnline = useOnlineStatus();
   const { sections: landingSections, toggleSection, isSectionActive, getSectionName } = useLandingSections();
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [commissionLevels, setCommissionLevels] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
@@ -542,12 +543,27 @@ const LandingPage = () => {
       return;
     }
 
-    // Check auth state
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    // Check auth state - redireciona para dashboard se usuário logado
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        // Usuário logado - redireciona imediatamente para o dashboard
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .eq('role', 'super_admin')
+          .maybeSingle();
+        
+        const userIsAdmin = !!roleData;
+        const savedAdminView = localStorage.getItem('sidebar_admin_view');
+        const showAdminMenu = savedAdminView ? JSON.parse(savedAdminView) : true;
+        
+        navigate(showAdminMenu && userIsAdmin ? '/admin/dashboard' : '/user/dashboard', { replace: true });
+        return;
       }
+      
+      setUser(null);
+      setIsCheckingAuth(false);
     });
 
     const {
@@ -961,6 +977,12 @@ const LandingPage = () => {
     // Navega para o dashboard correspondente
     navigate(showAdminMenu && isAdmin ? '/admin/dashboard' : '/user/dashboard');
   };
+
+  // Não renderiza nada enquanto verifica autenticação para evitar flash da landing page
+  if (isCheckingAuth) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
   return (
     <div className="min-h-screen bg-[#10b981] pt-[env(safe-area-inset-top)]">
       <div className="min-h-screen bg-background">
