@@ -1341,6 +1341,16 @@ const AdminTraining = () => {
   const [activeTab, setActiveTab] = useState("categories");
   const [filterCategoryId, setFilterCategoryId] = useState("");
   const [filterTrainingId, setFilterTrainingId] = useState("");
+  const [bannerDraft, setBannerDraft] = useState<React.ComponentProps<typeof BannerEditor>["value"]>({
+    imageUrl: "",
+    title: "",
+    subtitle: "",
+    textColor: "#ffffff",
+    textAlign: "center",
+    overlayColor: "#000000",
+    overlayOpacity: 40,
+  });
+
 
   const handleViewTrainings = (categoryId: string) => {
     setFilterCategoryId(categoryId);
@@ -1395,16 +1405,11 @@ const AdminTraining = () => {
             </CardHeader>
             <CardContent>
               <BannerEditor 
-                value={{
-                  imageUrl: "",
-                  title: "",
-                  subtitle: "",
-                  textColor: "#ffffff",
-                  textAlign: "center",
-                  overlayColor: "#000000",
-                  overlayOpacity: 40
+                value={bannerDraft}
+                onChange={(value) => {
+                  setBannerDraft(value);
+                  console.log("Banner updated:", value);
                 }}
-                onChange={(value) => console.log("Banner updated:", value)}
                 bucket="training-images"
                 folder="custom"
               />
