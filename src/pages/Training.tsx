@@ -162,10 +162,10 @@ const Training = () => {
     }
   };
 
-  return <div className="space-y-8 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+  return <div className="-mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
       {firstCategory && <>
-        <div 
+        <div
           className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]" 
           style={{
             backgroundImage: heroBackgroundImage
@@ -236,7 +236,7 @@ const Training = () => {
         </div>
       </>}
 
-      <div className="px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="px-4 sm:px-6 lg:px-8 space-y-8 mt-8">
         {/* Categories Grid */}
         {categoriesLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64 rounded-xl" />)}
