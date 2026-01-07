@@ -155,9 +155,9 @@ const TrainingCategory = () => {
         />
         
         {/* Info Card below banner */}
-        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
           <Card className="bg-card/95 backdrop-blur-sm border shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-6 md:p-8">
               <h1 className="text-2xl md:text-4xl font-bold mb-2">{category.name}</h1>
               {category.description && (
                 <p className="text-muted-foreground max-w-2xl mb-4">{category.description}</p>
