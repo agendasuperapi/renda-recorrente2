@@ -166,6 +166,9 @@ const TrainingDetail = () => {
   // Use training banner, or fallback to category banner
   const bannerImage = training.banner_url || training.thumbnail_url || categoryBanner;
 
+  const bannerTextConfig =
+    ((training as any).banner_text_config ?? (training as any).banner_config) as any;
+
   return (
     <div className="space-y-6 -mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
@@ -198,36 +201,36 @@ const TrainingDetail = () => {
               : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
           }}
         >
-          {/* Banner text config overlay */}
-          {training.banner_text_config && (
+          {/* Overlay + texto (usa banner_text_config ou banner_config) */}
+          {bannerTextConfig && (
             <>
               <div
                 className="absolute inset-0"
                 style={{
-                  backgroundColor: (training.banner_text_config as any)?.overlayColor || "#000000",
-                  opacity: ((training.banner_text_config as any)?.overlayOpacity ?? 40) / 100
+                  backgroundColor: bannerTextConfig?.overlayColor || "#000000",
+                  opacity: (bannerTextConfig?.overlayOpacity ?? 40) / 100
                 }}
               />
-              {((training.banner_text_config as any)?.title || (training.banner_text_config as any)?.subtitle) && (
+              {(bannerTextConfig?.title || bannerTextConfig?.subtitle) && (
                 <div className={`absolute inset-0 flex flex-col justify-center px-6 sm:px-10 lg:px-16 ${
-                  (training.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
-                  (training.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
+                  bannerTextConfig?.textAlign === "left" ? "items-start text-left" :
+                  bannerTextConfig?.textAlign === "right" ? "items-end text-right" :
                   "items-center text-center"
                 }`}>
-                  {(training.banner_text_config as any)?.title && (
+                  {bannerTextConfig?.title && (
                     <h2
                       className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg"
-                      style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
+                      style={{ color: bannerTextConfig?.textColor || "#ffffff" }}
                     >
-                      {(training.banner_text_config as any).title}
+                      {bannerTextConfig.title}
                     </h2>
                   )}
-                  {(training.banner_text_config as any)?.subtitle && (
+                  {bannerTextConfig?.subtitle && (
                     <p
                       className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
-                      style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
+                      style={{ color: bannerTextConfig?.textColor || "#ffffff" }}
                     >
-                      {(training.banner_text_config as any).subtitle}
+                      {bannerTextConfig.subtitle}
                     </p>
                   )}
                 </div>
