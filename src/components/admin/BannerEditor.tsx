@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { 
   Upload, 
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ImageCropDialog } from "./ImageCropDialog";
 
 interface BannerEditorProps {
   value: {
@@ -45,6 +45,10 @@ const deviceDimensions = {
   desktop: { width: 1200, height: 350, label: "Computador" },
 };
 
+// Banner aspect ratio (approximately 3.4:1 based on desktop dimensions)
+const BANNER_ASPECT_RATIO = 1200 / 350;
+const BANNER_ASPECT_LABEL = "1200:350";
+
 export const BannerEditor = ({
   value,
   onChange,
@@ -54,6 +58,9 @@ export const BannerEditor = ({
 }: BannerEditorProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [activePreview, setActivePreview] = useState<DevicePreview>("desktop");
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>("");
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,16 +78,34 @@ export const BannerEditor = ({
       return;
     }
 
+    // Reset input
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+
+    // Open crop dialog
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImageSrc(reader.result as string);
+      setSelectedFile(file);
+      setCropDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const uploadFile = async (fileOrBlob: File | Blob) => {
     setIsUploading(true);
 
     try {
-      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'jpg';
+      const fileExt = fileOrBlob instanceof File 
+        ? fileOrBlob.name.split(".").pop()?.toLowerCase() || 'jpg'
+        : 'jpg';
       const uniqueId = Math.random().toString(36).substring(2, 10);
       const fileName = `${folder}/${Date.now()}_${uniqueId}.${fileExt}`;
 
       const { data, error } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file, {
+        .upload(fileName, fileOrBlob, {
           cacheControl: "3600",
           upsert: false,
         });
@@ -98,10 +123,13 @@ export const BannerEditor = ({
       toast.error("Erro ao enviar imagem: " + error.message);
     } finally {
       setIsUploading(false);
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
     }
+  };
+
+  const handleCropComplete = async (blob: Blob) => {
+    await uploadFile(blob);
+    setSelectedFile(null);
+    setSelectedImageSrc("");
   };
 
   const handleRemoveImage = () => {
@@ -389,6 +417,25 @@ export const BannerEditor = ({
           </div>
         </div>
       </div>
+
+      {/* Image Crop Dialog */}
+      {selectedFile && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          onOpenChange={(open) => {
+            setCropDialogOpen(open);
+            if (!open) {
+              setSelectedFile(null);
+              setSelectedImageSrc("");
+            }
+          }}
+          imageSrc={selectedImageSrc}
+          imageFile={selectedFile}
+          aspectRatio={BANNER_ASPECT_RATIO}
+          aspectRatioLabel={BANNER_ASPECT_LABEL}
+          onComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 };
