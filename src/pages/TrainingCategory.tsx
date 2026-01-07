@@ -331,18 +331,16 @@ const TrainingCategory = () => {
 
                       {/* Status overlay */}
                       {(locked || isCompleted) && (
-                        <>
-                          <div
-                            className={`absolute inset-0 z-[6] ${isCompleted ? 'bg-green-500/10' : 'bg-black/25'}`}
-                          />
-                          <div className="absolute top-3 left-3 z-20">
-                            {isCompleted ? (
-                              <CheckCircle className="h-8 w-8 text-green-500" />
-                            ) : (
-                              <Lock className="h-7 w-7 text-white" />
-                            )}
-                          </div>
-                        </>
+                        <div
+                          className={`absolute inset-0 z-[6] ${isCompleted ? 'bg-green-500/10' : 'bg-black/25'}`}
+                        />
+                      )}
+                      
+                      {/* Locked icon */}
+                      {locked && (
+                        <div className="absolute top-3 left-3 z-20">
+                          <Lock className="h-7 w-7 text-white" />
+                        </div>
                       )}
 
                       {/* Completed badge - moved to title area */}
