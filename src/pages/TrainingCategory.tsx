@@ -152,7 +152,44 @@ const TrainingCategory = () => {
                 ? `url(${category.cover_image_url})`
                 : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
           }}
-        />
+        >
+          {/* Overlay from banner_text_config */}
+          {category.banner_text_config && (
+            <>
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: (category.banner_text_config as any)?.overlayColor || "#000000",
+                  opacity: ((category.banner_text_config as any)?.overlayOpacity ?? 0) / 100
+                }}
+              />
+              {((category.banner_text_config as any)?.title || (category.banner_text_config as any)?.subtitle) && (
+                <div className={`absolute inset-0 flex flex-col justify-center px-6 md:px-12 ${
+                  (category.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
+                  (category.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
+                  "items-center text-center"
+                }`}>
+                  {(category.banner_text_config as any)?.title && (
+                    <h2
+                      className="text-xl sm:text-2xl md:text-4xl font-bold leading-tight drop-shadow-lg"
+                      style={{ color: (category.banner_text_config as any)?.textColor || "#ffffff" }}
+                    >
+                      {(category.banner_text_config as any).title}
+                    </h2>
+                  )}
+                  {(category.banner_text_config as any)?.subtitle && (
+                    <p
+                      className="mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
+                      style={{ color: (category.banner_text_config as any)?.textColor || "#ffffff" }}
+                    >
+                      {(category.banner_text_config as any).subtitle}
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
         
         {/* Info Card below banner */}
         <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
