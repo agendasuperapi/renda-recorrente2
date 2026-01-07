@@ -34,6 +34,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
     icon: "BookOpen",
     cover_image_url: "",
     banner_url: "",
+    banner_config: null as any,
     is_active: true
   });
 
@@ -110,7 +111,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
   });
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", icon: "BookOpen", cover_image_url: "", banner_url: "", is_active: true });
+    setFormData({ name: "", description: "", icon: "BookOpen", cover_image_url: "", banner_url: "", banner_config: null, is_active: true });
     setEditingCategory(null);
   };
 
@@ -122,6 +123,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
       icon: category.icon || "BookOpen",
       cover_image_url: category.cover_image_url || "",
       banner_url: category.banner_url || "",
+      banner_config: category.banner_config || null,
       is_active: category.is_active
     });
     setDialogOpen(true);
@@ -165,6 +167,27 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                 onChange={(url) => setFormData({ ...formData, cover_image_url: url })}
                 folder="categories/covers"
                 hint="Imagem do card (recomendado: 400x225px)"
+                editorValue={{
+                  imageUrl: formData.cover_image_url,
+                  title: formData.banner_config?.title || "",
+                  subtitle: formData.banner_config?.subtitle || "",
+                  textColor: formData.banner_config?.textColor || "#ffffff",
+                  textAlign: formData.banner_config?.textAlign || "center",
+                  overlayColor: formData.banner_config?.overlayColor || "#000000",
+                  overlayOpacity: formData.banner_config?.overlayOpacity ?? 40,
+                }}
+                onEditorChange={(value) => setFormData({
+                  ...formData,
+                  cover_image_url: value.imageUrl,
+                  banner_config: {
+                    title: value.title,
+                    subtitle: value.subtitle,
+                    textColor: value.textColor,
+                    textAlign: value.textAlign,
+                    overlayColor: value.overlayColor,
+                    overlayOpacity: value.overlayOpacity,
+                  }
+                })}
               />
               <ImageUpload
                 label="Banner"
@@ -173,6 +196,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                 folder="categories/banners"
                 aspectRatio="aspect-[3/1]"
                 hint="Banner para o topo da página (recomendado: 1200x400px)"
+                showEditor={false}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
@@ -288,6 +312,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
     introduction_video_url: "",
     thumbnail_url: "",
     banner_url: "",
+    banner_config: null as any,
     estimated_duration_minutes: 0,
     is_active: true,
     is_published: false
@@ -396,6 +421,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       introduction_video_url: "",
       thumbnail_url: "",
       banner_url: "",
+      banner_config: null,
       estimated_duration_minutes: 0,
       is_active: true,
       is_published: false
@@ -412,6 +438,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       introduction_video_url: training.introduction_video_url || "",
       thumbnail_url: training.thumbnail_url || "",
       banner_url: training.banner_url || "",
+      banner_config: training.banner_config || null,
       estimated_duration_minutes: training.estimated_duration_minutes || 0,
       is_active: training.is_active,
       is_published: training.is_published
@@ -507,6 +534,27 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                 onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
                 folder="trainings/thumbnails"
                 hint="Imagem do card (recomendado: 400x225px)"
+                editorValue={{
+                  imageUrl: formData.thumbnail_url,
+                  title: formData.banner_config?.title || "",
+                  subtitle: formData.banner_config?.subtitle || "",
+                  textColor: formData.banner_config?.textColor || "#ffffff",
+                  textAlign: formData.banner_config?.textAlign || "center",
+                  overlayColor: formData.banner_config?.overlayColor || "#000000",
+                  overlayOpacity: formData.banner_config?.overlayOpacity ?? 40,
+                }}
+                onEditorChange={(value) => setFormData({
+                  ...formData,
+                  thumbnail_url: value.imageUrl,
+                  banner_config: {
+                    title: value.title,
+                    subtitle: value.subtitle,
+                    textColor: value.textColor,
+                    textAlign: value.textAlign,
+                    overlayColor: value.overlayColor,
+                    overlayOpacity: value.overlayOpacity,
+                  }
+                })}
               />
               <ImageUpload
                 label="Banner"
@@ -515,6 +563,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                 folder="trainings/banners"
                 aspectRatio="aspect-[3/1]"
                 hint="Banner da página (recomendado: 1200x400px)"
+                showEditor={false}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativo</Label>
@@ -649,6 +698,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
     video_url: "",
     content_html: "",
     thumbnail_url: "",
+    banner_config: null as any,
     duration_minutes: 0,
     is_active: true
   });
@@ -740,6 +790,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
       video_url: "",
       content_html: "",
       thumbnail_url: "",
+      banner_config: null,
       duration_minutes: 0,
       is_active: true
     });
@@ -756,6 +807,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
       video_url: lesson.video_url || "",
       content_html: lesson.content_html || "",
       thumbnail_url: lesson.thumbnail_url || "",
+      banner_config: lesson.banner_config || null,
       duration_minutes: lesson.duration_minutes || 0,
       is_active: lesson.is_active
     });
@@ -869,6 +921,27 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                 onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
                 folder="lessons/thumbnails"
                 hint="Imagem do card da aula (recomendado: 400x225px)"
+                editorValue={{
+                  imageUrl: formData.thumbnail_url,
+                  title: formData.banner_config?.title || "",
+                  subtitle: formData.banner_config?.subtitle || "",
+                  textColor: formData.banner_config?.textColor || "#ffffff",
+                  textAlign: formData.banner_config?.textAlign || "center",
+                  overlayColor: formData.banner_config?.overlayColor || "#000000",
+                  overlayOpacity: formData.banner_config?.overlayOpacity ?? 40,
+                }}
+                onEditorChange={(value) => setFormData({
+                  ...formData,
+                  thumbnail_url: value.imageUrl,
+                  banner_config: {
+                    title: value.title,
+                    subtitle: value.subtitle,
+                    textColor: value.textColor,
+                    textAlign: value.textAlign,
+                    overlayColor: value.overlayColor,
+                    overlayOpacity: value.overlayOpacity,
+                  }
+                })}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
