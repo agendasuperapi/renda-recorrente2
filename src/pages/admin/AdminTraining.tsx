@@ -305,12 +305,6 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                 {!category.is_active && (
                   <Badge variant="destructive" className="absolute top-2 right-2 z-10">Inativa</Badge>
                 )}
-                {category.banner_url && (
-                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1 z-10">
-                    <Image className="h-3 w-3" />
-                    Banner
-                  </Badge>
-                )}
               </div>
               <CardContent className="p-4">
                 <div className="mb-3">
