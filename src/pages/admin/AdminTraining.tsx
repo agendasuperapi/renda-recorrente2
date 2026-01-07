@@ -734,17 +734,17 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons, onGoBack }: { filterCat
                   </>
                 )}
                 
-                <div className="absolute top-2 right-2 flex gap-1 z-10">
-                  {training.is_published ? (
-                    <Badge className="bg-green-500">Publicado</Badge>
-                  ) : (
-                    <Badge variant="secondary">Rascunho</Badge>
-                  )}
-                </div>
               </div>
               <CardContent className="p-4">
                 <div className="mb-3">
-                  <h3 className="font-semibold text-lg line-clamp-1">{training.title}</h3>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-semibold text-lg line-clamp-1">{training.title}</h3>
+                    {training.is_published ? (
+                      <Badge className="bg-green-500 shrink-0">Publicado</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="shrink-0">Rascunho</Badge>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                     <span>{(training.training_categories as any)?.name}</span>
                     {training.estimated_duration_minutes > 0 && (
