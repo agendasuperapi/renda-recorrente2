@@ -3168,6 +3168,7 @@ export type Database = {
       training_categories: {
         Row: {
           banner_config: Json | null
+          banner_text_config: Json | null
           banner_url: string | null
           cover_image_url: string | null
           created_at: string | null
@@ -3181,6 +3182,7 @@ export type Database = {
         }
         Insert: {
           banner_config?: Json | null
+          banner_text_config?: Json | null
           banner_url?: string | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -3194,6 +3196,7 @@ export type Database = {
         }
         Update: {
           banner_config?: Json | null
+          banner_text_config?: Json | null
           banner_url?: string | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -3478,6 +3481,7 @@ export type Database = {
       trainings: {
         Row: {
           banner_config: Json | null
+          banner_text_config: Json | null
           banner_url: string | null
           category_id: string
           created_at: string | null
@@ -3494,6 +3498,7 @@ export type Database = {
         }
         Insert: {
           banner_config?: Json | null
+          banner_text_config?: Json | null
           banner_url?: string | null
           category_id: string
           created_at?: string | null
@@ -3510,6 +3515,7 @@ export type Database = {
         }
         Update: {
           banner_config?: Json | null
+          banner_text_config?: Json | null
           banner_url?: string | null
           category_id?: string
           created_at?: string | null
