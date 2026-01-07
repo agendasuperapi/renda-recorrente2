@@ -196,7 +196,8 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                 folder="categories/banners"
                 aspectRatio="aspect-[3/1]"
                 hint="Banner para o topo da página (recomendado: 1200x400px)"
-                showEditor={false}
+                showEditor={true}
+                editorWithText={false}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
@@ -601,7 +602,8 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                 folder="trainings/banners"
                 aspectRatio="aspect-[3/1]"
                 hint="Banner da página (recomendado: 1200x400px)"
-                showEditor={false}
+                showEditor={true}
+                editorWithText={false}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativo</Label>
