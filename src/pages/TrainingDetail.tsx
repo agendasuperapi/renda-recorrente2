@@ -233,7 +233,7 @@ const TrainingDetail = () => {
             <p className="text-muted-foreground">Nenhuma aula disponível neste treinamento</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {lessons?.map((lesson, index) => {
               const completed = isLessonCompleted(lesson.id);
               const locked = isLessonLocked(index);
@@ -251,16 +251,16 @@ const TrainingDetail = () => {
                     <CardContent className="p-0">
                       <div className="flex items-stretch">
                         {/* Thumbnail */}
-                        <div className="w-24 md:w-36 flex-shrink-0 relative">
+                        <div className="w-32 md:w-44 flex-shrink-0 relative">
                           {lesson.thumbnail_url ? (
                             <img 
                               src={lesson.thumbnail_url} 
                               alt={lesson.title}
-                              className="w-full h-full object-cover min-h-[80px]"
+                              className="w-full h-full object-cover min-h-[90px]"
                             />
                           ) : (
-                            <div className="w-full h-full min-h-[80px] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                              <PlayCircle className="h-8 w-8 text-primary/50" />
+                            <div className="w-full h-full min-h-[90px] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                              <PlayCircle className="h-10 w-10 text-primary/50" />
                             </div>
                           )}
                           {/* Overlay for status */}
