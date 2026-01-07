@@ -381,20 +381,12 @@ const TrainingDetail = () => {
                         </>
                       )}
                       
-                      {/* Status overlay */}
-                      {(locked || completed) && (
-                        <div
-                          className={`absolute inset-0 flex items-center justify-center ${
-                            completed
-                              ? (lesson.banner_config ? 'bg-green-500/10' : 'bg-green-500/20')
-                              : (lesson.banner_config ? 'bg-black/20' : 'bg-black/50')
-                          }`}
-                        >
-                          {completed ? (
-                            <CheckCircle className="h-12 w-12 text-green-500" />
-                          ) : (
-                            <Lock className="h-10 w-10 text-white" />
-                          )}
+                      {/* Status overlay - only for locked */}
+                      {locked && (
+                        <div className={`absolute inset-0 flex items-center justify-center ${
+                          lesson.banner_config ? 'bg-black/20' : 'bg-black/50'
+                        }`}>
+                          <Lock className="h-10 w-10 text-white" />
                         </div>
                       )}
 
