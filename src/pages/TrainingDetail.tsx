@@ -404,8 +404,7 @@ const TrainingDetail = () => {
                           {lesson.title}
                         </h3>
                         {completed && (
-                          <Badge className="bg-green-500 gap-1 flex-shrink-0">
-                            <CheckCircle className="h-3 w-3" />
+                          <Badge className="bg-green-500 flex-shrink-0">
                             Concluída
                           </Badge>
                         )}
