@@ -242,7 +242,7 @@ const TrainingDetail = () => {
                 <Link
                   key={lesson.id}
                   to={locked ? '#' : `/user/training/lesson/${lesson.id}`}
-                  className={locked ? 'cursor-not-allowed' : ''}
+                  className={`block ${locked ? 'cursor-not-allowed' : ''}`}
                   onClick={(e) => locked && e.preventDefault()}
                 >
                   <Card 
