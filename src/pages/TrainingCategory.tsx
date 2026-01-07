@@ -145,8 +145,11 @@ const TrainingCategory = () => {
           Voltar para Treinamentos
         </Button>
       </div>
-    );
+      );
   }
+
+  const categoryBannerTextConfig =
+    ((category as any).banner_text_config ?? (category as any).banner_config) as any;
 
   return (
     <div className="space-y-6 -mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
@@ -175,39 +178,42 @@ const TrainingCategory = () => {
                 : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)'
           }}
         >
-          {/* Overlay */}
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundColor: (category.banner_text_config as any)?.overlayColor || "#000000",
-              opacity: ((category.banner_text_config as any)?.overlayOpacity ?? 40) / 100
-            }}
-          />
-          
-          {/* Banner text */}
-          {((category.banner_text_config as any)?.title || (category.banner_text_config as any)?.subtitle) && (
-            <div className={`absolute inset-0 flex flex-col justify-center px-6 md:px-12 ${
-              (category.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
-              (category.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
-              "items-center text-center"
-            }`}>
-              {(category.banner_text_config as any)?.title && (
-                <h2
-                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg"
-                  style={{ color: (category.banner_text_config as any)?.textColor || "#ffffff" }}
-                >
-                  {(category.banner_text_config as any).title}
-                </h2>
+          {/* Overlay + texto (usa banner_text_config ou banner_config) */}
+          {categoryBannerTextConfig && (
+            <>
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: categoryBannerTextConfig?.overlayColor || "#000000",
+                  opacity: (categoryBannerTextConfig?.overlayOpacity ?? 40) / 100
+                }}
+              />
+
+              {(categoryBannerTextConfig?.title || categoryBannerTextConfig?.subtitle) && (
+                <div className={`absolute inset-0 flex flex-col justify-center px-6 md:px-12 ${
+                  categoryBannerTextConfig?.textAlign === "left" ? "items-start text-left" :
+                  categoryBannerTextConfig?.textAlign === "right" ? "items-end text-right" :
+                  "items-center text-center"
+                }`}>
+                  {categoryBannerTextConfig?.title && (
+                    <h2
+                      className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg"
+                      style={{ color: categoryBannerTextConfig?.textColor || "#ffffff" }}
+                    >
+                      {categoryBannerTextConfig.title}
+                    </h2>
+                  )}
+                  {categoryBannerTextConfig?.subtitle && (
+                    <p
+                      className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
+                      style={{ color: categoryBannerTextConfig?.textColor || "#ffffff" }}
+                    >
+                      {categoryBannerTextConfig.subtitle}
+                    </p>
+                  )}
+                </div>
               )}
-              {(category.banner_text_config as any)?.subtitle && (
-                <p
-                  className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
-                  style={{ color: (category.banner_text_config as any)?.textColor || "#ffffff" }}
-                >
-                  {(category.banner_text_config as any).subtitle}
-                </p>
-              )}
-            </div>
+            </>
           )}
         </div>
         
@@ -263,6 +269,8 @@ const TrainingCategory = () => {
               const avgRating = getAverageRating(training.training_ratings as any[]);
               const locked = isTrainingLocked(index);
               const isCompleted = progress.percentage === 100;
+              const trainingBannerTextConfig =
+                ((training as any).banner_text_config ?? (training as any).banner_config) as any;
 
               return (
                 <Link
@@ -288,38 +296,38 @@ const TrainingCategory = () => {
                         </div>
                       )}
                       
-                      {/* Overlay from banner_text_config */}
-                      {training.banner_text_config && (
+                      {/* Overlay + texto (usa banner_text_config ou banner_config) */}
+                      {trainingBannerTextConfig && (
                         <>
                           <div
                             className="absolute inset-0 z-[5]"
                             style={{
-                              backgroundColor: (training.banner_text_config as any)?.overlayColor || "#000000",
-                              opacity: ((training.banner_text_config as any)?.overlayOpacity ?? 0) / 100
+                              backgroundColor: trainingBannerTextConfig?.overlayColor || "#000000",
+                              opacity: (trainingBannerTextConfig?.overlayOpacity ?? 40) / 100
                             }}
                           />
-                          {((training.banner_text_config as any)?.title || (training.banner_text_config as any)?.subtitle) && (
+                          {(trainingBannerTextConfig?.title || trainingBannerTextConfig?.subtitle) && (
                             <div
                               className={`absolute inset-0 z-10 flex flex-col justify-center px-4 ${
-                                (training.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
-                                (training.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
+                                trainingBannerTextConfig?.textAlign === "left" ? "items-start text-left" :
+                                trainingBannerTextConfig?.textAlign === "right" ? "items-end text-right" :
                                 "items-center text-center"
                               }`}
                             >
-                              {(training.banner_text_config as any)?.title && (
+                              {trainingBannerTextConfig?.title && (
                                 <h4
                                   className="text-lg sm:text-xl md:text-2xl font-bold leading-tight drop-shadow-lg"
-                                  style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
+                                  style={{ color: trainingBannerTextConfig?.textColor || "#ffffff" }}
                                 >
-                                  {(training.banner_text_config as any).title}
+                                  {trainingBannerTextConfig.title}
                                 </h4>
                               )}
-                              {(training.banner_text_config as any)?.subtitle && (
+                              {trainingBannerTextConfig?.subtitle && (
                                 <p
                                   className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2 drop-shadow-lg"
-                                  style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
+                                  style={{ color: trainingBannerTextConfig?.textColor || "#ffffff" }}
                                 >
-                                  {(training.banner_text_config as any).subtitle}
+                                  {trainingBannerTextConfig.subtitle}
                                 </p>
                               )}
                             </div>

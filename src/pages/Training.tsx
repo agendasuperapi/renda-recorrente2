@@ -275,6 +275,8 @@ const Training = () => {
             {categories?.map(category => {
               const stats = getCategoryStats(category.id);
               const isCompleted = stats.percentage === 100;
+              const categoryBannerConfig =
+                ((category as any).banner_text_config ?? (category as any).banner_config) as any;
 
               return (
                 <div
@@ -306,36 +308,36 @@ const Training = () => {
                         </div>
                       )}
                       
-                      {/* Overlay from banner_config */}
-                      {category.banner_config && (
+                      {/* Overlay do banner (usa banner_text_config ou banner_config) */}
+                      {categoryBannerConfig && (
                         <>
                           <div
                             className="absolute inset-0"
                             style={{
-                              backgroundColor: (category.banner_config as any)?.overlayColor || "#000000",
-                              opacity: ((category.banner_config as any)?.overlayOpacity ?? 40) / 100
+                              backgroundColor: categoryBannerConfig?.overlayColor || "#000000",
+                              opacity: (categoryBannerConfig?.overlayOpacity ?? 40) / 100
                             }}
                           />
-                          {((category.banner_config as any)?.title || (category.banner_config as any)?.subtitle) && (
+                          {(categoryBannerConfig?.title || categoryBannerConfig?.subtitle) && (
                             <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
-                              (category.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
-                              (category.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                              categoryBannerConfig?.textAlign === "left" ? "items-start text-left" :
+                              categoryBannerConfig?.textAlign === "right" ? "items-end text-right" :
                               "items-center text-center"
                             }`}>
-                              {(category.banner_config as any)?.title && (
+                              {categoryBannerConfig?.title && (
                                 <h4
                                   className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight"
-                                  style={{ color: (category.banner_config as any)?.textColor || "#ffffff" }}
+                                  style={{ color: categoryBannerConfig?.textColor || "#ffffff" }}
                                 >
-                                  {(category.banner_config as any).title}
+                                  {categoryBannerConfig.title}
                                 </h4>
                               )}
-                              {(category.banner_config as any)?.subtitle && (
+                              {categoryBannerConfig?.subtitle && (
                                 <p
                                   className="mt-1 text-lg sm:text-xl opacity-90 line-clamp-2"
-                                  style={{ color: (category.banner_config as any)?.textColor || "#ffffff" }}
+                                  style={{ color: categoryBannerConfig?.textColor || "#ffffff" }}
                                 >
-                                  {(category.banner_config as any).subtitle}
+                                  {categoryBannerConfig.subtitle}
                                 </p>
                               )}
                             </div>
