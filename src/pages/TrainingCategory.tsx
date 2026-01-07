@@ -193,7 +193,7 @@ const TrainingCategory = () => {
                 }`}>
                   {(category.banner_text_config as any)?.title && (
                     <h2
-                      className="text-xl sm:text-2xl md:text-4xl font-bold leading-tight drop-shadow-lg"
+                      className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg"
                       style={{ color: (category.banner_text_config as any)?.textColor || "#ffffff" }}
                     >
                       {(category.banner_text_config as any).title}
@@ -201,7 +201,7 @@ const TrainingCategory = () => {
                   )}
                   {(category.banner_text_config as any)?.subtitle && (
                     <p
-                      className="mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
+                      className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
                       style={{ color: (category.banner_text_config as any)?.textColor || "#ffffff" }}
                     >
                       {(category.banner_text_config as any).subtitle}
