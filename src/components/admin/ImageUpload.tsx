@@ -6,6 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Upload, X, Image as ImageIcon, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { ImageEditorDialog, ImageEditorValue } from "./ImageEditorDialog";
+import { ImageCropDialog } from "./ImageCropDialog";
+
+// Aspect ratio mappings for crop dialog
+const ASPECT_RATIOS: Record<string, { ratio: number; label: string }> = {
+  "aspect-video": { ratio: 16 / 9, label: "16:9" },
+  "aspect-[16/9]": { ratio: 16 / 9, label: "16:9" },
+  "aspect-[3/1]": { ratio: 3 / 1, label: "3:1" },
+  "aspect-[4/3]": { ratio: 4 / 3, label: "4:3" },
+  "aspect-[3/4]": { ratio: 3 / 4, label: "3:4" },
+  "aspect-square": { ratio: 1, label: "1:1" },
+  "aspect-[1/1]": { ratio: 1, label: "1:1" },
+  "aspect-[2/1]": { ratio: 2 / 1, label: "2:1" },
+  "aspect-[21/9]": { ratio: 21 / 9, label: "21:9" },
+};
 
 interface ImageUploadProps {
   label: string;
@@ -27,6 +41,8 @@ interface ImageUploadProps {
   editorValue?: ImageEditorValue;
   /** Callback for full editor value changes */
   onEditorChange?: (value: ImageEditorValue) => void;
+  /** If true, shows crop dialog when selecting image (default: true) */
+  showCropDialog?: boolean;
 }
 
 export const ImageUpload = ({
@@ -41,10 +57,16 @@ export const ImageUpload = ({
   editorWithText = true,
   editorValue,
   onEditorChange,
+  showCropDialog = true,
 }: ImageUploadProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedImageSrc, setSelectedImageSrc] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const aspectRatioConfig = ASPECT_RATIOS[aspectRatio] || { ratio: 16 / 9, label: "16:9" };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,18 +85,41 @@ export const ImageUpload = ({
       return;
     }
 
+    // Reset input
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+
+    if (showCropDialog) {
+      // Open crop dialog
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedImageSrc(reader.result as string);
+        setSelectedFile(file);
+        setCropDialogOpen(true);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Upload directly without crop
+      await uploadFile(file);
+    }
+  };
+
+  const uploadFile = async (fileOrBlob: File | Blob) => {
     setIsUploading(true);
 
     try {
       // Generate unique filename
-      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'jpg';
+      const fileExt = fileOrBlob instanceof File 
+        ? fileOrBlob.name.split(".").pop()?.toLowerCase() || 'jpg'
+        : 'jpg';
       const uniqueId = Math.random().toString(36).substring(2, 10);
       const fileName = `${folder}/${Date.now()}_${uniqueId}.${fileExt}`;
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file, {
+        .upload(fileName, fileOrBlob, {
           cacheControl: "3600",
           upsert: false
         });
@@ -93,11 +138,13 @@ export const ImageUpload = ({
       toast.error("Erro ao enviar imagem: " + error.message);
     } finally {
       setIsUploading(false);
-      // Reset input
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
     }
+  };
+
+  const handleCropComplete = async (blob: Blob) => {
+    await uploadFile(blob);
+    setSelectedFile(null);
+    setSelectedImageSrc("");
   };
 
   const handleRemove = async () => {
@@ -288,6 +335,25 @@ export const ImageUpload = ({
           bucket={bucket}
           folder={folder}
           simpleMode={!editorWithText}
+        />
+      )}
+
+      {/* Image Crop Dialog */}
+      {showCropDialog && selectedFile && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          onOpenChange={(open) => {
+            setCropDialogOpen(open);
+            if (!open) {
+              setSelectedFile(null);
+              setSelectedImageSrc("");
+            }
+          }}
+          imageSrc={selectedImageSrc}
+          imageFile={selectedFile}
+          aspectRatio={aspectRatioConfig.ratio}
+          aspectRatioLabel={aspectRatioConfig.label}
+          onComplete={handleCropComplete}
         />
       )}
     </div>
