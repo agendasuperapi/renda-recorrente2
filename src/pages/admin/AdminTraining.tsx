@@ -241,35 +241,44 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                     <FolderOpen className="h-12 w-12 text-primary/40" />
                   </div>
                 )}
-                {/* Overlay com textos configurados */}
-                {category.banner_config && typeof category.banner_config === 'object' && !Array.isArray(category.banner_config) && ((category.banner_config as any).title || (category.banner_config as any).subtitle) && (
-                  <div 
-                    className="absolute inset-0 flex flex-col items-center justify-center p-3"
-                    style={{
-                      backgroundColor: (category.banner_config as any).overlayColor 
-                        ? `${(category.banner_config as any).overlayColor}${Math.round(((category.banner_config as any).overlayOpacity || 0.5) * 255).toString(16).padStart(2, '0')}`
-                        : 'rgba(0,0,0,0.5)',
-                      textAlign: ((category.banner_config as any).textAlign as any) || 'center'
-                    }}
-                  >
-                    {(category.banner_config as any).title && (
-                      <h4 
-                        className="font-bold text-xl sm:text-2xl md:text-3xl leading-tight"
-                        style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
-                      >
-                        {(category.banner_config as any).title}
-                      </h4>
+                
+                {/* Overlay from banner_config - igual ao usuário */}
+                {category.banner_config && (
+                  <>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundColor: (category.banner_config as any)?.overlayColor || "#000000",
+                        opacity: ((category.banner_config as any)?.overlayOpacity ?? 40) / 100
+                      }}
+                    />
+                    {((category.banner_config as any)?.title || (category.banner_config as any)?.subtitle) && (
+                      <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
+                        (category.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
+                        (category.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                        "items-center text-center"
+                      }`}>
+                        {(category.banner_config as any)?.title && (
+                          <h4
+                            className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight"
+                            style={{ color: (category.banner_config as any)?.textColor || "#ffffff" }}
+                          >
+                            {(category.banner_config as any).title}
+                          </h4>
+                        )}
+                        {(category.banner_config as any)?.subtitle && (
+                          <p
+                            className="mt-1 text-lg sm:text-xl opacity-90 line-clamp-2"
+                            style={{ color: (category.banner_config as any)?.textColor || "#ffffff" }}
+                          >
+                            {(category.banner_config as any).subtitle}
+                          </p>
+                        )}
+                      </div>
                     )}
-                    {(category.banner_config as any).subtitle && (
-                      <p 
-                        className="text-lg sm:text-xl mt-1"
-                        style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
-                      >
-                        {(category.banner_config as any).subtitle}
-                      </p>
-                    )}
-                  </div>
+                  </>
                 )}
+                
                 {!category.is_active && (
                   <Badge variant="destructive" className="absolute top-2 right-2 z-10">Inativa</Badge>
                 )}
@@ -647,7 +656,45 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                     <BookOpen className="h-12 w-12 text-primary/40" />
                   </div>
                 )}
-                <div className="absolute top-2 right-2 flex gap-1">
+                
+                {/* Overlay from banner_config - igual ao usuário */}
+                {training.banner_config && (
+                  <>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundColor: (training.banner_config as any)?.overlayColor || "#000000",
+                        opacity: ((training.banner_config as any)?.overlayOpacity ?? 40) / 100
+                      }}
+                    />
+                    {((training.banner_config as any)?.title || (training.banner_config as any)?.subtitle) && (
+                      <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
+                        (training.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
+                        (training.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                        "items-center text-center"
+                      }`}>
+                        {(training.banner_config as any)?.title && (
+                          <h4
+                            className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight"
+                            style={{ color: (training.banner_config as any)?.textColor || "#ffffff" }}
+                          >
+                            {(training.banner_config as any).title}
+                          </h4>
+                        )}
+                        {(training.banner_config as any)?.subtitle && (
+                          <p
+                            className="mt-1 text-lg sm:text-xl opacity-90 line-clamp-2"
+                            style={{ color: (training.banner_config as any)?.textColor || "#ffffff" }}
+                          >
+                            {(training.banner_config as any).subtitle}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                <div className="absolute top-2 right-2 flex gap-1 z-10">
                   {training.is_published ? (
                     <Badge className="bg-green-500">Publicado</Badge>
                   ) : (
@@ -655,7 +702,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                   )}
                 </div>
                 {training.banner_url && (
-                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1">
+                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1 z-10">
                     <Image className="h-3 w-3" />
                     Banner
                   </Badge>
