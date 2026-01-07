@@ -8,11 +8,11 @@ import { toast } from "sonner";
 import { ImageEditorDialog, ImageEditorValue } from "./ImageEditorDialog";
 import { ImageCropDialog } from "./ImageCropDialog";
 
-// Aspect ratio mappings for crop dialog
+// Aspect ratio mappings for crop dialog with recommended dimensions
 const ASPECT_RATIOS: Record<string, { ratio: number; label: string }> = {
-  "aspect-video": { ratio: 16 / 9, label: "16:9" },
-  "aspect-[16/9]": { ratio: 16 / 9, label: "16:9" },
-  "aspect-[3/1]": { ratio: 3 / 1, label: "3:1" },
+  "aspect-video": { ratio: 16 / 9, label: "16:9 (400x225px)" },
+  "aspect-[16/9]": { ratio: 16 / 9, label: "16:9 (400x225px)" },
+  "aspect-[3/1]": { ratio: 3 / 1, label: "3:1 (1200x400px)" },
   "aspect-[4/3]": { ratio: 4 / 3, label: "4:3" },
   "aspect-[3/4]": { ratio: 3 / 4, label: "3:4" },
   "aspect-square": { ratio: 1, label: "1:1" },
