@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const Training = () => {
   const { userId } = useAuth();
+  const navigate = useNavigate();
 
   // Fetch training page settings
   const { data: pageSettings } = useQuery({
@@ -251,10 +252,19 @@ const Training = () => {
               const isCompleted = stats.percentage === 100;
 
               return (
-                <Link
+                <div
                   key={category.id}
-                  to={`/user/training/category/${category.id}`}
-                  className="block group"
+                  className="block group cursor-pointer"
+                  onClick={() => {
+                    const categoryTrainings = trainings?.filter(t => t.category_id === category.id) || [];
+                    if (categoryTrainings.length === 1) {
+                      // Navigate directly to the training detail (lessons)
+                      navigate(`/user/training/${categoryTrainings[0].id}`);
+                    } else {
+                      // Navigate to category page to choose a training
+                      navigate(`/user/training/category/${category.id}`);
+                    }
+                  }}
                 >
                   <Card className={`overflow-hidden hover:shadow-xl transition-all group-hover:scale-[1.02] ${isCompleted ? 'ring-2 ring-green-500' : ''}`}>
                     {/* Cover Image */}
@@ -322,7 +332,7 @@ const Training = () => {
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
+                </div>
               );
             })}
           </div>
