@@ -29,6 +29,10 @@ interface ImageEditorDialogProps {
   folder?: string;
   /** If true, shows only image upload without text overlay options */
   simpleMode?: boolean;
+  /** Aspect ratio for crop dialog (e.g., 16/9) */
+  aspectRatio?: number;
+  /** Label for aspect ratio (e.g., "16:9 (400x225px)") */
+  aspectRatioLabel?: string;
 }
 
 export const ImageEditorDialog = ({
@@ -40,6 +44,8 @@ export const ImageEditorDialog = ({
   bucket = "training-images",
   folder = "general",
   simpleMode = false,
+  aspectRatio,
+  aspectRatioLabel,
 }: ImageEditorDialogProps) => {
   const [draft, setDraft] = useState<ImageEditorValue>(value);
 
@@ -80,6 +86,8 @@ export const ImageEditorDialog = ({
           bucket={bucket}
           folder={folder}
           simpleMode={simpleMode}
+          aspectRatio={aspectRatio}
+          aspectRatioLabel={aspectRatioLabel}
         />
 
         <DialogFooter className="gap-2 sm:gap-0">

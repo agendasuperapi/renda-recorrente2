@@ -35,6 +35,10 @@ interface BannerEditorProps {
   folder?: string;
   /** If true, hides text overlay options and shows only image upload */
   simpleMode?: boolean;
+  /** Custom aspect ratio for crop dialog */
+  aspectRatio?: number;
+  /** Custom label for aspect ratio */
+  aspectRatioLabel?: string;
 }
 
 type DevicePreview = "mobile" | "tablet" | "desktop";
@@ -55,7 +59,12 @@ export const BannerEditor = ({
   bucket = "training-images",
   folder = "banners",
   simpleMode = false,
+  aspectRatio,
+  aspectRatioLabel,
 }: BannerEditorProps) => {
+  // Use custom aspect ratio if provided, otherwise use default banner ratio
+  const effectiveAspectRatio = aspectRatio ?? BANNER_ASPECT_RATIO;
+  const effectiveAspectLabel = aspectRatioLabel ?? BANNER_ASPECT_LABEL;
   const [isUploading, setIsUploading] = useState(false);
   const [activePreview, setActivePreview] = useState<DevicePreview>("desktop");
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
@@ -431,8 +440,8 @@ export const BannerEditor = ({
           }}
           imageSrc={selectedImageSrc}
           imageFile={selectedFile}
-          aspectRatio={BANNER_ASPECT_RATIO}
-          aspectRatioLabel={BANNER_ASPECT_LABEL}
+          aspectRatio={effectiveAspectRatio}
+          aspectRatioLabel={effectiveAspectLabel}
           onComplete={handleCropComplete}
         />
       )}
