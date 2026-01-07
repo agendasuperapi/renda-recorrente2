@@ -47,7 +47,7 @@ const deviceDimensions = {
 
 // Banner aspect ratio (approximately 3.4:1 based on desktop dimensions)
 const BANNER_ASPECT_RATIO = 1200 / 350;
-const BANNER_ASPECT_LABEL = "1200:350";
+const BANNER_ASPECT_LABEL = "3.4:1 (1200x350px)";
 
 export const BannerEditor = ({
   value,
