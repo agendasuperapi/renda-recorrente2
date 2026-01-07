@@ -241,11 +241,40 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                     <FolderOpen className="h-12 w-12 text-primary/40" />
                   </div>
                 )}
+                {/* Overlay com textos configurados */}
+                {category.banner_config && typeof category.banner_config === 'object' && !Array.isArray(category.banner_config) && ((category.banner_config as any).title || (category.banner_config as any).subtitle) && (
+                  <div 
+                    className="absolute inset-0 flex flex-col justify-end p-3"
+                    style={{
+                      backgroundColor: (category.banner_config as any).overlayColor 
+                        ? `${(category.banner_config as any).overlayColor}${Math.round(((category.banner_config as any).overlayOpacity || 0.5) * 255).toString(16).padStart(2, '0')}`
+                        : 'rgba(0,0,0,0.5)',
+                      textAlign: ((category.banner_config as any).textAlign as any) || 'left'
+                    }}
+                  >
+                    {(category.banner_config as any).title && (
+                      <h4 
+                        className="font-bold text-sm leading-tight"
+                        style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
+                      >
+                        {(category.banner_config as any).title}
+                      </h4>
+                    )}
+                    {(category.banner_config as any).subtitle && (
+                      <p 
+                        className="text-xs opacity-90"
+                        style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
+                      >
+                        {(category.banner_config as any).subtitle}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {!category.is_active && (
-                  <Badge variant="destructive" className="absolute top-2 right-2">Inativa</Badge>
+                  <Badge variant="destructive" className="absolute top-2 right-2 z-10">Inativa</Badge>
                 )}
                 {category.banner_url && (
-                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1">
+                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1 z-10">
                     <Image className="h-3 w-3" />
                     Banner
                   </Badge>
