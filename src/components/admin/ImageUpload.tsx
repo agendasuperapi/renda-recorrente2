@@ -146,6 +146,47 @@ export const ImageUpload = ({
               alt={label}
               className="w-full h-full object-cover"
             />
+            
+            {/* Show text overlay preview if configured */}
+            {editorWithText && currentEditorValue && (currentEditorValue.title || currentEditorValue.subtitle) && (
+              <>
+                {/* Overlay background */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundColor: currentEditorValue.overlayColor || "#000000",
+                    opacity: (currentEditorValue.overlayOpacity ?? 40) / 100
+                  }}
+                />
+                {/* Text content */}
+                <div 
+                  className={`absolute inset-0 flex flex-col justify-center px-4 pointer-events-none ${
+                    currentEditorValue.textAlign === "left" ? "items-start text-left" :
+                    currentEditorValue.textAlign === "right" ? "items-end text-right" :
+                    "items-center text-center"
+                  }`}
+                >
+                  {currentEditorValue.title && (
+                    <h4
+                      className="text-sm sm:text-base md:text-lg font-bold leading-tight"
+                      style={{ color: currentEditorValue.textColor || "#ffffff" }}
+                    >
+                      {currentEditorValue.title}
+                    </h4>
+                  )}
+                  {currentEditorValue.subtitle && (
+                    <p
+                      className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2"
+                      style={{ color: currentEditorValue.textColor || "#ffffff" }}
+                    >
+                      {currentEditorValue.subtitle}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+            
+            {/* Hover actions */}
             <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               {showEditor && (
                 <Button
