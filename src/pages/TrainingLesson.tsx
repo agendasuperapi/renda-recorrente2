@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, CheckCircle, Lock, PlayCircle, MessageSquare, Star, Send, Clock, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Lock, PlayCircle, MessageSquare, Star, Send, Clock, BookOpen, ChevronDown, ChevronUp, Play } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -386,15 +386,46 @@ const TrainingLesson = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para {(training.training_categories as any)?.name}
         </Button>
-        <h1 className="text-2xl font-bold mb-2">{training.title}</h1>
         
-        {/* Progress */}
-        <div className="flex items-center gap-4 mb-4">
-          <Progress value={progressPercentage} className="flex-1 h-2" />
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
-            {completedLessons}/{totalLessons} aulas
-          </span>
-        </div>
+        <Card>
+          <CardContent className="pt-6">
+            <h1 className="text-2xl font-bold mb-3">{training.title}</h1>
+            
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+              <span className="flex items-center gap-1">
+                <Play className="h-4 w-4" />
+                {totalLessons} aulas
+              </span>
+              {training.estimated_duration_minutes && (
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {training.estimated_duration_minutes} min
+                </span>
+              )}
+              {(training as any).average_rating && (
+                <span className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  {((training as any).average_rating as number).toFixed(1)}
+                </span>
+              )}
+            </div>
+            
+            {/* Progress */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Seu Progresso</span>
+                <span className="font-medium">{completedLessons} de {totalLessons} aulas ({Math.round(progressPercentage)}%)</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
+              {progressPercentage === 100 && (
+                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle className="h-4 w-4" />
+                  Treinamento concluído!
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_300px] gap-6">
