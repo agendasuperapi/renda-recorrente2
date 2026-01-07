@@ -268,36 +268,36 @@ const TrainingCategory = () => {
                         </div>
                       )}
                       
-                      {/* Overlay from banner_config */}
-                      {training.banner_config && !locked && !isCompleted && (
+                      {/* Overlay from banner_text_config */}
+                      {training.banner_text_config && !locked && !isCompleted && (
                         <>
                           <div
                             className="absolute inset-0"
                             style={{
-                              backgroundColor: (training.banner_config as any)?.overlayColor || "#000000",
-                              opacity: ((training.banner_config as any)?.overlayOpacity ?? 40) / 100
+                              backgroundColor: (training.banner_text_config as any)?.overlayColor || "#000000",
+                              opacity: ((training.banner_text_config as any)?.overlayOpacity ?? 0) / 100
                             }}
                           />
-                          {((training.banner_config as any)?.title || (training.banner_config as any)?.subtitle) && (
+                          {((training.banner_text_config as any)?.title || (training.banner_text_config as any)?.subtitle) && (
                             <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
-                              (training.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
-                              (training.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                              (training.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
+                              (training.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
                               "items-center text-center"
                             }`}>
-                              {(training.banner_config as any)?.title && (
+                              {(training.banner_text_config as any)?.title && (
                                 <h4
-                                  className="text-sm sm:text-base md:text-lg font-bold leading-tight"
-                                  style={{ color: (training.banner_config as any)?.textColor || "#ffffff" }}
+                                  className="text-sm sm:text-base md:text-lg font-bold leading-tight drop-shadow-md"
+                                  style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
                                 >
-                                  {(training.banner_config as any).title}
+                                  {(training.banner_text_config as any).title}
                                 </h4>
                               )}
-                              {(training.banner_config as any)?.subtitle && (
+                              {(training.banner_text_config as any)?.subtitle && (
                                 <p
-                                  className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2"
-                                  style={{ color: (training.banner_config as any)?.textColor || "#ffffff" }}
+                                  className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2 drop-shadow-md"
+                                  style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
                                 >
-                                  {(training.banner_config as any).subtitle}
+                                  {(training.banner_text_config as any).subtitle}
                                 </p>
                               )}
                             </div>
