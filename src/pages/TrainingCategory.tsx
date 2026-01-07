@@ -199,7 +199,7 @@ const TrainingCategory = () => {
             <p className="text-muted-foreground">Nenhum treinamento disponível nesta categoria</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {trainings?.map((training, index) => {
               const lessonCount = (training.training_lessons as any[])?.length || 0;
               const progress = getTrainingProgress(training.id, lessonCount);
@@ -211,7 +211,7 @@ const TrainingCategory = () => {
                 <Link
                   key={training.id}
                   to={locked ? '#' : `/user/training/${training.id}`}
-                  className={locked ? 'cursor-not-allowed' : ''}
+                  className={`block ${locked ? 'cursor-not-allowed' : ''}`}
                   onClick={(e) => locked && e.preventDefault()}
                 >
                   <Card 
