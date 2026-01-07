@@ -178,7 +178,7 @@ const TrainingDetail = () => {
         />
         
         {/* Info Card below banner */}
-        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
           <Card className="bg-card/95 backdrop-blur-sm border shadow-lg">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
