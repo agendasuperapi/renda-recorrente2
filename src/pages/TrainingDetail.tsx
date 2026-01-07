@@ -345,7 +345,7 @@ const TrainingDetail = () => {
                       )}
                       
                       {/* Overlay from banner_config */}
-                      {lesson.banner_config && !locked && !completed && (
+                      {lesson.banner_config && (
                         <>
                           <div
                             className="absolute inset-0"
@@ -383,7 +383,13 @@ const TrainingDetail = () => {
                       
                       {/* Status overlay */}
                       {(locked || completed) && (
-                        <div className={`absolute inset-0 flex items-center justify-center ${completed ? 'bg-green-500/20' : 'bg-black/50'}`}>
+                        <div
+                          className={`absolute inset-0 flex items-center justify-center ${
+                            completed
+                              ? (lesson.banner_config ? 'bg-green-500/10' : 'bg-green-500/20')
+                              : (lesson.banner_config ? 'bg-black/20' : 'bg-black/50')
+                          }`}
+                        >
                           {completed ? (
                             <CheckCircle className="h-12 w-12 text-green-500" />
                           ) : (
