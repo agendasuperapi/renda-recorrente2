@@ -256,7 +256,7 @@ const TrainingDetail = () => {
             <p className="text-muted-foreground">Nenhuma aula disponível neste treinamento</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {lessons?.map((lesson, index) => {
               const completed = isLessonCompleted(lesson.id);
               const locked = isLessonLocked(index);
@@ -265,62 +265,68 @@ const TrainingDetail = () => {
                 <Link
                   key={lesson.id}
                   to={locked ? '#' : `/user/training/lesson/${lesson.id}`}
-                  className={`block ${locked ? 'cursor-not-allowed' : ''}`}
+                  className={`block group ${locked ? 'cursor-not-allowed' : ''}`}
                   onClick={(e) => locked && e.preventDefault()}
                 >
                   <Card 
-                    className={`overflow-hidden transition-all ${locked ? 'opacity-60' : 'hover:shadow-md'} ${completed ? 'border-green-500/50' : ''}`}
+                    className={`overflow-hidden transition-all ${locked ? 'opacity-60' : 'hover:shadow-xl group-hover:scale-[1.02]'} ${completed ? 'ring-2 ring-green-500' : ''}`}
                   >
-                    <CardContent className="p-0">
-                      <div className="flex items-stretch">
-                        {/* Thumbnail */}
-                        <div className="w-32 md:w-44 flex-shrink-0 relative">
-                          {lesson.thumbnail_url ? (
-                            <img 
-                              src={lesson.thumbnail_url} 
-                              alt={lesson.title}
-                              className="w-full h-full object-cover min-h-[90px]"
-                            />
+                    {/* Large Thumbnail */}
+                    <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                      {lesson.thumbnail_url ? (
+                        <img 
+                          src={lesson.thumbnail_url} 
+                          alt={lesson.title}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <PlayCircle className="h-16 w-16 text-primary/40" />
+                        </div>
+                      )}
+                      
+                      {/* Status overlay */}
+                      {(locked || completed) && (
+                        <div className={`absolute inset-0 flex items-center justify-center ${completed ? 'bg-green-500/20' : 'bg-black/50'}`}>
+                          {completed ? (
+                            <CheckCircle className="h-12 w-12 text-green-500" />
                           ) : (
-                            <div className="w-full h-full min-h-[90px] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                              <PlayCircle className="h-10 w-10 text-primary/50" />
-                            </div>
-                          )}
-                          {/* Overlay for status */}
-                          {(locked || completed) && (
-                            <div className={`absolute inset-0 flex items-center justify-center ${completed ? 'bg-green-500/20' : 'bg-black/50'}`}>
-                              {completed ? (
-                                <CheckCircle className="h-6 w-6 text-green-500" />
-                              ) : (
-                                <Lock className="h-5 w-5 text-white" />
-                              )}
-                            </div>
+                            <Lock className="h-10 w-10 text-white" />
                           )}
                         </div>
+                      )}
 
-                        {/* Content */}
-                        <div className="flex-1 p-4 flex items-center justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium">{lesson.title}</h3>
-                              {completed && (
-                                <Badge variant="outline" className="text-green-600 border-green-500">
-                                  Concluída
-                                </Badge>
-                              )}
-                            </div>
-                            {lesson.duration_minutes > 0 && (
-                              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                                <Clock className="h-3 w-3" />
-                                {lesson.duration_minutes} min
-                              </p>
-                            )}
-                          </div>
-                          
-                          {!locked && (
-                            <PlayCircle className="h-6 w-6 text-primary flex-shrink-0" />
-                          )}
+                      {/* Completed badge */}
+                      {completed && (
+                        <Badge className="absolute top-3 right-3 bg-green-500 gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          Concluída
+                        </Badge>
+                      )}
+
+                      {/* Play button overlay on hover */}
+                      {!locked && !completed && (
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <PlayCircle className="h-16 w-16 text-white" />
                         </div>
+                      )}
+                    </div>
+
+                    <CardContent className="p-5">
+                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
+                        {lesson.title}
+                      </h3>
+                      
+                      <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
+                        {lesson.duration_minutes > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {lesson.duration_minutes} min
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          Aula {index + 1}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
