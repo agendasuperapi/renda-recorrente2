@@ -655,35 +655,6 @@ const TrainingLesson = () => {
             </Card>
           )}
 
-          {/* Rating Form (shown when training is complete) */}
-          {(showRatingForm || isTrainingComplete) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  {userRating ? "Sua Avaliação" : "Avalie este Treinamento"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm">Sua nota:</span>
-                  <RatingStars value={rating} onChange={setRating} />
-                </div>
-                <Textarea
-                  placeholder="Deixe um comentário sobre o treinamento (opcional)..."
-                  value={review}
-                  onChange={(e) => setReview(e.target.value)}
-                  rows={3}
-                />
-                <Button 
-                  onClick={() => submitRatingMutation.mutate()}
-                  disabled={rating === 0 || submitRatingMutation.isPending}
-                >
-                  {submitRatingMutation.isPending ? "Enviando..." : userRating ? "Atualizar Avaliação" : "Enviar Avaliação"}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Sidebar - Lessons List */}
