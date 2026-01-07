@@ -296,14 +296,6 @@ const TrainingDetail = () => {
                         </div>
                       )}
 
-                      {/* Completed badge */}
-                      {completed && (
-                        <Badge className="absolute top-3 right-3 bg-green-500 gap-1">
-                          <CheckCircle className="h-3 w-3" />
-                          Concluída
-                        </Badge>
-                      )}
-
                       {/* Play button overlay on hover */}
                       {!locked && !completed && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -313,9 +305,17 @@ const TrainingDetail = () => {
                     </div>
 
                     <CardContent className="p-5">
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
-                        {lesson.title}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
+                          {lesson.title}
+                        </h3>
+                        {completed && (
+                          <Badge className="bg-green-500 gap-1 flex-shrink-0">
+                            <CheckCircle className="h-3 w-3" />
+                            Concluída
+                          </Badge>
+                        )}
+                      </div>
                       
                       <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
                         {lesson.duration_minutes > 0 && (
