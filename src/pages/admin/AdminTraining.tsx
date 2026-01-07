@@ -741,12 +741,6 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons, onGoBack }: { filterCat
                     <Badge variant="secondary">Rascunho</Badge>
                   )}
                 </div>
-                {training.banner_url && (
-                  <Badge variant="secondary" className="absolute top-2 left-2 gap-1 z-10">
-                    <Image className="h-3 w-3" />
-                    Banner
-                  </Badge>
-                )}
               </div>
               <CardContent className="p-4">
                 <div className="mb-3">
