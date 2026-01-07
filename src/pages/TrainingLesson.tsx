@@ -444,12 +444,13 @@ const TrainingLesson = () => {
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="sm"
                   onClick={() => toggleFavoriteMutation.mutate()}
                   disabled={toggleFavoriteMutation.isPending}
-                  className="h-10 w-10"
+                  className="gap-1.5"
                 >
-                  <Heart className={`h-5 w-5 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'}`} />
+                  <Heart className={`h-4 w-4 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+                  {isFavorited ? 'Favorita' : 'Favoritar'}
                 </Button>
                 {isLessonCompleted(currentLesson.id) && (
                   <Badge className="bg-green-500">
