@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,33 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const Training = () => {
+  const queryClient = useQueryClient();
+
+  // Real-time subscription for training updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('training-page-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'training_categories' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["training-categories"] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trainings' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["trainings-with-stats"] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'training_lessons' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["trainings-with-stats"] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
   const { userId } = useAuth();
   const navigate = useNavigate();
 

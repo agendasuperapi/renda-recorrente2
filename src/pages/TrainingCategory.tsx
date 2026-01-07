@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,31 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, Lock, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const TrainingCategory = () => {
+  const queryClient = useQueryClient();
   const { categoryId } = useParams();
+
+  // Real-time subscription for training updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('training-category-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'training_categories' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["training-category", categoryId] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trainings' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["trainings-by-category", categoryId] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'training_lessons' }, () => {
+        queryClient.invalidateQueries({ queryKey: ["trainings-by-category", categoryId] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient, categoryId]);
   const navigate = useNavigate();
   const { userId } = useAuth();
 
