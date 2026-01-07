@@ -254,7 +254,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                   >
                     {(category.banner_config as any).title && (
                       <h4 
-                        className="font-bold text-2xl leading-tight"
+                        className="font-bold text-xl sm:text-2xl md:text-3xl leading-tight"
                         style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
                       >
                         {(category.banner_config as any).title}
@@ -262,7 +262,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                     )}
                     {(category.banner_config as any).subtitle && (
                       <p 
-                        className="text-xl mt-1"
+                        className="text-lg sm:text-xl mt-1"
                         style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
                       >
                         {(category.banner_config as any).subtitle}
