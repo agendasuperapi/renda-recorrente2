@@ -233,7 +233,7 @@ const TrainingDetail = () => {
             <p className="text-muted-foreground">Nenhuma aula disponível neste treinamento</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {lessons?.map((lesson, index) => {
               const completed = isLessonCompleted(lesson.id);
               const locked = isLessonLocked(index);
