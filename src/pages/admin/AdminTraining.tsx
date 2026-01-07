@@ -244,17 +244,17 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                 {/* Overlay com textos configurados */}
                 {category.banner_config && typeof category.banner_config === 'object' && !Array.isArray(category.banner_config) && ((category.banner_config as any).title || (category.banner_config as any).subtitle) && (
                   <div 
-                    className="absolute inset-0 flex flex-col justify-end p-3"
+                    className="absolute inset-0 flex flex-col items-center justify-center p-3"
                     style={{
                       backgroundColor: (category.banner_config as any).overlayColor 
                         ? `${(category.banner_config as any).overlayColor}${Math.round(((category.banner_config as any).overlayOpacity || 0.5) * 255).toString(16).padStart(2, '0')}`
                         : 'rgba(0,0,0,0.5)',
-                      textAlign: ((category.banner_config as any).textAlign as any) || 'left'
+                      textAlign: ((category.banner_config as any).textAlign as any) || 'center'
                     }}
                   >
                     {(category.banner_config as any).title && (
                       <h4 
-                        className="font-bold text-sm leading-tight"
+                        className="font-bold text-base leading-tight"
                         style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
                       >
                         {(category.banner_config as any).title}
@@ -262,7 +262,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                     )}
                     {(category.banner_config as any).subtitle && (
                       <p 
-                        className="text-xs opacity-90"
+                        className="text-sm mt-1"
                         style={{ color: (category.banner_config as any).textColor || '#ffffff' }}
                       >
                         {(category.banner_config as any).subtitle}
