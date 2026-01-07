@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, CheckCircle, Lock, PlayCircle, MessageSquare, Star, Send, Clock, BookOpen, ChevronDown, ChevronUp, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Lock, PlayCircle, MessageSquare, Star, Send, Clock, BookOpen, ChevronDown, ChevronUp, Play, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -184,6 +184,52 @@ const TrainingLesson = () => {
       return data;
     },
     enabled: !!userId && !!trainingId
+  });
+
+  // Check if lesson is favorited
+  const { data: isFavorited } = useQuery({
+    queryKey: ["lesson-favorite", lessonId, userId],
+    queryFn: async () => {
+      if (!userId || !lessonId) return false;
+      const { data, error } = await supabase
+        .from("training_lesson_favorites")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("lesson_id", lessonId)
+        .maybeSingle();
+      if (error) throw error;
+      return !!data;
+    },
+    enabled: !!userId && !!lessonId
+  });
+
+  // Toggle favorite mutation
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId || !lessonId) throw new Error("Missing data");
+      
+      if (isFavorited) {
+        const { error } = await supabase
+          .from("training_lesson_favorites")
+          .delete()
+          .eq("user_id", userId)
+          .eq("lesson_id", lessonId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("training_lesson_favorites")
+          .insert({ user_id: userId, lesson_id: lessonId });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lesson-favorite", lessonId] });
+      queryClient.invalidateQueries({ queryKey: ["user-favorite-lessons"] });
+      toast.success(isFavorited ? "Aula removida dos favoritos" : "Aula adicionada aos favoritos!");
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar favoritos: " + error.message);
+    }
   });
 
   // Get current lesson
@@ -395,12 +441,23 @@ const TrainingLesson = () => {
                 </Badge>
                 <h1 className="text-2xl font-bold">{currentLesson.title}</h1>
               </div>
-              {isLessonCompleted(currentLesson.id) && (
-                <Badge className="bg-green-500">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Concluída
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => toggleFavoriteMutation.mutate()}
+                  disabled={toggleFavoriteMutation.isPending}
+                  className="h-10 w-10"
+                >
+                  <Heart className={`h-5 w-5 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-muted-foreground hover:text-red-500'}`} />
+                </Button>
+                {isLessonCompleted(currentLesson.id) && (
+                  <Badge className="bg-green-500">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Concluída
+                  </Badge>
+                )}
+              </div>
             </div>
             
             {/* Progress */}

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, Lock, PlayCircle, Send } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, Lock, PlayCircle, Send, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -100,6 +100,61 @@ const TrainingDetail = () => {
       return data;
     },
     enabled: !!userId && !!trainingId
+  });
+
+  // Fetch user favorites for lessons
+  const { data: userFavorites } = useQuery({
+    queryKey: ["user-favorite-lessons-detail", trainingId, userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const lessonIds = lessons?.map(l => l.id) || [];
+      if (lessonIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("training_lesson_favorites")
+        .select("lesson_id")
+        .eq("user_id", userId)
+        .in("lesson_id", lessonIds);
+      if (error) throw error;
+      return data.map(f => f.lesson_id);
+    },
+    enabled: !!userId && !!lessons && lessons.length > 0
+  });
+
+  const isLessonFavorited = (lessonId: string) => {
+    return userFavorites?.includes(lessonId) || false;
+  };
+
+  // Toggle favorite mutation
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (lessonId: string) => {
+      if (!userId) throw new Error("Not authenticated");
+      
+      const isFavorited = isLessonFavorited(lessonId);
+      
+      if (isFavorited) {
+        const { error } = await supabase
+          .from("training_lesson_favorites")
+          .delete()
+          .eq("user_id", userId)
+          .eq("lesson_id", lessonId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("training_lesson_favorites")
+          .insert({ user_id: userId, lesson_id: lessonId });
+        if (error) throw error;
+      }
+      return { lessonId, wasFavorited: isFavorited };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["user-favorite-lessons-detail", trainingId] });
+      queryClient.invalidateQueries({ queryKey: ["user-favorite-lessons"] });
+      queryClient.invalidateQueries({ queryKey: ["lesson-favorite", result.lessonId] });
+      toast.success(result.wasFavorited ? "Aula removida dos favoritos" : "Aula adicionada aos favoritos!");
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao atualizar favoritos: " + error.message);
+    }
   });
 
   const isLessonCompleted = (lessonId: string) => {
@@ -320,17 +375,18 @@ const TrainingDetail = () => {
             {lessons?.map((lesson, index) => {
               const completed = isLessonCompleted(lesson.id);
               const locked = isLessonLocked(index);
+              const favorited = isLessonFavorited(lesson.id);
 
               return (
-                <Link
-                  key={lesson.id}
-                  to={locked ? '#' : `/user/training/lesson/${lesson.id}`}
-                  className={`block group ${locked ? 'cursor-not-allowed' : ''}`}
-                  onClick={(e) => locked && e.preventDefault()}
-                >
-                  <Card 
-                    className={`overflow-hidden transition-all ${locked ? 'opacity-60' : 'hover:shadow-xl group-hover:scale-[1.02]'} ${completed ? 'ring-2 ring-green-500' : ''}`}
+                <div key={lesson.id} className="relative">
+                  <Link
+                    to={locked ? '#' : `/user/training/lesson/${lesson.id}`}
+                    className={`block group ${locked ? 'cursor-not-allowed' : ''}`}
+                    onClick={(e) => locked && e.preventDefault()}
                   >
+                    <Card 
+                      className={`overflow-hidden transition-all ${locked ? 'opacity-60' : 'hover:shadow-xl group-hover:scale-[1.02]'} ${completed ? 'ring-2 ring-green-500' : ''} ${favorited && !completed ? 'ring-2 ring-amber-400' : ''}`}
+                    >
                     {/* Large Thumbnail */}
                     <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
                       {lesson.thumbnail_url ? (
@@ -425,6 +481,19 @@ const TrainingDetail = () => {
                     </CardContent>
                   </Card>
                 </Link>
+                {/* Favorite Button */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleFavoriteMutation.mutate(lesson.id);
+                  }}
+                  disabled={toggleFavoriteMutation.isPending}
+                  className="absolute top-3 right-3 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                >
+                  <Heart className={`h-5 w-5 transition-colors ${favorited ? 'fill-red-500 text-red-500' : 'text-white hover:text-red-400'}`} />
+                </button>
+              </div>
               );
             })}
           </div>

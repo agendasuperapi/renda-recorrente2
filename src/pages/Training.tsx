@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown } from "lucide-react";
+import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown, Heart, PlayCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
@@ -98,6 +98,32 @@ const Training = () => {
         .from("training_progress")
         .select("lesson_id, is_completed, training_id")
         .eq("user_id", userId);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId
+  });
+
+  // Fetch user favorite lessons
+  const { data: favoriteLessons } = useQuery({
+    queryKey: ["user-favorite-lessons", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from("training_lesson_favorites")
+        .select(`
+          lesson_id,
+          training_lessons!inner(
+            id,
+            title,
+            thumbnail_url,
+            duration_minutes,
+            training_id,
+            trainings!inner(id, title, category_id)
+          )
+        `)
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -250,8 +276,64 @@ const Training = () => {
         </>
       )}
 
-      <div className="px-4 sm:px-6 lg:px-8 mt-8">
-        <h3 className="text-lg font-semibold mb-6">Categorias de Treinamento</h3>
+      <div className="px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
+        {/* Favorite Lessons Section */}
+        {favoriteLessons && favoriteLessons.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Heart className="h-5 w-5 text-red-500 fill-red-500" />
+              <h3 className="text-lg font-semibold">Aulas Favoritas ({favoriteLessons.length})</h3>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {favoriteLessons.map((fav: any) => {
+                const lesson = fav.training_lessons;
+                const training = lesson?.trainings;
+                
+                return (
+                  <Link
+                    key={fav.lesson_id}
+                    to={`/user/training/lesson/${lesson.id}`}
+                    className="block group"
+                  >
+                    <Card className="overflow-hidden hover:shadow-lg transition-all group-hover:scale-[1.02] ring-2 ring-amber-400/50">
+                      <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                        {lesson.thumbnail_url ? (
+                          <img 
+                            src={lesson.thumbnail_url} 
+                            alt={lesson.title}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <PlayCircle className="h-12 w-12 text-primary/40" />
+                          </div>
+                        )}
+                        {/* Favorite badge */}
+                        <div className="absolute top-2 right-2">
+                          <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                        </div>
+                        {/* Play overlay on hover */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <PlayCircle className="h-12 w-12 text-white" />
+                        </div>
+                      </div>
+                      <CardContent className="p-4">
+                        <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
+                          {lesson.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                          {training?.title}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <h3 className="text-lg font-semibold">Categorias de Treinamento</h3>
         
         {/* Categories Grid - Large Cards */}
         {categoriesLoading ? (
