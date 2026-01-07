@@ -1130,7 +1130,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                       }`}>
                         {(lesson.banner_config as any)?.title && (
                           <h4
-                            className="text-sm sm:text-base font-bold leading-tight line-clamp-2"
+                            className="text-lg sm:text-xl md:text-2xl font-bold leading-tight line-clamp-2"
                             style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
                           >
                             {(lesson.banner_config as any).title}
@@ -1138,7 +1138,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                         )}
                         {(lesson.banner_config as any)?.subtitle && (
                           <p
-                            className="mt-1 text-xs opacity-90 line-clamp-1"
+                            className="mt-1 text-sm sm:text-base opacity-90 line-clamp-1"
                             style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
                           >
                             {(lesson.banner_config as any).subtitle}
