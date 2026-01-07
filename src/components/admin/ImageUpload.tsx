@@ -335,6 +335,8 @@ export const ImageUpload = ({
           bucket={bucket}
           folder={folder}
           simpleMode={!editorWithText}
+          aspectRatio={aspectRatioConfig.ratio}
+          aspectRatioLabel={aspectRatioConfig.label}
         />
       )}
 
