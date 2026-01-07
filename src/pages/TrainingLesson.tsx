@@ -389,29 +389,23 @@ const TrainingLesson = () => {
         
         <Card>
           <CardContent className="pt-6">
-            <h1 className="text-2xl font-bold mb-3">{training.title}</h1>
-            
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-              <span className="flex items-center gap-1">
-                <Play className="h-4 w-4" />
-                {totalLessons} aulas
-              </span>
-              {training.estimated_duration_minutes && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {training.estimated_duration_minutes} min
-                </span>
-              )}
-              {(training as any).average_rating && (
-                <span className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  {((training as any).average_rating as number).toFixed(1)}
-                </span>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <Badge variant="outline" className="mb-2">
+                  Aula {currentLessonIndex + 1} de {totalLessons}
+                </Badge>
+                <h1 className="text-2xl font-bold">{currentLesson.title}</h1>
+              </div>
+              {isLessonCompleted(currentLesson.id) && (
+                <Badge className="bg-green-500">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Concluída
+                </Badge>
               )}
             </div>
             
             {/* Progress */}
-            <div className="space-y-2 mb-6">
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Seu Progresso</span>
                 <span className="font-medium">{completedLessons} de {totalLessons} aulas ({Math.round(progressPercentage)}%)</span>
@@ -424,24 +418,6 @@ const TrainingLesson = () => {
                 </div>
               )}
             </div>
-
-            {/* Current Lesson Info */}
-            {!showRatingForm && (
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div>
-                  <Badge variant="outline" className="mb-2">
-                    Aula {currentLessonIndex + 1} de {totalLessons}
-                  </Badge>
-                  <h2 className="text-lg font-semibold">{currentLesson.title}</h2>
-                </div>
-                {isLessonCompleted(currentLesson.id) && (
-                  <Badge className="bg-green-500">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Concluída
-                  </Badge>
-                )}
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
