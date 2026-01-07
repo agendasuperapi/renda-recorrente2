@@ -285,6 +285,43 @@ const TrainingDetail = () => {
                         </div>
                       )}
                       
+                      {/* Overlay from banner_config */}
+                      {lesson.banner_config && !locked && !completed && (
+                        <>
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              backgroundColor: (lesson.banner_config as any)?.overlayColor || "#000000",
+                              opacity: ((lesson.banner_config as any)?.overlayOpacity ?? 40) / 100
+                            }}
+                          />
+                          {((lesson.banner_config as any)?.title || (lesson.banner_config as any)?.subtitle) && (
+                            <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
+                              (lesson.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
+                              (lesson.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                              "items-center text-center"
+                            }`}>
+                              {(lesson.banner_config as any)?.title && (
+                                <h4
+                                  className="text-sm sm:text-base md:text-lg font-bold leading-tight"
+                                  style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
+                                >
+                                  {(lesson.banner_config as any).title}
+                                </h4>
+                              )}
+                              {(lesson.banner_config as any)?.subtitle && (
+                                <p
+                                  className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2"
+                                  style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
+                                >
+                                  {(lesson.banner_config as any).subtitle}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                      
                       {/* Status overlay */}
                       {(locked || completed) && (
                         <div className={`absolute inset-0 flex items-center justify-center ${completed ? 'bg-green-500/20' : 'bg-black/50'}`}>
@@ -297,7 +334,7 @@ const TrainingDetail = () => {
                       )}
 
                       {/* Play button overlay on hover */}
-                      {!locked && !completed && (
+                      {!locked && !completed && !lesson.banner_config && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <PlayCircle className="h-16 w-16 text-white" />
                         </div>

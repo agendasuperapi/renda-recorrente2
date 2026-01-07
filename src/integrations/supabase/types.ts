@@ -3167,6 +3167,7 @@ export type Database = {
       }
       training_categories: {
         Row: {
+          banner_config: Json | null
           banner_url: string | null
           cover_image_url: string | null
           created_at: string | null
@@ -3179,6 +3180,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          banner_config?: Json | null
           banner_url?: string | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -3191,6 +3193,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          banner_config?: Json | null
           banner_url?: string | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -3305,6 +3308,7 @@ export type Database = {
       }
       training_lessons: {
         Row: {
+          banner_config: Json | null
           content_html: string | null
           content_type: string
           created_at: string | null
@@ -3320,6 +3324,7 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          banner_config?: Json | null
           content_html?: string | null
           content_type?: string
           created_at?: string | null
@@ -3335,6 +3340,7 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          banner_config?: Json | null
           content_html?: string | null
           content_type?: string
           created_at?: string | null
@@ -3471,6 +3477,7 @@ export type Database = {
       }
       trainings: {
         Row: {
+          banner_config: Json | null
           banner_url: string | null
           category_id: string
           created_at: string | null
@@ -3486,6 +3493,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          banner_config?: Json | null
           banner_url?: string | null
           category_id: string
           created_at?: string | null
@@ -3501,6 +3509,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          banner_config?: Json | null
           banner_url?: string | null
           category_id?: string
           created_at?: string | null
