@@ -382,9 +382,9 @@ const TrainingLesson = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/user/training/category/${(training.training_categories as any)?.id}`)} className="mb-4">
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/user/training/${training.id}`)} className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para {(training.training_categories as any)?.name}
+          Voltar para {training.title}
         </Button>
         
         <Card>
