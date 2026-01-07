@@ -21,6 +21,7 @@ import Training from "./pages/Training";
 import TrainingCategory from "./pages/TrainingCategory";
 import TrainingDetail from "./pages/TrainingDetail";
 import TrainingLesson from "./pages/TrainingLesson";
+import TrainingFavorites from "./pages/TrainingFavorites";
 import Referrals from "./pages/Referrals";
 import SubAffiliates from "./pages/SubAffiliates";
 import Commissions from "./pages/Commissions";
@@ -103,6 +104,7 @@ const App = () => {
               <Route path="/user/performance" element={<Performance />} />
               <Route path="/user/profile" element={<Profile />} />
               <Route path="/user/training" element={<Training />} />
+              <Route path="/user/training/favorites" element={<TrainingFavorites />} />
               <Route path="/user/training/category/:categoryId" element={<TrainingCategory />} />
               <Route path="/user/training/lesson/:lessonId" element={<TrainingLesson />} />
               <Route path="/user/training/:trainingId" element={<TrainingDetail />} />
