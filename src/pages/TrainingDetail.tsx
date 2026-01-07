@@ -362,7 +362,7 @@ const TrainingDetail = () => {
                             }`}>
                               {(lesson.banner_config as any)?.title && (
                                 <h4
-                                  className="text-sm sm:text-base md:text-lg font-bold leading-tight"
+                                  className="text-lg sm:text-xl md:text-2xl font-bold leading-tight"
                                   style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
                                 >
                                   {(lesson.banner_config as any).title}
@@ -370,7 +370,7 @@ const TrainingDetail = () => {
                               )}
                               {(lesson.banner_config as any)?.subtitle && (
                                 <p
-                                  className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2"
+                                  className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2"
                                   style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
                                 >
                                   {(lesson.banner_config as any).subtitle}
