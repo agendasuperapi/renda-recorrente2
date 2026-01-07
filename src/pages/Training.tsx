@@ -5,81 +5,73 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FolderOpen, CheckCircle, ChevronRight, PlayCircle, Crown } from "lucide-react";
+import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown, Image } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+
 const Training = () => {
-  const {
-    userId
-  } = useAuth();
+  const { userId } = useAuth();
 
   // Fetch training page settings
-  const {
-    data: pageSettings
-  } = useQuery({
+  const { data: pageSettings } = useQuery({
     queryKey: ["training-page-settings"],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("app_settings").select("*").in("key", [
-        "training_page_cover_url", 
-        "training_page_banner_url",
-        "training_page_banner_config",
-        "training_page_cover_config"
-      ]);
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("*")
+        .in("key", [
+          "training_page_cover_url",
+          "training_page_banner_url",
+          "training_page_banner_config",
+          "training_page_cover_config"
+        ]);
       if (error) throw error;
       return data;
     }
   });
 
   // Fetch categories
-  const {
-    data: categories,
-    isLoading: categoriesLoading
-  } = useQuery({
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: ["training-categories"],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("training_categories").select("*").eq("is_active", true).order("order_position");
+      const { data, error } = await supabase
+        .from("training_categories")
+        .select("*")
+        .eq("is_active", true)
+        .order("order_position");
       if (error) throw error;
       return data;
     }
   });
 
   // Fetch all trainings with stats
-  const {
-    data: trainings
-  } = useQuery({
+  const { data: trainings } = useQuery({
     queryKey: ["trainings-with-stats"],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("trainings").select(`
+      const { data, error } = await supabase
+        .from("trainings")
+        .select(`
           id,
           category_id,
           title,
           thumbnail_url,
           training_lessons(id)
-        `).eq("is_published", true).eq("is_active", true);
+        `)
+        .eq("is_published", true)
+        .eq("is_active", true);
       if (error) throw error;
       return data;
     }
   });
 
   // Fetch user progress
-  const {
-    data: userProgress
-  } = useQuery({
+  const { data: userProgress } = useQuery({
     queryKey: ["user-all-progress", userId],
     queryFn: async () => {
       if (!userId) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("training_progress").select("lesson_id, is_completed, training_id").eq("user_id", userId);
+      const { data, error } = await supabase
+        .from("training_progress")
+        .select("lesson_id, is_completed, training_id")
+        .eq("user_id", userId);
       if (error) throw error;
       return data;
     },
@@ -107,21 +99,6 @@ const Training = () => {
     };
   };
 
-  // Get trainings for carousel
-  const getCategoryTrainings = (categoryId: string) => {
-    return trainings?.filter(t => t.category_id === categoryId) || [];
-  };
-
-  // Check if a specific training is completed
-  const isTrainingCompleted = (trainingId: string) => {
-    const training = trainings?.find(t => t.id === trainingId);
-    if (!training) return false;
-    const lessonCount = (training.training_lessons as any[])?.length || 0;
-    if (lessonCount === 0) return false;
-    const completedLessons = userProgress?.filter(p => p.training_id === trainingId && p.is_completed).length || 0;
-    return completedLessons >= lessonCount;
-  };
-
   // Calculate overall progress
   const overallProgress = (() => {
     if (!trainings || trainings.length === 0) return 0;
@@ -142,14 +119,22 @@ const Training = () => {
   // Get page banner/cover from settings
   const pageBannerUrl = pageSettings?.find(s => s.key === "training_page_banner_url")?.value;
   const pageCoverUrl = pageSettings?.find(s => s.key === "training_page_cover_url")?.value;
-  
+
   // Get banner config
   const bannerConfigRaw = pageSettings?.find(s => s.key === "training_page_banner_config")?.value;
   const bannerConfig = bannerConfigRaw ? JSON.parse(bannerConfigRaw) : null;
 
   // Determine which image to use for the hero
-  const heroBackgroundImage = pageBannerUrl ? `url(${pageBannerUrl})` : pageCoverUrl ? `url(${pageCoverUrl})` : firstCategory?.banner_url ? `url(${firstCategory.banner_url})` : firstCategory?.cover_image_url ? `url(${firstCategory.cover_image_url})` : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)';
-  
+  const heroBackgroundImage = pageBannerUrl
+    ? `url(${pageBannerUrl})`
+    : pageCoverUrl
+    ? `url(${pageCoverUrl})`
+    : firstCategory?.banner_url
+    ? `url(${firstCategory.banner_url})`
+    : firstCategory?.cover_image_url
+    ? `url(${firstCategory.cover_image_url})`
+    : "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%)";
+
   // Text alignment class
   const getTextAlignClass = () => {
     switch (bannerConfig?.textAlign) {
@@ -162,85 +147,95 @@ const Training = () => {
     }
   };
 
-  return <div className="-mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
+  return (
+    <div className="-mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
-      {firstCategory && <>
-        <div
-          className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]" 
-          style={{
-            backgroundImage: heroBackgroundImage
-          }}
-        >
-          {/* Overlay */}
-          {bannerConfig && (
-            <div 
-              className="absolute inset-0"
-              style={{
-                backgroundColor: bannerConfig.overlayColor || "#000000",
-                opacity: (bannerConfig.overlayOpacity ?? 40) / 100,
-              }}
-            />
-          )}
-          
-          {/* Title and Subtitle */}
-          {bannerConfig && (bannerConfig.title || bannerConfig.subtitle) && (
-            <div className={`absolute inset-0 flex flex-col justify-center px-4 sm:px-8 lg:px-16 ${getTextAlignClass()}`}>
-              {bannerConfig.title && (
-                <h1 
-                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
-                  style={{ color: bannerConfig.textColor || "#ffffff" }}
-                >
-                  {bannerConfig.title}
-                </h1>
-              )}
-              {bannerConfig.subtitle && (
-                <p 
-                  className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90"
-                  style={{ color: bannerConfig.textColor || "#ffffff" }}
-                >
-                  {bannerConfig.subtitle}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-        
-        {/* Info Card below banner */}
-        <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
-          <Card className="p-6 md:p-8 bg-card/95 backdrop-blur-sm border">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-primary/20 rounded-full">
-                <GraduationCap className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-4xl font-bold text-foreground flex items-center gap-2">
-                  Treinamentos
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
-                    <Crown className="h-3 w-3" />
-                    VIP
-                  </span>
-                </h1>
-                <p className="text-muted-foreground">Aprenda tudo sobre o programa de afiliados</p>
-              </div>
-            </div>
-            
-            {/* Progress bar */}
-            <div className="max-w-md">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-foreground/80">Seu progresso geral</span>
-                <span className="font-medium text-foreground">{overallProgress}%</span>
-              </div>
-              <Progress value={overallProgress} className="h-2" />
-            </div>
-          </Card>
-        </div>
-      </>}
+      {firstCategory && (
+        <>
+          <div
+            className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]"
+            style={{
+              backgroundImage: heroBackgroundImage
+            }}
+          >
+            {/* Overlay */}
+            {bannerConfig && (
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: bannerConfig.overlayColor || "#000000",
+                  opacity: (bannerConfig.overlayOpacity ?? 40) / 100
+                }}
+              />
+            )}
 
-      <div className="px-4 sm:px-6 lg:px-8 space-y-8 mt-8">
-        {/* Categories Grid */}
-        {categoriesLoading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64 rounded-xl" />)}
-          </div> : categories?.length === 0 ? <Card className="p-12">
+            {/* Title and Subtitle */}
+            {bannerConfig && (bannerConfig.title || bannerConfig.subtitle) && (
+              <div className={`absolute inset-0 flex flex-col justify-center px-4 sm:px-8 lg:px-16 ${getTextAlignClass()}`}>
+                {bannerConfig.title && (
+                  <h1
+                    className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
+                    style={{ color: bannerConfig.textColor || "#ffffff" }}
+                  >
+                    {bannerConfig.title}
+                  </h1>
+                )}
+                {bannerConfig.subtitle && (
+                  <p
+                    className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90"
+                    style={{ color: bannerConfig.textColor || "#ffffff" }}
+                  >
+                    {bannerConfig.subtitle}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Info Card below banner */}
+          <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
+            <Card className="p-6 md:p-8 bg-card/95 backdrop-blur-sm border">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-primary/20 rounded-full">
+                  <GraduationCap className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-bold text-foreground flex items-center gap-2">
+                    Treinamentos
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+                      <Crown className="h-3 w-3" />
+                      VIP
+                    </span>
+                  </h1>
+                  <p className="text-muted-foreground">Aprenda tudo sobre o programa de afiliados</p>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="max-w-md">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-foreground/80">Seu progresso geral</span>
+                  <span className="font-medium text-foreground">{overallProgress}%</span>
+                </div>
+                <Progress value={overallProgress} className="h-2" />
+              </div>
+            </Card>
+          </div>
+        </>
+      )}
+
+      <div className="px-4 sm:px-6 lg:px-8 mt-8">
+        <h3 className="text-lg font-semibold mb-6">Categorias de Treinamento</h3>
+        
+        {/* Categories Grid - Large Cards */}
+        {categoriesLoading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map(i => (
+              <Skeleton key={i} className="h-72 rounded-xl" />
+            ))}
+          </div>
+        ) : categories?.length === 0 ? (
+          <Card className="p-12">
             <div className="text-center">
               <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Nenhum treinamento disponível</h3>
@@ -248,60 +243,93 @@ const Training = () => {
                 Os treinamentos estarão disponíveis em breve!
               </p>
             </div>
-          </Card> : categories?.map(category => {
-        const stats = getCategoryStats(category.id);
-        const isCompleted = stats.percentage === 100;
-        const categoryTrainings = getCategoryTrainings(category.id);
-        return <div key={category.id} className="space-y-4">
-                {/* Category Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl md:text-2xl font-bold">{category.name}</h2>
-                    {isCompleted && <Badge className="bg-green-500">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Completo
-                      </Badge>}
-                  </div>
-                  <Link to={`/user/training/category/${category.id}`} className="text-sm text-primary hover:underline flex items-center gap-1">
-                    Ver todos
-                    <ChevronRight className="h-4 w-4" />
-                  </Link>
-                </div>
+          </Card>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {categories?.map(category => {
+              const stats = getCategoryStats(category.id);
+              const isCompleted = stats.percentage === 100;
 
-                {/* Trainings Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {categoryTrainings.map(training => {
-                    const completed = isTrainingCompleted(training.id);
-                    return (
-                      <Link key={training.id} to={`/user/training/${training.id}`} className="group">
-                        <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] h-full">
-                          {/* Thumbnail */}
-                          <div className="aspect-video relative bg-muted">
-                            {training.thumbnail_url ? <img src={training.thumbnail_url} alt={training.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                                <PlayCircle className="h-10 w-10 text-primary/50" />
-                              </div>}
-                            {/* Play overlay on hover */}
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <PlayCircle className="h-12 w-12 text-white" />
+              return (
+                <Link
+                  key={category.id}
+                  to={`/user/training/category/${category.id}`}
+                  className="block group"
+                >
+                  <Card className={`overflow-hidden hover:shadow-xl transition-all group-hover:scale-[1.02] ${isCompleted ? 'ring-2 ring-green-500' : ''}`}>
+                    {/* Cover Image */}
+                    <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                      {category.cover_image_url ? (
+                        <img
+                          src={category.cover_image_url}
+                          alt={category.name}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <FolderOpen className="h-16 w-16 text-primary/40" />
+                        </div>
+                      )}
+                      
+                      {/* Completed badge */}
+                      {isCompleted && (
+                        <Badge className="absolute top-3 right-3 bg-green-500 gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          Completo
+                        </Badge>
+                      )}
+                      
+                      {/* Banner indicator */}
+                      {category.banner_url && (
+                        <Badge variant="secondary" className="absolute top-3 left-3 gap-1">
+                          <Image className="h-3 w-3" />
+                          Banner
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <CardContent className="p-5">
+                      <div className="mb-3">
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                          {category.name}
+                        </h3>
+                        {category.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                            {category.description}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {/* Stats and Progress */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="gap-1">
+                            <BookOpen className="h-3.5 w-3.5" />
+                            Treinamentos
+                            <span className="font-semibold">{stats.totalTrainings}</span>
+                          </Badge>
+                        </div>
+                        
+                        {stats.totalLessons > 0 && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Progresso</span>
+                              <span>{stats.completedLessons}/{stats.totalLessons} aulas</span>
                             </div>
-                            {/* Completion badge */}
-                            {completed && (
-                              <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1 shadow-lg">
-                                <CheckCircle className="h-4 w-4 text-white" />
-                              </div>
-                            )}
+                            <Progress value={stats.percentage} className="h-1.5" />
                           </div>
-                          <CardContent className="p-3">
-                            <h3 className="font-medium text-sm line-clamp-2">{training.title}</h3>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>;
-      })}
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Training;
