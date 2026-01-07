@@ -288,7 +288,7 @@ const TrainingCategory = () => {
                             >
                               {(training.banner_text_config as any)?.title && (
                                 <h4
-                                  className="text-sm sm:text-base md:text-lg font-bold leading-tight drop-shadow-md"
+                                  className="text-lg sm:text-xl md:text-2xl font-bold leading-tight drop-shadow-lg"
                                   style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
                                 >
                                   {(training.banner_text_config as any).title}
@@ -296,7 +296,7 @@ const TrainingCategory = () => {
                               )}
                               {(training.banner_text_config as any)?.subtitle && (
                                 <p
-                                  className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2 drop-shadow-md"
+                                  className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2 drop-shadow-lg"
                                   style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
                                 >
                                   {(training.banner_text_config as any).subtitle}
