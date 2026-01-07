@@ -47,6 +47,22 @@ const TrainingDetail = () => {
     enabled: !!trainingId
   });
 
+  // Count trainings in the same category
+  const { data: categoryTrainingsCount } = useQuery({
+    queryKey: ["category-trainings-count", training?.category_id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("trainings")
+        .select("id", { count: "exact", head: true })
+        .eq("category_id", training?.category_id)
+        .eq("is_published", true)
+        .eq("is_active", true);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!training?.category_id
+  });
+
   const { data: userProgress } = useQuery({
     queryKey: ["user-lesson-progress", trainingId, userId],
     queryFn: async () => {
@@ -137,11 +153,18 @@ const TrainingDetail = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate(categoryId ? `/user/training/category/${categoryId}` : "/user/training")} 
+            onClick={() => {
+              // If category has only 1 training, go back to categories list
+              if (categoryTrainingsCount === 1) {
+                navigate("/user/training");
+              } else {
+                navigate(categoryId ? `/user/training/category/${categoryId}` : "/user/training");
+              }
+            }} 
             className="bg-background/20 backdrop-blur-sm hover:bg-background/40"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {categoryName ? `Voltar para ${categoryName}` : "Voltar"}
+            {categoryTrainingsCount === 1 ? "Voltar para Categorias" : (categoryName ? `Voltar para ${categoryName}` : "Voltar")}
           </Button>
         </div>
 
