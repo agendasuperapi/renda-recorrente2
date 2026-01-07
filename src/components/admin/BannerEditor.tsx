@@ -43,10 +43,18 @@ interface BannerEditorProps {
 
 type DevicePreview = "mobile" | "tablet" | "desktop";
 
-const deviceDimensions = {
-  mobile: { width: 375, height: 200, label: "Celular" },
-  tablet: { width: 768, height: 280, label: "Tablet" },
+// Default banner dimensions (3.4:1 ratio)
+const bannerDeviceDimensions = {
+  mobile: { width: 375, height: 110, label: "Celular" },
+  tablet: { width: 768, height: 225, label: "Tablet" },
   desktop: { width: 1200, height: 350, label: "Computador" },
+};
+
+// Cover/thumbnail dimensions (16:9 ratio)
+const coverDeviceDimensions = {
+  mobile: { width: 375, height: 211, label: "Celular" },
+  tablet: { width: 768, height: 432, label: "Tablet" },
+  desktop: { width: 400, height: 225, label: "Computador" },
 };
 
 // Banner aspect ratio (approximately 3.4:1 based on desktop dimensions)
@@ -65,6 +73,11 @@ export const BannerEditor = ({
   // Use custom aspect ratio if provided, otherwise use default banner ratio
   const effectiveAspectRatio = aspectRatio ?? BANNER_ASPECT_RATIO;
   const effectiveAspectLabel = aspectRatioLabel ?? BANNER_ASPECT_LABEL;
+  
+  // Determine if this is a cover/thumbnail (16:9) or banner (3.4:1)
+  const isCoverMode = effectiveAspectRatio < 2; // 16:9 = 1.77, banners are 3+ ratio
+  const deviceDimensions = isCoverMode ? coverDeviceDimensions : bannerDeviceDimensions;
+  
   const [isUploading, setIsUploading] = useState(false);
   const [activePreview, setActivePreview] = useState<DevicePreview>("desktop");
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
