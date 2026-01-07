@@ -175,25 +175,6 @@ const TrainingDetail = () => {
     <div className="space-y-6 -mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
       <div className="relative">
-        {/* Back Button */}
-        <div className="absolute top-4 left-4 md:top-6 md:left-6 z-10">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => {
-              // If category has only 1 training, go back to categories list
-              if (categoryTrainingsCount === 1) {
-                navigate("/user/training");
-              } else {
-                navigate(categoryId ? `/user/training/category/${categoryId}` : "/user/training");
-              }
-            }} 
-            className="bg-background/20 backdrop-blur-sm hover:bg-background/40"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {categoryTrainingsCount === 1 ? "Voltar para Categorias" : (categoryName ? `Voltar para ${categoryName}` : "Voltar")}
-          </Button>
-        </div>
 
         <div 
           className="relative w-full bg-cover bg-center aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/4] xl:aspect-[16/3.5] max-h-[350px]"
@@ -245,6 +226,21 @@ const TrainingDetail = () => {
         <div className="px-4 sm:px-6 lg:px-8 -mt-4 sm:-mt-8 lg:-mt-12 relative z-10">
           <Card className="bg-card/95 backdrop-blur-sm border shadow-lg">
             <CardContent className="p-6">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  if (categoryTrainingsCount === 1) {
+                    navigate("/user/training");
+                  } else {
+                    navigate(categoryId ? `/user/training/category/${categoryId}` : "/user/training");
+                  }
+                }} 
+                className="mb-4 -ml-2"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                {categoryTrainingsCount === 1 ? "Voltar para Categorias" : (categoryName ? `Voltar para ${categoryName}` : "Voltar")}
+              </Button>
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div className="flex-1">
                   <h1 className="text-2xl md:text-4xl font-bold mb-2">{training.title}</h1>

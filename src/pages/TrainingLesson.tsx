@@ -382,13 +382,12 @@ const TrainingLesson = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/user/training/${training.id}`)} className="mb-4">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para {training.title}
-        </Button>
-        
         <Card>
           <CardContent className="pt-6">
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/user/training/${training.id}`)} className="mb-4 -ml-2">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar para {training.title}
+            </Button>
             <div className="flex items-center justify-between mb-3">
               <div>
                 <Badge variant="outline" className="mb-2">
