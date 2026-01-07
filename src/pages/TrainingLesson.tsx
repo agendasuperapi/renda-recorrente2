@@ -713,22 +713,37 @@ const TrainingLesson = () => {
                         isCurrent ? 'bg-primary/10' : 'hover:bg-muted/50'
                       } ${!isAccessible ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
-                      <div className={`flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 text-sm font-medium ${
-                        isCompleted 
-                          ? 'bg-green-500 text-white' 
-                          : isCurrent 
-                            ? 'bg-primary text-primary-foreground'
-                            : !isAccessible
-                              ? 'bg-muted text-muted-foreground'
-                              : 'bg-muted'
-                      }`}>
-                        {isCompleted ? (
-                          <CheckCircle className="h-4 w-4" />
-                        ) : !isAccessible ? (
-                          <Lock className="h-3 w-3" />
+                      {/* Miniatura da aula */}
+                      <div className="relative w-16 h-10 rounded overflow-hidden flex-shrink-0 bg-muted">
+                        {lesson.thumbnail_url ? (
+                          <img 
+                            src={lesson.thumbnail_url} 
+                            alt={lesson.title}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
-                          index + 1
+                          <div className="w-full h-full flex items-center justify-center">
+                            <PlayCircle className="h-5 w-5 text-muted-foreground" />
+                          </div>
                         )}
+                        {/* Indicador de status */}
+                        <div className={`absolute top-0.5 right-0.5 flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-medium ${
+                          isCompleted 
+                            ? 'bg-green-500 text-white' 
+                            : isCurrent 
+                              ? 'bg-primary text-primary-foreground'
+                              : !isAccessible
+                                ? 'bg-muted-foreground/50 text-white'
+                                : 'bg-background/80 text-foreground'
+                        }`}>
+                          {isCompleted ? (
+                            <CheckCircle className="h-3 w-3" />
+                          ) : !isAccessible ? (
+                            <Lock className="h-2.5 w-2.5" />
+                          ) : (
+                            index + 1
+                          )}
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm truncate ${isCurrent ? 'font-medium' : ''}`}>
