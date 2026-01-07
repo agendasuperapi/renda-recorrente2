@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp, Image, ImagePlus, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp, Image, ImagePlus, ArrowLeft, Heart } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -1632,9 +1632,22 @@ const SettingsTab = () => {
     overlayColor: "#000000",
     overlayOpacity: 40,
   });
+  const [favoritesData, setFavoritesData] = useState({
+    thumbnailUrl: "",
+    coverUrl: "",
+    bannerConfig: {
+      title: "",
+      subtitle: "",
+      textColor: "#ffffff",
+      textAlign: "center" as "left" | "center" | "right",
+      overlayColor: "#000000",
+      overlayOpacity: 40,
+    }
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [bannerEditorOpen, setBannerEditorOpen] = useState(false);
   const [coverEditorOpen, setCoverEditorOpen] = useState(false);
+  const [favoritesEditorOpen, setFavoritesEditorOpen] = useState(false);
 
   // Fetch current settings
   const { data: settings } = useQuery({
@@ -1647,7 +1660,10 @@ const SettingsTab = () => {
           "training_page_cover_url",
           "training_page_banner_url",
           "training_page_banner_config",
-          "training_page_cover_config"
+          "training_page_cover_config",
+          "favorites_category_thumbnail_url",
+          "favorites_category_cover_url",
+          "favorites_category_banner_config"
         ]);
       if (error) throw error;
       return data;
@@ -1660,9 +1676,13 @@ const SettingsTab = () => {
       const bannerUrl = settings.find(s => s.key === "training_page_banner_url");
       const bannerConfig = settings.find(s => s.key === "training_page_banner_config");
       const coverConfig = settings.find(s => s.key === "training_page_cover_config");
+      const favoritesThumbnailUrl = settings.find(s => s.key === "favorites_category_thumbnail_url");
+      const favoritesCoverUrl = settings.find(s => s.key === "favorites_category_cover_url");
+      const favoritesBannerConfig = settings.find(s => s.key === "favorites_category_banner_config");
 
       const parsedBannerConfig = bannerConfig?.value ? JSON.parse(bannerConfig.value) : {};
       const parsedCoverConfig = coverConfig?.value ? JSON.parse(coverConfig.value) : {};
+      const parsedFavoritesBannerConfig = favoritesBannerConfig?.value ? JSON.parse(favoritesBannerConfig.value) : {};
 
       setBannerData({
         imageUrl: bannerUrl?.value || "",
@@ -1681,6 +1701,18 @@ const SettingsTab = () => {
         textAlign: parsedCoverConfig.textAlign || "center",
         overlayColor: parsedCoverConfig.overlayColor || "#000000",
         overlayOpacity: parsedCoverConfig.overlayOpacity ?? 40,
+      });
+      setFavoritesData({
+        thumbnailUrl: favoritesThumbnailUrl?.value || "",
+        coverUrl: favoritesCoverUrl?.value || "",
+        bannerConfig: {
+          title: parsedFavoritesBannerConfig.title || "",
+          subtitle: parsedFavoritesBannerConfig.subtitle || "",
+          textColor: parsedFavoritesBannerConfig.textColor || "#ffffff",
+          textAlign: parsedFavoritesBannerConfig.textAlign || "center",
+          overlayColor: parsedFavoritesBannerConfig.overlayColor || "#000000",
+          overlayOpacity: parsedFavoritesBannerConfig.overlayOpacity ?? 40,
+        }
       });
       setIsLoading(false);
     }
@@ -1740,6 +1772,32 @@ const SettingsTab = () => {
     });
     queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
     toast.success("Capa salva com sucesso!");
+  };
+
+  const handleFavoritesSave = async (data: { imageUrl: string; title: string; subtitle: string; textColor: string; textAlign: "left" | "center" | "right"; overlayColor: string; overlayOpacity: number }) => {
+    setFavoritesData({
+      ...favoritesData,
+      coverUrl: data.imageUrl,
+      bannerConfig: {
+        title: data.title,
+        subtitle: data.subtitle,
+        textColor: data.textColor,
+        textAlign: data.textAlign,
+        overlayColor: data.overlayColor,
+        overlayOpacity: data.overlayOpacity,
+      }
+    });
+    await saveUrl("favorites_category_cover_url", data.imageUrl);
+    await saveConfig("favorites_category_banner_config", {
+      title: data.title,
+      subtitle: data.subtitle,
+      textColor: data.textColor,
+      textAlign: data.textAlign,
+      overlayColor: data.overlayColor,
+      overlayOpacity: data.overlayOpacity,
+    });
+    queryClient.invalidateQueries({ queryKey: ["training-page-settings"] });
+    toast.success("Configuração de favoritos salva com sucesso!");
   };
 
   if (isLoading) {
@@ -1819,6 +1877,35 @@ const SettingsTab = () => {
           />
         </div>
 
+        <Separator />
+
+        {/* Categoria Aulas Favoritas */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-red-500 fill-red-500" />
+              <div>
+                <h3 className="font-medium">Categoria Aulas Favoritas</h3>
+                <p className="text-xs text-muted-foreground">Imagem e configuração do card de favoritos</p>
+              </div>
+            </div>
+            <Button onClick={() => setFavoritesEditorOpen(true)} variant="outline" size="sm">
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar Favoritos
+            </Button>
+          </div>
+          <BannerPreview
+            imageUrl={favoritesData.coverUrl}
+            title={favoritesData.bannerConfig.title}
+            subtitle={favoritesData.bannerConfig.subtitle}
+            textColor={favoritesData.bannerConfig.textColor}
+            textAlign={favoritesData.bannerConfig.textAlign}
+            overlayColor={favoritesData.bannerConfig.overlayColor}
+            overlayOpacity={favoritesData.bannerConfig.overlayOpacity}
+            label="Preview do Card de Favoritos"
+          />
+        </div>
+
         {/* Banner Editor Dialog */}
         <ImageEditorDialog
           open={bannerEditorOpen}
@@ -1839,6 +1926,25 @@ const SettingsTab = () => {
           title="Editar Capa Alternativa"
           bucket="training-images"
           folder="training-page"
+        />
+
+        {/* Favorites Editor Dialog */}
+        <ImageEditorDialog
+          open={favoritesEditorOpen}
+          onOpenChange={setFavoritesEditorOpen}
+          value={{
+            imageUrl: favoritesData.coverUrl,
+            title: favoritesData.bannerConfig.title,
+            subtitle: favoritesData.bannerConfig.subtitle,
+            textColor: favoritesData.bannerConfig.textColor,
+            textAlign: favoritesData.bannerConfig.textAlign,
+            overlayColor: favoritesData.bannerConfig.overlayColor,
+            overlayOpacity: favoritesData.bannerConfig.overlayOpacity,
+          }}
+          onSave={handleFavoritesSave}
+          title="Editar Categoria Favoritos"
+          bucket="training-images"
+          folder="favorites-category"
         />
       </CardContent>
     </Card>

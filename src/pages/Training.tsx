@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown, Heart, PlayCircle } from "lucide-react";
+import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
@@ -48,7 +48,10 @@ const Training = () => {
           "training_page_cover_url",
           "training_page_banner_url",
           "training_page_banner_config",
-          "training_page_cover_config"
+          "training_page_cover_config",
+          "favorites_category_thumbnail_url",
+          "favorites_category_cover_url",
+          "favorites_category_banner_config"
         ]);
       if (error) throw error;
       return data;
@@ -176,6 +179,12 @@ const Training = () => {
   const bannerConfigRaw = pageSettings?.find(s => s.key === "training_page_banner_config")?.value;
   const bannerConfig = bannerConfigRaw ? JSON.parse(bannerConfigRaw) : null;
 
+  // Get favorites category settings
+  const favoritesThumbnailUrl = pageSettings?.find(s => s.key === "favorites_category_thumbnail_url")?.value;
+  const favoritesCoverUrl = pageSettings?.find(s => s.key === "favorites_category_cover_url")?.value;
+  const favoritesBannerConfigRaw = pageSettings?.find(s => s.key === "favorites_category_banner_config")?.value;
+  const favoritesBannerConfig = favoritesBannerConfigRaw ? JSON.parse(favoritesBannerConfigRaw) : null;
+
   // Determine which image to use for the hero
   const heroBackgroundImage = pageBannerUrl
     ? `url(${pageBannerUrl})`
@@ -277,62 +286,6 @@ const Training = () => {
       )}
 
       <div className="px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
-        {/* Favorite Lessons Section */}
-        {favoriteLessons && favoriteLessons.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Heart className="h-5 w-5 text-red-500 fill-red-500" />
-              <h3 className="text-lg font-semibold">Aulas Favoritas ({favoriteLessons.length})</h3>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {favoriteLessons.map((fav: any) => {
-                const lesson = fav.training_lessons;
-                const training = lesson?.trainings;
-                
-                return (
-                  <Link
-                    key={fav.lesson_id}
-                    to={`/user/training/lesson/${lesson.id}`}
-                    className="block group"
-                  >
-                    <Card className="overflow-hidden hover:shadow-lg transition-all group-hover:scale-[1.02] ring-2 ring-amber-400/50">
-                      <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
-                        {lesson.thumbnail_url ? (
-                          <img 
-                            src={lesson.thumbnail_url} 
-                            alt={lesson.title}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <PlayCircle className="h-12 w-12 text-primary/40" />
-                          </div>
-                        )}
-                        {/* Favorite badge */}
-                        <div className="absolute top-2 right-2">
-                          <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-                        </div>
-                        {/* Play overlay on hover */}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <PlayCircle className="h-12 w-12 text-white" />
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
-                          {lesson.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                          {training?.title}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         <h3 className="text-lg font-semibold">Categorias de Treinamento</h3>
         
         {/* Categories Grid - Large Cards */}
@@ -354,6 +307,96 @@ const Training = () => {
           </Card>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Favorites Category Card - Shows when user has favorites */}
+            {favoriteLessons && favoriteLessons.length > 0 && (
+              <div
+                className="block group cursor-pointer"
+                onClick={() => navigate("/user/training/favorites")}
+              >
+                <Card className="overflow-hidden hover:shadow-xl transition-all group-hover:scale-[1.02] ring-2 ring-red-400/50">
+                  {/* Cover Image */}
+                  <div className="relative aspect-video bg-gradient-to-br from-red-500/20 to-red-500/5 overflow-hidden">
+                    {favoritesCoverUrl || favoritesThumbnailUrl ? (
+                      <img
+                        src={favoritesCoverUrl || favoritesThumbnailUrl}
+                        alt="Aulas Favoritas"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500/30 to-red-600/20">
+                        <Heart className="h-16 w-16 text-red-500 fill-red-500/50" />
+                      </div>
+                    )}
+                    
+                    {/* Overlay from favorites banner config */}
+                    {favoritesBannerConfig && (
+                      <>
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            backgroundColor: favoritesBannerConfig?.overlayColor || "#000000",
+                            opacity: (favoritesBannerConfig?.overlayOpacity ?? 40) / 100
+                          }}
+                        />
+                        {(favoritesBannerConfig?.title || favoritesBannerConfig?.subtitle) && (
+                          <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
+                            favoritesBannerConfig?.textAlign === "left" ? "items-start text-left" :
+                            favoritesBannerConfig?.textAlign === "right" ? "items-end text-right" :
+                            "items-center text-center"
+                          }`}>
+                            {favoritesBannerConfig?.title && (
+                              <h4
+                                className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight"
+                                style={{ color: favoritesBannerConfig?.textColor || "#ffffff" }}
+                              >
+                                {favoritesBannerConfig.title}
+                              </h4>
+                            )}
+                            {favoritesBannerConfig?.subtitle && (
+                              <p
+                                className="mt-1 text-lg sm:text-xl opacity-90 line-clamp-2"
+                                style={{ color: favoritesBannerConfig?.textColor || "#ffffff" }}
+                              >
+                                {favoritesBannerConfig.subtitle}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    {/* Heart badge */}
+                    <div className="absolute top-3 right-3">
+                      <Heart className="h-6 w-6 fill-red-500 text-red-500" />
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-5">
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors flex items-center gap-2">
+                        <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                        Aulas Favoritas
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        Suas aulas favoritas em um só lugar
+                      </p>
+                    </div>
+                    
+                    {/* Stats */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="gap-1 border-red-400/50 text-red-500">
+                          <Heart className="h-3.5 w-3.5 fill-red-500" />
+                          Aulas
+                          <span className="font-semibold">{favoriteLessons.length}</span>
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+            
             {categories?.map(category => {
               const stats = getCategoryStats(category.id);
               const isCompleted = stats.percentage === 100;
