@@ -269,21 +269,23 @@ const TrainingCategory = () => {
                       )}
                       
                       {/* Overlay from banner_text_config */}
-                      {training.banner_text_config && !locked && !isCompleted && (
+                      {training.banner_text_config && (
                         <>
                           <div
-                            className="absolute inset-0"
+                            className="absolute inset-0 z-[5]"
                             style={{
                               backgroundColor: (training.banner_text_config as any)?.overlayColor || "#000000",
                               opacity: ((training.banner_text_config as any)?.overlayOpacity ?? 0) / 100
                             }}
                           />
                           {((training.banner_text_config as any)?.title || (training.banner_text_config as any)?.subtitle) && (
-                            <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
-                              (training.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
-                              (training.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
-                              "items-center text-center"
-                            }`}>
+                            <div
+                              className={`absolute inset-0 z-10 flex flex-col justify-center px-4 ${
+                                (training.banner_text_config as any)?.textAlign === "left" ? "items-start text-left" :
+                                (training.banner_text_config as any)?.textAlign === "right" ? "items-end text-right" :
+                                "items-center text-center"
+                              }`}
+                            >
                               {(training.banner_text_config as any)?.title && (
                                 <h4
                                   className="text-sm sm:text-base md:text-lg font-bold leading-tight drop-shadow-md"
@@ -304,16 +306,21 @@ const TrainingCategory = () => {
                           )}
                         </>
                       )}
-                      
+
                       {/* Status overlay */}
                       {(locked || isCompleted) && (
-                        <div className={`absolute inset-0 flex items-center justify-center ${isCompleted ? 'bg-green-500/20' : 'bg-black/50'}`}>
-                          {isCompleted ? (
-                            <CheckCircle className="h-12 w-12 text-green-500" />
-                          ) : (
-                            <Lock className="h-10 w-10 text-white" />
-                          )}
-                        </div>
+                        <>
+                          <div
+                            className={`absolute inset-0 z-[6] ${isCompleted ? 'bg-green-500/10' : 'bg-black/25'}`}
+                          />
+                          <div className="absolute top-3 left-3 z-20">
+                            {isCompleted ? (
+                              <CheckCircle className="h-8 w-8 text-green-500" />
+                            ) : (
+                              <Lock className="h-7 w-7 text-white" />
+                            )}
+                          </div>
+                        </>
                       )}
 
                       {/* Completed badge */}
