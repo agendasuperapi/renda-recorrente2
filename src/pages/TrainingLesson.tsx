@@ -429,7 +429,9 @@ const TrainingLesson = () => {
             {!showRatingForm && (
               <div className="flex items-center justify-between pt-4 border-t">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Aula em andamento</p>
+                  <Badge variant="outline" className="mb-2">
+                    Aula {currentLessonIndex + 1} de {totalLessons}
+                  </Badge>
                   <h2 className="text-lg font-semibold">{currentLesson.title}</h2>
                 </div>
                 {isLessonCompleted(currentLesson.id) && (
