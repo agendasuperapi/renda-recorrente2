@@ -1112,6 +1112,42 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                     <Video className="h-12 w-12 text-primary/40" />
                   </div>
                 )}
+                {/* Banner config overlay */}
+                {lesson.banner_config && (
+                  <>
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundColor: (lesson.banner_config as any)?.overlayColor || "#000000",
+                        opacity: ((lesson.banner_config as any)?.overlayOpacity ?? 40) / 100
+                      }}
+                    />
+                    {((lesson.banner_config as any)?.title || (lesson.banner_config as any)?.subtitle) && (
+                      <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
+                        (lesson.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
+                        (lesson.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                        "items-center text-center"
+                      }`}>
+                        {(lesson.banner_config as any)?.title && (
+                          <h4
+                            className="text-sm sm:text-base font-bold leading-tight line-clamp-2"
+                            style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
+                          >
+                            {(lesson.banner_config as any).title}
+                          </h4>
+                        )}
+                        {(lesson.banner_config as any)?.subtitle && (
+                          <p
+                            className="mt-1 text-xs opacity-90 line-clamp-1"
+                            style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
+                          >
+                            {(lesson.banner_config as any).subtitle}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
                 <div className="absolute top-2 left-2 flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
                   {index + 1}
                 </div>
