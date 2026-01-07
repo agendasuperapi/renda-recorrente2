@@ -1090,7 +1090,7 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {lessons?.map((lesson, index) => (
-            <Card key={lesson.id} className={`overflow-hidden hover:shadow-lg transition-all group ${!lesson.is_active ? 'opacity-60' : ''}`}>
+            <Card key={lesson.id} className={`overflow-hidden hover:shadow-lg transition-all group cursor-pointer ${!lesson.is_active ? 'opacity-60' : ''}`} onClick={() => openEdit(lesson)}>
               {/* Thumbnail */}
               <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
                 {lesson.thumbnail_url ? (
@@ -1164,13 +1164,14 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
                   </div>
                 </div>
                 <div className="flex items-center justify-end gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(lesson)}>
+                  <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); openEdit(lesson); }}>
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (confirm("Excluir esta aula?")) {
                         deleteMutation.mutate(lesson.id);
                       }
