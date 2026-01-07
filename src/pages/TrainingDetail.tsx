@@ -1,14 +1,16 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, Lock, PlayCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, Lock, PlayCircle, Send } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const TrainingDetail = () => {
   const queryClient = useQueryClient();
@@ -431,9 +433,132 @@ const TrainingDetail = () => {
             })}
           </div>
         )}
+
+        {/* Rating Card - Show when training is completed */}
+        {progress.percentage === 100 && (
+          <TrainingRatingCard trainingId={trainingId!} userId={userId} />
+        )}
       </div>
     </div>
   );
 };
 
 export default TrainingDetail;
+
+// Training Rating Card Component
+const TrainingRatingCard = ({ trainingId, userId }: { trainingId: string; userId: string | null }) => {
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const queryClient = useQueryClient();
+
+  // Check if user already rated
+  const { data: existingRating } = useQuery({
+    queryKey: ["user-training-rating", trainingId, userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const { data, error } = await supabase
+        .from("training_ratings")
+        .select("*")
+        .eq("training_id", trainingId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId && !!trainingId
+  });
+
+  useEffect(() => {
+    if (existingRating) {
+      setRating(existingRating.rating);
+      setComment(existingRating.review || "");
+    }
+  }, [existingRating]);
+
+  const submitRating = useMutation({
+    mutationFn: async () => {
+      if (!userId || rating === 0) return;
+
+      if (existingRating) {
+        const { error } = await supabase
+          .from("training_ratings")
+          .update({ rating, review: comment, updated_at: new Date().toISOString() })
+          .eq("id", existingRating.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("training_ratings")
+          .insert({ training_id: trainingId, user_id: userId, rating, review: comment });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success(existingRating ? "Avaliação atualizada!" : "Obrigado pela sua avaliação!");
+      queryClient.invalidateQueries({ queryKey: ["user-training-rating", trainingId, userId] });
+      queryClient.invalidateQueries({ queryKey: ["training-detail", trainingId] });
+    },
+    onError: () => {
+      toast.error("Erro ao enviar avaliação");
+    }
+  });
+
+  if (!userId) return null;
+
+  return (
+    <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+      <CardContent className="p-6">
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-2">
+            <CheckCircle className="h-6 w-6 text-green-500" />
+            <h3 className="text-xl font-bold">Parabéns! Você concluiu este treinamento!</h3>
+          </div>
+          
+          <p className="text-muted-foreground">
+            {existingRating ? "Você já avaliou este treinamento. Deseja atualizar sua avaliação?" : "O que você achou? Sua avaliação nos ajuda a melhorar!"}
+          </p>
+
+          {/* Star Rating */}
+          <div className="flex justify-center gap-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHoveredRating(star)}
+                onMouseLeave={() => setHoveredRating(0)}
+                className="transition-transform hover:scale-110"
+              >
+                <Star
+                  className={`h-8 w-8 transition-colors ${
+                    star <= (hoveredRating || rating)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-muted-foreground/30"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Comment */}
+          <Textarea
+            placeholder="Deixe um comentário (opcional)"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            className="max-w-md mx-auto"
+            rows={3}
+          />
+
+          <Button
+            onClick={() => submitRating.mutate()}
+            disabled={rating === 0 || submitRating.isPending}
+            className="gap-2"
+          >
+            <Send className="h-4 w-4" />
+            {submitRating.isPending ? "Enviando..." : existingRating ? "Atualizar Avaliação" : "Enviar Avaliação"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
