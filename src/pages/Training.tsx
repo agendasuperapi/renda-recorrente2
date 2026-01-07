@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown, Image } from "lucide-react";
+import { GraduationCap, FolderOpen, CheckCircle, BookOpen, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Training = () => {
@@ -281,19 +281,48 @@ const Training = () => {
                         </div>
                       )}
                       
-                      {/* Completed badge */}
-                      {isCompleted && (
-                        <Badge className="absolute top-3 right-3 bg-green-500 gap-1">
-                          <CheckCircle className="h-3 w-3" />
-                          Completo
-                        </Badge>
+                      {/* Overlay from banner_config */}
+                      {category.banner_config && (
+                        <>
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              backgroundColor: (category.banner_config as any)?.overlayColor || "#000000",
+                              opacity: ((category.banner_config as any)?.overlayOpacity ?? 40) / 100
+                            }}
+                          />
+                          {((category.banner_config as any)?.title || (category.banner_config as any)?.subtitle) && (
+                            <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
+                              (category.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
+                              (category.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
+                              "items-center text-center"
+                            }`}>
+                              {(category.banner_config as any)?.title && (
+                                <h4
+                                  className="text-sm sm:text-base md:text-lg font-bold leading-tight"
+                                  style={{ color: (category.banner_config as any)?.textColor || "#ffffff" }}
+                                >
+                                  {(category.banner_config as any).title}
+                                </h4>
+                              )}
+                              {(category.banner_config as any)?.subtitle && (
+                                <p
+                                  className="mt-1 text-xs sm:text-sm opacity-90 line-clamp-2"
+                                  style={{ color: (category.banner_config as any)?.textColor || "#ffffff" }}
+                                >
+                                  {(category.banner_config as any).subtitle}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
                       
-                      {/* Banner indicator */}
-                      {category.banner_url && (
-                        <Badge variant="secondary" className="absolute top-3 left-3 gap-1">
-                          <Image className="h-3 w-3" />
-                          Banner
+                      {/* Completed badge */}
+                      {isCompleted && (
+                        <Badge className="absolute top-3 right-3 bg-green-500 gap-1 z-10">
+                          <CheckCircle className="h-3 w-3" />
+                          Completo
                         </Badge>
                       )}
                     </div>
