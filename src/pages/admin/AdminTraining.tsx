@@ -250,7 +250,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {categories?.map((category) => (
-            <Card key={category.id} className={`overflow-hidden hover:shadow-lg transition-all group ${!category.is_active ? 'border-destructive/50 opacity-60' : ''}`}>
+            <Card key={category.id} className={`overflow-hidden hover:shadow-lg transition-all group cursor-pointer ${!category.is_active ? 'border-destructive/50 opacity-60' : ''}`} onClick={() => onViewTrainings(category.id)}>
               {/* Cover Image */}
               <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
                 {category.cover_image_url ? (
@@ -322,26 +322,22 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                   )}
                 </div>
                 <div className="flex items-center justify-between">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => onViewTrainings(category.id)}
-                    className="gap-1"
-                  >
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <BookOpen className="h-4 w-4" />
-                    Treinamentos
+                    <span>Treinamentos</span>
                     {trainingCounts?.[category.id] ? (
-                      <Badge variant="secondary" className="ml-1">{trainingCounts[category.id]}</Badge>
+                      <Badge variant="secondary">{trainingCounts[category.id]}</Badge>
                     ) : null}
-                  </Button>
+                  </div>
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); openEdit(category); }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm("Excluir esta categoria? Todos os treinamentos serão removidos.")) {
                           deleteMutation.mutate(category.id);
                         }
