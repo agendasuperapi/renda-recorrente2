@@ -215,16 +215,16 @@ const TrainingDetail = () => {
                   "items-center text-center"
                 }`}>
                   {(training.banner_text_config as any)?.title && (
-                    <h4
-                      className="text-lg sm:text-xl md:text-2xl font-bold leading-tight"
+                    <h2
+                      className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight drop-shadow-lg"
                       style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
                     >
                       {(training.banner_text_config as any).title}
-                    </h4>
+                    </h2>
                   )}
                   {(training.banner_text_config as any)?.subtitle && (
                     <p
-                      className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2"
+                      className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90 max-w-2xl drop-shadow-md"
                       style={{ color: (training.banner_text_config as any)?.textColor || "#ffffff" }}
                     >
                       {(training.banner_text_config as any).subtitle}
