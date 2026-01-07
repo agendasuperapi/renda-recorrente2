@@ -481,6 +481,70 @@ const TrainingLesson = () => {
             </Card>
           )}
 
+          {/* Rating Form - Show when clicking on Conclusão */}
+          {showRatingForm && (
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="h-6 w-6 text-green-500" />
+                    <h3 className="text-xl font-bold">Parabéns! Você concluiu este treinamento!</h3>
+                  </div>
+                  
+                  <p className="text-muted-foreground">
+                    {userRating ? "Você já avaliou este treinamento. Deseja atualizar sua avaliação?" : "O que você achou? Sua avaliação nos ajuda a melhorar!"}
+                  </p>
+
+                  {/* Star Rating */}
+                  <div className="flex justify-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        className="transition-transform hover:scale-110"
+                      >
+                        <Star
+                          className={`h-8 w-8 transition-colors ${
+                            star <= rating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Comment */}
+                  <Textarea
+                    placeholder="Deixe um comentário (opcional)"
+                    value={review}
+                    onChange={(e) => setReview(e.target.value)}
+                    className="max-w-md mx-auto"
+                    rows={3}
+                  />
+
+                  <div className="flex justify-center gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowRatingForm(false)}
+                    >
+                      Voltar às aulas
+                    </Button>
+                    <Button
+                      onClick={() => submitRatingMutation.mutate()}
+                      disabled={rating === 0 || submitRatingMutation.isPending}
+                      className="gap-2"
+                    >
+                      <Send className="h-4 w-4" />
+                      {submitRatingMutation.isPending ? "Enviando..." : userRating ? "Atualizar Avaliação" : "Enviar Avaliação"}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Comments Section - Hidden when showing rating form */}
           {!showRatingForm && (
             <Card>
