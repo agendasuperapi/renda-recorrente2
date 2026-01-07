@@ -411,7 +411,7 @@ const TrainingLesson = () => {
             </div>
             
             {/* Progress */}
-            <div className="space-y-2">
+            <div className="space-y-2 mb-6">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Seu Progresso</span>
                 <span className="font-medium">{completedLessons} de {totalLessons} aulas ({Math.round(progressPercentage)}%)</span>
@@ -424,6 +424,24 @@ const TrainingLesson = () => {
                 </div>
               )}
             </div>
+
+            {/* Current Lesson Info */}
+            {!showRatingForm && (
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div>
+                  <Badge variant="outline" className="mb-2">
+                    Aula {currentLessonIndex + 1} de {totalLessons}
+                  </Badge>
+                  <h2 className="text-lg font-semibold">{currentLesson.title}</h2>
+                </div>
+                {isLessonCompleted(currentLesson.id) && (
+                  <Badge className="bg-green-500">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Concluída
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -434,22 +452,6 @@ const TrainingLesson = () => {
           {/* Lesson Content - Hidden when showing rating form */}
           {!showRatingForm && (
             <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Badge variant="outline" className="mb-2">
-                      Aula {currentLessonIndex + 1} de {totalLessons}
-                    </Badge>
-                    <CardTitle>{currentLesson.title}</CardTitle>
-                  </div>
-                  {isLessonCompleted(currentLesson.id) && (
-                    <Badge className="bg-green-500">
-                      <CheckCircle className="h-3 w-3 mr-1" />
-                      Concluída
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
               <CardContent className="space-y-6">
                 {/* Video */}
                 {(currentLesson.content_type === 'video' || currentLesson.content_type === 'mixed') && currentLesson.video_url && (
