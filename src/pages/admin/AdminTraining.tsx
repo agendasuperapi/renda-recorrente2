@@ -1537,32 +1537,6 @@ const SettingsTab = () => {
     }
   });
 
-  // Fetch categories with banner configs
-  const { data: categories } = useQuery({
-    queryKey: ["training-categories-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("training_categories")
-        .select("*")
-        .order("order_position", { ascending: true });
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  // Fetch trainings with banner configs
-  const { data: trainings } = useQuery({
-    queryKey: ["trainings-settings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("trainings")
-        .select("*, training_categories(name)")
-        .order("order_position", { ascending: true });
-      if (error) throw error;
-      return data;
-    }
-  });
-
   React.useEffect(() => {
     if (settings) {
       const coverUrl = settings.find(s => s.key === "training_page_cover_url");
@@ -1664,252 +1638,93 @@ const SettingsTab = () => {
     );
   }
 
-  // Helper to get banner config from category/training
-  const getBannerConfig = (item: any) => {
-    if (!item?.banner_config || typeof item.banner_config !== 'object' || Array.isArray(item.banner_config)) {
-      return null;
-    }
-    return item.banner_config as any;
-  };
-
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Image className="h-5 w-5" />
-            Configurações da Página Principal
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-8">
-          <p className="text-sm text-muted-foreground">
-            Configure as imagens que aparecem no topo da página de treinamentos (/user/training).
-            Clique em "Editar" para alterar a imagem, textos, cores e sobreposição.
-          </p>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Image className="h-5 w-5" />
+          Configurações da Página Principal
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-8">
+        <p className="text-sm text-muted-foreground">
+          Configure as imagens que aparecem no topo da página de treinamentos (/user/training).
+          Clique em "Editar" para alterar a imagem, textos, cores e sobreposição.
+        </p>
 
-          {/* Banner Principal - Full Width Preview */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">Banner Principal</h3>
-                <p className="text-xs text-muted-foreground">Proporção 16:9 - Exibido no topo da página</p>
-              </div>
-              <Button onClick={() => setBannerEditorOpen(true)} variant="outline" size="sm">
-                <Pencil className="h-4 w-4 mr-2" />
-                Editar Banner
-              </Button>
+        {/* Banner Principal - Full Width Preview */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Banner Principal</h3>
+              <p className="text-xs text-muted-foreground">Proporção 16:9 - Exibido no topo da página</p>
             </div>
-            <BannerPreview
-              imageUrl={bannerData.imageUrl}
-              title={bannerData.title}
-              subtitle={bannerData.subtitle}
-              textColor={bannerData.textColor}
-              textAlign={bannerData.textAlign}
-              overlayColor={bannerData.overlayColor}
-              overlayOpacity={bannerData.overlayOpacity}
-              label="Preview do Banner"
-            />
+            <Button onClick={() => setBannerEditorOpen(true)} variant="outline" size="sm">
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar Banner
+            </Button>
           </div>
+          <BannerPreview
+            imageUrl={bannerData.imageUrl}
+            title={bannerData.title}
+            subtitle={bannerData.subtitle}
+            textColor={bannerData.textColor}
+            textAlign={bannerData.textAlign}
+            overlayColor={bannerData.overlayColor}
+            overlayOpacity={bannerData.overlayOpacity}
+            label="Preview do Banner"
+          />
+        </div>
 
-          <Separator />
+        <Separator />
 
-          {/* Capa Alternativa - Full Width Preview */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">Capa Alternativa</h3>
-                <p className="text-xs text-muted-foreground">Proporção 4:3 - Usada como fallback</p>
-              </div>
-              <Button onClick={() => setCoverEditorOpen(true)} variant="outline" size="sm">
-                <Pencil className="h-4 w-4 mr-2" />
-                Editar Capa
-              </Button>
+        {/* Capa Alternativa - Full Width Preview */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Capa Alternativa</h3>
+              <p className="text-xs text-muted-foreground">Proporção 4:3 - Usada como fallback</p>
             </div>
-            <BannerPreview
-              imageUrl={coverData.imageUrl}
-              title={coverData.title}
-              subtitle={coverData.subtitle}
-              textColor={coverData.textColor}
-              textAlign={coverData.textAlign}
-              overlayColor={coverData.overlayColor}
-              overlayOpacity={coverData.overlayOpacity}
-              label="Preview da Capa"
-            />
+            <Button onClick={() => setCoverEditorOpen(true)} variant="outline" size="sm">
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar Capa
+            </Button>
           </div>
-
-          {/* Banner Editor Dialog */}
-          <ImageEditorDialog
-            open={bannerEditorOpen}
-            onOpenChange={setBannerEditorOpen}
-            value={bannerData}
-            onSave={handleBannerSave}
-            title="Editar Banner Principal"
-            bucket="training-images"
-            folder="training-page"
+          <BannerPreview
+            imageUrl={coverData.imageUrl}
+            title={coverData.title}
+            subtitle={coverData.subtitle}
+            textColor={coverData.textColor}
+            textAlign={coverData.textAlign}
+            overlayColor={coverData.overlayColor}
+            overlayOpacity={coverData.overlayOpacity}
+            label="Preview da Capa"
           />
+        </div>
 
-          {/* Cover Editor Dialog */}
-          <ImageEditorDialog
-            open={coverEditorOpen}
-            onOpenChange={setCoverEditorOpen}
-            value={coverData}
-            onSave={handleCoverSave}
-            title="Editar Capa Alternativa"
-            bucket="training-images"
-            folder="training-page"
-          />
-        </CardContent>
-      </Card>
+        {/* Banner Editor Dialog */}
+        <ImageEditorDialog
+          open={bannerEditorOpen}
+          onOpenChange={setBannerEditorOpen}
+          value={bannerData}
+          onSave={handleBannerSave}
+          title="Editar Banner Principal"
+          bucket="training-images"
+          folder="training-page"
+        />
 
-      {/* Categories Banners Preview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FolderOpen className="h-5 w-5" />
-            Banners das Categorias
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Visualize os banners configurados para cada categoria. Para editar, acesse a aba "Categorias".
-          </p>
-          {categories && categories.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {categories.map((category) => {
-                const config = getBannerConfig(category);
-                return (
-                  <div key={category.id} className="space-y-2">
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                      {category.cover_image_url ? (
-                        <>
-                          <img 
-                            src={category.cover_image_url} 
-                            alt={category.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {config && (config.title || config.subtitle) && (
-                            <div 
-                              className="absolute inset-0 flex flex-col items-center justify-center p-3"
-                              style={{
-                                backgroundColor: config.overlayColor 
-                                  ? `${config.overlayColor}${Math.round((config.overlayOpacity || 0.5) * 255).toString(16).padStart(2, '0')}`
-                                  : 'rgba(0,0,0,0.5)',
-                                textAlign: (config.textAlign as any) || 'center'
-                              }}
-                            >
-                              {config.title && (
-                                <h4 
-                                  className="font-bold text-lg leading-tight"
-                                  style={{ color: config.textColor || '#ffffff' }}
-                                >
-                                  {config.title}
-                                </h4>
-                              )}
-                              {config.subtitle && (
-                                <p 
-                                  className="text-sm mt-1"
-                                  style={{ color: config.textColor || '#ffffff' }}
-                                >
-                                  {config.subtitle}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <FolderOpen className="h-8 w-8 text-muted-foreground/40" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm font-medium truncate">{category.name}</p>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma categoria cadastrada</p>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Trainings Banners Preview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            Banners dos Treinamentos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Visualize os banners configurados para cada treinamento. Para editar, acesse a aba "Categorias" e clique em "Treinamentos".
-          </p>
-          {trainings && trainings.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {trainings.map((training) => {
-                const config = getBannerConfig(training);
-                return (
-                  <div key={training.id} className="space-y-2">
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
-                      {training.thumbnail_url ? (
-                        <>
-                          <img 
-                            src={training.thumbnail_url} 
-                            alt={training.title}
-                            className="w-full h-full object-cover"
-                          />
-                          {config && (config.title || config.subtitle) && (
-                            <div 
-                              className="absolute inset-0 flex flex-col items-center justify-center p-3"
-                              style={{
-                                backgroundColor: config.overlayColor 
-                                  ? `${config.overlayColor}${Math.round((config.overlayOpacity || 0.5) * 255).toString(16).padStart(2, '0')}`
-                                  : 'rgba(0,0,0,0.5)',
-                                textAlign: (config.textAlign as any) || 'center'
-                              }}
-                            >
-                              {config.title && (
-                                <h4 
-                                  className="font-bold text-lg leading-tight"
-                                  style={{ color: config.textColor || '#ffffff' }}
-                                >
-                                  {config.title}
-                                </h4>
-                              )}
-                              {config.subtitle && (
-                                <p 
-                                  className="text-sm mt-1"
-                                  style={{ color: config.textColor || '#ffffff' }}
-                                >
-                                  {config.subtitle}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <BookOpen className="h-8 w-8 text-muted-foreground/40" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium truncate">{training.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {(training.training_categories as any)?.name || 'Sem categoria'}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhum treinamento cadastrado</p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        {/* Cover Editor Dialog */}
+        <ImageEditorDialog
+          open={coverEditorOpen}
+          onOpenChange={setCoverEditorOpen}
+          value={coverData}
+          onSave={handleCoverSave}
+          title="Editar Capa Alternativa"
+          bucket="training-images"
+          folder="training-page"
+        />
+      </CardContent>
+    </Card>
   );
 };
 
