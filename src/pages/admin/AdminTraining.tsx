@@ -35,6 +35,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
     cover_image_url: "",
     banner_url: "",
     banner_config: null as any,
+    banner_text_config: null as any,
     is_active: true
   });
 
@@ -111,7 +112,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
   });
 
   const resetForm = () => {
-    setFormData({ name: "", description: "", icon: "BookOpen", cover_image_url: "", banner_url: "", banner_config: null, is_active: true });
+    setFormData({ name: "", description: "", icon: "BookOpen", cover_image_url: "", banner_url: "", banner_config: null, banner_text_config: null, is_active: true });
     setEditingCategory(null);
   };
 
@@ -124,6 +125,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
       cover_image_url: category.cover_image_url || "",
       banner_url: category.banner_url || "",
       banner_config: category.banner_config || null,
+      banner_text_config: category.banner_text_config || null,
       is_active: category.is_active
     });
     setDialogOpen(true);
@@ -197,6 +199,27 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
                 aspectRatio="aspect-[3/1]"
                 hint="Banner para o topo da página (recomendado: 1200x400px)"
                 showEditor={true}
+                editorValue={{
+                  imageUrl: formData.banner_url,
+                  title: formData.banner_text_config?.title || "",
+                  subtitle: formData.banner_text_config?.subtitle || "",
+                  textColor: formData.banner_text_config?.textColor || "#ffffff",
+                  textAlign: formData.banner_text_config?.textAlign || "center",
+                  overlayColor: formData.banner_text_config?.overlayColor || "#000000",
+                  overlayOpacity: formData.banner_text_config?.overlayOpacity ?? 40,
+                }}
+                onEditorChange={(value) => setFormData({
+                  ...formData,
+                  banner_url: value.imageUrl,
+                  banner_text_config: {
+                    title: value.title,
+                    subtitle: value.subtitle,
+                    textColor: value.textColor,
+                    textAlign: value.textAlign,
+                    overlayColor: value.overlayColor,
+                    overlayOpacity: value.overlayOpacity,
+                  }
+                })}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativa</Label>
@@ -351,6 +374,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
     thumbnail_url: "",
     banner_url: "",
     banner_config: null as any,
+    banner_text_config: null as any,
     estimated_duration_minutes: 0,
     is_active: true,
     is_published: false
@@ -460,6 +484,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       thumbnail_url: "",
       banner_url: "",
       banner_config: null,
+      banner_text_config: null,
       estimated_duration_minutes: 0,
       is_active: true,
       is_published: false
@@ -477,6 +502,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       thumbnail_url: training.thumbnail_url || "",
       banner_url: training.banner_url || "",
       banner_config: training.banner_config || null,
+      banner_text_config: training.banner_text_config || null,
       estimated_duration_minutes: training.estimated_duration_minutes || 0,
       is_active: training.is_active,
       is_published: training.is_published
@@ -602,6 +628,27 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                 aspectRatio="aspect-[3/1]"
                 hint="Banner da página (recomendado: 1200x400px)"
                 showEditor={true}
+                editorValue={{
+                  imageUrl: formData.banner_url,
+                  title: formData.banner_text_config?.title || "",
+                  subtitle: formData.banner_text_config?.subtitle || "",
+                  textColor: formData.banner_text_config?.textColor || "#ffffff",
+                  textAlign: formData.banner_text_config?.textAlign || "center",
+                  overlayColor: formData.banner_text_config?.overlayColor || "#000000",
+                  overlayOpacity: formData.banner_text_config?.overlayOpacity ?? 40,
+                }}
+                onEditorChange={(value) => setFormData({
+                  ...formData,
+                  banner_url: value.imageUrl,
+                  banner_text_config: {
+                    title: value.title,
+                    subtitle: value.subtitle,
+                    textColor: value.textColor,
+                    textAlign: value.textAlign,
+                    overlayColor: value.overlayColor,
+                    overlayOpacity: value.overlayOpacity,
+                  }
+                })}
               />
               <div className="flex items-center justify-between">
                 <Label>Ativo</Label>
