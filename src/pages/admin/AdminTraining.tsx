@@ -685,7 +685,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {trainings?.map((training) => (
-            <Card key={training.id} className={`overflow-hidden hover:shadow-lg transition-all group ${!training.is_active ? 'opacity-60' : ''}`}>
+            <Card key={training.id} className={`overflow-hidden hover:shadow-lg transition-all group cursor-pointer ${!training.is_active ? 'opacity-60' : ''}`} onClick={() => onViewLessons(training.id)}>
               {/* Thumbnail */}
               <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
                 {training.thumbnail_url ? (
@@ -765,26 +765,22 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => onViewLessons(training.id)}
-                    className="gap-1"
-                  >
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Video className="h-4 w-4" />
-                    Aulas
+                    <span>Aulas</span>
                     {lessonCounts?.[training.id] ? (
-                      <Badge variant="secondary" className="ml-1">{lessonCounts[training.id]}</Badge>
+                      <Badge variant="secondary">{lessonCounts[training.id]}</Badge>
                     ) : null}
-                  </Button>
+                  </div>
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(training)}>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); openEdit(training); }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm("Excluir este treinamento? Todas as aulas serão removidas.")) {
                           deleteMutation.mutate(training.id);
                         }
