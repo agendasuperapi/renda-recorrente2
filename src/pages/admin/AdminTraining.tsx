@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp, Image, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, BookOpen, Video, MessageSquare, Check, X, Eye, GripVertical, ChevronRight, Clock, Users, Star, FileText, ArrowRight, ChevronDown, ChevronUp, Image, ImagePlus, ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -357,7 +357,7 @@ const CategoriesTab = ({ onViewTrainings }: { onViewTrainings: (categoryId: stri
 };
 
 // Trainings Tab Component
-const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: string; onViewLessons: (trainingId: string) => void }) => {
+const TrainingsTab = ({ filterCategoryId, onViewLessons, onGoBack }: { filterCategoryId: string; onViewLessons: (trainingId: string) => void; onGoBack: () => void }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTraining, setEditingTraining] = useState<any>(null);
@@ -517,6 +517,9 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4 flex-wrap">
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={onGoBack} className="h-8 w-8">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <h3 className="text-lg font-semibold">Treinamentos</h3>
           <Select value={selectedCategory || "all"} onValueChange={(v) => setSelectedCategory(v === "all" ? "" : v)}>
             <SelectTrigger className="w-[250px]">
@@ -800,7 +803,7 @@ const TrainingsTab = ({ filterCategoryId, onViewLessons }: { filterCategoryId: s
 };
 
 // Lessons Tab Component
-const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
+const LessonsTab = ({ filterTrainingId, onGoBack }: { filterTrainingId: string; onGoBack: () => void }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
@@ -933,6 +936,9 @@ const LessonsTab = ({ filterTrainingId }: { filterTrainingId: string }) => {
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4 flex-wrap">
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={onGoBack} className="h-8 w-8">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
           <h3 className="text-lg font-semibold">Aulas</h3>
           <Select value={selectedTraining || "all"} onValueChange={(v) => setSelectedTraining(v === "all" ? "" : v)}>
             <SelectTrigger className="w-[250px]">
@@ -1867,6 +1873,16 @@ const AdminTraining = () => {
     setActiveTab("lessons");
   };
 
+  const handleBackToCategories = () => {
+    setFilterCategoryId("");
+    setActiveTab("categories");
+  };
+
+  const handleBackToTrainings = () => {
+    setFilterTrainingId("");
+    setActiveTab("trainings");
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -1888,11 +1904,11 @@ const AdminTraining = () => {
         </TabsContent>
         
         <TabsContent value="trainings" className="mt-6">
-          <TrainingsTab filterCategoryId={filterCategoryId} onViewLessons={handleViewLessons} />
+          <TrainingsTab filterCategoryId={filterCategoryId} onViewLessons={handleViewLessons} onGoBack={handleBackToCategories} />
         </TabsContent>
         
         <TabsContent value="lessons" className="mt-6">
-          <LessonsTab filterTrainingId={filterTrainingId} />
+          <LessonsTab filterTrainingId={filterTrainingId} onGoBack={handleBackToTrainings} />
         </TabsContent>
         
         <TabsContent value="comments" className="mt-6">
