@@ -129,7 +129,7 @@ const TrainingDetail = () => {
   const bannerImage = training.banner_url || training.thumbnail_url || categoryBanner;
 
   return (
-    <div className="space-y-6 -mt-6 -mx-4 sm:-mx-6 lg:-mx-8">
+    <div className="space-y-6 -mt-6 md:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Hero Banner */}
       <div className="relative">
         {/* Back Button */}
