@@ -168,7 +168,7 @@ const TrainingFavorites = () => {
               return (
                 <Link
                   key={fav.lesson_id}
-                  to={`/user/training/lesson/${lesson.id}`}
+                  to={`/user/training/lesson/${lesson.id}?from=favorites`}
                   className="block group"
                 >
                   <Card className="overflow-hidden hover:shadow-lg transition-all group-hover:scale-[1.02] ring-2 ring-red-400/50">
