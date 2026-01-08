@@ -186,12 +186,18 @@ const TrainingFavorites = () => {
                           <PlayCircle className="h-12 w-12 text-primary/40" />
                         </div>
                       )}
+                      {/* Overlay with title */}
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                        <h3 className="text-white font-bold text-lg text-center px-4 drop-shadow-lg">
+                          {lesson.title}
+                        </h3>
+                      </div>
                       {/* Favorite badge */}
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2 right-2 bg-black/40 rounded-full p-1">
                         <Heart className="h-5 w-5 fill-red-500 text-red-500" />
                       </div>
                       {/* Play overlay on hover */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <PlayCircle className="h-12 w-12 text-white" />
                       </div>
                     </div>
