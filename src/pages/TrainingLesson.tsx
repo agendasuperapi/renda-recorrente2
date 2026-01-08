@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,6 +81,8 @@ const RatingStars = ({ value, onChange, readonly = false }: { value: number; onC
 const TrainingLesson = () => {
   const { lessonId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromFavorites = searchParams.get("from") === "favorites";
   const queryClient = useQueryClient();
   const { userId } = useAuth();
   const [newComment, setNewComment] = useState("");
@@ -430,9 +432,14 @@ const TrainingLesson = () => {
       <div>
         <Card>
           <CardContent className="pt-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/user/training/${training.id}`)} className="mb-4 -ml-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate(fromFavorites ? "/user/training/favorites" : `/user/training/${training.id}`)} 
+              className="mb-4 -ml-2"
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar para {training.title}
+              {fromFavorites ? "Voltar para Favoritos" : `Voltar para ${training.title}`}
             </Button>
             <div className="flex items-center justify-between mb-3">
               <div>
