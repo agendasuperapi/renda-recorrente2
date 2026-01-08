@@ -529,14 +529,24 @@ const TrainingLesson = () => {
                   <Button
                     variant="outline"
                     disabled={!prevLesson}
-                    onClick={() => prevLesson && navigate(`/user/training/lesson/${prevLesson.id}`)}
+                    onClick={() => prevLesson && navigate(`/user/training/lesson/${prevLesson.id}${fromFavorites ? '?from=favorites' : ''}`)}
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Anterior
                   </Button>
                   <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleFavoriteMutation.mutate()}
+                    disabled={toggleFavoriteMutation.isPending}
+                    className="gap-1.5"
+                  >
+                    <Heart className={`h-4 w-4 transition-colors ${isFavorited ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+                    {isFavorited ? 'Favorita' : 'Favoritar'}
+                  </Button>
+                  <Button
                     disabled={!nextLesson || !isLessonCompleted(currentLesson.id)}
-                    onClick={() => nextLesson && navigate(`/user/training/lesson/${nextLesson.id}`)}
+                    onClick={() => nextLesson && navigate(`/user/training/lesson/${nextLesson.id}${fromFavorites ? '?from=favorites' : ''}`)}
                   >
                     Próxima
                     <ArrowRight className="h-4 w-4 ml-2" />
