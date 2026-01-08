@@ -199,9 +199,16 @@ const TrainingFavorites = () => {
                       <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
                         {lesson.title}
                       </h4>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                        {training?.title}
-                      </p>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          {training?.title}
+                        </p>
+                        {lesson.duration_minutes && (
+                          <span className="text-xs text-muted-foreground">
+                            {lesson.duration_minutes} min
+                          </span>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 </Link>
