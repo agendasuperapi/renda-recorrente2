@@ -100,12 +100,14 @@ const TrainingFavorites = () => {
 
         {/* Title and Subtitle */}
         <div className={`absolute inset-0 flex flex-col justify-center px-4 sm:px-8 lg:px-16 ${getTextAlignClass()}`}>
-          <h1
-            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
-            style={{ color: bannerConfig?.textColor || "#ffffff" }}
-          >
-            {bannerConfig?.title || "Aulas Favoritas"}
-          </h1>
+          {bannerConfig?.title && (
+            <h1
+              className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
+              style={{ color: bannerConfig?.textColor || "#ffffff" }}
+            >
+              {bannerConfig.title}
+            </h1>
+          )}
           {bannerConfig?.subtitle && (
             <p
               className="mt-1 sm:mt-2 text-sm sm:text-base md:text-lg opacity-90"
