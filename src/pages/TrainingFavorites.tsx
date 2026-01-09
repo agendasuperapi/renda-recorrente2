@@ -1,11 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Heart, PlayCircle, FolderOpen } from "lucide-react";
+import { ArrowLeft, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import LessonCard from "@/components/training/LessonCard";
 
 const TrainingFavorites = () => {
   const navigate = useNavigate();
@@ -164,95 +165,23 @@ const TrainingFavorites = () => {
             </div>
           </Card>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {favoriteLessons.map((fav: any) => {
               const lesson = fav.training_lessons;
               const training = lesson?.trainings;
               
               return (
-                <Link
+                <LessonCard
                   key={fav.lesson_id}
-                  to={`/user/training/lesson/${lesson.id}?from=favorites`}
-                  className="block group"
-                >
-                  <Card className="overflow-hidden hover:shadow-lg transition-all group-hover:scale-[1.02] ring-2 ring-red-400/50">
-                    <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
-                      {lesson.thumbnail_url ? (
-                        <img 
-                          src={lesson.thumbnail_url} 
-                          alt={lesson.title}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <PlayCircle className="h-12 w-12 text-primary/40" />
-                        </div>
-                      )}
-                      
-                      {/* Overlay + texto (usa banner_text_config ou banner_config da aula) */}
-                      {(() => {
-                        const lessonBannerConfig = (lesson as any).banner_text_config ?? (lesson as any).banner_config;
-                        return lessonBannerConfig ? (
-                          <>
-                            <div
-                              className="absolute inset-0 z-[5]"
-                              style={{
-                                backgroundColor: lessonBannerConfig?.overlayColor || "#000000",
-                                opacity: (lessonBannerConfig?.overlayOpacity ?? 40) / 100
-                              }}
-                            />
-                            {(lessonBannerConfig?.title || lessonBannerConfig?.subtitle) && (
-                              <div
-                                className={`absolute inset-0 z-10 flex flex-col justify-center px-4 ${
-                                  lessonBannerConfig?.textAlign === "left" ? "items-start text-left" :
-                                  lessonBannerConfig?.textAlign === "right" ? "items-end text-right" :
-                                  "items-center text-center"
-                                }`}
-                              >
-                                {lessonBannerConfig?.title && (
-                                  <h4
-                                    className="text-lg sm:text-xl md:text-2xl font-bold leading-tight drop-shadow-lg"
-                                    style={{ color: lessonBannerConfig?.textColor || "#ffffff" }}
-                                  >
-                                    {lessonBannerConfig.title}
-                                  </h4>
-                                )}
-                                {lessonBannerConfig?.subtitle && (
-                                  <p
-                                    className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2 drop-shadow-lg"
-                                    style={{ color: lessonBannerConfig?.textColor || "#ffffff" }}
-                                  >
-                                    {lessonBannerConfig.subtitle}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </>
-                        ) : null;
-                      })()}
-                      
-                      {/* Favorite badge */}
-                      <div className="absolute top-2 right-2 z-20 bg-black/40 rounded-full p-1">
-                        <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
-                        {lesson.title}
-                      </h4>
-                      <div className="flex items-center justify-between mt-1">
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {training?.title}
-                        </p>
-                        {lesson.duration_minutes && (
-                          <span className="text-xs text-muted-foreground">
-                            {lesson.duration_minutes} min
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                  lesson={lesson}
+                  trainingTitle={training?.title}
+                  isFavorited={true}
+                  linkTo={`/user/training/lesson/${lesson.id}?from=favorites`}
+                  showFavoriteButton={false}
+                  showCompletedBadge={false}
+                  showLessonNumber={false}
+                  ringColorClass="ring-2 ring-red-400/50"
+                />
               );
             })}
           </div>
