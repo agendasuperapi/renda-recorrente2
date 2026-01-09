@@ -4,10 +4,12 @@ const config: CapacitorConfig = {
   appId: 'app.lovable.d58d1d52fb1b448691d7558c22792e39',
   appName: 'Renda Recorrente',
   webDir: 'dist',
-  server: {
-    url: 'https://d58d1d52-fb1b-4486-91d7-558c22792e39.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  },
+  // Removido server.url para usar arquivos locais em produção
+  // Para desenvolvimento, você pode descomentar e usar:
+  // server: {
+  //   url: 'http://localhost:8080',
+  //   cleartext: true
+  // },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
