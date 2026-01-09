@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, Lock, PlayCircle, Send, Heart } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Star, CheckCircle, PlayCircle, Send } from "lucide-react";
+import LessonCard from "@/components/training/LessonCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -378,122 +379,20 @@ const TrainingDetail = () => {
               const favorited = isLessonFavorited(lesson.id);
 
               return (
-                <div key={lesson.id} className="relative">
-                  <Link
-                    to={locked ? '#' : `/user/training/lesson/${lesson.id}`}
-                    className={`block group ${locked ? 'cursor-not-allowed' : ''}`}
-                    onClick={(e) => locked && e.preventDefault()}
-                  >
-                    <Card 
-                      className={`overflow-hidden transition-all ${locked ? 'opacity-60' : 'hover:shadow-xl group-hover:scale-[1.02]'} ${completed ? 'ring-2 ring-green-500' : ''} ${favorited && !completed ? 'ring-2 ring-amber-400' : ''}`}
-                    >
-                    {/* Large Thumbnail */}
-                    <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
-                      {lesson.thumbnail_url ? (
-                        <img 
-                          src={lesson.thumbnail_url} 
-                          alt={lesson.title}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <PlayCircle className="h-16 w-16 text-primary/40" />
-                        </div>
-                      )}
-                      
-                      {/* Overlay from banner_config */}
-                      {lesson.banner_config && (
-                        <>
-                          <div
-                            className="absolute inset-0"
-                            style={{
-                              backgroundColor: (lesson.banner_config as any)?.overlayColor || "#000000",
-                              opacity: ((lesson.banner_config as any)?.overlayOpacity ?? 40) / 100
-                            }}
-                          />
-                          {((lesson.banner_config as any)?.title || (lesson.banner_config as any)?.subtitle) && (
-                            <div className={`absolute inset-0 flex flex-col justify-center px-4 ${
-                              (lesson.banner_config as any)?.textAlign === "left" ? "items-start text-left" :
-                              (lesson.banner_config as any)?.textAlign === "right" ? "items-end text-right" :
-                              "items-center text-center"
-                            }`}>
-                              {(lesson.banner_config as any)?.title && (
-                                <h4
-                                  className="text-lg sm:text-xl md:text-2xl font-bold leading-tight"
-                                  style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
-                                >
-                                  {(lesson.banner_config as any).title}
-                                </h4>
-                              )}
-                              {(lesson.banner_config as any)?.subtitle && (
-                                <p
-                                  className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2"
-                                  style={{ color: (lesson.banner_config as any)?.textColor || "#ffffff" }}
-                                >
-                                  {(lesson.banner_config as any).subtitle}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </>
-                      )}
-                      
-                      {/* Status overlay - only for locked */}
-                      {locked && (
-                        <div className={`absolute inset-0 flex items-center justify-center ${
-                          lesson.banner_config ? 'bg-black/20' : 'bg-black/50'
-                        }`}>
-                          <Lock className="h-10 w-10 text-white" />
-                        </div>
-                      )}
-
-                      {/* Play button overlay on hover */}
-                      {!locked && !completed && !lesson.banner_config && (
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <PlayCircle className="h-16 w-16 text-white" />
-                        </div>
-                      )}
-                    </div>
-
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2">
-                          {lesson.title}
-                        </h3>
-                        {completed && (
-                          <Badge className="bg-green-500 flex-shrink-0">
-                            Concluída
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
-                        {lesson.duration_minutes > 0 && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {lesson.duration_minutes} min
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          Aula {index + 1}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-                {/* Favorite Button */}
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleFavoriteMutation.mutate(lesson.id);
-                  }}
-                  disabled={toggleFavoriteMutation.isPending}
-                  className="absolute top-3 right-3 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-                >
-                  <Heart className={`h-5 w-5 transition-colors ${favorited ? 'fill-red-500 text-red-500' : 'text-white hover:text-red-400'}`} />
-                </button>
-              </div>
+                <LessonCard
+                  key={lesson.id}
+                  lesson={lesson}
+                  lessonNumber={index + 1}
+                  isCompleted={completed}
+                  isLocked={locked}
+                  isFavorited={favorited}
+                  onToggleFavorite={() => toggleFavoriteMutation.mutate(lesson.id)}
+                  isFavoriteLoading={toggleFavoriteMutation.isPending}
+                  linkTo={`/user/training/lesson/${lesson.id}`}
+                  showCompletedBadge
+                  showLessonNumber
+                  showFavoriteButton
+                />
               );
             })}
           </div>
