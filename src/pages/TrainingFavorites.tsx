@@ -44,6 +44,8 @@ const TrainingFavorites = () => {
             thumbnail_url,
             duration_minutes,
             training_id,
+            banner_config,
+            banner_text_config,
             trainings!inner(id, title, category_id)
           )
         `)
@@ -186,19 +188,52 @@ const TrainingFavorites = () => {
                           <PlayCircle className="h-12 w-12 text-primary/40" />
                         </div>
                       )}
-                      {/* Overlay with title */}
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <h3 className="text-white font-bold text-lg text-center px-4 drop-shadow-lg">
-                          {lesson.title}
-                        </h3>
-                      </div>
+                      
+                      {/* Overlay + texto (usa banner_text_config ou banner_config da aula) */}
+                      {(() => {
+                        const lessonBannerConfig = (lesson as any).banner_text_config ?? (lesson as any).banner_config;
+                        return lessonBannerConfig ? (
+                          <>
+                            <div
+                              className="absolute inset-0 z-[5]"
+                              style={{
+                                backgroundColor: lessonBannerConfig?.overlayColor || "#000000",
+                                opacity: (lessonBannerConfig?.overlayOpacity ?? 40) / 100
+                              }}
+                            />
+                            {(lessonBannerConfig?.title || lessonBannerConfig?.subtitle) && (
+                              <div
+                                className={`absolute inset-0 z-10 flex flex-col justify-center px-4 ${
+                                  lessonBannerConfig?.textAlign === "left" ? "items-start text-left" :
+                                  lessonBannerConfig?.textAlign === "right" ? "items-end text-right" :
+                                  "items-center text-center"
+                                }`}
+                              >
+                                {lessonBannerConfig?.title && (
+                                  <h4
+                                    className="text-lg sm:text-xl md:text-2xl font-bold leading-tight drop-shadow-lg"
+                                    style={{ color: lessonBannerConfig?.textColor || "#ffffff" }}
+                                  >
+                                    {lessonBannerConfig.title}
+                                  </h4>
+                                )}
+                                {lessonBannerConfig?.subtitle && (
+                                  <p
+                                    className="mt-1 text-sm sm:text-base opacity-90 line-clamp-2 drop-shadow-lg"
+                                    style={{ color: lessonBannerConfig?.textColor || "#ffffff" }}
+                                  >
+                                    {lessonBannerConfig.subtitle}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        ) : null;
+                      })()}
+                      
                       {/* Favorite badge */}
-                      <div className="absolute top-2 right-2 bg-black/40 rounded-full p-1">
+                      <div className="absolute top-2 right-2 z-20 bg-black/40 rounded-full p-1">
                         <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-                      </div>
-                      {/* Play overlay on hover */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <PlayCircle className="h-12 w-12 text-white" />
                       </div>
                     </div>
                     <CardContent className="p-4">
