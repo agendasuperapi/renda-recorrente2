@@ -46,7 +46,6 @@ const TrainingFavorites = () => {
             duration_minutes,
             training_id,
             banner_config,
-            banner_text_config,
             trainings!inner(id, title, category_id)
           )
         `)
