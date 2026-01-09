@@ -470,20 +470,21 @@ const Training = () => {
                         </>
                       )}
                       
-                      {/* Completed badge */}
-                      {isCompleted && (
-                        <Badge className="absolute top-3 right-3 bg-green-500 gap-1 z-10">
-                          <CheckCircle className="h-3 w-3" />
-                          Completo
-                        </Badge>
-                      )}
                     </div>
                     
                     <CardContent className="p-5">
                       <div className="mb-3">
-                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                          {category.name}
-                        </h3>
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                            {category.name}
+                          </h3>
+                          {isCompleted && (
+                            <Badge className="bg-green-500 gap-1 shrink-0">
+                              <CheckCircle className="h-3 w-3" />
+                              Completo
+                            </Badge>
+                          )}
+                        </div>
                         {category.description && (
                           <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                             {category.description}
