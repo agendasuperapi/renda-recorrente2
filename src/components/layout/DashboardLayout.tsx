@@ -232,23 +232,24 @@ export const DashboardLayout = () => {
   
   const isLoading = !initialized && !loadingTimeout;
 
+
   return (
     <div className="min-h-screen bg-[#10b981]">
       <BlockedUserDialog />
       <UserProvider value={{ userId: user?.id || null }}>
-        <div 
-          className="flex min-h-screen bg-background overflow-y-auto"
+        <div
+          className="flex min-h-screen bg-background overflow-hidden"
           style={{
             paddingTop: 'env(safe-area-inset-top)',
-            paddingBottom: 'env(safe-area-inset-bottom)',
           }}
         >
           <Sidebar user={user} isAdmin={isAdmin ?? false} open={sidebarOpen} onOpenChange={setSidebarOpen} isLoading={isLoading} initialized={initialized} />
-          <main 
-            className={`flex-1 min-h-screen overflow-x-hidden ${isMobile ? 'px-3 pt-6 pb-24' : 'lg:ml-64 px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
+          <main
+            className={`flex-1 min-h-screen overflow-x-hidden overflow-y-auto capacitor-scroll-fix ${isMobile ? 'px-3 pt-0 pb-24' : 'lg:ml-64 px-6 md:px-8 pt-6 md:pt-8 pb-6'}`}
             style={backgroundStyle}
           >
             {isLoading ? (
+
               <div className="space-y-3 sm:space-y-4">
                 <Skeleton className="h-6 sm:h-8 w-48 sm:w-64" />
                 <Skeleton className="h-3 sm:h-4 w-64 sm:w-96" />
