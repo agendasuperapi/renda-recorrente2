@@ -1,6 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+// Check if running in native Capacitor app
+export function isCapacitorNative(): boolean {
+  try {
+    return Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
+}
 
 // VAPID public key comes from Supabase (to avoid mismatch between frontend and backend secrets)
 let cachedVapidPublicKey: string | null = null;
@@ -62,18 +72,7 @@ function getIOSVersion(): number | null {
   return null;
 }
 
-// Check if running inside Capacitor native app
-function isCapacitorNative(): boolean {
-  // Capacitor injects a global object when running as native app
-  const win = window as Window & { Capacitor?: { isNative?: boolean; isNativePlatform?: () => boolean } };
-  if (win.Capacitor?.isNativePlatform) {
-    return win.Capacitor.isNativePlatform();
-  }
-  if (win.Capacitor?.isNative) {
-    return true;
-  }
-  return false;
-}
+// isCapacitorNative is now exported from top of file
 
 // Check if running as PWA (standalone mode)
 function isPWAMode(): boolean {
