@@ -25,7 +25,8 @@ import {
   Package,
   FlaskConical
 } from 'lucide-react';
-import { usePushNotifications, IOSDiagnostics } from '@/hooks/usePushNotifications';
+import { usePushNotifications, IOSDiagnostics, isCapacitorNative } from '@/hooks/usePushNotifications';
+import { useNativePushNotifications } from '@/hooks/useNativePushNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -34,8 +35,10 @@ import { ptBR } from 'date-fns/locale';
 
 const deviceIcons: Record<string, React.ReactNode> = {
   ios: <Apple className="h-4 w-4" />,
+  'ios-native': <Apple className="h-4 w-4" />,
   macos: <Apple className="h-4 w-4" />,
   android: <Smartphone className="h-4 w-4" />,
+  'android-native': <Smartphone className="h-4 w-4" />,
   tablet: <Tablet className="h-4 w-4" />,
   windows: <Monitor className="h-4 w-4" />,
   linux: <Monitor className="h-4 w-4" />,
@@ -101,19 +104,31 @@ export function NotificationsContent() {
   // Detectar se está no modo admin baseado na rota
   const isAdminMode = location.pathname.startsWith('/admin');
   
+  // Check if running in native Capacitor app
+  const isNative = isCapacitorNative();
+  
+  // Use native push for Capacitor apps
+  const nativePush = useNativePushNotifications();
+  
+  // Use web push for PWA/browsers
   const {
     isSupported,
     permission,
-    isSubscribed,
+    isSubscribed: webIsSubscribed,
     subscriptions,
     isLoading: pushLoading,
     diagnostics,
-    subscribe,
+    subscribe: webSubscribe,
     unsubscribe,
     removeSubscription,
-    sendTestNotification,
+    sendTestNotification: webSendTestNotification,
     runDiagnostics,
   } = usePushNotifications();
+
+  // Unified state based on platform
+  const isSubscribed = isNative ? nativePush.isRegistered : webIsSubscribed;
+  const subscribe = isNative ? nativePush.register : webSubscribe;
+  const sendTestNotification = isNative ? nativePush.sendTestNotification : webSendTestNotification;
 
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isSendingTest, setIsSendingTest] = useState(false);
