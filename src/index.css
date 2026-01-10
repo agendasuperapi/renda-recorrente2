@@ -132,25 +132,21 @@ All colors MUST be HSL.
   }
 }
 
-/* Capacitor iOS Native App - Safe Area Insets */
+
+/* Capacitor iOS Native App - Safe Area Insets
+   A safe-area do app é aplicada no layout (DashboardLayout/BottomNav) para evitar padding duplicado.
+*/
 @supports (padding: env(safe-area-inset-top)) {
-  /* Aplicar safe-area em apps nativos Capacitor */
-  html {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-  
-  /* Background cobrindo toda a área incluindo safe-area */
   html, body {
     background: var(--status-bar-bg);
   }
-  
+
   #root {
-    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
   }
 }
+
 
 /* Rich text editor and banner styles */
 .ql-toolbar {
