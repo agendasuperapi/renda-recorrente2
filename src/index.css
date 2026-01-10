@@ -132,6 +132,26 @@ All colors MUST be HSL.
   }
 }
 
+/* Capacitor iOS Native App - Safe Area Insets */
+@supports (padding: env(safe-area-inset-top)) {
+  /* Aplicar safe-area em apps nativos Capacitor */
+  html {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Background cobrindo toda a área incluindo safe-area */
+  html, body {
+    background: var(--status-bar-bg);
+  }
+  
+  #root {
+    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
 /* Rich text editor and banner styles */
 .ql-toolbar {
   border-top-left-radius: 0.375rem;
@@ -195,50 +215,54 @@ All colors MUST be HSL.
   }
 }
 
-/* iOS PWA - Background verde fixo para barra de status */
+/* iOS PWA e Capacitor Native App - Background verde fixo para barra de status */
 @supports (-webkit-touch-callout: none) {
-  @media (display-mode: standalone) {
-    /* Background configurável atrás de tudo - isso é o que a barra de status vai ver */
-    html, body {
-      background: var(--status-bar-bg);
-      /* Pull-to-refresh nativo habilitado no topo */
-    }
-    
-    /* Container principal tem seu próprio background */
-    #root {
-      background-color: hsl(var(--background));
-      min-height: 100dvh;
-      min-height: -webkit-fill-available;
-    }
-    
-    /* Usar viewport dinâmico para iOS PWA */
-    .min-h-screen {
-      min-height: 100dvh;
-      min-height: -webkit-fill-available;
-    }
-    
-    /* Garantir que inputs e textareas funcionem corretamente no iOS PWA */
-    input, textarea, select {
-      -webkit-user-select: text;
-      user-select: text;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Permitir que o iOS empurre o conteúdo quando o teclado abre */
-    body {
-      touch-action: pan-y;
-    }
-    
-    /* ScrollView wrapper - scroll nativo iOS */
-    .ios-scroll-wrapper {
-      -webkit-overflow-scrolling: touch;
-      overflow-y: auto;
-    }
-    
-    /* Garantir que formulários sejam focáveis */
-    form {
-      touch-action: pan-y;
-    }
+  /* Background configurável atrás de tudo - isso é o que a barra de status vai ver */
+  html, body {
+    background: var(--status-bar-bg);
+  }
+  
+  /* Container principal tem seu próprio background */
+  #root {
+    background-color: hsl(var(--background));
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Usar viewport dinâmico para iOS */
+  .min-h-screen {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Garantir que inputs e textareas funcionem corretamente */
+  input, textarea, select {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Permitir que o iOS empurre o conteúdo quando o teclado abre */
+  body {
+    touch-action: pan-y;
+  }
+  
+  /* ScrollView wrapper - scroll nativo iOS */
+  .ios-scroll-wrapper {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+  
+  /* Garantir que formulários sejam focáveis */
+  form {
+    touch-action: pan-y;
+  }
+  
+  /* Corrigir touch em áreas de scroll */
+  .capacitor-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
   }
 }
 

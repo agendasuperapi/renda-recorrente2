@@ -263,9 +263,16 @@ export function NotificationsContent() {
         </CardHeader>
         <CardContent className="space-y-4">
           {!isSupported ? (
-            <div className="flex items-center gap-2 text-destructive">
-              <AlertCircle className="h-5 w-5" />
-              <span>Seu navegador não suporta notificações push</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="h-5 w-5" />
+                <span>Notificações push não disponíveis</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {diagnostics?.isIOS ? 
+                  'Para receber notificações push no iOS, instale o app via Safari > Compartilhar > Adicionar à Tela de Início.' :
+                  'Seu navegador não suporta notificações push.'}
+              </p>
             </div>
           ) : permission === 'denied' ? (
             <div className="space-y-2">

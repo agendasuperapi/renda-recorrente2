@@ -4,7 +4,6 @@ import { PersonalProfileContent } from "@/components/settings/PersonalProfileCon
 import { PlanContent } from "@/components/settings/PlanContent";
 import { SecurityContent } from "@/components/settings/SecurityContent";
 import { NotificationsContent } from "@/components/settings/NotificationsContent";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, Crown, Shield, Bell } from "lucide-react";
 
 const Settings = () => {
@@ -16,7 +15,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col pb-4">
       <div className="px-4 sm:px-6 pt-4 sm:pt-6">
         <h1 className="text-2xl font-bold mb-4">Configurações</h1>
         <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
@@ -56,9 +55,9 @@ const Settings = () => {
             forceMount 
             className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <ScrollArea className="h-[calc(100vh-200px)]">
+            <div className="space-y-4 pb-8">
               <PersonalProfileContent />
-            </ScrollArea>
+            </div>
           </TabsContent>
 
           <TabsContent 
@@ -66,9 +65,9 @@ const Settings = () => {
             forceMount 
             className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <ScrollArea className="h-[calc(100vh-200px)]">
+            <div className="space-y-4 pb-8">
               <PlanContent />
-            </ScrollArea>
+            </div>
           </TabsContent>
 
           <TabsContent 
@@ -76,9 +75,9 @@ const Settings = () => {
             forceMount 
             className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <ScrollArea className="h-[calc(100vh-200px)]">
+            <div className="space-y-4 pb-8">
               <NotificationsContent />
-            </ScrollArea>
+            </div>
           </TabsContent>
 
           <TabsContent 
@@ -86,9 +85,9 @@ const Settings = () => {
             forceMount 
             className="mt-0 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150"
           >
-            <ScrollArea className="h-[calc(100vh-200px)]">
+            <div className="space-y-4 pb-8">
               <SecurityContent />
-            </ScrollArea>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
