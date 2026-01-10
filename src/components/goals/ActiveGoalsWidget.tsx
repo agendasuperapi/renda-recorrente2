@@ -153,8 +153,19 @@ export const ActiveGoalsWidget = ({ showValues, affiliateId }: ActiveGoalsWidget
           <Target className="h-5 w-5 text-primary" />
           Minhas Metas
         </CardTitle>
-        <Button variant="outline" size="sm" asChild className="gap-1.5 text-xs">
-          <Link to="/user/commissions?tab=goals">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          asChild 
+          className="gap-1.5 text-xs touch-manipulation"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Link 
+            to="/user/commissions?tab=goals"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             Ver todas
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>

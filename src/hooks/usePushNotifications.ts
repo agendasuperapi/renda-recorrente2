@@ -62,8 +62,25 @@ function getIOSVersion(): number | null {
   return null;
 }
 
+// Check if running inside Capacitor native app
+function isCapacitorNative(): boolean {
+  // Capacitor injects a global object when running as native app
+  const win = window as Window & { Capacitor?: { isNative?: boolean; isNativePlatform?: () => boolean } };
+  if (win.Capacitor?.isNativePlatform) {
+    return win.Capacitor.isNativePlatform();
+  }
+  if (win.Capacitor?.isNative) {
+    return true;
+  }
+  return false;
+}
+
 // Check if running as PWA (standalone mode)
 function isPWAMode(): boolean {
+  // If running as Capacitor native app, it's effectively "installed"
+  if (isCapacitorNative()) {
+    return true;
+  }
   // Check display-mode media query
   if (window.matchMedia('(display-mode: standalone)').matches) {
     return true;
@@ -132,6 +149,7 @@ export function usePushNotifications() {
     const isIOS = isIOSDevice();
     const iosVersion = isIOS ? getIOSVersion() : null;
     const isPWA = isPWAMode();
+    const isNativeApp = isCapacitorNative();
     
     let serviceWorkerStatus: IOSDiagnostics['serviceWorkerStatus'] = 'not-supported';
     if ('serviceWorker' in navigator) {
@@ -148,7 +166,14 @@ export function usePushNotifications() {
     let isCompatible = true;
     let incompatibilityReason: string | null = null;
     
-    if (isIOS) {
+    // Native Capacitor apps on iOS need native push notification plugins
+    if (isNativeApp && isIOS) {
+      // Check if Push Manager is available in native context
+      if (!('PushManager' in window) || !('Notification' in window)) {
+        isCompatible = false;
+        incompatibilityReason = 'Para notificações push no app nativo iOS, é necessário configurar o plugin @capacitor/push-notifications. Por enquanto, use o app PWA para receber notificações.';
+      }
+    } else if (isIOS) {
       if (iosVersion && iosVersion < 16.4) {
         isCompatible = false;
         incompatibilityReason = `iOS ${iosVersion} não suporta notificações push. Atualize para iOS 16.4 ou superior.`;
@@ -158,7 +183,7 @@ export function usePushNotifications() {
       }
     }
     
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (!isNativeApp && (!('serviceWorker' in navigator) || !('PushManager' in window))) {
       isCompatible = false;
       incompatibilityReason = 'Seu navegador não suporta notificações push.';
     }
@@ -174,7 +199,7 @@ export function usePushNotifications() {
       notificationPermission,
     };
     
-    console.log('[Push Diagnostics]', diag);
+    console.log('[Push Diagnostics]', diag, { isNativeApp });
     setDiagnostics(diag);
     return diag;
   }, []);

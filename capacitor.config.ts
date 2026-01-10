@@ -26,6 +26,8 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     preferredContentMode: 'mobile',
     scheme: 'Renda Recorrente',
+    backgroundColor: '#10b981',
+    scrollEnabled: true,
   },
   android: {
     backgroundColor: "#10b981",
